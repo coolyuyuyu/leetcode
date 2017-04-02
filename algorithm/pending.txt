@@ -2,3 +2,6 @@
 069-Sqrt(x)
 121-Best Time to Buy and Sell Stock
 122-Best Time to Buy and Sell Stock II
+191-Number of 1 Bits
+198-House Robber
+204-Count Primes
