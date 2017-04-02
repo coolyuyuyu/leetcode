@@ -11,15 +11,15 @@ public:
             }
             visited[i] = true;
             ++groupCount;
-            stack<int> stk;
-            stk.push(i);
-            while (!stk.empty()) {
-                int a = stk.top();
-                stk.pop();
+            queue<int> q;
+            q.push(i);
+            while (!q.empty()) {
+                int a = q.front();
+                q.pop();
                 for (int b = 0; b < count; ++b) {
                     if (visited[b] == false && M[a][b]) {
                         visited[b] = true;
-                        stk.push(b);
+                        q.push(b);
                     }
                 }
             }
