@@ -5,3 +5,5 @@
 191-Number of 1 Bits
 198-House Robber
 204-Count Primes
+234-Palindrome Linked List
+242-Valid Anagram
