@@ -7,3 +7,4 @@
 204-Count Primes
 234-Palindrome Linked List
 242-Valid Anagram
+292-Nim Game
