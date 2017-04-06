@@ -8,3 +8,5 @@
 234-Palindrome Linked List
 242-Valid Anagram
 292-Nim Game
+326-Power of Three
+367-Valid Perfect Square   
