@@ -9,4 +9,5 @@
 242-Valid Anagram
 292-Nim Game
 326-Power of Three
-367-Valid Perfect Square   
+367-Valid Perfect Square
+387-First Unique Character in a String
