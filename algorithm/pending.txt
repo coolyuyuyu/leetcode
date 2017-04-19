@@ -1,6 +1,5 @@
 069-Sqrt(x)
 191-Number of 1 Bits
-204-Count Primes
 292-Nim Game
 326-Power of Three
 367-Valid Perfect Square
