@@ -1,7 +1,5 @@
 069-Sqrt(x)
 191-Number of 1 Bits
-292-Nim Game
-326-Power of Three
 367-Valid Perfect Square
 459-Repeated Substring Pattern
 461-Hamming Distance
