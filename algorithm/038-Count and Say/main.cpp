@@ -25,7 +25,7 @@ public:
             assert(chars.size() == counts.size());
 
             string target;
-            target.reserve(accumulate(counts.begin(), counts.end(), (size_t)0));            
+            target.reserve(accumulate(counts.begin(), counts.end(), (size_t)0));
             for (size_t i = 0; i < chars.size(); ++i) {
                 target.push_back(counts[i] + '0');
                 target.push_back(chars[i]);
