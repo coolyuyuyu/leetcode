@@ -23,18 +23,17 @@ public:
                 if (restartA) {
                     return NULL;
                 }
-                pNodeA = headB;
                 restartA = true;
+                pNodeA = headB;
             }
-            
 
             pNodeB = pNodeB->next;
             if (pNodeB == NULL) {
                 if (restartB) {
                     return NULL;
-                }
-                pNodeB = headA;
+                } 
                 restartB = true;
+                pNodeB = headA;
             }
         }
 
