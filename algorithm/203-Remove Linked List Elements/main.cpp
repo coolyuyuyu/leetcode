@@ -9,18 +9,17 @@
 class Solution {
 public:
     ListNode* removeElements(ListNode* head, int val) {
-        ListNode* pHead = head;
-        ListNode** ppCur = &pHead;
+        ListNode** ppCur = &head;
         while (*ppCur) {
             if ((*ppCur)->val == val) {
-                ListNode* pDup = *ppCur;
-                *ppCur = pDup->next;
-                delete pDup;
+                ListNode* pDel = *ppCur;
+                *ppCur = pDel->next;
+                delete pDel;
             }
             else {
                 ppCur = &((*ppCur)->next);
             }
         }
-        return pHead;
+        return head;
     }
 };
