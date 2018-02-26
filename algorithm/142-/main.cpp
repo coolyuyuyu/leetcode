@@ -8,21 +8,32 @@
  */
 class Solution {
 public:
-    bool hasCycle(ListNode *head) {
+    ListNode *detectCycle(ListNode *head) {
         ListNode* pA = head;
         ListNode* pB = head;
+
         while (pA && pB) {
             pA = pA->next;
-            if (pB->next == NULL) {
-                return false;
+            if(pB->next == NULL) {
+                return NULL;
             }
             pB = pB->next->next;
 
             if (pA == pB) {
-                return true;
+                break;
             }
         }
 
-        return false;
+        if (pB == NULL) {
+            return NULL;
+        }
+
+        pA = head;
+        while (pA != pB) {
+            pA = pA->next;
+            pB = pB->next;
+        }
+
+        return pA;
     }
 };
