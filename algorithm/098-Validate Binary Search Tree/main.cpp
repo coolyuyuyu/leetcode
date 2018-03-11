@@ -10,24 +10,24 @@
 class Solution {
 public:
     bool isValidBST(TreeNode* root) {
-        TreeNode* preNode = NULL;
-
-        stack<TreeNode*> nodes;
-        while (root || !nodes.empty()) {
-            if (root) {
-                nodes.push(root);
-                root = root->left;
+        TreeNode* pre = NULL;
+        TreeNode* cur = root;
+        stack<TreeNode*> stk;
+        while (cur || !stk.empty()) {
+            if (cur) {
+                stk.push(cur);
+                cur = cur->left;
             }
             else {
-                root = nodes.top();
-                nodes.pop();
+                cur = stk.top();
+                stk.pop();
 
-                if (preNode && (preNode && preNode->val >= root->val)) {
+                if (pre && pre->val >= cur->val) {
                     return false;
                 }
+                pre = cur;
 
-                preNode = root;
-                root = root->right;
+                cur = cur->right;
             }
         }
 
