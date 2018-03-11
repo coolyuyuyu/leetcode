@@ -9,32 +9,28 @@
  */
 class Solution {
 public:
-    int longestUnivaluePathHelper(TreeNode* root, int& maxLen) {
+    int longestUnivaluePathHelper(TreeNode* root, int& maxNumOfNodes) {
         if (!root) {
             return 0;
         }
 
-        int lftPartial = longestUnivaluePathHelper(root->left, maxLen);
+        int lftPartial = longestUnivaluePathHelper(root->left, maxNumOfNodes);
         if (lftPartial && root->val != root->left->val) {
             lftPartial = 0;
         }
 
-        int rhtPartial = longestUnivaluePathHelper(root->right, maxLen);
+        int rhtPartial = longestUnivaluePathHelper(root->right, maxNumOfNodes);
         if (rhtPartial && root->val != root->right->val) {
             rhtPartial = 0;
         }
 
-        maxLen = max(maxLen, lftPartial + 1 + rhtPartial);
+        maxNumOfNodes = max(maxNumOfNodes, lftPartial + 1 + rhtPartial);
         return max(lftPartial, rhtPartial) + 1;
     }
 
     int longestUnivaluePath(TreeNode* root) {
-        int maxLen = 0;
-        longestUnivaluePathHelper(root, maxLen);
-        if (maxLen > 0) {
-            --maxLen;
-        }
-
-        return maxLen;
+        int maxNumOfNodes = 0;
+        longestUnivaluePathHelper(root, maxNumOfNodes);
+        return maxNumOfNodes > 0 ? maxNumOfNodes - 1 : 0;
     }
 };
