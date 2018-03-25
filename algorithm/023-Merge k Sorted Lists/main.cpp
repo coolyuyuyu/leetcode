@@ -26,17 +26,14 @@ public:
 
     ListNode* mergeKLists(vector<ListNode*>& lists) {
         if (lists.empty()) {
-            return NULL;
+            return nullptr;
         }
 
-        size_t iteration = ceil(log2(lists.size()));
-        size_t space = 1;
-        while (iteration--) {
+        for (size_t iteration = ceil(log2(lists.size())), space = 1; iteration > 0; --iteration, space *= 2) {
             size_t step = space * 2;
             for (size_t i = 0; i + space < lists.size(); i += step) {
                 lists[i] = mergeTwoLists(lists[i], lists[i + space]);
             }
-            space *= 2;
         }
 
         return lists.front();
