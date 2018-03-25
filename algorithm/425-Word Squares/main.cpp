@@ -54,6 +54,7 @@ public:
                 node = node->childs[index];
                 node->indexes.emplace_back(j);
             }
+            root->indexes.emplace_back(j);
         }
 
         return root;
@@ -64,14 +65,9 @@ public:
             results.emplace_back(result);
         }
         else {
-            string prefix;
-            for (size_t i = 0; i < level; ++i) {
-                prefix.push_back(result[i][level]);
-            }
-
             const TrieNode* node = root;
-            for (size_t i = 0; i < prefix.size(); ++i) {
-                node = node->childs[prefix[i] - 'a'];
+            for (size_t i = 0; i < level; ++i) {
+                node = node->childs[result[i][level] - 'a'];
                 if (!node) {
                     return;
                 }
@@ -94,10 +90,7 @@ public:
 
         vector<string> result(words.front().size());
         vector<vector<string>> results;
-        for (size_t i = 0; i < words.size(); ++i) {
-            result[0] = words[i];
-            wordSquaresTrieDfsHelper(words, root, 1, result, results);
-        }
+        wordSquaresTrieDfsHelper(words, root, 0, result, results);
 
         return results;
     }
