@@ -1,14 +1,13 @@
 class Solution {
 public:
     int rob(vector<int>& nums) {
-        int e = 0; // the maximum number excluding the current one
-        int i = 0; // the maximum number including the current one
-        for (auto num: nums) {
-            int tmp = i;
-            i = e + num;
-            e = max(e, tmp);
+        int cur = 0;
+        int pre = 0;
+        for (size_t index = 0; index < nums.size(); ++index) {
+            int tmpCur = cur;
+            cur = max(pre + nums[index], cur);
+            pre = tmpCur;
         }
-
-        return max(e, i);
+        return cur;
     }
 };
