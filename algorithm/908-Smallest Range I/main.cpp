@@ -2,7 +2,7 @@ class Solution {
 public:
     int smallestRangeI(vector<int>& A, int K) {
         assert(!A.empty());
-        
+
         int maxNum = A.front();
         int minNum = A.front();
         for (size_t i = 1; i < A.size(); ++i) {
