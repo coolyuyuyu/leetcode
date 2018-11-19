@@ -1,38 +1,59 @@
 class Solution {
 public:
-    int networkDelayTime(vector<vector<int>>& travelTimes, int N, int K) {
-        vector<vector<int>> times(N + 1, vector<int>(N + 1, INT_MAX)); {
-            for (size_t i = 1; i <= N; ++i) {
-                times[i][i] = 0;
+    int getUnvisitedClosest(const vector<int>& distances, const vector<bool>& visiteds, int N) {
+        assert(distances.size() == visiteds.size());
+
+        int index = -1;
+        int minDistance = INT_MAX;
+        for (int i = 0; i < N; ++i) {
+            if (visiteds[i]) {
+                continue;
             }
-            for (size_t i = 0; i < travelTimes.size(); ++i) {
-                times[travelTimes[i][0]][travelTimes[i][1]] = travelTimes[i][2];
+            if (distances[i] < minDistance) {
+                index = i;
+                minDistance = distances[i];
             }
         }
 
-        vector<int> arriveTimes(N + 1, INT_MAX);
-        arriveTimes[K] = 0;
+        return index;
+    }
 
-        queue<int> nodes;
-        nodes.push(K);
-        while (!nodes.empty()) {
-            int u = nodes.front();
-            nodes.pop();
+    int networkDelayTime(vector<vector<int>>& times, int N, int K) {
+        --K;
+        vector<vector<int>> weights(N, vector<int>(N, INT_MAX)); {
+            for (int i = 0; i < N; ++i) {
+                weights[i][i] = 0;
+            }
+            for (int i = 0; i < times.size(); ++i) {
+                weights[times[i][0] - 1][times[i][1] - 1] = times[i][2];
+            }
+        }
 
-            for (int v = 1; v <= N; ++v) {
-                if (u == v || times[u][v] == INT_MAX) {
+        vector<int> distances(N, INT_MAX);
+        vector<bool> visiteds(N, false);
+        int maxDistance = 0;
+
+        distances[K] = 0;
+        for (int i = 0; i < N; ++i) {
+            int u = getUnvisitedClosest(distances, visiteds, N);
+            if (u == -1) {
+                return -1;
+            }
+
+            visiteds[u] = true;
+            maxDistance = distances[u];
+            for (int v = 0; v < N; ++v) {
+                if (u == v || weights[u][v] == INT_MAX) {
                     continue;
                 }
 
-                int arriveTime = arriveTimes[u] + times[u][v];
-                if (arriveTime < arriveTimes[v]) {
-                    arriveTimes[v] = arriveTime;
-                    nodes.push(v);
+                int distance = distances[u] + weights[u][v];
+                if (distance < distances[v]) {
+                    distances[v] = distance;
                 }
             }
         }
 
-        int maxArriveTime = *max_element(arriveTimes.begin() + 1, arriveTimes.end());
-        return (maxArriveTime == INT_MAX ? -1 : maxArriveTime);
+        return maxDistance;
     }
 };
