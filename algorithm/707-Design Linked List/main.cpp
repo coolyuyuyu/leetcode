@@ -78,9 +78,6 @@ public:
         else if (index == m_size) {
             addAtTail(val);
         }
-        else {
-            return;
-        }
     }
 
     /** Delete the index-th node in the linked list, if the index is valid. */
