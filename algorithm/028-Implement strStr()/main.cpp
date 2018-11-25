@@ -1,11 +1,35 @@
 class Solution {
 public:
-    vector<size_t> getNexts(const string& pattern) {
+    vector<size_t> getNexts1(const string& pattern) {
         if (pattern.empty()) {
             return {};
         }
-        
+
         vector<size_t> nexts(pattern.size());
+        nexts[0] = 0;
+
+        size_t i = 1, j = 0;
+        while (i < pattern.size()) {
+            if (j == 0 || pattern[i - 1] == pattern[j - 1]) {
+                ++i; ++j;
+                nexts[i - 1] = j;
+            }
+            else {
+                j = nexts[j - 1];
+            }
+        }
+
+        return nexts;
+    }
+
+    vector<size_t> getNexts2(const string& pattern) {
+        if (pattern.empty()) {
+            return {};
+        }
+
+        vector<size_t> nexts(pattern.size());
+        nexts[0] = 0;
+
         size_t i = 1, j = 0;
         while (i < pattern.size()) {
             if (j == 0 || pattern[i - 1] == pattern[j - 1]) {
@@ -21,7 +45,7 @@ public:
                 j = nexts[j - 1];
             }
         }
-        
+
         return nexts;
     }
 
@@ -29,8 +53,8 @@ public:
         if (haystack.size() < needle.size()) {
             return -1;
         }
-        
-        vector<size_t> nexts = getNexts(needle);
+
+        vector<size_t> nexts = getNexts1(needle);
         size_t i = 1, j = 1;
         while (i <= haystack.size() && j <= needle.size()) {
             if (j == 0 || haystack[i - 1] == needle[j - 1]) {
@@ -40,7 +64,7 @@ public:
                 j = nexts[j - 1];
             }
         }
-        
+
         if (needle.size() < j) {
             return i - needle.size() - 1;
         }
