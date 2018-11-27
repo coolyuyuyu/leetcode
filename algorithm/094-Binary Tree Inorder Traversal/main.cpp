@@ -9,9 +9,7 @@
  */
 class Solution {
 public:
-    vector<int> inorderTraversalIter1(TreeNode* root) {
-        vector<int> vals;
-
+    void inorderTraversalIter1(TreeNode* root, vector<int>& vals) {
         TreeNode* cur = root;
         stack<TreeNode*> stk;
         while (cur || !stk.empty()) {
@@ -28,15 +26,11 @@ public:
                 cur = cur->right;
             }
         }
-
-        return vals;
     }
 
-    vector<int> inorderTraversalIter2(TreeNode* root) {
+    void inorderTraversalIter2(TreeNode* root, vector<int>& vals) {
         TreeNode* cur = root;
         TreeNode* pre = NULL;
-
-        vector<int> result;
         while (cur) {
             if (cur->left) {
                 pre = cur->left;
@@ -46,7 +40,7 @@ public:
 
                 if (pre->right) {
                     pre->right = NULL;
-                    result.push_back(cur->val);
+                    vals.push_back(cur->val);
                     cur = cur->right;
                 }
                 else {
@@ -55,12 +49,10 @@ public:
                 }
             }
             else {
-                result.push_back(cur->val);
+                vals.push_back(cur->val);
                 cur = cur->right;
             }
         }
-
-        return result;
     }
 
     void inorderTraversalRecv(TreeNode* root, vector<int>& vals) {
@@ -74,12 +66,12 @@ public:
     }
 
     vector<int> inorderTraversal(TreeNode* root) {
-        return inorderTraversalIter1(root);
+        vector<int> vals;
 
-        //return inorderTraversalIter2(root);
-
-        //vector<int> vals;
+        inorderTraversalIter1(root, vals);
+        //inorderTraversalIter2(root, vals);
         //inorderTraversalRecv(root, vals);
-        //return vals;
+
+        return vals;
     }
 };
