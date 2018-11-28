@@ -19,6 +19,7 @@ public:
                 lo = mid + 1;
             }
             else {
+                assert(A[mid] != A[mid + 1]);
                 hi = mid;
             }
         }
