@@ -21,6 +21,9 @@ public:
                 int index1 = q.front();
                 q.pop();
 
+                if (visited[index1]) {
+                    continue;
+                }
                 visited[index1] = true;
 
                 auto range = adjLists.equal_range(index1);
@@ -61,6 +64,9 @@ public:
                 int index1 = q.front();
                 q.pop();
 
+                if (visited[index1]) {
+                    continue;
+                }
                 visited[index1] = true;
 
                 for (int index2 : adjLists[index1]) {
