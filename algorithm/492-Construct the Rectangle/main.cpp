@@ -1,12 +1,10 @@
 class Solution {
 public:
     vector<int> constructRectangle(int area) {
-        if (area == 0) {
-            return {};
-        }
-        
+        assert(1 <= area);
+
         int width = sqrt(area);
-        while (area % width) {
+        while (area % width != 0) {
             --width;
         }
 
