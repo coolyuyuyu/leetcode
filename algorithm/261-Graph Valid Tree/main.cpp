@@ -1,31 +1,34 @@
 class Solution {
 public:
+    void makeSet(vector<int>& parents) {
+        for (size_t i = 0; i < parents.size(); ++i) {
+            parents[i] = i;
+        }
+    }
+
+    int find(vector<int>& parents, int i) {
+        if (parents[i] != i) {
+            parents[i] = find(parents, parents[i]);
+        }
+
+        return parents[i];
+    }
+
     bool validTree(int n, vector<pair<int, int>>& edges) {
-        if (n != edges.size() + 1) {
+        if (edges.size() + 1 != n) {
             return false;
         }
 
         vector<int> parents(n);
-        for (int i = 0; i < n; ++i) {
-            parents[i] = i;
-        }
-
+        makeSet(parents);
         for (const pair<int, int>& edge : edges) {
-            int a = edge.first;
-            while (parents[a] != a) {
-                a = parents[a];
-            }
-
-            int b = edge.second;
-            while (parents[b] != b) {
-                b = parents[b];
-            }
-
-            if (a == b) {
+            int rootA = find(parents, edge.first);
+            int rootB = find(parents, edge.second);
+            if (rootA == rootB) {
                 return false;
             }
 
-            parents[a] = b;
+            parents[rootA] = rootB;
         }
 
         return true;
