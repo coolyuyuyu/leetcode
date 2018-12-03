@@ -1,34 +1,34 @@
 class Solution {
 public:
-    vector<int> findRedundantConnection(vector<vector<int>>& edges) {
-        vector<int> parents(edges.size());
-        for (size_t i = 0; i < parents.size(); ++i) {
+    void makeSet(vector<int>& parents) {
+        for (size_t i = 1; i < parents.size(); ++i) {
             parents[i] = i;
         }
+    }
 
-        for (size_t i = 0; i < edges.size(); ++i) {
-            const vector<int>& edge = edges[i];
+    int find(vector<int>& parents, int i) {
+        if (parents[i] != i) {
+            parents[i] = find(parents, parents[i]);
+        }
 
-            int a = edge[0] - 1;
-            int parentA = a;
-            while (parentA != parents[parentA]) {
-                parentA = parents[parentA];
-            }
-            int b = edge[1] - 1;
-            int parentB = b;
-            while (parentB != parents[parentB]) {
-                parentB = parents[parentB];
+        return parents[i];
+    }
+
+    vector<int> findRedundantConnection(vector<vector<int>>& edges) {
+        vector<int> parents(edges.size() + 1);
+        makeSet(parents);
+
+        for (auto edge : edges) {
+            int rootA = find(parents, edge[0]);
+            int rootB = find(parents, edge[1]);
+            if (rootA == rootB) {
+                return edge;
             }
 
-            if (parentA == parentB) {
-                return vector<int>{a+1, b+1};
-            }
-            else {
-                parents[parentA] = parentB;
-            }
+            parents[rootA] = rootB;
         }
 
         assert(false);
-        return vector<int>();
+        return {};
     }
 };
