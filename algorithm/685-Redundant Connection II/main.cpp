@@ -1,49 +1,57 @@
 class Solution {
 public:
-    vector<int> findRedundantDirectedConnection(vector<vector<int>>& edges) {
-        static vector<int> EMPTY_EDGE;
-
-        vector<int> parents(edges.size() + 1, 0);
-        vector<int> chosenEdge;
-        vector<int> unchosenEdge;
-        for (size_t i = 0; i < edges.size(); ++i) {
-            int parent = edges[i][0];
-            int child = edges[i][1];
-            if (parents[child] == 0) {
-                parents[child] = parent;
-            }
-            else {
-                chosenEdge = vector<int>{parents[child], child};
-                unchosenEdge = vector<int>{parent, child};
-            }
-        }
-
+    void makeSet(vector<int>& parents) {
         for (size_t i = 1; i < parents.size(); ++i) {
             parents[i] = i;
         }
-        for (size_t i = 0; i < edges.size(); ++i) {
-            if (edges[i] == unchosenEdge) {
+    }
+
+    int find(vector<int>& parents, int i) {
+        if (parents[i] != i) {
+            parents[i] = find(parents, parents[i]);
+        }
+
+        return parents[i];
+    }
+
+    vector<int> findRedundantDirectedConnection(vector<vector<int>>& edges) {
+        vector<int> parents(edges.size() + 1);
+        makeSet(parents);
+
+        // identify two parents point to the same child.
+        static vector<int> EMPTY_EDGE = {0, 0};
+        vector<int> chosenEdge = EMPTY_EDGE, removedEdge = EMPTY_EDGE;
+        for (auto edge : edges) {
+            int parent = edge[0], child = edge[1];
+            if (parents[child] == child) {
+                parents[child] = parent;
+            }
+            else {
+                removedEdge = edge;
+                chosenEdge = {parents[child], child};
+            }
+        }
+
+        makeSet(parents);
+        for (auto edge : edges) {
+            if (edge == removedEdge) {
                 continue;
             }
 
-            int parent = edges[i][0];
-            int child = edges[i][1];
-            int rootOfParent = parent;
-            while (parents[rootOfParent] != rootOfParent) {
-                rootOfParent = parents[rootOfParent];
-            }
-            if (rootOfParent == child) {
+            int parent = edge[0], child = edge[1];
+            int rootParent = find(parents, parent);
+            if (rootParent == child) {
                 if (chosenEdge == EMPTY_EDGE) {
-                    return edges[i];
+                    return edge;
                 }
                 else {
                     return chosenEdge;
                 }
             }
 
-            parents[child] = parent;
+            parents[child] = rootParent;
         }
 
-        return unchosenEdge;
+        return removedEdge;
     }
 };
