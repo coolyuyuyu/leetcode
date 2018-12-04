@@ -69,7 +69,7 @@ public:
         }
     };
 
-    int swimInWater(vector<vector<int>>& grid) {
+    int swimInWaterDisjointSet(vector<vector<int>>& grid) {
         priority_queue<Elem, vector<Elem>, ElemComp> pq;
         size_t n = grid.size();
         for (int r = 0; r < n; ++r) {
@@ -109,5 +109,54 @@ public:
         }
 
         return t;
+    }
+
+    int swimInWaterTraversal(vector<vector<int>>& grid) {
+        size_t n = grid.size();
+        vector<vector<bool>> seen(n, vector<bool>(n, false));
+
+        int t = 0;
+        priority_queue<Elem, vector<Elem>, ElemComp> pq;
+        pq.emplace(grid[0][0], 0, 0);
+        while (!pq.empty() && !seen[n - 1][n - 1]) {
+            Elem elem = pq.top();
+            pq.pop();
+
+            int r = elem.row, c = elem.col;
+            if (seen[r][c]) {
+                continue;
+            }
+
+            seen[r][c] = true;
+            t = max(t, elem.time);
+
+            //ltf
+            if (0 < c) {
+                pq.emplace(grid[r][c - 1], r, c - 1);
+            }
+
+            //top
+            if (0 < r) {
+                pq.emplace(grid[r - 1][c], r - 1, c);
+            }
+
+            //rht
+            if (c + 1 < n) {
+                pq.emplace(grid[r][c + 1], r, c + 1);
+            }
+
+            //btm
+            if (r + 1 < n) {
+                pq.emplace(grid[r + 1][c], r + 1, c);
+            }
+        }
+
+        return t;
+    }
+
+    int swimInWater(vector<vector<int>>& grid) {
+        //return swimInWaterDisjointSet(grid);
+
+        return swimInWaterTraversal(grid);
     }
 };
