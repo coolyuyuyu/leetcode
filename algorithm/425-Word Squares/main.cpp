@@ -33,70 +33,71 @@ public:
         return results;
     }
 
-    struct TrieNode {
+    class TrieNode {
+    public:
         TrieNode()
-            : childs(26, NULL) {
+            : childs(26, nullptr) {
         }
+
         vector<TrieNode*> childs;
         vector<size_t> indexes;
     };
 
     TrieNode* buildTrie(const vector<string>& words) {
-        TrieNode* root = new TrieNode();
-        for (size_t j = 0; j < words.size(); ++j) {
-            TrieNode* node = root;
-            const string& word = words[j];
-            for (size_t i = 0; i < word.size(); ++i) {
-                size_t index = word[i] - 'a';
-                if (node->childs[index] == NULL) {
-                    node->childs[index] = new TrieNode();
-                }
-                node = node->childs[index];
-                node->indexes.emplace_back(j);
-            }
-            root->indexes.emplace_back(j);
+        TrieNode* pRoot = new TrieNode();
+        for (size_t i = 0; i < words.size(); ++i) {
+            insertTrie(pRoot, words[i], i);
         }
 
-        return root;
+        return pRoot;
     }
 
-    void wordSquaresTrieDfsHelper(const vector<string>& words, const TrieNode* root, size_t level, vector<string>& result, vector<vector<string>>& results) {
-        if (level >= result.size()) {
-            results.emplace_back(result);
-        }
-        else {
-            const TrieNode* node = root;
-            for (size_t i = 0; i < level; ++i) {
-                node = node->childs[result[i][level] - 'a'];
-                if (!node) {
-                    return;
-                }
-            }
+    void insertTrie(TrieNode* pRoot, const string& word, size_t index) {
+        pRoot->indexes.push_back(index);
 
-            const vector<size_t>& indexes = node->indexes;
-            for (size_t i = 0; i < indexes.size(); ++i) {
-                result[level] = words[indexes[i]];
-                wordSquaresTrieDfsHelper(words, root, level + 1, result, results);
+        TrieNode** ppNode = &pRoot;
+        for (char c : word) {
+            ppNode = &((*ppNode)->childs[c - 'a']);
+            if (*ppNode == nullptr) {
+                *ppNode = new TrieNode();
             }
+            (*ppNode)->indexes.push_back(index);
+        }
+    }
+
+    void wordSquaresTrieDfsHelper(vector<string>& words, size_t level, TrieNode* pRoot, vector<string>& result, vector<vector<string>>& results) {
+        if (result.size() <= level) {
+            results.push_back(result);
+            return;
+        }
+
+        TrieNode* pNode = pRoot;
+        for (size_t i = 0; i < level; ++i) {
+            pNode = pNode->childs[result[i][level] - 'a'];
+            if (!pNode) {
+                return;
+            }
+        }
+
+        for (size_t index : pNode->indexes) {
+            result[level] = words[index];
+            wordSquaresTrieDfsHelper(words, level + 1, pRoot, result, results);
         }
     }
 
     vector<vector<string>> wordSquaresTrieDfs(vector<string>& words) {
-        if (words.empty()) {
-            return{};
-        }
+        size_t len = words.empty() ? 0 : words.front().size();
 
-        TrieNode* root = buildTrie(words);
-
-        vector<string> result(words.front().size());
+        TrieNode* pRoot = buildTrie(words);
+        vector<string> result(len);
         vector<vector<string>> results;
-        wordSquaresTrieDfsHelper(words, root, 0, result, results);
-
+        wordSquaresTrieDfsHelper(words, 0, pRoot, result, results);
         return results;
     }
 
     vector<vector<string>> wordSquares(vector<string>& words) {
+        //return wordSquaresBruteDfs(words);
+
         return wordSquaresTrieDfs(words);
     }
-
 };
