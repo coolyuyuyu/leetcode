@@ -1,17 +1,21 @@
 class Solution {
 public:
     int searchInsert(vector<int>& nums, int target) {
-        size_t lft = 0, rht = nums.size();
-        while (lft < rht) {
-            size_t mid = lft + (rht - lft) / 2;
+        size_t lo = 0;
+        size_t hi = nums.size();
+
+        while (lo < hi) {
+            size_t mid = lo + (hi - lo) / 2;
             if (target <= nums[mid]) {
-                rht = mid;
+                hi = mid;
             }
             else {
-                lft = mid + 1;
+                assert(nums[mid] < target);
+                lo = mid + 1;
             }
         }
 
-        return rht;
+        assert(lo == hi);
+        return hi;
     }
 };
