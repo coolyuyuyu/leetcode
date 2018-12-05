@@ -1,28 +1,29 @@
 class Solution {
 public:
-    int minCostClimbingStairs_v0(vector<int>& cost) {
-        vector<int> dp(cost.size() + 1);
-        dp[0] = 0;
-        dp[1] = 0;
-        for (size_t i = 2; i <= cost.size(); ++i) {
-            dp[i] = min(dp[i - 2] + cost[i - 2], dp[i - 1] + cost[i - 1]);
+    int minCostClimbingStairs1(const vector<int>& costs) {
+        size_t n = costs.size();
+        vector<int> dp(n + 1);
+        dp[0] = dp[1] = 0;
+        for (size_t i = 2; i <= n ; ++i) {
+            dp[i] = min(dp[i - 2] + costs[i - 2], dp[i - 1] + costs[i - 1]);
         }
-
-        return dp[cost.size()];
+        return dp[n];
     }
 
-    int minCostClimbingStairs_v1(vector<int>& cost) {
-        int x = 0, y = 0, z = 0;
-        for (size_t i = 2; i <= cost.size(); ++i) {
-            z = min(x + cost[i - 2], y + cost[i - 1]);
-            x = y;
-            y = z;
+    int minCostClimbingStairs2(const vector<int>& costs) {
+        int x = 0, y = 0;
+        for (size_t i = 2; i <= costs.size() ; ++i) {
+            int tmp = y;
+            y = min(x + costs[i - 2], y + costs[i - 1]);
+            x = tmp;
         }
 
-        return z;
+        return y;
     }
 
-    int minCostClimbingStairs(vector<int>& cost) {        
-        return minCostClimbingStairs_v1(cost);
+    int minCostClimbingStairs(vector<int>& costs) {
+        //return minCostClimbingStairs1(costs);
+
+        return minCostClimbingStairs2(costs);
     }
 };
