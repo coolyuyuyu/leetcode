@@ -3,9 +3,15 @@ public:
     int maxProfit(vector<int>& prices) {
         int minPrice = INT_MAX;
         int maxProfit = 0;
-        for (auto price: prices) {
-            minPrice = min(minPrice, price);
-            maxProfit = max(maxProfit, price - minPrice);
+        for (int price : prices) {
+            if (price < minPrice) {
+                minPrice = price;
+            }
+
+            int profit = price - minPrice;
+            if (profit > maxProfit) {
+                maxProfit = profit;
+            }
         }
 
         return maxProfit;
