@@ -1,87 +1,206 @@
 class Solution {
 public:
-    void mysort(vector<int>& nums, size_t first, size_t last)
-    {
-        if (first >= last) {
+
+    void sort(vector<int>& nums, size_t first, size_t last) {
+        assert(first <= last);
+
+        size_t len = last - first;
+        if (len < 2) {
             return;
         }
 
-        swap(nums[first], nums[first + (last - first) / 2]);
-        int pivot = nums[first];
+        --last;
+        if (nums[last] < nums[first]) {
+            swap(nums[last], nums[first]);
+        }
+        if (len == 2) {
+            return;
+        }
 
-        size_t lo = first;
-        size_t hi = last;
+        size_t pivot = first + len / 2;
+        if (nums[pivot] < nums[first]) {
+            swap(nums[pivot], nums[first]);
+        }
+        if (nums[last] < nums[pivot]) {
+            swap(nums[last], nums[pivot]);
+        }
+        if (len == 3) {
+            return;
+        }
+
+        swap(nums[pivot], nums[last]);
+
+        size_t lo = first, hi = last - 1;
         while (lo < hi) {
-            do {
+            while (lo < hi && nums[lo] < nums[last]) {
                 ++lo;
-            } while (lo + 1 < last && nums[lo] < pivot);
-
-            do {
+            }
+            while (lo < hi && nums[last] < nums[hi]) {
                 --hi;
-            } while (first < hi && pivot < nums[hi]);
+            }
 
             if (lo < hi) {
-                swap(nums[lo], nums[hi]);
+                swap(nums[lo++], nums[hi--]);
             }
         }
-        swap(nums[first], nums[hi]);
+        if (nums[lo] < nums[last]) {
+            ++lo;
+        }
 
-        mysort(nums, first, hi);
-        mysort(nums, hi + 1, last);
+        swap(nums[lo], nums[last]);
+
+        sort(nums, first, lo);
+        sort(nums, lo + 1, last + 1);
     }
 
-    int findKthSmallestBySort(vector<int>& nums, int k) {
-        mysort(nums, 0, nums.size());
+    int findKthSmallestBySort(vector<int>& nums, size_t k) {
+        sort(nums, 0, nums.size());
         return nums[k];
     }
 
-    int findKthSmallestByPartition(vector<int>& nums, int k) {
-        size_t first = 0;
-        size_t last = nums.size();
+    int findKthSmallestByPartitionRecv(vector<int>& nums, size_t first, size_t last, size_t k) {
+        assert(first <= last);
 
+        size_t len = last - first;
+        assert(k < len);
+
+        if (len < 2) {
+            return nums[first + k];
+        }
+
+        --last;
+        if (nums[last] < nums[first]) {
+            swap(nums[last], nums[first]);
+        }
+        if (len == 2) {
+            return nums[first + k];
+        }
+
+        size_t pivot = first + len / 2;
+        if (nums[pivot] < nums[first]) {
+            swap(nums[pivot], nums[first]);
+        }
+        if (nums[last] < nums[pivot]) {
+            swap(nums[last], nums[pivot]);
+        }
+        if (len == 3) {
+            return nums[first + k];
+        }
+
+        swap(nums[pivot], nums[last]);
+
+        size_t lo = first, hi = last - 1;
+        while (lo < hi) {
+            while (lo < hi && nums[lo] < nums[last]) {
+                ++lo;
+            }
+            while (lo < hi && nums[last] < nums[hi]) {
+                --hi;
+            }
+
+            if (lo < hi) {
+                swap(nums[lo++], nums[hi--]);
+            }
+        }
+        if (nums[lo] < nums[last]) {
+            ++lo;
+        }
+
+        swap(nums[lo], nums[last]);
+
+        size_t lftLen = lo - first;
+        if (k == lftLen) {
+            return nums[lo];
+        }
+        else if (k < lftLen) {
+            return findKthSmallestByPartitionRecv(nums, first, lo, k);
+        }
+        else {
+            return findKthSmallestByPartitionRecv(nums, lo + 1, last + 1, k - lftLen - 1);
+        }
+    }
+
+    int findKthSmallestByPartitionIter(vector<int>& nums, size_t k) {
+        size_t first = 0, last = nums.size();
         while (first < last) {
-            swap(nums[first], nums[first + (last - first) / 2]);
-            int pivot = nums[first];
+            size_t len = last - first;
+            assert(k < len);
 
-            size_t lo = first;
-            size_t hi = last;
+            if (len < 2) {
+                return nums[first + k];
+            }
+
+            --last;
+            if (nums[last] < nums[first]) {
+                swap(nums[last], nums[first]);
+            }
+            if (len == 2) {
+                return nums[first + k];
+            }
+
+            size_t pivot = first + len / 2;
+            if (nums[pivot] < nums[first]) {
+                swap(nums[pivot], nums[first]);
+            }
+            if (nums[last] < nums[pivot]) {
+                swap(nums[last], nums[pivot]);
+            }
+            if (len == 3) {
+                return nums[first + k];
+            }
+
+            swap(nums[pivot], nums[last]);
+
+            size_t lo = first, hi = last - 1;
             while (lo < hi) {
-                do {
+                while (lo < hi && nums[lo] < nums[last]) {
                     ++lo;
-                } while (lo + 1 < last && nums[lo] < pivot);
-
-                do {
+                }
+                while (lo < hi && nums[last] < nums[hi]) {
                     --hi;
-                } while (first < hi && pivot < nums[hi]);
+                }
 
                 if (lo < hi) {
-                    swap(nums[lo], nums[hi]);
+                    swap(nums[lo++], nums[hi--]);
                 }
             }
-            swap(nums[first], nums[hi]);
-
-            size_t lftLen = hi - first;
-            if (k < lftLen) {
-                last = hi;
+            if (nums[lo] < nums[last]) {
+                ++lo;
             }
-            else if (k == lftLen) {
-                return nums[hi];
+
+            swap(nums[lo], nums[last]);
+
+            size_t lftLen = lo - first;
+            if (k == lftLen) {
+                return nums[lo];
+            }
+            else if (k < lftLen) {
+                last = lo;
             }
             else {
-                first = hi + 1;
+                first = lo + 1;
+                ++last;
                 k -= (lftLen + 1);
             }
         }
 
-        return -1;
+        assert(false);
     }
 
-    int findKthSmallest(vector<int>& nums, int k) {
-        return findKthSmallestBySort(nums, k);
-        //return findKthSmallestByPartition(nums, k);
+    int findKthSmallest(vector<int>& nums, size_t k) {
+        //Time: T(n) = O(nlogn)
+        //return findKthSmallestBySort(nums, k);
+
+        //Recursive Partition
+        //Time: T(n) = O(n) for average case, O(n^2) for worst case
+        //return findKthSmallestByPartitionRecv(nums, 0, nums.size(), k);
+
+        //Iterative Partition
+        //Time: T(n) = O(n) for average case, O(n^2) for worst case
+        return findKthSmallestByPartitionIter(nums, k);
     }
 
-    int findKthLargest(vector<int>& nums, int k) {
+    int findKthLargest(vector<int>& nums, size_t k) {
         return findKthSmallest(nums, nums.size() - k);
     }
 };
