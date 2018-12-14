@@ -13,20 +13,16 @@ public:
     }
 
     int sum(size_t i, size_t j) const {
-        int ans = m_sums[j];
-        if (0 < i) {
-            ans -= m_sums[i - 1];
-        }
-        return ans;
+        return m_sums[j] - (0 < i ? m_sums[i - 1] : 0);
     }
 
 private:
     vector<int> m_sums;
 };
 
-class RangeSumSegmentTreeByArray : public RangeSumStrategy {
+class RangeSumSegmentTreeByHeap : public RangeSumStrategy {
 public:
-    RangeSumSegmentTreeByArray(const vector<int>& nums)
+    RangeSumSegmentTreeByHeap(const vector<int>& nums)
         : m_size(nums.size()) {
         if (0 < m_size) {
             build(0, m_size - 1, 0, nums);
@@ -169,14 +165,37 @@ private:
 
 class RangeSumBinaryIndexTree : public RangeSumStrategy {
 public:
-    RangeSumBinaryIndexTree(const vector<int>& nums) {
+    RangeSumBinaryIndexTree(const vector<int>& nums)
+        : m_sums(nums.size() + 1){
+        for (size_t i = 1; i < m_sums.size(); ++i) {
+            m_sums[i] = nums[i - 1];
+            for (size_t j = i - lowbit(i) + 1; j < i; ++j) {
+                m_sums[i] += nums[j - 1];
+            }
+        }
+    }
+
+    size_t lowbit(size_t x) const {
+        return x & ~(x - 1);
+    }
+
+    int sum(size_t i) const {
+        ++i;
+
+        int ans = 0;
+        while (i != 0) {
+            ans += m_sums[i];
+            i -= lowbit(i);
+        }
+        return ans;
     }
 
     int sum(size_t i, size_t j) const {
-        return 0;
+        return sum(j) - (0 < i ? sum(i - 1) : 0);
     }
 
 private:
+    vector<int> m_sums;
 };
 
 class NumArray {
@@ -184,7 +203,7 @@ public:
     NumArray(const vector<int>& nums) {
         //m_strategy = new RangeSumPrefixSum(nums);
 
-        //m_strategy = new RangeSumSegmentTreeByArray(nums);
+        //m_strategy = new RangeSumSegmentTreeByHeap(nums);
 
         //m_strategy = new RangeSumSegmentTreeByTree(nums);
 
