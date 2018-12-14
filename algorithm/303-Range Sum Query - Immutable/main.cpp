@@ -175,10 +175,6 @@ public:
         }
     }
 
-    size_t lowbit(size_t x) const {
-        return x & ~(x - 1);
-    }
-
     int sum(size_t i) const {
         ++i;
 
@@ -195,6 +191,10 @@ public:
     }
 
 private:
+    size_t lowbit(size_t x) const {
+        return x & ~(x - 1);
+    }
+
     vector<int> m_sums;
 };
 
