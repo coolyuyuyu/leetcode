@@ -314,51 +314,46 @@ private:
 class RegionSum2DSegmentTreeByTree : public RegionSumStrategy {
 public:
     RegionSum2DSegmentTreeByTree(const vector<vector<int>>& matrix)
-        : m_roots(matrix.size(), nullptr) {
-        size_t size = matrix.empty() ? 0 : matrix.front().size();
-        if (0 < size) {
-            for (size_t i = 0; i < matrix.size(); ++i) {
-                m_roots[i] = build(0, size - 1, matrix[i]);
-            }
-        }
+        : m_root(matrix.empty() ? nullptr : (matrix.front().empty() ? nullptr : buildRow(0, 0, matrix.size() - 1, matrix.front().size() - 1, matrix))) {
     }
 
     ~RegionSum2DSegmentTreeByTree() {
-        for (TreeNode* node : m_roots) {
-            stack<TreeNode*> stk;
-            while (node || stk.empty()) {
-                if (node) {
-                    stk.push(node);
-                    node = node->lft;
-                }
-                else {
-                    node = stk.top();
-                    stk.pop();
+        queue<TreeNode*> q;
+        if (m_root) {
+            q.push(m_root);
+        }
+        while (!q.empty()) {
+            TreeNode* node = q.front();
+            q.pop();
 
-                    TreeNode* rht = node->rht;
-                    delete node;
-
-                    node = rht;
-                }
+            if (node->rowLft) {
+                q.push(node->rowLft);
             }
+            if (node->rowRht) {
+                q.push(node->rowRht);
+            }
+            if (node->colLft) {
+                q.push(node->colLft);
+            }
+            if (node->colRht) {
+                q.push(node->colRht);
+            }
+
+            delete node;
         }
     }
 
-    int sum(size_t row1, size_t col1, size_t row2, size_t col2) const {
-        int ans = 0;
-        for (size_t row = row1; row <= row2; ++ row) {
-            ans += query(m_roots[row], col1 , col2);
-        }
-        return ans;
+    int sum(size_t rowLo, size_t colLo, size_t rowHi, size_t colHi) const {
+        return queryRow(m_root, rowLo, colLo, rowHi, colHi);
     }
 
 private:
     class TreeNode {
     public:
-        TreeNode(size_t rl, size_t rh, size_t cl, size_t ch)
+        TreeNode(size_t rl, size_t cl, size_t rh, size_t ch)
             : rowLo(rl)
-            , rowHi(rh)
             , colLo(cl)
+            , rowHi(rh)
             , colHi(ch)
             , sum(0)
             , rowLft(nullptr)
@@ -367,7 +362,7 @@ private:
             , colRht(nullptr) {
         }
 
-        size_t rowLo, rowHi, colLo, colHi;
+        size_t rowLo, colLo, rowHi, colHi;
         int sum;
 
         TreeNode* rowLft;
@@ -376,35 +371,81 @@ private:
         TreeNode* colRht;
     };
 
-    TreeNode* build(size_t rowLo, size_t rowHi, size_t colLo, size_t colHi, const vector<int>& nums) {
-        assert(lo <= hi);
+    TreeNode* buildRow(size_t rowLo, size_t colLo, size_t rowHi, size_t colHi, const vector<vector<int>>& matrix) {
+        assert(rowLo <= rowHi && colLo <= colHi);
 
-        TreeNode* parent = new TreeNode(lo, hi);
-        if (lo == hi) {
-            parent->sum = nums[lo];
+        TreeNode* parent = new TreeNode(rowLo, colLo, rowHi, colHi);
+        if (rowLo < rowHi) {
+            size_t rowMid = rowLo + (rowHi - rowLo) / 2;
+            parent->rowLft = buildRow(rowLo, colLo, rowMid, colHi, matrix);
+            parent->rowRht = buildRow(rowMid + 1, colLo, rowHi, colHi, matrix);
+            parent->sum = parent->rowLft->sum + parent->rowRht->sum;
+
+            if (colLo < colHi) {
+                size_t colMid = colLo + (colHi - colLo) / 2;
+                parent->colLft = buildCol(rowLo, colLo, rowHi, colMid, matrix);
+                parent->colRht = buildCol(rowLo, colMid + 1, rowHi, colHi, matrix);
+            }
         }
         else {
-            size_t mid = lo + (hi - lo) / 2;
-            TreeNode* lft = build(lo, mid, nums);
-            TreeNode* rht = build(mid + 1, hi, nums);
-            parent->sum = lft->sum + rht->sum;
-            parent->lft = lft;
-            parent->rht = rht;
+            if (colLo < colHi) {
+                size_t colMid = colLo + (colHi - colLo) / 2;
+                parent->colLft = buildCol(rowLo, colLo, rowHi, colMid, matrix);
+                parent->colRht = buildCol(rowLo, colMid + 1, rowHi, colHi, matrix);
+                parent->sum = parent->colLft->sum + parent->colRht->sum;
+            }
+            else {
+                for (size_t row = rowLo; row <= rowHi; ++row) {
+                    parent->sum += matrix[row][colLo];
+                }
+            }
         }
 
         return parent;
     }
 
-    int query(TreeNode* parent, size_t i, size_t j) const {
-        if (!parent || j < parent->lo || parent->hi < i) {
+    TreeNode* buildCol(size_t rowLo, size_t colLo, size_t rowHi, size_t colHi, const vector<vector<int>>& matrix) {
+        assert(rowLo <= rowHi && colLo <= colHi);
+
+        TreeNode* parent = new TreeNode(rowLo, colLo, rowHi, colHi);
+        if (colLo < colHi) {
+            size_t colMid = colLo + (colHi - colLo) / 2;
+            parent->colLft = buildCol(rowLo, colLo, rowHi, colMid, matrix);;
+            parent->colRht = buildCol(rowLo, colMid + 1, rowHi, colHi, matrix);;
+            parent->sum = parent->colLft->sum + parent->colRht->sum;
+        }
+        else {
+            for (size_t row = rowLo; row <= rowHi; ++row) {
+                parent->sum += matrix[row][colLo];
+            }
+        }
+
+        return parent;
+    }
+
+    int queryRow(TreeNode* parent, size_t rowLo, size_t colLo, size_t rowHi, size_t colHi) const {
+        if (!parent || rowHi < parent->rowLo || parent->rowHi < rowLo) {
             return 0;
         }
 
-        if (i <= parent->lo && parent->hi <= j) {
+        if (rowLo <= parent->rowLo && parent->rowHi <= rowHi) {
+            return queryCol(parent, rowLo, colLo, rowHi, colHi);
+        }
+        else {
+            return queryRow(parent->rowLft, rowLo, colLo, rowHi, colHi) + queryRow(parent->rowRht, rowLo, colLo, rowHi, colHi);
+        }
+    }
+
+    int queryCol(TreeNode* parent, size_t rowLo, size_t colLo, size_t rowHi, size_t colHi) const {
+        if (!parent || colHi < parent->colLo || parent->colHi < colLo) {
+            return 0;
+        }
+
+        if (colLo <= parent->colLo && parent->colHi <= colHi) {
             return parent->sum;
         }
         else {
-            return query(parent->lft, i , j) + query(parent->rht, i , j);
+            return queryCol(parent->colLft, rowLo, colLo, rowHi, colHi) + queryRow(parent->colRht, rowLo, colLo, rowHi, colHi);
         }
     }
 
@@ -518,13 +559,13 @@ class NumMatrix {
 public:
     NumMatrix(const vector<vector<int>>& matrix) {
         //m_strategy = new RegionSumMultiple1DPrefixSum(matrix);
-        //m_strategy = new RegionSum2DPrefixSum(matrix);
+        m_strategy = new RegionSum2DPrefixSum(matrix);
 
         //m_strategy = new RangeSumMultiple1DSegmentTreeByHeap(matrix);
         //m_strategy = new RangeSum2DSegmentTreeByHeap(matrix);
 
         //m_strategy = new RegionSumMultiple1DSegmentTreeByTree(matrix);
-        m_strategy = new RegionSum2DSegmentTreeByTree(matrix);
+        //m_strategy = new RegionSum2DSegmentTreeByTree(matrix);
 
         //m_strategy = new RegionSumMultiple1DBinaryIndexTree(matrix);
         //m_strategy = new RegionSum2DBinaryIndexTree(matrix);
