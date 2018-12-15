@@ -34,6 +34,14 @@ public:
     }
 
 private:
+    inline size_t lftChildIndex(size_t parent) const {
+        return parent * 2 + 1;
+    }
+
+    inline size_t rhtChildIndex(size_t parent) const {
+        return parent * 2 + 2;
+    }
+
     void build(size_t lo, size_t hi, size_t parent, const vector<int>& nums) {
         assert(lo <= hi);
 
@@ -46,7 +54,7 @@ private:
         }
 
         size_t mid = lo + (hi - lo) / 2;
-        size_t lftChild = parent * 2 + 1, rhtChild = parent * 2 + 2;
+        size_t lftChild = lftChildIndex(parent), rhtChild = rhtChildIndex(parent);
         build(lo, mid, lftChild, nums);
         build(mid + 1, hi, rhtChild, nums);
         m_sums[parent] = m_sums[lftChild] + m_sums[rhtChild];
@@ -55,19 +63,17 @@ private:
     int query(size_t lo, size_t hi, size_t parent, size_t i, size_t j) const {
         assert(lo <= hi);
 
+        if (j < lo || hi < i) {
+            return 0;
+        }
+
         if (i <= lo && hi <= j) {
             return m_sums[parent];
         }
-
-        int sum = 0;
-        size_t mid = lo + (hi - lo) / 2;
-        if (i <= mid) {
-            sum += query(lo, mid, parent * 2 + 1, i , j);
+        else {
+            size_t mid = lo + (hi - lo) / 2;
+            return query(lo, mid, lftChildIndex(parent), i , j) + query(mid + 1, hi, rhtChildIndex(parent), i , j);
         }
-        if (mid < j) {
-            sum += query(mid + 1, hi, parent * 2 + 2, i , j);
-        }
-        return sum;
     }
 
     size_t m_size;
@@ -143,21 +149,16 @@ private:
     }
 
     int query(TreeNode* parent, size_t i, size_t j) const {
-        int sum = 0;
-        if (i <= parent->lo && parent->hi <= j) {
-            sum += parent->sum;
-        }
-        else {
-            size_t mid = parent->lo + (parent->hi - parent->lo) / 2;
-            if (i <= mid) {
-                sum += query(parent->lft, i , j);
-            }
-            if (mid < j) {
-                sum += query(parent->rht, i , j);
-            }
+        if (!parent || j < parent->lo || parent->hi < i) {
+            return 0;
         }
 
-        return sum;
+        if (i <= parent->lo && parent->hi <= j) {
+            return parent->sum;
+        }
+        else {
+            return query(parent->lft, i , j) + query(parent->rht, i , j);
+        }
     }
 
     TreeNode* m_root;
@@ -166,7 +167,7 @@ private:
 class RangeSumBinaryIndexTree : public RangeSumStrategy {
 public:
     RangeSumBinaryIndexTree(const vector<int>& nums)
-        : m_sums(nums.size() + 1){
+        : m_sums(nums.size() + 1) {
         for (size_t i = 1; i < m_sums.size(); ++i) {
             m_sums[i] = nums[i - 1];
             for (size_t j = i - lowbit(i) + 1; j < i; ++j) {
@@ -201,13 +202,13 @@ private:
 class NumArray {
 public:
     NumArray(const vector<int>& nums) {
-        //m_strategy = new RangeSumPrefixSum(nums);
+        m_strategy = new RangeSumPrefixSum(nums);
 
         //m_strategy = new RangeSumSegmentTreeByHeap(nums);
 
         //m_strategy = new RangeSumSegmentTreeByTree(nums);
 
-        m_strategy = new RangeSumBinaryIndexTree(nums);
+        //m_strategy = new RangeSumBinaryIndexTree(nums);
     }
 
     ~NumArray() {
