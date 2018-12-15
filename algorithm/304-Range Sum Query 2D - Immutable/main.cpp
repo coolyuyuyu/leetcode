@@ -410,8 +410,8 @@ private:
         TreeNode* parent = new TreeNode(rowLo, colLo, rowHi, colHi);
         if (colLo < colHi) {
             size_t colMid = colLo + (colHi - colLo) / 2;
-            parent->colLft = buildCol(rowLo, colLo, rowHi, colMid, matrix);;
-            parent->colRht = buildCol(rowLo, colMid + 1, rowHi, colHi, matrix);;
+            parent->colLft = buildCol(rowLo, colLo, rowHi, colMid, matrix);
+            parent->colRht = buildCol(rowLo, colMid + 1, rowHi, colHi, matrix);
             parent->sum = parent->colLft->sum + parent->colRht->sum;
         }
         else {
@@ -429,14 +429,14 @@ private:
         }
 
         if (rowLo <= parent->rowLo && parent->rowHi <= rowHi) {
-            return queryCol(parent, rowLo, colLo, rowHi, colHi);
+            return queryCol(parent, colLo, colHi);
         }
         else {
             return queryRow(parent->rowLft, rowLo, colLo, rowHi, colHi) + queryRow(parent->rowRht, rowLo, colLo, rowHi, colHi);
         }
     }
 
-    int queryCol(TreeNode* parent, size_t rowLo, size_t colLo, size_t rowHi, size_t colHi) const {
+    int queryCol(TreeNode* parent, size_t colLo, size_t colHi) const {
         if (!parent || colHi < parent->colLo || parent->colHi < colLo) {
             return 0;
         }
@@ -445,7 +445,7 @@ private:
             return parent->sum;
         }
         else {
-            return queryCol(parent->colLft, rowLo, colLo, rowHi, colHi) + queryRow(parent->colRht, rowLo, colLo, rowHi, colHi);
+            return queryCol(parent->colLft, colLo, colHi) + queryCol(parent->colRht, colLo, colHi);
         }
     }
 
@@ -569,6 +569,10 @@ public:
 
         //m_strategy = new RegionSumMultiple1DBinaryIndexTree(matrix);
         //m_strategy = new RegionSum2DBinaryIndexTree(matrix);
+    }
+
+    ~NumMatrix() {
+        delete m_strategy;
     }
 
     int sumRegion(size_t row1, size_t col1, size_t row2, size_t col2) const {
