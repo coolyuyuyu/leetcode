@@ -1,29 +1,29 @@
 class RegionSumStrategy {
 public:
-    virtual int sum(size_t row1, size_t col1, size_t row2, size_t col2) const = 0;
+    virtual int sum(size_t rowLo, size_t colLo, size_t rowHi, size_t colHi) const = 0;
 };
 
 class RegionSumMultiple1DPrefixSum : public RegionSumStrategy {
 public:
     RegionSumMultiple1DPrefixSum(const vector<vector<int>>& matrix)
         : m_sumMatrix(matrix) {
-        size_t rowCnt = matrix.size(), colCnt = matrix.empty() ? 0 : matrix.front().size();
-        for (size_t row = 0; row < rowCnt; ++row) {
+        size_t rowSize = matrix.size(), colSize = matrix.empty() ? 0 : matrix.front().size();
+        for (size_t row = 0; row < rowSize; ++row) {
             vector<int>& sums = m_sumMatrix[row];
-            for (size_t col = 1; col < colCnt; ++ col) {
+            for (size_t col = 1; col < colSize; ++ col) {
                 sums[col] += sums[col - 1];
             }
         }
     }
 
-    int sum(size_t row1, size_t col1, size_t row2, size_t col2) const {
+    int sum(size_t rowLo, size_t colLo, size_t rowHi, size_t colHi) const {
         int ans = 0;
-        for (size_t row = row1; row <= row2; ++ row) {
-            ans += m_sumMatrix[row][col2];
+        for (size_t row = rowLo; row <= rowHi; ++ row) {
+            ans += m_sumMatrix[row][colHi];
         }
-        if (0 < col1) {
-            for (size_t row = row1; row <= row2; ++ row) {
-                ans -= m_sumMatrix[row][col1 - 1];
+        if (0 < colLo) {
+            for (size_t row = rowLo; row <= rowHi; ++ row) {
+                ans -= m_sumMatrix[row][colLo - 1];
             }
         }
         return ans;
@@ -37,33 +37,33 @@ class RegionSum2DPrefixSum : public RegionSumStrategy {
 public:
     RegionSum2DPrefixSum(const vector<vector<int>>& matrix)
         : m_sumMatrix(matrix) {
-        size_t rowCnt = matrix.size(), colCnt = matrix.empty() ? 0 : matrix.front().size();
-        for (size_t row = 1; row < rowCnt; ++row) {
+        size_t rowSize = matrix.size(), colSize = matrix.empty() ? 0 : matrix.front().size();
+        for (size_t row = 1; row < rowSize; ++row) {
             m_sumMatrix[row][0] += m_sumMatrix[row - 1][0];
         }
-        for (size_t col = 1; col < colCnt; ++col) {
+        for (size_t col = 1; col < colSize; ++col) {
             m_sumMatrix[0][col] += m_sumMatrix[0][col - 1];
         }
 
-        for (size_t row = 1; row < rowCnt; ++row) {
-            for (size_t col = 1; col < colCnt; ++ col) {
+        for (size_t row = 1; row < rowSize; ++row) {
+            for (size_t col = 1; col < colSize; ++ col) {
                 m_sumMatrix[row][col] += (m_sumMatrix[row][col - 1] + m_sumMatrix[row - 1][col] - m_sumMatrix[row - 1][col - 1]);
             }
         }
     }
 
-    int sum(size_t row1, size_t col1, size_t row2, size_t col2) const {
-        int ans = m_sumMatrix[row2][col2];
-        if (0 < row1) {
-            ans -= m_sumMatrix[row1 - 1][col2];
-            if (0 < col1) {
-                ans -= m_sumMatrix[row2][col1 - 1];
-                ans += m_sumMatrix[row1 - 1][col1 - 1];
+    int sum(size_t rowLo, size_t colLo, size_t rowHi, size_t colHi) const {
+        int ans = m_sumMatrix[rowHi][colHi];
+        if (0 < rowLo) {
+            ans -= m_sumMatrix[rowLo - 1][colHi];
+            if (0 < colLo) {
+                ans -= m_sumMatrix[rowHi][colLo - 1];
+                ans += m_sumMatrix[rowLo - 1][colLo - 1];
             }
         }
         else {
-            if (0 < col1) {
-                ans -= m_sumMatrix[row2][col1 - 1];
+            if (0 < colLo) {
+                ans -= m_sumMatrix[rowHi][colLo - 1];
             }
         }
         return ans;
@@ -85,10 +85,10 @@ public:
         }
     }
 
-    int sum(size_t row1, size_t col1, size_t row2, size_t col2) const {
+    int sum(size_t rowLo, size_t colLo, size_t rowHi, size_t colHi) const {
         int ans = 0;
-        for (size_t row = row1; row <= row2; ++ row) {
-            ans += query(0, m_size - 1, 0, m_sumMatrix[row], col1 , col2);
+        for (size_t row = rowLo; row <= rowHi; ++ row) {
+            ans += query(0, m_size - 1, 0, m_sumMatrix[row], colLo , colHi);
         }
         return ans;
     }
@@ -140,6 +140,7 @@ private:
     vector<vector<int>> m_sumMatrix;
 };
 
+// RangeSum2DSegmentTreeByHeap is NOT true 2D. It should be updated.
 class RangeSum2DSegmentTreeByHeap : public RegionSumStrategy {
 public:
     RangeSum2DSegmentTreeByHeap(const vector<vector<int>>& matrix)
@@ -155,18 +156,18 @@ public:
         }
     }
 
-    int sum(size_t row1, size_t col1, size_t row2, size_t col2) const {
-        int ans = query(0, m_size - 1, 0, m_sumMatrix[row2], 0 , col2);
-        if (0 < row1) {
-            ans -= query(0, m_size - 1, 0, m_sumMatrix[row1 - 1], 0 , col2);
-            if (0 < col1) {
-                ans -= query(0, m_size - 1, 0, m_sumMatrix[row2], 0 , col1 - 1);
-                ans += query(0, m_size - 1, 0, m_sumMatrix[row1 - 1], 0 , col1 - 1);
+    int sum(size_t rowLo, size_t colLo, size_t rowHi, size_t colHi) const {
+        int ans = query(0, m_size - 1, 0, m_sumMatrix[rowHi], 0 , colHi);
+        if (0 < rowLo) {
+            ans -= query(0, m_size - 1, 0, m_sumMatrix[rowLo - 1], 0 , colHi);
+            if (0 < colLo) {
+                ans -= query(0, m_size - 1, 0, m_sumMatrix[rowHi], 0 , colLo - 1);
+                ans += query(0, m_size - 1, 0, m_sumMatrix[rowLo - 1], 0 , colLo - 1);
             }
         }
         else {
-            if (0 < col1) {
-                ans -= query(0, m_size - 1, 0, m_sumMatrix[row2], 0 , col1 - 1);
+            if (0 < colLo) {
+                ans -= query(0, m_size - 1, 0, m_sumMatrix[rowHi], 0 , colLo - 1);
             }
         }
         return ans;
@@ -232,13 +233,13 @@ public:
     }
 
     ~RegionSumMultiple1DSegmentTreeByTree() {
-        for (TreeNode* node : m_roots) {
+        for (TreeNode* root : m_roots) {
             queue<TreeNode*> q;
-            if (node) {
-                q.push(node);
+            if (root) {
+                q.push(root);
             }
             while (!q.empty()) {
-                node = q.front();
+                TreeNode* node = q.front();
                 q.pop();
 
                 if (node->lft) {
@@ -253,10 +254,10 @@ public:
         }
     }
 
-    int sum(size_t row1, size_t col1, size_t row2, size_t col2) const {
+    int sum(size_t rowLo, size_t colLo, size_t rowHi, size_t colHi) const {
         int ans = 0;
-        for (size_t row = row1; row <= row2; ++ row) {
-            ans += query(m_roots[row], col1 , col2);
+        for (size_t row = rowLo; row <= rowHi; ++ row) {
+            ans += query(m_roots[row], colLo , colHi);
         }
         return ans;
     }
@@ -297,16 +298,16 @@ private:
         return parent;
     }
 
-    int query(TreeNode* parent, size_t i, size_t j) const {
-        if (!parent || j < parent->lo || parent->hi < i) {
+    int query(TreeNode* parent, size_t lo, size_t hi) const {
+        if (!parent || hi < parent->lo || parent->hi < lo) {
             return 0;
         }
 
-        if (i <= parent->lo && parent->hi <= j) {
+        if (lo <= parent->lo && parent->hi <= hi) {
             return parent->sum;
         }
         else {
-            return query(parent->lft, i , j) + query(parent->rht, i , j);
+            return query(parent->lft, lo, hi) + query(parent->rht, lo, hi);
         }
     }
 
@@ -457,38 +458,37 @@ private:
 class RegionSumMultiple1DBinaryIndexTree : public RegionSumStrategy {
 public:
     RegionSumMultiple1DBinaryIndexTree(const vector<vector<int>>& matrix)
-        : m_sumMatrix(matrix.size(), vector<int>(1 + (matrix.empty() ? 0 : matrix.front().size()))) {
-        for (size_t i = 0; i < matrix.size(); ++i) {
-            vector<int>& sums = m_sumMatrix[i];
-            const vector<int>& nums = matrix[i];
-            for (size_t j = 1; j < sums.size(); ++j) {
-                sums[j] = nums[j - 1];
-                for (size_t k = j - lowbit(j) + 1; k < j; ++k) {
-                    sums[j] += nums[k - 1];
+        : m_rowSize(matrix.size())
+        , m_colSize(matrix.empty() ? 0 : matrix.front().size())
+        , m_sumMatrix(m_rowSize, vector<int>(m_colSize + 1, 0)) {
+        for (size_t row = 0; row < m_rowSize; ++row) {
+            vector<int>& sums = m_sumMatrix[row];
+            const vector<int>& nums = matrix[row];
+            for (size_t col = 1; col <= m_colSize; ++col) {
+                sums[col] = nums[col - 1];
+                for (size_t i = col - lowbit(col) + 1; i < col; ++i) {
+                    sums[col] += nums[i - 1];
                 }
             }
         }
     }
 
     int sum(const vector<int>& sums, size_t i) const {
-        ++i;
-
         int ans = 0;
-        while (i != 0) {
+        for (i = i + 1; i != 0; i -= lowbit(i)) {
             ans += sums[i];
-            i -= lowbit(i);
         }
         return ans;
     }
 
-    int sum(size_t row1, size_t col1, size_t row2, size_t col2) const {
+    int sum(size_t rowLo, size_t colLo, size_t rowHi, size_t colHi) const {
         int ans = 0;
-        for (size_t row = row1; row <= row2; ++ row) {
-            ans += sum(m_sumMatrix[row], col2);
+        for (size_t row = rowLo; row <= rowHi; ++ row) {
+            ans += sum(m_sumMatrix[row], colHi);
         }
-        if (0 < col1) {
-            for (size_t row = row1; row <= row2; ++ row) {
-                ans -= sum(m_sumMatrix[row], col1 - 1);
+        if (0 < colLo) {
+            for (size_t row = rowLo; row <= rowHi; ++ row) {
+                ans -= sum(m_sumMatrix[row], colLo - 1);
             }
         }
         return ans;
@@ -499,51 +499,45 @@ private:
         return x & ~(x - 1);
     }
 
+    size_t m_rowSize, m_colSize;
     vector<vector<int>> m_sumMatrix;
 };
 
 class RegionSum2DBinaryIndexTree : public RegionSumStrategy {
 public:
     RegionSum2DBinaryIndexTree(const vector<vector<int>>& matrix)
-        : m_sumMatrix(matrix.size(), vector<int>(1 + (matrix.empty() ? 0 : matrix.front().size()))) {
-        for (size_t i = 0; i < matrix.size(); ++i) {
-            vector<int>& sums = m_sumMatrix[i];
-            const vector<int>& nums = matrix[i];
-            for (size_t j = 1; j < sums.size(); ++j) {
-                sums[j] = nums[j - 1];
-                if (0 < i) {
-                    sums[j] += m_sumMatrix[i - 1][j];
-                }
-                for (size_t k = j - lowbit(j) + 1; k < j; ++k) {
-                    sums[j] += nums[k - 1];
-                }
+        : m_rowSize(matrix.size())
+        , m_colSize(matrix.empty() ? 0 : matrix.front().size())
+        , m_sumMatrix(m_rowSize + 1, vector<int>(m_colSize + 1, 0)) {
+        for (size_t row = 0; row < m_rowSize; ++row) {
+            for (size_t col = 0; col < m_colSize; ++col) {
+                updateTree(row, col, matrix[row][col]);
             }
         }
     }
 
-    int sum(const vector<int>& sums, size_t i) const {
-        ++i;
-
+    int sum(size_t row, size_t col) const {
         int ans = 0;
-        while (i != 0) {
-            ans += sums[i];
-            i -= lowbit(i);
+        for (size_t r = row + 1; r != 0; r -= lowbit(r)) {
+            for (size_t c = col + 1; c != 0; c -= lowbit(c)) {
+                ans += m_sumMatrix[r][c];
+            }
         }
         return ans;
     }
 
-    int sum(size_t row1, size_t col1, size_t row2, size_t col2) const {
-        int ans = sum(m_sumMatrix[row2], col2);
-        if (0 < row1) {
-            ans -= sum(m_sumMatrix[row1 - 1], col2);
-            if (0 < col1) {
-                ans -= sum(m_sumMatrix[row2], col1 - 1);
-                ans += sum(m_sumMatrix[row1 - 1], col1 - 1);
+    int sum(size_t rowLo, size_t colLo, size_t rowHi, size_t colHi) const {
+        int ans = sum(rowHi, colHi);
+        if (0 < rowLo) {
+            ans -= sum(rowLo - 1, colHi);
+            if (0 < colLo) {
+                ans -= sum(rowHi, colLo - 1);
+                ans += sum(rowLo - 1, colLo - 1);
             }
         }
         else {
-            if (0 < col1) {
-                ans -= sum(m_sumMatrix[row2], col1 - 1);
+            if (0 < colLo) {
+                ans -= sum(rowHi, colLo - 1);
             }
         }
         return ans;
@@ -554,6 +548,15 @@ private:
         return x & ~(x - 1);
     }
 
+    void updateTree(size_t row, size_t col, int val) {
+        for (size_t r = row + 1; r <= m_rowSize; r += lowbit(r)) {
+            for (size_t c = col + 1; c <= m_colSize; c += lowbit(c)) {
+                m_sumMatrix[r][c] += val;
+            }
+        }
+    }
+
+    size_t m_rowSize, m_colSize;
     vector<vector<int>> m_sumMatrix;
 };
 
@@ -561,25 +564,25 @@ class NumMatrix {
 public:
     NumMatrix(const vector<vector<int>>& matrix) {
         //m_strategy = new RegionSumMultiple1DPrefixSum(matrix);
-        //m_strategy = new RegionSum2DPrefixSum(matrix);
+        m_strategy = new RegionSum2DPrefixSum(matrix);
 
         //m_strategy = new RangeSumMultiple1DSegmentTreeByHeap(matrix);
-        //m_strategy = new RangeSum2DSegmentTreeByHeap(matrix); // should be updated.
+        //m_strategy = new RangeSum2DSegmentTreeByHeap(matrix);
 
         //m_strategy = new RegionSumMultiple1DSegmentTreeByTree(matrix);
         //m_strategy = new RegionSum2DSegmentTreeByTree(matrix);
 
         //m_strategy = new RegionSumMultiple1DBinaryIndexTree(matrix);
-        //m_strategy = new RegionSum2DBinaryIndexTree(matrix); // should be updated.
+        //m_strategy = new RegionSum2DBinaryIndexTree(matrix);
     }
 
     ~NumMatrix() {
         delete m_strategy;
     }
 
-    int sumRegion(size_t row1, size_t col1, size_t row2, size_t col2) const {
-        assert(row1 <= row2 && col1 <= col2);
-        return m_strategy->sum(row1, col1, row2, col2);
+    int sumRegion(size_t rowLo, size_t colLo, size_t rowHi, size_t colHi) const {
+        assert(rowLo <= rowHi && colLo <= colHi);
+        return m_strategy->sum(rowLo, colLo, rowHi, colHi);
     }
 
 private:

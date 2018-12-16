@@ -1,6 +1,6 @@
 class RangeSumStrategy {
 public:
-    virtual int sum(size_t i, size_t j) const = 0;
+    virtual int sum(size_t lo, size_t hi) const = 0;
 };
 
 class RangeSumPrefixSum : public RangeSumStrategy {
@@ -12,8 +12,8 @@ public:
         }
     }
 
-    int sum(size_t i, size_t j) const {
-        return m_sums[j] - (0 < i ? m_sums[i - 1] : 0);
+    int sum(size_t lo, size_t hi) const {
+        return m_sums[hi] - (0 < lo ? m_sums[lo - 1] : 0);
     }
 
 private:
@@ -29,8 +29,8 @@ public:
         }
     }
 
-    int sum(size_t i, size_t j) const {
-        return query(0, m_size - 1, 0, i , j);
+    int sum(size_t lo, size_t hi) const {
+        return query(0, m_size - 1, 0, lo , hi);
     }
 
 private:
@@ -87,29 +87,27 @@ public:
     }
 
     ~RangeSumSegmentTreeByTree() {
-        for (TreeNode* node : m_roots) {
-            queue<TreeNode*> q;
-            if (node) {
-                q.push(node);
-            }
-            while (!q.empty()) {
-                node = q.front();
-                q.pop();
+        queue<TreeNode*> q;
+        if (m_root) {
+            q.push(m_root);
+        }
+        while (!q.empty()) {
+            TreeNode* node = q.front();
+            q.pop();
 
-                if (node->lft) {
-                    q.push(node->lft);
-                }
-                if (node->rht) {
-                    q.push(node->rht);
-                }
-
-                delete node;
+            if (node->lft) {
+                q.push(node->lft);
             }
+            if (node->rht) {
+                q.push(node->rht);
+            }
+
+            delete node;
         }
     }
 
-    int sum(size_t i, size_t j) const {
-        return query(m_root, i , j);
+    int sum(size_t lo, size_t hi) const {
+        return query(m_root, lo, hi);
     }
 
 private:
@@ -123,8 +121,7 @@ private:
             , rht(nullptr) {
         }
 
-        size_t lo;
-        size_t hi;
+        size_t lo, hi;
         int sum;
 
         TreeNode* lft;
@@ -140,26 +137,24 @@ private:
         }
         else {
             size_t mid = lo + (hi - lo) / 2;
-            TreeNode* lft = build(lo, mid, nums);
-            TreeNode* rht = build(mid + 1, hi, nums);
-            parent->sum = lft->sum + rht->sum;
-            parent->lft = lft;
-            parent->rht = rht;
+            parent->lft = build(lo, mid, nums);
+            parent->rht = build(mid + 1, hi, nums);
+            parent->sum = parent->lft->sum + parent->rht->sum;
         }
 
         return parent;
     }
 
-    int query(TreeNode* parent, size_t i, size_t j) const {
-        if (!parent || j < parent->lo || parent->hi < i) {
+    int query(TreeNode* parent, size_t lo, size_t hi) const {
+        if (!parent || hi < parent->lo || parent->hi < lo) {
             return 0;
         }
 
-        if (i <= parent->lo && parent->hi <= j) {
+        if (lo <= parent->lo && parent->hi <= hi) {
             return parent->sum;
         }
         else {
-            return query(parent->lft, i , j) + query(parent->rht, i , j);
+            return query(parent->lft, lo, hi) + query(parent->rht, lo, hi);
         }
     }
 
@@ -179,18 +174,15 @@ public:
     }
 
     int sum(size_t i) const {
-        ++i;
-
         int ans = 0;
-        while (i != 0) {
+        for (i = i + 1; i != 0; i -= lowbit(i)) {
             ans += m_sums[i];
-            i -= lowbit(i);
         }
         return ans;
     }
 
-    int sum(size_t i, size_t j) const {
-        return sum(j) - (0 < i ? sum(i - 1) : 0);
+    int sum(size_t lo, size_t hi) const {
+        return sum(hi) - (0 < lo ? sum(lo - 1) : 0);
     }
 
 private:
@@ -217,11 +209,11 @@ public:
         delete m_strategy;
     }
 
-    int sumRange(size_t i, size_t j) const{
-        if (j < i) {
-            swap(i, j);
+    int sumRange(size_t lo, size_t hi) const{
+        if (hi < lo) {
+            swap(lo, hi);
         }
-        return m_strategy->sum(i, j);
+        return m_strategy->sum(lo, hi);
     }
 
 private:
