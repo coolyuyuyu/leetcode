@@ -17,7 +17,7 @@ public:
     void update(size_t i, int val) {
         int diff = val - m_nums[i];
         m_nums[i] = val;
-        
+
         for (; i < m_sums.size(); ++i) {
             m_sums[i] += diff;
         }
@@ -233,7 +233,7 @@ public:
     void update(size_t i, int val) {
         int diff = val - m_nums[i];
         m_nums[i] = val;
-        
+
         for (i = i + 1; i < m_sums.size(); i += lowbit(i)) {
             m_sums[i] += diff;
         }
@@ -290,7 +290,7 @@ public:
 
 private:
     RangeSumStrategy* m_strategy;
-    
+
     vector<int> m_nums;
 };
 
