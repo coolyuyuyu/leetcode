@@ -87,21 +87,23 @@ public:
     }
 
     ~RangeSumSegmentTreeByTree() {
-        TreeNode* node = m_root;
-        stack<TreeNode*> stk;
-        while (node || stk.empty()) {
+        for (TreeNode* node : m_roots) {
+            queue<TreeNode*> q;
             if (node) {
-                stk.push(node);
-                node = node->lft;
+                q.push(node);
             }
-            else {
-                node = stk.top();
-                stk.pop();
+            while (!q.empty()) {
+                node = q.front();
+                q.pop();
 
-                TreeNode* rht = node->rht;
+                if (node->lft) {
+                    q.push(node->lft);
+                }
+                if (node->rht) {
+                    q.push(node->rht);
+                }
+
                 delete node;
-
-                node = rht;
             }
         }
     }
