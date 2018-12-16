@@ -72,7 +72,7 @@ private:
         }
         else {
             size_t mid = lo + (hi - lo) / 2;
-            return query(lo, mid, lftChildIndex(parent), i , j) + query(mid + 1, hi, rhtChildIndex(parent), i , j);
+            return query(lo, mid, lftChildIndex(parent), i, j) + query(mid + 1, hi, rhtChildIndex(parent),i, j);
         }
     }
 
