@@ -1,6 +1,6 @@
 class Solution {
 public:
-    int minSubArrayLen(int s, vector<int>& nums) {
+    size_t minSubArrayLen(int s, vector<int>& nums) {
         assert(0 < s);
 
         vector<int> sums(nums.size());
