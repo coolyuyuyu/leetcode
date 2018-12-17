@@ -22,9 +22,41 @@ public:
         return len;
     }
 
+    size_t minSubArrayLenByLinearScan(int s, vector<int>& nums) {
+        size_t len = 0;
+        int sum = 0;
+        while (len < nums.size() && sum < s) {
+            sum += nums[len];
+            ++len;
+        }
+        if (sum < s) {
+            return 0;
+        }
+
+        size_t lft = 0, rht = len;
+        while (rht < nums.size()) {
+            if (sum < s) {
+                sum += nums[rht++];
+            }
+            else {
+                len = min(len, rht - lft);
+                sum -= nums[lft++];
+            }
+        }
+
+        while (lft < nums.size() && sum >= s) {
+            len = min(len, rht - lft);
+            sum -= nums[lft++];
+        }
+
+        return len;
+    }
+
     size_t minSubArrayLen(int s, vector<int>& nums) {
         assert(0 < s);
 
-        return minSubArrayLenByPartialSum(s, nums);
+        //return minSubArrayLenByPartialSum(s, nums);
+
+        return minSubArrayLenByLinearScan(s, nums);
     }
 };
