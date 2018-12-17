@@ -67,6 +67,7 @@ public:
         return pHead;
     }
 
+    // Min Heap is overkilled. The list of length N is already broken into N 1-lenth lists.
     ListNode* mergesortListMergeByMinHeap(ListNode* head) {
         auto comp = [](const pair<ListNode*, size_t>& lft, const pair<ListNode*, size_t>& rht) { return rht.second < lft.second; };
         priority_queue<pair<ListNode*, size_t>, vector<pair<ListNode*, size_t>>, decltype(comp)> pq(comp);
