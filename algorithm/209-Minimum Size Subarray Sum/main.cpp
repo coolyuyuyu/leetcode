@@ -1,21 +1,18 @@
 class Solution {
 public:
-    size_t minSubArrayLen(int s, vector<int>& nums) {
-        assert(0 < s);
+    size_t minSubArrayLenByPartialSum(int s, vector<int>& nums) {
+        partial_sum(nums.begin(), nums.end(), nums.begin());
 
-        vector<int> sums(nums.size());
-        partial_sum(nums.begin(), nums.end(), sums.begin());
-
-        auto itr = lower_bound(sums.begin(), sums.end(), s);
-        if (itr == sums.end()) {
+        auto itr = lower_bound(nums.begin(), nums.end(), s);
+        if (itr == nums.end()) {
             return 0;
         }
 
-        size_t len = itr - sums.begin() + 1;
+        size_t len = itr - nums.begin() + 1;
         for (size_t i = 0; i < nums.size(); ++i) {
             size_t end = min(len + i - 1, nums.size());
             for (size_t j = i; j < end; ++j) {
-                if (sums[j] - sums[i - 1] >= s) {
+                if (nums[j] - nums[i - 1] >= s) {
                     len = min(len, j - i + 1);
                     break;
                 }
@@ -23,5 +20,11 @@ public:
         }
 
         return len;
+    }
+
+    size_t minSubArrayLen(int s, vector<int>& nums) {
+        assert(0 < s);
+
+        return minSubArrayLenByPartialSum(s, nums);
     }
 };
