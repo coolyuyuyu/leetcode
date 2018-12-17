@@ -53,7 +53,7 @@ public:
         return lists.front();
     }
 
-    // balanced merge tree with least comparision.
+    // balanced merge tree with least comparison.
     ListNode* mergeKListsByAlwaysMerge2Shortest(vector<ListNode*>& lists) {
         auto comp = [](const pair<ListNode*, size_t>& lft, const pair<ListNode*, size_t>& rht) { return rht.second < lft.second; };
         priority_queue<pair<ListNode*, size_t>, vector<pair<ListNode*, size_t>>, decltype(comp)> pq(comp);
