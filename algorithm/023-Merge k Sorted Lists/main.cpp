@@ -24,6 +24,7 @@ public:
         return pHead;
     }
 
+    // skew merge tree
     ListNode* mergeKListsOneByOne(vector<ListNode*>& lists) {
         if (lists.empty()) {
             return nullptr;
@@ -36,6 +37,7 @@ public:
         return lists.front();
     }
 
+    // balanced merge tree
     ListNode* mergeKListsBottomUpMerge(vector<ListNode*>& lists) {
         if (lists.empty()) {
             return nullptr;
@@ -51,8 +53,37 @@ public:
         return lists.front();
     }
 
-    ListNode* mergeKListsByMinHeap(vector<ListNode*>& lists)
-    {
+    // balanced merge tree with least comparision.
+    ListNode* mergeKListsByAlwaysMerge2Shortest(vector<ListNode*>& lists) {
+        auto comp = [](const pair<ListNode*, size_t>& lft, const pair<ListNode*, size_t>& rht) { return rht.second < lft.second; };
+        priority_queue<pair<ListNode*, size_t>, vector<pair<ListNode*, size_t>>, decltype(comp)> pq(comp);
+        for (ListNode* head : lists) {
+            size_t size = 0;
+            for (ListNode* node = head; node; node = node->next) {
+                ++size;
+            }
+            if (0 < size) {
+                pq.push(pair<ListNode*, size_t>(head, size));
+            }
+        }
+        if (pq.empty()) {
+            return nullptr;
+        }
+
+        while (1 < pq.size()) {
+            pair<ListNode*, size_t> p1 = pq.top();
+            pq.pop();
+            pair<ListNode*, size_t> p2 = pq.top();
+            pq.pop();
+
+            ListNode* head = mergeTwoLists(p1.first, p2.first);
+            pq.emplace(head, p1.second + p2.second);
+        }
+
+        return pq.top().first;
+    }
+
+    ListNode* mergeKListsByMinHeap(vector<ListNode*>& lists) {
         auto itrBgn = lists.begin(), itrEnd = lists.end();
         itrEnd = remove(itrBgn, itrEnd, nullptr);
         auto comp = [](ListNode* lft, ListNode* rht) { return lft->val > rht->val; };
@@ -76,9 +107,11 @@ public:
         return pHead;
     }
 
-    ListNode* mergeKLists(vector<ListNode*>& lists)
-    {
+    ListNode* mergeKLists(vector<ListNode*>& lists) {
+        //return mergeKListsOneByOne(lists);
+        //return mergeKListsBottomUpMerge(lists);
+        //return mergeKListsByAlwaysMerge2Shortest(lists);
+
         return mergeKListsByMinHeap(lists);
     }
-
 };
