@@ -5,4 +5,4 @@ TRIE 758. Bold Words in String
 
 
 Try 255 better solution to verify preorder sequence
-Try 148 1. quicksort simply return new head and new tail for better concatnenation. 2. merge sort by adopting huffman code in order to least comparison.
+Try 148 1. quicksort simply return new head and new tail for better concatnenation.
