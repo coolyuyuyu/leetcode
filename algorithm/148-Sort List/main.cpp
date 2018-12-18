@@ -8,29 +8,40 @@
  */
 class Solution {
 public:
-    ListNode* quicksortList(ListNode* head) {
-        if (head == NULL) {
-            return NULL;
+    ListNode* quicksortList(ListNode* pHead) {
+        if (pHead == nullptr) {
+            return nullptr;
         }
-        if (head->next == NULL) {
-            return head;
+        if (pHead->next == nullptr) {
+            return pHead;
         }
 
-        ListNode* pHead1 = NULL;
+        ListNode* pPivot = nullptr; {
+            ListNode* pFast = pHead;
+            ListNode* pSlow = pHead;
+            while (pFast && pFast->next) {
+                pFast = pFast->next->next;
+                pSlow = pSlow->next;
+            }
+            pPivot = pSlow;
+        }
+
+        ListNode* pHead1 = nullptr;
         ListNode** ppCur1 = &pHead1;
-        ListNode* pHead2 = NULL;
+        ListNode* pHead2 = nullptr;
         ListNode** ppCur2 = &pHead2;
 
-        ListNode* pPivot = head;
-        ListNode* pCur = pPivot->next;
+        ListNode* pCur = pHead;
         while (pCur) {
-            if (pCur->val < pPivot->val) {
-                *ppCur1 = pCur;
-                ppCur1 = &((*ppCur1)->next);
-            }
-            else {
-                *ppCur2 = pCur;
-                ppCur2 = &((*ppCur2)->next);
+            if (pCur != pPivot) {
+                if (pCur->val < pPivot->val) {
+                    *ppCur1 = pCur;
+                    ppCur1 = &((*ppCur1)->next);
+                }
+                else {
+                    *ppCur2 = pCur;
+                    ppCur2 = &((*ppCur2)->next);
+                }
             }
             pCur = pCur->next;
         }
@@ -49,6 +60,75 @@ public:
         pPivot->next = pHead2;
 
         return pHead1;
+    }
+
+    void quicksortListV2(ListNode* pHead, ListNode*& pHeadNew, ListNode**& ppTailNew) {
+        if (pHead == nullptr) {
+            pHeadNew = *ppTailNew = nullptr;
+            return;
+        }
+        if (pHead->next == nullptr) {
+            pHeadNew = pHead;
+            ppTailNew = &(pHead->next);
+            return;
+        }
+
+        ListNode* pFast = pHead;
+        ListNode* pSlow = pHead;
+        while (pFast && pFast->next) {
+            pFast = pFast->next->next;
+            pSlow = pSlow->next;
+        }
+        ListNode* pPivot = pSlow;
+
+        ListNode* pHead1 = nullptr;
+        ListNode** ppCur1 = &pHead1;
+        ListNode* pHead2 = nullptr;
+        ListNode** ppCur2 = &pHead2;
+
+        ListNode* pCur = pHead;
+        while (pCur) {
+            if (pCur != pPivot) {
+                if (pCur->val < pPivot->val) {
+                    *ppCur1 = pCur;
+                    ppCur1 = &((*ppCur1)->next);
+                }
+                else {
+                    *ppCur2 = pCur;
+                    ppCur2 = &((*ppCur2)->next);
+                }
+            }
+            pCur = pCur->next;
+        }
+        *ppCur1 = NULL;
+        *ppCur2 = NULL;
+
+        ListNode* pHeadLo;
+        ListNode* pTailLo;
+        ListNode** ppTailLo = &pTailLo;
+        quicksortListV2(pHead1, pHeadLo, ppTailLo);
+
+        ListNode* pHeadHi;
+        ListNode* pTailHi;
+        ListNode** ppTailHi = &pTailHi;
+        quicksortListV2(pHead2, pHeadHi, ppTailHi);
+
+        if (pHeadLo) {
+            pHeadNew = pHeadLo;
+            *ppTailLo = pPivot;
+        }
+        else {
+            pHeadNew = pPivot;
+        }
+
+        pPivot->next = pHeadHi;
+
+        if (pHeadHi) {
+            ppTailNew = ppTailHi;
+        }
+        else {
+            ppTailNew = &(pPivot->next);
+        }
     }
 
     ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
@@ -121,7 +201,13 @@ public:
     ListNode* sortList(ListNode* head) {
         //return quicksortList(head);
 
+        ListNode* pHeadNew = nullptr;
+        ListNode* pTailNew = nullptr;
+        ListNode** ppTailNew = &pTailNew;
+        quicksortListV2(head, pHeadNew, ppTailNew);
+        return pHeadNew;
+
         //return mergesortListMergeByMinHeap(head);
-        return mergesortListBottomUpMerge(head);
+        //return mergesortListBottomUpMerge(head);
     }
 };
