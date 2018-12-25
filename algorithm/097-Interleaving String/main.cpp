@@ -1,5 +1,6 @@
 class Solution {
 public:
+    // Time(m, n) = O(2 ^ (m + n)), Space(m, n) = O(m + n)
     bool isInterleaveRecv(const string& s1, size_t i1, const string& s2, size_t i2, const string& s3, size_t i3) {
         if (s3.size() <= i3) {
             if (s1.size() <= i1 && s2.size() <= i2) {
@@ -24,11 +25,41 @@ public:
         return false;
     }
 
+    // Time(m, n) = O(m * n), Space(m, n) = O(m * n)
+    bool isInterleaveDp(const string& s1, const string& s2, const string& s3) {
+        size_t rowCnt = s1.size() + 1, colCnt = s2.size() + 1;
+        vector<vector<bool>> dp(rowCnt, vector<bool>(colCnt));
+
+        for (size_t row = 0; row < rowCnt; ++row) {
+            for (size_t col = 0; col < colCnt; ++col) {
+                if (row == 0 && col == 0) {
+                    dp[row][col] = true;
+                }
+                else if (row == 0) {
+                    dp[row][col] = dp[row][col - 1] && s2[col - 1] == s3[row + col - 1];
+                }
+                else if (col == 0) {
+                    dp[row][col] = dp[row - 1][col] && s1[row - 1] == s3[row + col - 1];
+                }
+                else {
+                    dp[row][col] =
+                        dp[row - 1][col] && s1[row - 1] == s3[row + col - 1] ||
+                        dp[row][col - 1] && s2[col - 1] == s3[row + col - 1];
+                }
+            }
+        }
+
+        return dp[rowCnt - 1][colCnt - 1];
+    }
+
+
     bool isInterleave(string s1, string s2, string s3) {
         if (s1.size() + s2.size() != s3.size()) {
             return false;
         }
 
-        return isInterleaveRecv(s1, 0, s2, 0, s3, 0);
+        //return isInterleaveRecv(s1, 0, s2, 0, s3, 0);
+
+        return isInterleaveDp(s1, s2, s3);
     }
 };
