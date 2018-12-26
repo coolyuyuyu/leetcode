@@ -1,6 +1,6 @@
 class Solution {
 public:
-    vector<vector<string>> findLaddersBfs(string beginWord, string endWord, vector<string>& wordList) {
+    vector<vector<string>> findLaddersBfs(const string& beginWord, const string& endWord, const vector<string>& wordList) {
         unordered_set<string> candidates(wordList.begin(), wordList.end());
         candidates.erase(beginWord);
         if (candidates.find(endWord) == candidates.end()) {
@@ -51,7 +51,7 @@ public:
         return ans;
     }
 
-    vector<vector<string>> findLaddersBfsTwoEnd(string beginWord, string endWord, vector<string>& wordList) {
+    vector<vector<string>> findLaddersBfsTwoEnd(const string& beginWord, const string& endWord, const vector<string>& wordList) {
         unordered_set<string> candidates(wordList.begin(), wordList.end());
         if (candidates.find(endWord) == candidates.end()) {
             return {};
