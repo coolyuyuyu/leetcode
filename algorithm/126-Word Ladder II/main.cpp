@@ -9,10 +9,9 @@ public:
 
         vector<vector<string>> ans;
 
-        bool stop = false;
         queue<vector<string>> paths;
         paths.push({beginWord});
-        while (!paths.empty() && !stop) {
+        while (!paths.empty() && ans.empty()) {
             unordered_set<string> visited;
 
             size_t n = paths.size();
@@ -33,7 +32,6 @@ public:
                             path.emplace_back(word);
                             paths.emplace(path);
                             if (word == endWord) {
-                                stop = true;
                                 ans.emplace_back(path);
                             }
                             path.pop_back();
