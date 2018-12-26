@@ -14,7 +14,7 @@ public:
         return true;
     }
 
-    size_t ladderLengthBfs(const string& beginWord, const string& endWord, vector<string>& wordList) {
+    size_t ladderLengthBfsV1(const string& beginWord, const string& endWord, vector<string>& wordList) {
         unordered_set<string> words(wordList.begin(), wordList.end());
         words.erase(beginWord);
 
@@ -43,7 +43,52 @@ public:
         return 0 < reachable.count(endWord) ? len : 0;
     }
 
+    // Time: O(wordLen * wordList.size())
+    size_t ladderLengthBfsV2(const string& beginWord, const string& endWord, vector<string>& wordList) {
+        if (beginWord == endWord) {
+            return 1;
+        }
+
+        unordered_set<string> candidates(wordList.begin(), wordList.end());
+        candidates.erase(beginWord);
+
+        size_t ladderLen = 2;
+
+        queue<string> toVisit;
+        toVisit.emplace(beginWord);
+        while (!toVisit.empty()) {
+            size_t n = toVisit.size();
+            for (size_t i = 0; i < n; ++i) {
+                string word1 = toVisit.front();
+                toVisit.pop();
+
+                for (size_t j = 0; j < word1.size(); ++j) {
+                    char letter = word1[j];
+                    for (char c = 'a'; c <= 'z'; ++c) {
+                        word1[j] = c;
+                        if (candidates.find(word1) != candidates.end()) {
+
+                            if (word1 == endWord) {
+                                return ladderLen;
+                            }
+
+                            toVisit.emplace(word1);
+                            candidates.erase(word1);
+                        }
+                    }
+                    word1[j] = letter;
+                }
+            }
+
+            ++ladderLen;
+        }
+
+        return 0;
+    }
+
     size_t ladderLength(string beginWord, string endWord, vector<string>& wordList) {
-        return ladderLengthBfs(beginWord, endWord, wordList);
+        return ladderLengthBfsV1(beginWord, endWord, wordList);
+
+        //return ladderLengthBfsV2(beginWord, endWord, wordList);
     }
 };
