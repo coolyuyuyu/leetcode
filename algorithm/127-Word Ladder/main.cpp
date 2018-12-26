@@ -82,11 +82,61 @@ public:
         return 0;
     }
 
+    size_t ladderLengthBfsTwoEnd(const string& beginWord, const string& endWord, vector<string>& wordList) {
+        unordered_set<string> candidates(wordList.begin(), wordList.end());
+        if (candidates.find(endWord) == candidates.end()) {
+            return 0;
+        }
+
+        size_t ladderLen = 1;
+        unordered_set<string> end1 = {beginWord};
+        unordered_set<string> end2 = {endWord};
+        while (!end1.empty()) {
+            ++ladderLen;
+
+            for (const string& word : end1) {
+                candidates.erase(word);
+            }
+
+            unordered_set<string> neighbors;
+            for (string word : end1) {
+                for (size_t j = 0; j < word.size(); ++j) {
+                    char letter = word[j];
+                    for (char c = 'a'; c <= 'z'; ++c) {
+                        if (c == letter) {
+                            continue;
+                        }
+
+                        word[j] = c;
+                        if (end2.find(word) != end2.end()) {
+                            return ladderLen;
+                        }
+
+                        if (candidates.find(word) != candidates.end()) {
+                            neighbors.emplace(word);
+                        }
+                    }
+                    word[j] = letter;
+                }
+            }
+            end1.swap(neighbors);
+
+            // KEY: Expand one end with fewer nodes.
+            if (end1.size() > end2.size()) {
+                end1.swap(end2);
+            }
+        }
+
+        return 0;
+    }
+
     size_t ladderLength(string beginWord, string endWord, vector<string>& wordList) {
         assert(beginWord != endWord);
 
         //return ladderLengthBfsV1(beginWord, endWord, wordList);
 
-        return ladderLengthBfsV2(beginWord, endWord, wordList);
+        //return ladderLengthBfsV2(beginWord, endWord, wordList);
+
+        return ladderLengthBfsTwoEnd(beginWord, endWord, wordList);
     }
 };
