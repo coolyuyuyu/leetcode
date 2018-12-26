@@ -51,6 +51,9 @@ public:
 
         unordered_set<string> candidates(wordList.begin(), wordList.end());
         candidates.erase(beginWord);
+        if (candidates.find(endWord) == candidates.end()) {
+            return 0;
+        }
 
         size_t ladderLen = 2;
 
@@ -87,8 +90,8 @@ public:
     }
 
     size_t ladderLength(string beginWord, string endWord, vector<string>& wordList) {
-        return ladderLengthBfsV1(beginWord, endWord, wordList);
+        //return ladderLengthBfsV1(beginWord, endWord, wordList);
 
-        //return ladderLengthBfsV2(beginWord, endWord, wordList);
+        return ladderLengthBfsV2(beginWord, endWord, wordList);
     }
 };
