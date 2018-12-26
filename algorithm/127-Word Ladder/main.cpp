@@ -45,51 +45,46 @@ public:
 
     // Time: O(wordLen * wordList.size())
     size_t ladderLengthBfsV2(const string& beginWord, const string& endWord, vector<string>& wordList) {
-        if (beginWord == endWord) {
-            return 1;
-        }
-
         unordered_set<string> candidates(wordList.begin(), wordList.end());
         candidates.erase(beginWord);
         if (candidates.find(endWord) == candidates.end()) {
             return 0;
         }
 
-        size_t ladderLen = 2;
+        size_t ladderLen = 1;
 
-        queue<string> toVisit;
-        toVisit.emplace(beginWord);
-        while (!toVisit.empty()) {
-            size_t n = toVisit.size();
-            for (size_t i = 0; i < n; ++i) {
-                string word1 = toVisit.front();
-                toVisit.pop();
+        unordered_set<string> check;
+        check.emplace(beginWord);
+        while (!check.empty()) {
+            ++ladderLen;
 
-                for (size_t j = 0; j < word1.size(); ++j) {
-                    char letter = word1[j];
+            unordered_set<string> checkTmp;
+            for (string word : check) {
+                for (size_t j = 0; j < word.size(); ++j) {
+                    char letter = word[j];
                     for (char c = 'a'; c <= 'z'; ++c) {
-                        word1[j] = c;
-                        if (candidates.find(word1) != candidates.end()) {
-
-                            if (word1 == endWord) {
+                        word[j] = c;
+                        if (candidates.find(word) != candidates.end()) {
+                            if (word == endWord) {
                                 return ladderLen;
                             }
 
-                            toVisit.emplace(word1);
-                            candidates.erase(word1);
+                            checkTmp.emplace(word);
+                            candidates.erase(word);
                         }
                     }
-                    word1[j] = letter;
+                    word[j] = letter;
                 }
             }
-
-            ++ladderLen;
+            check.swap(checkTmp);
         }
 
         return 0;
     }
 
     size_t ladderLength(string beginWord, string endWord, vector<string>& wordList) {
+        assert(beginWord != endWord);
+
         //return ladderLengthBfsV1(beginWord, endWord, wordList);
 
         return ladderLengthBfsV2(beginWord, endWord, wordList);
