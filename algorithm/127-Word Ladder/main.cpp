@@ -63,6 +63,10 @@ public:
                 for (size_t j = 0; j < word.size(); ++j) {
                     char letter = word[j];
                     for (char c = 'a'; c <= 'z'; ++c) {
+                        if (c == letter) {
+                            continue;
+                        }
+                        
                         word[j] = c;
                         if (candidates.find(word) != candidates.end()) {
                             if (word == endWord) {
