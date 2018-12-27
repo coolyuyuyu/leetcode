@@ -54,7 +54,36 @@ public:
         return matrix;
     }
 
+    vector<vector<int>> updateMatrixDp(vector<vector<int>>& matrix) {
+        size_t rowCnt = matrix.size();
+        size_t colCnt = matrix.empty() ? 0 : matrix.front().size();
+
+        for (size_t row = 0; row < rowCnt; ++row) {
+            for (size_t col = 0; col < colCnt; ++col) {
+                if (matrix[row][col] == 1) {
+                    int lftMax = 0 < col ? matrix[row][col - 1] : INT_MAX;
+                    int uprMax = 0 < row ? matrix[row - 1][col] : INT_MAX;
+                    int neighborMax = min(lftMax, uprMax);
+                    matrix[row][col] = (neighborMax == INT_MAX ? INT_MAX : (neighborMax + 1));
+                }
+            }
+        }
+
+        for (size_t row = rowCnt; 0 < row--;) {
+            for (size_t col = colCnt; 0 < col--;) {
+                int rhtMax = col + 1 < colCnt ? matrix[row][col + 1] : INT_MAX;
+                int btmMax = row + 1 < rowCnt ? matrix[row + 1][col] : INT_MAX;
+                int neighborMax = min(rhtMax, btmMax);
+                matrix[row][col] = min(matrix[row][col], neighborMax == INT_MAX ? INT_MAX : (neighborMax + 1));
+            }
+        }
+
+        return matrix;
+    }
+
     vector<vector<int>> updateMatrix(vector<vector<int>>& matrix) {
-        return updateMatrixBfs(matrix);
+        //return updateMatrixBfs(matrix);
+
+        return updateMatrixDp(matrix);
     }
 };
