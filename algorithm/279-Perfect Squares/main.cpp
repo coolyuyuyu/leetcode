@@ -35,7 +35,6 @@ public:
         return cache[n];
     }
 
-
     int numSquares(int n) {
         assert(0 < n);
 
