@@ -29,11 +29,45 @@ private:
     priority_queue<int, vector<int>, greater<int>> m_hi; // min-heap
 };
 
+class MediaFinderStrategyByMultiSet : public MediaFinderStrategy {
+public:
+    MediaFinderStrategyByMultiSet()
+        : m_itrMid(m_nums.end()) {
+    }
+
+    void addNum(int num) {
+        if (m_nums.empty()) {
+            m_nums.insert(num);
+            m_itrMid = m_nums.begin();
+            return;
+        }
+
+        size_t n = m_nums.size();
+        m_nums.insert(num);
+        if (num < *m_itrMid) {
+            m_itrMid = n & 1 ? prev(m_itrMid) : m_itrMid;
+        }
+        else {
+            m_itrMid = n & 1 ? m_itrMid : next(m_itrMid);
+        }
+    }
+
+    double findMedian() const {
+        return (*m_itrMid + *next(m_itrMid, m_nums.size() & 1 ? 0 : 1)) * 0.5;
+    }
+
+private:
+    multiset<int> m_nums;
+    multiset<int>::iterator m_itrMid;
+};
+
 class MedianFinder {
 public:
     /** initialize your data structure here. */
     MedianFinder() {
-        m_strategy = new MediaFinderStrategyByHeap();
+        //m_strategy = new MediaFinderStrategyByHeap();
+
+        m_strategy = new MediaFinderStrategyByMultiSet();
     }
 
     ~MedianFinder() {
