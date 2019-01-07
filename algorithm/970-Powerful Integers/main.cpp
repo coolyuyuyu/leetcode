@@ -9,7 +9,6 @@ public:
             }
         }
 
-
         vector<int> candidatesY = {1};
         if (1 < y) {
             int newY;
