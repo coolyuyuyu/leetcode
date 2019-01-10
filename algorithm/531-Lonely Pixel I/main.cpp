@@ -1,6 +1,7 @@
 class Solution {
 public:
-    size_t findLonelyPixel(vector<vector<char>>& picture) {
+    // Time(m,n) = O(m*n), Space(m,n) = O(m*n)
+    size_t findLonelyPixelV1(const vector<vector<char>>& picture) {
         size_t rowCnt = picture.size(), colCnt = picture.empty() ? 0 : picture.front().size();
         vector<int> dpRow(rowCnt, 0), dpCol(colCnt, 0);
         for (size_t row = 0; row < rowCnt; ++row) {
@@ -22,5 +23,9 @@ public:
         }
 
         return count;
+    }
+    
+    size_t findLonelyPixel(const vector<vector<char>>& picture) {
+        return findLonelyPixelV1(picture);
     }
 };
