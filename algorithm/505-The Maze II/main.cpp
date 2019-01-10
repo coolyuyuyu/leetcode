@@ -36,8 +36,7 @@ public:
                     --(posTmp.y);
                 }
                 if (posTmp != pos) {
-                    State stateTmp(posTmp, state.getDistance() + posTmp.distance(pos));
-                    states.push(stateTmp);
+                    states.emplace(posTmp, state.getDistance() + posTmp.distance(pos));
                 }
 
                 // upr
@@ -46,8 +45,7 @@ public:
                     --(posTmp.x);
                 }
                 if (posTmp != pos) {
-                    State stateTmp(posTmp, state.getDistance() + posTmp.distance(pos));
-                    states.push(stateTmp);
+                    states.emplace(posTmp, state.getDistance() + posTmp.distance(pos));
                 }
 
                 // rht
@@ -56,8 +54,7 @@ public:
                     ++(posTmp.y);
                 }
                 if (posTmp != pos) {
-                    State stateTmp(posTmp, state.getDistance() + posTmp.distance(pos));
-                    states.push(stateTmp);
+                    states.emplace(posTmp, state.getDistance() + posTmp.distance(pos));
                 }
 
                 // btm
@@ -66,8 +63,7 @@ public:
                     ++(posTmp.x);
                 }
                 if (posTmp != pos) {
-                    State stateTmp(posTmp, state.getDistance() + posTmp.distance(pos));
-                    states.push(stateTmp);
+                    states.emplace(posTmp, state.getDistance() + posTmp.distance(pos));
                 }
             }
         }
