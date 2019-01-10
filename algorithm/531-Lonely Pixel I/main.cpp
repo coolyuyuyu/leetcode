@@ -1,6 +1,6 @@
 class Solution {
 public:
-    // Time(m,n) = O(m*n), Space(m,n) = O(m*n)
+    // Time(m,n) = O(m*n), Space(m,n) = O(m + n)
     size_t findLonelyPixelV1(const vector<vector<char>>& picture) {
         size_t rowCnt = picture.size(), colCnt = picture.empty() ? 0 : picture.front().size();
         vector<int> dpRow(rowCnt, 0), dpCol(colCnt, 0);
