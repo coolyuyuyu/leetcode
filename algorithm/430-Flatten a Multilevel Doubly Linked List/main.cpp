@@ -42,9 +42,8 @@ public:
             }
             *ppTail = pCur;
         }
-
-
     }
+
     Node* flatten(Node* pHead) {
         Node* pTail = nullptr;
         flatten(pHead, &pTail);
