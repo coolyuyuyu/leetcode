@@ -9,29 +9,46 @@
  */
 class Solution {
 public:
-    string findDuplicateSubtrees(TreeNode* root, map<string, size_t>& inorderMap, vector<TreeNode*>& duplicates) {
+    string findDuplicateSubtreesV1(TreeNode* root, map<string, size_t>& counts, vector<TreeNode*>& duplicates) {
         if (!root) {
             return "";
         }
 
         ostringstream oss;
-        oss << '(' << findDuplicateSubtrees(root->left, inorderMap, duplicates) << ')';
+        oss << '(' << findDuplicateSubtreesV1(root->left, counts, duplicates) << ')';
         oss << root->val;
-        oss << '(' << findDuplicateSubtrees(root->right, inorderMap, duplicates) << ')';
+        oss << '(' << findDuplicateSubtreesV1(root->right, counts, duplicates) << ')';
 
-        string inorder = oss.str();
-        ++inorderMap[inorder];
-        if (inorderMap[inorder] == 2) {
+        string id = oss.str();
+        ++counts[id];
+        if (counts[id] == 2) {
             duplicates.emplace_back(root);
         }
 
-        return inorder;
+        return id;
+    }
+
+    string findDuplicateSubtreesV2(TreeNode* root, map<string, size_t>& counts, vector<TreeNode*>& duplicates) {
+        if (!root) {
+            return "#";
+        }
+
+        string id = to_string(root->val) + "," + findDuplicateSubtreesV2(root->left, counts, duplicates) + ","  + findDuplicateSubtreesV2(root->right, counts, duplicates);
+        ++counts[id];
+        if (counts[id] == 2) {
+            duplicates.emplace_back(root);
+        }
+
+        return id;
     }
 
     vector<TreeNode*> findDuplicateSubtrees(TreeNode* root) {
-        map<string, size_t> inorderMap;
+        map<string, size_t> counts;
         vector<TreeNode*> duplicates;
-        findDuplicateSubtrees(root, inorderMap, duplicates);
+
+        //findDuplicateSubtreesV1(root, counts, duplicates);
+        findDuplicateSubtreesV2(root, counts, duplicates);
+
         return duplicates;
     }
 };
