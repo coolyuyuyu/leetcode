@@ -1,10 +1,9 @@
-class Solution {
+\class Solution {
 public:
     struct Box {
         Box(int num_, int count_)
             : num(num_)
-            , count(count_){
-
+            , count(count_) {
         }
 
         int num;
@@ -20,7 +19,6 @@ public:
             unordered_map<int, int> counts;
             for (const Box& box : boxes) {
                 scoreUpr -= (box.count * box.count);
-
                 counts[box.num] += box.count;
             }
 
@@ -44,7 +42,7 @@ public:
     // Pruned and Search, TLE
     int removeBoxesRecv(const vector<Box>& boxes) {
         auto comp = [](const State& a, const State& b) {
-            if (a.scoreLwr != b.scoreLwr) {
+            if (b.scoreLwr != a.scoreLwr) {
                 return b.scoreLwr < a.scoreLwr;
             }
             else {
@@ -55,38 +53,50 @@ public:
         pq.emplace(0, boxes);
 
         int totalStateCount = 0;
-        int prunedStateCount = 0;
+        int pruneStateCount = 0;
 
         int scoreUprLowest = 0;
         while (!pq.empty()) {
-            State s = pq.top();
+            State state = pq.top();
             pq.pop();
+            ++totalStateCount;
 
-            if (scoreUprLowest <= s.scoreLwr) {
+            if (scoreUprLowest <= state.scoreLwr) {
+                pruneStateCount++;
                 continue;
             }
 
-            if (s.scoreUpr < scoreUprLowest) {
-                scoreUprLowest = s.scoreUpr;
+            if (state.scoreUpr < scoreUprLowest) {
+                scoreUprLowest = state.scoreUpr;
             }
-            if (s.scoreLwr == s.scoreUpr) {
+            if (state.scoreLwr == state.scoreUpr) {
                 continue;
             }
 
-            const vector<Box>& boxes = s.boxes;
-            for (size_t i = 0; i < boxes.size(); ++i) {
-                vector<Box> boxesTmp(boxes);
-                if (0 < i && i + 1 < boxesTmp.size() && boxesTmp[i - 1].num == boxesTmp[i + 1].num) {
-                    boxesTmp[i - 1].count += boxesTmp[i + 1].count;
-                    boxesTmp.erase(boxesTmp.begin() + i, boxesTmp.begin() + i + 2);
-                }
-                else {
-                    boxesTmp.erase(boxesTmp.begin() + i);
-                }
+            const vector<Box>& boxes = state.boxes;
+            for (size_t i = 0; i + 1 < boxes.size(); ++i) {
+                for (size_t j = i + 2; j < boxes.size(); ++j) {
+                    if (boxes[i].num == boxes[j].num) {
+                        int scoreTmp = state.score;
+                        for (size_t k = i + 1; k < j; ++k) {
+                            scoreTmp -= boxes[k].count * boxes[k].count;
+                        }
 
-                pq.emplace(s.score - boxes[i].count * boxes[i].count, boxesTmp);
+                        vector<Box> boxesTmp(boxes.begin(), boxes.begin() + i);
+                        boxesTmp.emplace_back(boxes[i].num, boxes[i].count + boxes[j].count);
+                        boxesTmp.insert(boxesTmp.end(), boxes.begin() + j + 1, boxes.end());
+
+
+                        pq.emplace(scoreTmp, boxesTmp);
+
+                        break;
+                    }
+                }
             }
         }
+
+        cout << "totalStateCount=" << totalStateCount << endl;
+        cout << "pruneStateCount=" << pruneStateCount << endl;
 
         return -scoreUprLowest;
     }
@@ -101,7 +111,6 @@ public:
                 ++boxes.back().count;
             }
         }
-
         return removeBoxesRecv(boxes);
     }
 };
