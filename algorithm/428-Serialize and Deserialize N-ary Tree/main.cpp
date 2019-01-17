@@ -15,7 +15,6 @@ public:
 */
 class Codec {
 public:
-
     // Encodes a tree to a single string.
     string serialize(Node* root) {
         if (!root) {
@@ -39,44 +38,53 @@ public:
 
     // Decodes your encoded data to tree.
     Node* deserialize(string data) {
-        if (data.empty()) {
+        return deserialize(data, 0, data.size());
+    }
+
+private:
+    Node* deserialize(const string& data, size_t bgn, size_t end) {
+        if (end <= bgn) {
             return nullptr;
         }
-        else if (data.front() != '[') {
-            Node* root = new Node(atoi(data.c_str()));
-            return root;
+
+        if (data[bgn] == '[') {
+            ++bgn;
+            --end;
         }
 
-        size_t index = data.find(' ', 1);
-        Node* root = new Node(atoi(data.substr(1, index - 1).c_str()));
-        ++index;
+        int num = 0;
+        while (bgn < end && data[bgn] != ' ') {
+            num *= 10;
+            num += data[bgn++] - '0';
+        }
+        Node* root = new Node(num);
 
-        while (index < data.size()) {
-            size_t bgn = index;
-            if (data[index] == '[') {
-                size_t openCount = 0;
-                do {
-                    switch (data[index++]) {
-                        case '[':
-                            ++openCount;
-                            break;
-                        case ']':
-                            --openCount;
-                            break;
-                        default:
-                            break;
+        size_t index = ++bgn;
+        size_t openCount = 0;
+        while (bgn < end) {
+            switch (data[bgn]) {
+                case '[':
+                    ++openCount;
+                    if (openCount == 1) {
+                        index = bgn;
                     }
-                } while (0 < openCount);
+                    break;
+                case ']':
+                    --openCount;
+                    break;
+                case ' ':
+                    if (openCount == 0) {
+                        root->children.emplace_back(deserialize(data, index, bgn));
+                        index = bgn + 1;
+                    }
+                    break;
+                default:
+                    break;
             }
-            else {
-                index = data.find_first_of(" ]", bgn);
-            }
-
-            root->children.emplace_back(deserialize(data.substr(bgn, index - bgn)));
-
-            if (index != string::npos) {
-                index = index + 1;
-            }
+            ++bgn;
+        }
+        if (index < end) {
+            root->children.emplace_back(deserialize(data, index, end));
         }
 
         return root;
