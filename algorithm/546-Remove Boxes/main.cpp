@@ -1,9 +1,18 @@
-\class Solution {
+class Solution {
 public:
     struct Box {
         Box(int num_, int count_)
             : num(num_)
             , count(count_) {
+        }
+
+        bool operator<(const Box rhs)const {
+            if (num == rhs.num) {
+                return count < rhs.count;
+            }
+            else {
+                return num < rhs.num;
+            }
         }
 
         int num;
@@ -24,7 +33,7 @@ public:
 
             if (counts.size() == boxes.size()) {
                 boxes.clear();
-                scoreLwr = scoreUpr;
+                score = scoreLwr = scoreUpr;
             }
             else {
                 for (const pair<int, int>& p : counts) {
@@ -39,7 +48,7 @@ public:
         int scoreLwr;
     };
 
-    // Pruned and Search, TLE
+    // A* Branch and Bound + Memorization, TLE
     int removeBoxesRecv(const vector<Box>& boxes) {
         auto comp = [](const State& a, const State& b) {
             if (b.scoreLwr != a.scoreLwr) {
@@ -53,24 +62,29 @@ public:
         pq.emplace(0, boxes);
 
         int totalStateCount = 0;
-        int pruneStateCount = 0;
+        int cacheHitCount = 0;
 
-        int scoreUprLowest = 0;
+        int scoreLowest = 0;
+        map<vector<Box>, int> cache;
         while (!pq.empty()) {
             State state = pq.top();
             pq.pop();
             ++totalStateCount;
 
-            if (scoreUprLowest <= state.scoreLwr) {
-                pruneStateCount++;
-                continue;
+            auto p = cache.emplace(state.boxes, state.score);
+            if (!p.second) {
+                cacheHitCount++;
+                if (p.first->second <= state.score) {
+                    continue;
+                }
+                else {
+                    p.first->second = state.score;
+                }
             }
 
-            if (state.scoreUpr < scoreUprLowest) {
-                scoreUprLowest = state.scoreUpr;
-            }
             if (state.scoreLwr == state.scoreUpr) {
-                continue;
+                scoreLowest = state.score;
+                break;
             }
 
             const vector<Box>& boxes = state.boxes;
@@ -96,9 +110,9 @@ public:
         }
 
         cout << "totalStateCount=" << totalStateCount << endl;
-        cout << "pruneStateCount=" << pruneStateCount << endl;
+        cout << "cacheHitCount=" << cacheHitCount << endl;
 
-        return -scoreUprLowest;
+        return -scoreLowest;
     }
 
     int removeBoxes(vector<int>& nums) {
