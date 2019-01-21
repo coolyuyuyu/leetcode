@@ -21,8 +21,9 @@ public:
 
         int count = 0;
         for (size_t i = 0; i < nums.size(); ++i) {
-            for (size_t j = i + 1; j < nums.size(); ++j) {
-                count += (searchInsert(nums, nums[i] + nums[j], j + 1, nums.size()) - j - 1);
+            for (size_t j = i + 1, lo = j + 1; j + 1 < nums.size(); ++j, lo = max(j + 1, lo)) {
+                lo = searchInsert(nums, nums[i] + nums[j], lo, nums.size());
+                count += (lo - j - 1);
             }
         }
 
