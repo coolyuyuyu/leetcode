@@ -9,40 +9,44 @@
  */
 class Solution {
 public:
-    TreeNode* deleteNode(TreeNode* root, int key) {
-        if (!root) {
+    TreeNode* deleteNodeRecv(TreeNode* pRoot, int key) {
+        if (!pRoot) {
             return nullptr;
         }
 
-        if (key < root->val) {
-            root->left = deleteNode(root->left, key);
+        if (key < pRoot->val) {
+            pRoot->left = deleteNodeRecv(pRoot->left, key);
         }
-        else if (root->val < key) {
-            root->right = deleteNode(root->right, key);
+        else if (pRoot->val < key) {
+            pRoot->right = deleteNodeRecv(pRoot->right, key);
         }
         else {
             // leaf
-            if (!root->left && !root->right) {
-                delete root;
+            if (!pRoot->left && !pRoot->right) {
+                delete pRoot;
                 return nullptr;
             }
 
             // one child
-            if (!root->left || !root->right) {
-                TreeNode* ret = root->left ? root->left : root->right;
-                delete root;
+            if (!pRoot->left || !pRoot->right) {
+                TreeNode* ret = pRoot->left ? pRoot->left : pRoot->right;
+                delete pRoot;
                 return ret;
             }
 
             // two childs
-            TreeNode* tmp = root->right;
-            while (tmp->left) {
-                tmp = tmp->left;
+            TreeNode* pTmp = pRoot->right;
+            while (pTmp->left) {
+                pTmp = pTmp->left;
             }
-            root->val = tmp->val;
-            root->right = deleteNode(root->right, root->val);
+            pRoot->val = pTmp->val;
+            pRoot->right = deleteNodeRecv(pRoot->right, pRoot->val);
         }
 
-        return root;
+        return pRoot;
+    }
+
+    TreeNode* deleteNode(TreeNode* pRoot, int key) {
+        return deleteNodeRecv(pRoot, key);
     }
 };
