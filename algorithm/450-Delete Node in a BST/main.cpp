@@ -46,7 +46,58 @@ public:
         return pRoot;
     }
 
+    TreeNode* deleteNodeIter(TreeNode* pRoot, int key) {
+        TreeNode** ppNode = &pRoot;
+        while (*ppNode) {
+            int val = (*ppNode)->val;
+            if (key < val) {
+                ppNode = &((*ppNode)->left);
+            }
+            else if (key == val) {
+                break;
+            }
+            else {
+                ppNode = &((*ppNode)->right);
+            }
+        }
+
+        if (*ppNode == nullptr) {
+            return pRoot;
+        }
+
+        if ((*ppNode)->left && (*ppNode)->right) {
+            TreeNode* pTmp = (*ppNode)->right;
+            if (pTmp->left) {
+                TreeNode* pParent = nullptr;
+                while (pTmp->left) {
+                    pParent = pTmp;
+                    pTmp = pTmp->left;
+                }
+                pParent->left = pTmp->right;
+
+                pTmp->left = (*ppNode)->left;
+                pTmp->right = (*ppNode)->right;
+            }
+            else {
+                pTmp->left = (*ppNode)->left;
+            }
+
+            TreeNode* pDel = *ppNode;
+            *ppNode = pTmp;
+            delete pDel;
+        }
+        else {
+            TreeNode* pDel = *ppNode;
+            *ppNode = (*ppNode)->left ? (*ppNode)->left : (*ppNode)->right;
+            delete pDel;
+        }
+
+        return pRoot;
+    }
+
     TreeNode* deleteNode(TreeNode* pRoot, int key) {
-        return deleteNodeRecv(pRoot, key);
+        //return deleteNodeRecv(pRoot, key);
+
+        return deleteNodeIter(pRoot, key);
     }
 };
