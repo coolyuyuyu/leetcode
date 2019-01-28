@@ -25,7 +25,7 @@ public:
         }
     }
 
-    vector<int> sumOfDistancesInTree(int N, vector<vector<int>>& edges) {
+    vector<int> sumOfDistancesInTreeRecv(int N, vector<vector<int>>& edges) {
         vector<vector<int>> graph(N);
         for (vector<int>& edge : edges) {
             graph[edge[0]].emplace_back(edge[1]);
@@ -41,5 +41,9 @@ public:
         seen.clear();
         dfs2(graph, root, counts, distances[root] + N, distances, seen);
         return distances;
+    }
+
+    vector<int> sumOfDistancesInTree(int N, vector<vector<int>>& edges) {
+        return sumOfDistancesInTreeRecv(N, edges);
     }
 };
