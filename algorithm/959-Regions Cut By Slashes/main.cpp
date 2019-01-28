@@ -9,34 +9,34 @@ public:
                 m_parents[i] = i;
             }
         }
-        
+
         size_t find(size_t i) {
             if (m_parents[i] != i) {
                 m_parents[i] = find(m_parents[i]);
             }
-            
+
             return m_parents[i];
-        } 
-        
+        }
+
         void merge(size_t i, size_t j) {
             size_t rootI = find(i);
             size_t rootJ = find(j);
             if (rootI != rootJ) {
                 --m_count;
             }
-            
+
             m_parents[rootI] = rootJ;
         }
-        
+
         inline size_t size() const {
             return m_count;
         }
-        
+
     private:
         vector<size_t> m_parents;
         size_t m_count;
     };
-    
+
     size_t regionsBySlashes(vector<string>& grid) {
         size_t rowCnt = grid.size(), colCnt = grid.empty() ? 0 : grid.front().size();
         DisjointSets ds(rowCnt * colCnt * 4);
@@ -82,7 +82,7 @@ public:
                     break;
             }
         }
-        
+
         for (size_t row = 1; row < rowCnt; ++row) {
             for (size_t col = 1; col < colCnt; ++col) {
                 size_t base = (row * colCnt  + col) * 4;
@@ -105,7 +105,7 @@ public:
                 }
             }
         }
-        
+
         return ds.size();
     }
 };
