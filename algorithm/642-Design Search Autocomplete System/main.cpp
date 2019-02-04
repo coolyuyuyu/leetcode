@@ -43,7 +43,15 @@ private:
 
         vector<string> lookup(size_t k) {
             string prefix;
-            priority_queue<pair<size_t, string>, vector<pair<size_t, string>>, decltype(&comp)> pq(&comp);
+            auto comp = [](const pair<size_t, string>& a, const pair<size_t, string>& b) {
+                if (b.first == a.first) {
+                    return a.second < b.second;
+                }
+                else {
+                    return b.first < a.first;
+                }
+            };
+            priority_queue<pair<size_t, string>, vector<pair<size_t, string>>, decltype(comp)> pq(comp);
             traverse(prefix, *m_ppNode, k, pq);
 
             vector<string> sentences(pq.size());
@@ -79,7 +87,7 @@ private:
 
             static const size_t CHILD_COUNT = 27;
             inline static size_t index(char c) {
-                return c == ' ' ? 26 : c - 'a';
+                return c == ' ' ? 0 : 1 + c - 'a';
             }
 
             TrieNode* childs[CHILD_COUNT] = {nullptr};
@@ -97,16 +105,6 @@ private:
             delete pRoot;
         }
 
-        public:
-        static bool comp(const pair<size_t, string>& a, const pair<size_t, string>& b) {
-            if (b.first == a.first) {
-                return a.second < b.second;
-            }
-            else {
-                return b.first < a.first;
-            }
-        }
-
         template<class T>
         void traverse(string& prefix, TrieNode* pNode, size_t k, T& pq) {
             if (!pNode) {
@@ -117,15 +115,14 @@ private:
                 if (pq.size() < k) {
                     pq.emplace(pNode->time, prefix);
                 }
-                else if (comp({pNode->time, prefix}, pq.top())) {
-
+                else if (pq.top().first < pNode->time) {
                     pq.pop();
                     pq.emplace(pNode->time, prefix);
                 }
             }
-
+            
             for (size_t i = 0; i < TrieNode::CHILD_COUNT; ++i) {
-                prefix.push_back(i < (TrieNode::CHILD_COUNT - 1) ? 'a' + i : ' ');
+                prefix.push_back(i == 0 ? ' ' : ('a' + i - 1));
                 traverse(prefix, pNode->childs[i], k, pq);
                 prefix.pop_back();
             }
