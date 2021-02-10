@@ -3,7 +3,9 @@
  * struct ListNode {
  *     int val;
  *     ListNode *next;
- *     ListNode(int x) : val(x), next(NULL) {}
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
 class Solution {
@@ -11,14 +13,15 @@ public:
     ListNode* deleteDuplicates(ListNode* head) {
         ListNode** ppCur = &head;
         while (*ppCur) {
-            while ((*ppCur)->next && (*ppCur)->val == (*ppCur)->next->val) {
-                ListNode* pDel = *ppCur;
-                *ppCur = (*ppCur)->next;
-                delete pDel;
-            }
+            int val = (*ppCur)->val;
             ppCur = &((*ppCur)->next);
+            while (*ppCur && (*ppCur)->val == val) {
+                ListNode* pDel = *ppCur;
+                *ppCur = pDel->next;
+                delete pDel;
+            }            
         }
-        
+
         return head;
     }
 };
