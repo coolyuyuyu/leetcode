@@ -3,12 +3,14 @@
  * struct ListNode {
  *     int val;
  *     ListNode *next;
- *     ListNode(int x) : val(x), next(NULL) {}
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
 class Solution {
 public:
-    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+    ListNode* getIntersectionNode(ListNode* headA, ListNode* headB) {
         ListNode* pNodeA = headA;
         ListNode* pNodeB = headB;
         bool restartA = false;
@@ -19,24 +21,17 @@ public:
             }
 
             pNodeA = pNodeA->next;
-            if (pNodeA == NULL) {
-                if (restartA) {
-                    return NULL;
-                }
-                restartA = true;
+            if (!pNodeA && !restartA) {
                 pNodeA = headB;
+                restartA = true;
             }
-
             pNodeB = pNodeB->next;
-            if (pNodeB == NULL) {
-                if (restartB) {
-                    return NULL;
-                } 
-                restartB = true;
+            if (!pNodeB && !restartB) {
                 pNodeB = headA;
+                restartB = true;
             }
         }
 
-        return NULL;
+        return nullptr;
     }
 };
