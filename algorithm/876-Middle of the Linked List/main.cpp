@@ -3,19 +3,23 @@
  * struct ListNode {
  *     int val;
  *     ListNode *next;
- *     ListNode(int x) : val(x), next(NULL) {}
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
 class Solution {
 public:
     ListNode* middleNode(ListNode* head) {
-        ListNode* slow = head;
-        ListNode* fast = head;
-        while (fast && fast->next) {
-            fast = fast->next->next;
-            slow = slow->next;
+        assert(head);
+
+        ListNode* pSlow = head;
+        ListNode* pFast = head;
+        while (pFast && pFast->next) {
+            pSlow = pSlow->next;
+            pFast = pFast->next->next;
         }
 
-        return slow;
+        return pSlow;
     }
 };
