@@ -3,14 +3,27 @@
  * struct ListNode {
  *     int val;
  *     ListNode *next;
- *     ListNode(int x) : val(x), next(NULL) {}
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
 class Solution {
 public:
+    ListNode* middleNode(ListNode* head) {
+        ListNode* pSlow = head;
+        ListNode* pFast = head;
+        while (pFast && pFast->next) {
+            pSlow = pSlow->next;
+            pFast = pFast->next->next;
+        }
+
+        return pSlow;
+    }
+
     ListNode* reverseList(ListNode* head) {
+        ListNode* pPre = nullptr;
         ListNode* pCur = head;
-        ListNode* pPre = NULL;
         while (pCur) {
             ListNode* pNxt = pCur->next;
             pCur->next = pPre;
@@ -20,31 +33,18 @@ public:
 
         return pPre;
     }
-    
+
     bool isPalindrome(ListNode* head) {
-        if (!head) {
-            return true;
-        }
-        
-        ListNode* pA = head;
-        ListNode* pB = head;
-        while (pA && pA->next && pA->next->next) {
-            pA = pA->next->next;
-            pB = pB->next;
-        }
-        
-        pB->next = reverseList(pB->next);
-        
-        pA = head;
-        pB = pB->next;
-        while (pB) {
-            if (pA->val != pB->val) {
+        ListNode* pNode1 = head;
+        ListNode* pNode2 = reverseList(middleNode(head));
+        while (pNode2) {
+            if (pNode1->val != pNode2->val) {
                 return false;
             }
-            pA = pA->next;
-            pB = pB->next;
+            pNode1 = pNode1->next;
+            pNode2 = pNode2->next;
         }
-        
+
         return true;
     }
 };
