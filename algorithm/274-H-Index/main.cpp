@@ -1,23 +1,19 @@
-#include <algorithm>
-
 class Solution {
 public:
     int hIndex_BruteForce(const vector<int>& citations) {
-        int h = 0;
+        int n = citations.size();
 
-        for (int tmpH = 1; tmpH <= citations.size(); ++tmpH) {
-            int c = count_if(citations.begin(), citations.end(), [&](int citation) { return (tmpH <= citation); });
-            if (tmpH <= c) {
-                h = tmpH;
-            }
-            else {
-                break;
+        for (int i = n; 0 < n; --i) {
+            int count = std::count_if(citations.begin(), citations.end(), [&](int c){ return (i <= c); });
+            if (count >= i) {
+                return i;
             }
         }
-        return h;
+
+        return 0;
     }
 
-    int hIndex_Sort(vector<int>& citations) {
+    int hIndex_Sort_linearSearch(vector<int>& citations) {
         sort(citations.begin(), citations.end());
 
         int n = citations.size();
