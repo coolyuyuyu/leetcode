@@ -1,6 +1,6 @@
 class Solution {
 public:
-    int hIndex_BruteForce(const vector<int>& citations) {
+    int hIndex_BruteForce(vector<int>& citations) {
         int h = 0;
         for (int tmpH = 1; tmpH <= citations.size(); ++tmpH) {
             int c = count_if(citations.begin(), citations.end(), [&](int citation) { return (tmpH <= citation); });
