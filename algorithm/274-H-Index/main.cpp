@@ -13,7 +13,7 @@ public:
         return 0;
     }
 
-    int hIndex_Sort_linearSearch(vector<int>& citations) {
+    int hIndex_Sort_LinearSearch(vector<int>& citations) {
         sort(citations.begin(), citations.end());
 
         int n = citations.size();
@@ -26,7 +26,27 @@ public:
         return 0;
     }
 
+    int hIndex_Sort_BinarySearch(vector<int>& citations) {
+        sort(citations.begin(), citations.end());
+
+        int n = citations.size();
+        int lft = 0, rht = citations.size();
+        while (lft < rht) {
+            int mid = lft + (rht - lft) / 2;
+            if (citations[mid] >= n - mid) {
+                rht = mid;
+            }
+            else {
+                lft = mid + 1;
+            }
+        }
+
+        return n - rht;
+    }
+
     int hIndex(vector<int>& citations) {
-        return hIndex_Sort(citations);
+        //return hIndex_BruteForce(citations);
+        //return hIndex_Sort_LinearSearch(citations);
+        return hIndex_Sort_BinarySearch(citations);
     }
 };
