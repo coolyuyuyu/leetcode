@@ -16,8 +16,8 @@ public:
             swap(index1, index2);
         }
 
-        unique_lock lck1(m_mutexs[index1]);
-        unique_lock lck2(m_mutexs[index2]);
+        unique_lock<mutex> lck1(m_mutexs[index1]);
+        unique_lock<mutex> lck2(m_mutexs[index2]);
 
         pickLeftFork();
         pickRightFork();
