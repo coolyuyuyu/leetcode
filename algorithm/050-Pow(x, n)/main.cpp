@@ -1,18 +1,18 @@
 class Solution {
 public:
     double myPow(double x, int n) {
-        long long p = n;
-        if (p < 0) {
+        unsigned long long exp = n;
+        if (n < 0) {
             x = 1 / x;
-            p = -p;
+            exp = -exp;
         }
 
-        double result = 1;
-        while (p > 0) {
-            if (p % 2 == 1) {
+        double result = 1.0;
+        while (exp) {
+            if (exp & 1) {
                 result *= x;
             }
-            p /= 2;
+            exp >>= 1;
             x *= x;
         }
 
