@@ -21,7 +21,11 @@ public:
         return y;
     }
 
-    bool isPalindrome(int x) {
+    bool isPalindrome_compareReverse(int x) {
         return x >= 0 && x == reverse(x);
+    }
+
+    bool isPalindrome(int x) {
+        return isPalindrome_compareReverse(x);
     }
 };
