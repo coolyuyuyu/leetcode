@@ -25,7 +25,28 @@ public:
         return x >= 0 && x == reverse(x);
     }
 
+    bool isPalindrome_checkEndsInward(int x) {
+        if (x <= 0) {
+            return x == 0;
+        }
+
+        int n = static_cast<int>(floor(log10(x))) + 1;
+        int maskMSD = pow(10, n - 1);
+        for (int i = 0; i < (n / 2); ++i) {
+            if (x / maskMSD != x % 10) {
+                return false;
+            }
+            x %= maskMSD;
+            x /= 10;
+            maskMSD /= 100;
+        }
+
+        return true;
+    }
+
+
     bool isPalindrome(int x) {
-        return isPalindrome_compareReverse(x);
+        //return isPalindrome_compareReverse(x);
+        return isPalindrome_checkEndsInward(x);
     }
 };
