@@ -11,7 +11,18 @@ public:
         return m;
     }
 
+    uint32_t reverseBits_swapBits(uint32_t n) {
+        for (int i = 0, j = 31; i < 16; ++i, --j) {
+            if (((n >> i) & 1) != ((n >> j) & 1)) {
+                n ^= ((1 << j) | (1 << i));
+            }
+        }
+
+        return n;
+    }
+
     uint32_t reverseBits(uint32_t n) {
-        return reverseBits_linerScan(n);
+        //return reverseBits_linerScan(n);
+        return reverseBits_swapBits(n);
     }
 };
