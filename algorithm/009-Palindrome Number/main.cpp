@@ -1,15 +1,27 @@
 class Solution {
 public:
-    bool isPalindrome(int x) {
-        if (x < 0)
-            return false;
-
-        int tmp = x;
+    int reverse(int x) {
+        bool positive = (x >= 0);
         int y = 0;
-        while (tmp) {
-            y = y * 10 + tmp % 10;
-            tmp /= 10;
+        while (x) {
+            if (positive) {
+                if (y > ((numeric_limits<int>::max() - (x % 10)) / 10)) {
+                    return 0;
+                }
+            }
+            else {
+                if (y < ((numeric_limits<int>::min() - (x % 10)) / 10)) {
+                    return 0;
+                }
+            }
+            y = y * 10 + x % 10;
+            x = x / 10;
         }
-        return x == y;
+
+        return y;
+    }
+
+    bool isPalindrome(int x) {
+        return x >= 0 && x == reverse(x);
     }
 };
