@@ -1,16 +1,23 @@
 class Solution {
 public:
     int reverse(int x) {
+        bool positive = (x >= 0);
         int y = 0;
         while (x) {
-            int tmp = y;
-            y *= 10;
-            y += x % 10;
-            if (y / 10 != tmp) {
-                return 0;
+            if (positive) {
+                if (y > ((numeric_limits<int>::max() - (x % 10)) / 10)) {
+                    return 0;
+                }
             }
-            x /= 10;
+            else {
+                if (y < ((numeric_limits<int>::min() - (x % 10)) / 10)) {
+                    return 0;
+                }
+            }
+            y = y * 10 + x % 10;
+            x = x / 10;
         }
+
         return y;
     }
 };
