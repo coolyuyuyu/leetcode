@@ -1,50 +1,20 @@
-namespace chuck {
-class Point {
-    friend class Rectangle;
-public:
-    Point() {
-    }
-
-    Point(int x_, int y_)
-        : x(x_)
-        , y(y_) {
-    }
-
-    int x;
-    int y;
-};
-
-class Rectangle {
-public:
-    Rectangle(const Point& ul, const Point& lr)
-        : m_ul(ul)
-        , m_lr(lr) {
-    }
-
-    int area() const {
-        return (m_lr.x - m_ul.x) * (m_ul.y - m_lr.y);
-    }
-
-    Rectangle intersect(const Rectangle& rhs) {
-        Point ul(max(m_ul.x, rhs.m_ul.x), min(m_ul.y, rhs.m_ul.y));
-        Point lr(min(m_lr.x, rhs.m_lr.x), max(m_lr.y, rhs.m_lr.y));
-        if (lr.x < ul.x || ul.y < lr.y) {
-            ul = lr = Point(0, 0);
-        }
-
-        return Rectangle(ul, lr);
-    }
-private:
-    Point m_ul; // upper left
-    Point m_lr; // lower right
-};
-}
-
 class Solution {
 public:
-    int computeArea(int A, int B, int C, int D, int E, int F, int G, int H) {
-        chuck::Rectangle rec1(chuck::Point(A, D), chuck::Point(C, B));
-        chuck::Rectangle rec2(chuck::Point(E, H), chuck::Point(G, F));
-        return rec1.area() + rec2.area() - rec1.intersect(rec2).area();
+    int computeIntersect(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4) {
+        int lft = max(x1, x3), rht = min(x2, x4);
+        int btm = max(y1, y3), top = min(y2, y4);
+        if (rht <= lft || top <= btm) {
+            return 0;
+        }
+
+        return (rht - lft) * (top - btm);
+    }
+
+    int computeArea(int x1, int y1, int x2, int y2) {
+        return (x2 - x1) * (y2 - y1);
+    }
+
+    int computeArea(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4) {
+        return computeArea(x1, y1, x2, y2) - computeIntersect(x1, y1, x2, y2, x3, y3, x4, y4) + computeArea(x3, y3, x4, y4);
     }
 };
