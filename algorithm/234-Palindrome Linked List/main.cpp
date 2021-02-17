@@ -11,6 +11,8 @@
 class Solution {
 public:
     ListNode* middleNode(ListNode* head) {
+        assert(head);
+
         ListNode* pSlow = head;
         ListNode* pFast = head;
         while (pFast && pFast->next) {
@@ -35,6 +37,10 @@ public:
     }
 
     bool isPalindrome(ListNode* head) {
+        if (!head) {
+            return true;
+        }
+
         ListNode* pNode1 = head;
         ListNode* pNode2 = reverseList(middleNode(head));
         while (pNode2) {
