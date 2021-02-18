@@ -31,7 +31,7 @@ public:
         return pPre;
     }
 
-    ListNode* reverseBetween(ListNode* head, int m, int n) {
+    ListNode* reverseBetween_v1(ListNode* head, int m, int n) {
         ListNode** ppHead = &head;
         while (--n && (--m > 0)) {
             ppHead = &((*ppHead)->next);
@@ -40,5 +40,29 @@ public:
 
         *ppHead = reverseList(*ppHead, n - m + 1);
         return head;
+    }
+
+    ListNode* reverseBetween_v2(ListNode* head, int m, int n) {
+        ListNode** ppHead = &head;
+        while (--n && (--m > 0)) {
+            ppHead = &((*ppHead)->next);
+        }
+        assert(*ppHead);
+
+        ListNode* pNode = *ppHead;
+        while (pNode->next && n-- > 0) {
+            ListNode* pTmp = pNode->next;
+            pNode->next = pTmp->next;
+            pTmp->next = *ppHead;
+            (*ppHead) = pTmp;
+        }
+        return head;
+    }
+
+    ListNode* reverseBetween(ListNode* head, int m, int n) {
+        assert(m <= n);
+
+        //return reverseBetween_v1(head, m, n);
+        return reverseBetween_v2(head, m, n);
     }
 };
