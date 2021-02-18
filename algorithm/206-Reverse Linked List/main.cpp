@@ -10,7 +10,7 @@
  */
 class Solution {
 public:
-    ListNode* reverseList(ListNode* head) {
+    ListNode* reverseList_v1(ListNode* head) {
         ListNode* pPre = nullptr;
         ListNode* pCur = head;
         while (pCur) {
@@ -21,5 +21,26 @@ public:
         }
 
         return pPre;
+    }
+
+    ListNode* reverseList_v2(ListNode* head) {
+        if (!head) {
+            return nullptr;
+        }
+
+        ListNode** ppHead = &head;
+        ListNode* pNode = *ppHead;
+        while (pNode->next) {
+            ListNode* pTmp = pNode->next;
+            pNode->next = pTmp->next;
+            pTmp->next = *ppHead;
+            (*ppHead) = pTmp;
+        }
+        return head;
+    }
+
+    ListNode* reverseList(ListNode* head) {
+        //return reverseList_v1(head);
+        return reverseList_v2(head);
     }
 };
