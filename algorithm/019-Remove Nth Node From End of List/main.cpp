@@ -3,16 +3,17 @@
  * struct ListNode {
  *     int val;
  *     ListNode *next;
- *     ListNode(int x) : val(x), next(NULL) {}
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
 class Solution {
 public:
     ListNode* removeNthFromEnd(ListNode* head, int n) {
         ListNode** ppFast = &head;
-        while (*ppFast && n) {
+        while (0 < n--) {
             ppFast = &((*ppFast)->next);
-            --n;
         }
 
         ListNode** ppSlow = &head;
@@ -21,9 +22,9 @@ public:
             ppSlow = &((*ppSlow)->next);
         }
 
-        ListNode* pTarget = (*ppSlow);
-        *ppSlow = pTarget->next;
-        delete pTarget;
+        ListNode* pDel = *ppSlow;
+        *ppSlow = pDel->next;
+        delete pDel;
 
         return head;
     }
