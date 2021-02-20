@@ -14,11 +14,13 @@ public:
         ListNode** ppCur = &head;
         while (*ppCur) {
             int val = (*ppCur)->val;
-            ppCur = &((*ppCur)->next);
-            while (*ppCur && (*ppCur)->val == val) {
-                ListNode* pDel = *ppCur;
-                *ppCur = pDel->next;
-                delete pDel;
+            if ((*ppCur)->next && (*ppCur)->next->val == val) {
+                while (*ppCur && (*ppCur)->val == val) {
+                    *ppCur = (*ppCur)->next;
+                }
+            }
+            else {
+                ppCur = &((*ppCur)->next);
             }
         }
 
