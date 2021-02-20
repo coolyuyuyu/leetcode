@@ -43,7 +43,33 @@ public:
         return headNew;
     }
 
+    // Time: O(n), Space: O(1)
+    Node* copyRandomList_v2(Node* head) {
+        for (Node* pCur = head; pCur; pCur = pCur->next->next) {
+            Node* pNode = new Node(pCur->val, pCur->next, nullptr);
+            pCur->next = pNode;
+        }
+
+        for (Node* pCur = head; pCur; pCur = pCur->next->next) {
+            if (pCur->random) {
+                pCur->next->random = pCur->random->next;
+            }
+        }
+
+        Node* headNew = nullptr;
+        Node** ppCurNew = &headNew;
+        for (Node* pCur = head; pCur; pCur = pCur->next) {
+            *ppCurNew = pCur->next;
+            ppCurNew = &((*ppCurNew)->next);
+
+            pCur->next = pCur->next->next;
+        }
+
+        return headNew;
+    }
+
     Node* copyRandomList(Node* head) {
-        return copyRandomList_v1(head);
+        //return copyRandomList_v1(head);
+        return copyRandomList_v2(head);
     }
 };
