@@ -3,25 +3,20 @@
  * struct ListNode {
  *     int val;
  *     ListNode *next;
- *     ListNode(int x) : val(x), next(NULL) {}
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
 class Solution {
 public:
     ListNode* swapPairs(ListNode* head) {
-        ListNode** ppCur = &head;
-        while (*ppCur) {
-            if ((*ppCur)->next) {
-                ListNode *pNxt = (*ppCur)->next;
-                (*ppCur)->next = pNxt->next;
-                pNxt->next = *ppCur;
-                (*ppCur) = pNxt;
-                
-                ppCur = &((*ppCur)->next->next);
-            }
-            else {
-                ppCur = &((*ppCur)->next);
-            }
+        ListNode** ppNode1 = &head;
+        while (*ppNode1 && (*ppNode1)->next) {
+            ListNode** ppNode2 = &((*ppNode1)->next);
+            swap(*ppNode1, *ppNode2);
+            swap((*ppNode1)->next, (*ppNode2)->next);
+            ppNode1 = ppNode2;
         }
 
         return head;
