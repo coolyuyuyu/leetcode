@@ -4,28 +4,21 @@ public:
         stack<string> stk;
         stk.push("");
 
-        string s1, s2;
+        string tmp;
         for (char c : s) {
             switch (c) {
             case '(':
                 stk.push("");
                 break;
             case ')':
-                s1 = stk.top();
-                stk.pop();
-                s2 = stk.top();
+                tmp = stk.top();
                 stk.pop();
 
-                reverse(s1.begin(), s1.end());
-                s2 += s1;
-                stk.push(s2);
+                reverse(tmp.begin(), tmp.end());
+                stk.top() += tmp;
                 break;
             default:
-                string s1 = stk.top();
-                stk.pop();
-
-                s1 += c;
-                stk.push(s1);
+                stk.top() += c;
                 break;
             }
         }
