@@ -3,43 +3,35 @@
  * struct ListNode {
  *     int val;
  *     ListNode *next;
- *     ListNode(int x) : val(x), next(NULL) {}
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
 class Solution {
 public:
     ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
-        ListNode* pHead = NULL;
-        ListNode** ppCur = &pHead;
-
+        ListNode* pHead = nullptr;
+        ListNode** ppNode = &pHead;
         bool carry = false;
         while (l1 || l2 || carry) {
-            int num = 0;
-
+            int digit = 0;
             if (carry) {
-                num += 1;
+                digit += 1;
             }
-
-            if (l1) {
-                num += l1->val;
+            if(l1) {
+                digit += l1->val;
                 l1 = l1->next;
             }
-
             if (l2) {
-                num += l2->val;
+                digit += l2->val;
                 l2 = l2->next;
             }
 
-            if (10 <= num) {
-                num %= 10;
-                carry = true;
-            }
-            else {
-                carry = false;
-            }
+            *ppNode = new ListNode(digit % 10);
+            ppNode = &((*ppNode)->next);
 
-            *ppCur = new ListNode(num);
-            ppCur = &((*ppCur)->next);
+            carry = (10 <= digit);
         }
 
         return pHead;
