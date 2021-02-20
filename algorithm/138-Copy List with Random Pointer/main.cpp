@@ -1,38 +1,49 @@
-/**
- * Definition for singly-linked list with a random pointer.
- * struct RandomListNode {
- *     int label;
- *     RandomListNode *next, *random;
- *     RandomListNode(int x) : label(x), next(NULL), random(NULL) {}
- * };
- */
+/*
+// Definition for a Node.
+class Node {
+public:
+    int val;
+    Node* next;
+    Node* random;
+
+    Node(int _val) {
+        val = _val;
+        next = NULL;
+        random = NULL;
+    }
+};
+*/
+
 class Solution {
 public:
-    RandomListNode *copyRandomList(RandomListNode *head) {       
-        unordered_map<RandomListNode*, RandomListNode*> hash;
-        pair<unordered_map<RandomListNode*, RandomListNode*>::iterator, bool> p;
+    // Time: O(n), Space: O(n)
+    Node* copyRandomList_v1(Node* head) {
+        Node* headNew = nullptr;
+        Node** ppCurNew = &headNew;
 
-        RandomListNode* pHead = NULL;
-        RandomListNode** ppCur = &pHead;
-        while (head) {
-            p = hash.insert(make_pair(head, (RandomListNode*)NULL));
+        unordered_map<Node*, Node*> m;
+        for (Node* pCur = head; pCur; pCur = pCur->next) {
+            auto p = m.emplace(pCur, nullptr);
             if (p.second) {
-                p.first->second = new RandomListNode(head->label);
+                p.first->second = new Node(pCur->val);
             }
-            *ppCur = p.first->second;
+            *ppCurNew = p.first->second;
 
-            if (head->random) {
-                p = hash.insert(make_pair(head->random, (RandomListNode*)NULL));
+            if (pCur->random) {
+                auto p = m.emplace(pCur->random, nullptr);
                 if (p.second) {
-                    p.first->second = new RandomListNode(head->random->label);
+                    p.first->second = new Node(pCur->random->val);
                 }
-                (*ppCur)->random = p.first->second;
+                (*ppCurNew)->random = p.first->second;
             }
 
-            head = head->next;
-            ppCur = &((*ppCur)->next);
+            ppCurNew = &((*ppCurNew)->next);
         }
-        
-        return pHead;
+
+        return headNew;
+    }
+
+    Node* copyRandomList(Node* head) {
+        return copyRandomList_v1(head);
     }
 };
