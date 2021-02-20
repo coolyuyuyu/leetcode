@@ -3,50 +3,52 @@
  * struct ListNode {
  *     int val;
  *     ListNode *next;
- *     ListNode(int x) : val(x), next(NULL) {}
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
 class Solution {
 public:
-    ListNode* reverse(ListNode* pHead) {
-        ListNode* pCur = pHead;
-        ListNode* pPre = NULL;
-        while (pCur) {
-            ListNode* pNxt = pCur->next;
-            pCur->next = pPre;
-            pPre = pCur;
-            pCur = pNxt;
+    ListNode* reverseList(ListNode* head) {
+        if (!head) {
+            return nullptr;
         }
 
-        return pPre;
+        ListNode** ppHead = &head;
+        ListNode* pNode = *ppHead;
+        while (pNode->next) {
+            ListNode* pTmp = pNode->next;
+            pNode->next = pTmp->next;
+            pTmp->next = *ppHead;
+            *ppHead = pTmp;
+        }
+
+        return head;
     }
 
     ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
-        l1 = reverse(l1);
-        l2 = reverse(l2);
+        l1 = reverseList(l1);
+        l2 = reverseList(l2);
 
-        ListNode* pHead = NULL;
-        ListNode** ppCur = &pHead;
-        ListNode* pNode1 = l1;
-        ListNode* pNode2 = l2;
         int carry = 0;
-        while (pNode1 || pNode2 || carry) {
-            int sum = carry;
-            if (pNode1) {
-                sum += pNode1->val;
-                pNode1 = pNode1->next;
+        ListNode* pHead = nullptr;
+        ListNode** ppCur = &pHead;
+        for (ListNode** ppCur = &pHead; l1 || l2 || carry; ppCur = &((*ppCur)->next)) {
+            int val = carry;
+            if (l1) {
+                val += l1->val;
+                l1 = l1->next;
             }
-            if (pNode2) {
-                sum += pNode2->val;
-                pNode2 = pNode2->next;
+            if (l2) {
+                val += l2->val;
+                l2 = l2->next;
             }
 
-            *ppCur = new ListNode(sum % 10);
-            ppCur = &((*ppCur)->next);
-
-            carry = sum / 10;
+            *ppCur = new ListNode(val % 10);
+            carry = val / 10;
         }
 
-        return reverse(pHead);
+        return reverseList(pHead);
     }
 };
