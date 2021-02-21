@@ -26,6 +26,23 @@ public:
         m_pTail->pPrev = m_pHead;
     }
 
+    ~FrontMiddleBackQueue() {
+        while (!empty()) {
+            popFront();
+        }
+
+        delete m_pHead;
+        delete m_pTail;
+    }
+
+    bool empty() const {
+        return (m_len == 0);
+    }
+
+    size_t size() const {
+        return m_len;
+    }
+
     void pushFront(int val) {
         Node* pNode = insert(m_pHead->pNext, val);
         if (m_len == 0) {
