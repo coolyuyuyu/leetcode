@@ -1,13 +1,35 @@
 class PhoneDirectory {
+private:
+    struct Node {
+        Node()
+            : val()
+            , pNext(nullptr) {
+        }
+        Node(int val_, Node* pNext_)
+            : val(val_)
+            , pNext(pNext_) {
+        }
+        int val;
+        Node* pPrev;
+        Node* pNext;
+    };
+
 public:
     /** Initialize your data structure here
         @param maxNumbers - The maximum numbers that can be stored in the phone directory. */
     PhoneDirectory(int maxNumbers)
-        : m_pHead(NULL) {
+        : m_pHead(nullptr) {
         for (int i = 0; i < maxNumbers; ++i) {
-            ListNode* pNode = new ListNode(i);
-            pNode->next = m_pHead;
+            Node* pNode = new Node(i, m_pHead);
             m_pHead = pNode;
+        }
+    }
+
+    ~PhoneDirectory() {
+        while (m_pHead) {
+            Node* pDel = m_pHead;
+            m_pHead = pDel->pNext;
+            delete pDel;
         }
     }
 
@@ -19,8 +41,8 @@ public:
         }
 
         int number = m_pHead->val;
-        ListNode* pDel = m_pHead;
-        m_pHead = m_pHead->next;
+        Node* pDel = m_pHead;
+        m_pHead = m_pHead->pNext;
         delete pDel;
 
         return number;
@@ -28,12 +50,10 @@ public:
 
     /** Check if a number is available or not. */
     bool check(int number) {
-        ListNode* pCur = m_pHead;
-        while (pCur) {
+        for (Node* pCur = m_pHead; pCur; pCur = pCur->pNext) {
             if (pCur->val == number) {
                 return true;
             }
-            pCur = pCur->next;
         }
 
         return false;
@@ -42,25 +62,19 @@ public:
     /** Recycle or release a number. */
     void release(int number) {
         if (!check(number)) {
-            ListNode* pNode = new ListNode(number);
-            pNode->next = m_pHead;
+            Node* pNode = new Node(number, m_pHead);
             m_pHead = pNode;
         }
     }
-private:
-    struct ListNode {
-        int val;
-        ListNode *next;
-        ListNode(int x) : val(x), next(NULL) {}
-    };
 
-    ListNode* m_pHead;
+private:
+    Node* m_pHead;
 };
 
 /**
  * Your PhoneDirectory object will be instantiated and called as such:
- * PhoneDirectory obj = new PhoneDirectory(maxNumbers);
- * int param_1 = obj.get();
- * bool param_2 = obj.check(number);
- * obj.release(number);
+ * PhoneDirectory* obj = new PhoneDirectory(maxNumbers);
+ * int param_1 = obj->get();
+ * bool param_2 = obj->check(number);
+ * obj->release(number);
  */
