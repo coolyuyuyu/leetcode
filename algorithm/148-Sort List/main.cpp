@@ -10,19 +10,19 @@
  */
 class Solution {
 private:
-    ListNode* mergeSortedList(ListNode* head1, ListNode* head2) {
-        ListNode* headNew = nullptr;
-        ListNode** ppCur= &headNew;
-        while (head1 && head2) {
-            ListNode** ppNode = &(head1->val <= head2->val ? head1 : head2);
+    ListNode* mergeSortedList(ListNode* l1, ListNode* l2) {
+        ListNode* head = nullptr;
+        ListNode** ppCur = &head;
+        while (l1 && l2) {
+            ListNode** ppNode = &(l1->val <= l2->val ? l1 : l2);
             *ppCur = *ppNode;
             *ppNode = (*ppNode)->next;
-
+            
             ppCur = &((*ppCur)->next);
         }
-        *ppCur = (head1 ? head1 : head2);
-
-        return headNew;
+        *ppCur = (l1 ? l1 : l2);
+        
+        return head;
     }
 
 public:
@@ -221,7 +221,8 @@ public:
     }
 
     // TODO:
-    //  ListNode* mergesort_BottomUp(ListNode* head);
+    //  ListNode* mergesort_BottomUpQueueBased(ListNode* head);
+    //  ListNode* mergesort_BottomUpArrayBased(ListNode* head);
     //  ListNode* mergesort_BottomUpMinHeap(ListNode* head);
     //  ListNode* mergesort_BottomUpInPlace(ListNode* head);
 
