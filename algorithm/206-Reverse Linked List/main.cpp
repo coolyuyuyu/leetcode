@@ -34,7 +34,7 @@ public:
             ListNode* pTmp = pNode->next;
             pNode->next = pTmp->next;
             pTmp->next = *ppHead;
-            (*ppHead) = pTmp;
+            *ppHead = pTmp;
         }
         return head;
     }
