@@ -20,7 +20,6 @@ public:
             }
             ppForeward = ppFast;
 
-            cout << b - a << endl;
             for (int i = 0, diff = b - a + 1; i < diff; ++i) {
                 ppFast = &((*ppFast)->next);
             }
