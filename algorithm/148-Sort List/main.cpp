@@ -3,10 +3,28 @@
  * struct ListNode {
  *     int val;
  *     ListNode *next;
- *     ListNode(int x) : val(x), next(NULL) {}
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
 class Solution {
+private:
+    ListNode* mergeSortedList(ListNode* head1, ListNode* head2) {
+        ListNode* headNew = nullptr;
+        ListNode** ppCur= &headNew;
+        while (head1 && head2) {
+            ListNode** ppNode = &(head1->val <= head2->val ? head1 : head2);
+            *ppCur = *ppNode;
+            *ppNode = (*ppNode)->next;
+
+            ppCur = &((*ppCur)->next);
+        }
+        *ppCur = (head1 ? head1 : head2);
+
+        return headNew;
+    }
+
 public:
     ListNode* quicksortList(ListNode* pHead) {
         if (pHead == nullptr) {
@@ -131,22 +149,6 @@ public:
         }
     }
 
-    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
-        ListNode* pHead = NULL;
-        ListNode** ppCur = &pHead;
-        while (l1 && l2) {
-            ListNode** ppNode = l1->val < l2->val ? &l1 : &l2;
-            *ppCur = *ppNode;
-            *ppNode = (*ppNode)->next;
-
-            ppCur = &((*ppCur)->next);
-        }
-
-        *ppCur = l1 ? l1 : l2;
-
-        return pHead;
-    }
-
     // Min Heap is overkilled. The list of length N is already broken into N 1-lenth lists.
     ListNode* mergesortListMergeByMinHeap(ListNode* head) {
         auto comp = [](const pair<ListNode*, size_t>& lft, const pair<ListNode*, size_t>& rht) { return rht.second < lft.second; };
@@ -168,7 +170,7 @@ public:
             pair<ListNode*, size_t> p2 = pq.top();
             pq.pop();
 
-            ListNode* head = mergeTwoLists(p1.first, p2.first);
+            ListNode* head = mergeSortedList(p1.first, p2.first);
             pq.emplace(head, p1.second + p2.second);
         }
 
@@ -191,23 +193,52 @@ public:
         for (size_t iteration = ceil(log2(lists.size())), space = 1; iteration > 0; --iteration, space *= 2) {
             size_t step = space * 2;
             for (size_t i = 0; i + space < lists.size(); i += step) {
-                lists[i] = mergeTwoLists(lists[i], lists[i + space]);
+                lists[i] = mergeSortedList(lists[i], lists[i + space]);
             }
         }
 
         return lists.front();
     }
 
+    // Time: O(nlog(n)), Space: O(log(n))
+    ListNode* mergesort_TopDown(ListNode* head) {
+        if (!head || !(head->next)) {
+            return head;
+        }
+
+        ListNode** ppFast = &head;
+        ListNode** ppSlow = &head;
+        while (*ppFast && (*ppFast)->next) {
+            ppFast = &((*ppFast)->next->next);
+            ppSlow = &((*ppSlow)->next);
+        }
+
+        ListNode* head1 = head;
+        ListNode* head2 = *ppSlow;
+        *ppSlow = nullptr;
+
+        return mergeSortedList(mergesort_TopDown(head1), mergesort_TopDown(head2));
+    }
+
+    // TODO:
+    //  ListNode* mergesort_BottomUp(ListNode* head);
+    //  ListNode* mergesort_BottomUpMinHeap(ListNode* head);
+    //  ListNode* mergesort_BottomUpInPlace(ListNode* head);
+
     ListNode* sortList(ListNode* head) {
         //return quicksortList(head);
 
+        /*
         ListNode* pHeadNew = nullptr;
         ListNode* pTailNew = nullptr;
         ListNode** ppTailNew = &pTailNew;
         quicksortListV2(head, pHeadNew, ppTailNew);
         return pHeadNew;
+        */
 
         //return mergesortListMergeByMinHeap(head);
         //return mergesortListBottomUpMerge(head);
+
+        return mergesort_TopDown(head);
     }
 };
