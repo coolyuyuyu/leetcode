@@ -3,26 +3,31 @@
  * struct ListNode {
  *     int val;
  *     ListNode *next;
- *     ListNode(int x) : val(x), next(NULL) {}
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
 class Solution {
 public:
-    ListNode* insertionSortList(ListNode* head) {
-        ListNode* pSortedHead = NULL;
+    ListNode* insertionSortList_v1(ListNode* head) {
+        ListNode* headNew = nullptr;
         while (head) {
             ListNode* pNode = head;
             head = head->next;
 
-            ListNode** ppSortedCur = &pSortedHead;
+            ListNode** ppSortedCur = &headNew;
             while (*ppSortedCur && (*ppSortedCur)->val < pNode->val) {
                 ppSortedCur = &((*ppSortedCur)->next);
             }
-
-            pNode->next = (*ppSortedCur);
+            pNode->next = *ppSortedCur;
             *ppSortedCur = pNode;
         }
 
-        return pSortedHead;
+        return headNew;
+    }
+
+    ListNode* insertionSortList(ListNode* head) {
+        return insertionSortList_v1(head);
     }
 };
