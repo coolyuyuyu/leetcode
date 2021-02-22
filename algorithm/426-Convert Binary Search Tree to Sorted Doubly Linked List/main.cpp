@@ -8,6 +8,12 @@ public:
 
     Node() {}
 
+    Node(int _val) {
+        val = _val;
+        left = NULL;
+        right = NULL;
+    }
+
     Node(int _val, Node* _left, Node* _right) {
         val = _val;
         left = _left;
@@ -15,40 +21,33 @@ public:
     }
 };
 */
+
 class Solution {
 public:
-    Node* treeToDoublyList(Node* root) {
-        Node* head = nullptr;
+    Node* append(Node* l1, Node* l2) {
+        if (!l1 || !l2) {
+            return (l1 ? l1 : l2);
+        }
+        else {
+            swap(l1->left->right, l2->left->right);
+            swap(l1->left, l2->left);
+            return l1;
+        }
+    }
 
-        stack<Node*> stk;
-        Node* cur = root;
-        while (cur || !stk.empty()) {
-            if (cur) {
-                stk.push(cur);
-                cur = cur->left;
-            }
-            else {
-                cur = stk.top();
-                stk.pop();
-
-                Node* rhtChild = cur->right;
-
-                if (!head) {
-                    head = cur;
-                    cur->left = cur;
-                    cur->right = cur;
-                }
-                else {
-                    cur->left = head->left;
-                    cur->right = head;
-                    head->left->right = cur;
-                    head->left = cur;
-                }
-
-                cur = rhtChild;
-            }
+    Node* treeToDoublyList_Recursive(Node* root) {
+        if (!root) {
+            return nullptr;
         }
 
-        return head;
+        Node* lftChild = treeToDoublyList_Recursive(root->left);
+        Node* rhtChild = treeToDoublyList_Recursive(root->right);
+        root->left = root->right = root;
+
+        return append(append(lftChild, root), rhtChild);
+    }
+
+    Node* treeToDoublyList(Node* root) {
+        return treeToDoublyList_Recursive(root);
     }
 };
