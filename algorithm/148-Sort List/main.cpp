@@ -221,8 +221,8 @@ public:
     }
 
     // TODO:
-    //  ListNode* mergesort_BottomUpQueueBased(ListNode* head);
-    //  ListNode* mergesort_BottomUpArrayBased(ListNode* head);
+    //  ListNode* mergesort_BottomUpQueue(ListNode* head);
+    //  ListNode* mergesort_BottomUpArray(ListNode* head);
     //  ListNode* mergesort_BottomUpMinHeap(ListNode* head);
     //  ListNode* mergesort_BottomUpInPlace(ListNode* head);
 
