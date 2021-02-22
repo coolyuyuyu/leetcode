@@ -47,7 +47,41 @@ public:
         return append(append(lftChild, root), rhtChild);
     }
 
+    Node* treeToDoublyList_Iterative(Node* root) {
+        Node* pHead = nullptr;
+
+        stack<Node*> stk;
+        Node* pCur = root;
+        while (pCur || !stk.empty()) {
+            if (pCur) {
+                stk.emplace(pCur);
+                pCur = pCur->left;
+            }
+            else {
+                pCur = stk.top();
+                stk.pop();
+                Node* pRht = pCur->right;
+
+                if (!pHead) {
+                    pHead = pCur;
+                    pHead->left = pHead->right = pHead;
+                }
+                else {
+                    pCur->left = pHead->left;
+                    pCur->right = pHead;
+                    pHead->left->right = pCur;
+                    pHead->left = pCur;
+                }
+
+                pCur = pRht;
+            }
+        }
+
+        return pHead;
+    }
+
     Node* treeToDoublyList(Node* root) {
-        return treeToDoublyList_Recursive(root);
+        //return treeToDoublyList_Recursive(root);
+        return treeToDoublyList_Iterative(root);
     }
 };
