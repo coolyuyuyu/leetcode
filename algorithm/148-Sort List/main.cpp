@@ -149,57 +149,6 @@ public:
         }
     }
 
-    // Min Heap is overkilled. The list of length N is already broken into N 1-lenth lists.
-    ListNode* mergesortListMergeByMinHeap(ListNode* head) {
-        auto comp = [](const pair<ListNode*, size_t>& lft, const pair<ListNode*, size_t>& rht) { return rht.second < lft.second; };
-        priority_queue<pair<ListNode*, size_t>, vector<pair<ListNode*, size_t>>, decltype(comp)> pq(comp);
-        for (ListNode *prev = nullptr, *node = head; node;) {
-            prev = node;
-            node = node->next;
-
-            prev->next = nullptr;
-            pq.push(pair<ListNode*, size_t>(prev, 1));
-        }
-        if (pq.empty()) {
-            return nullptr;
-        }
-
-        while (1 < pq.size()) {
-            pair<ListNode*, size_t> p1 = pq.top();
-            pq.pop();
-            pair<ListNode*, size_t> p2 = pq.top();
-            pq.pop();
-
-            ListNode* head = mergeSortedList(p1.first, p2.first);
-            pq.emplace(head, p1.second + p2.second);
-        }
-
-        return pq.top().first;
-    }
-
-    ListNode* mergesortListBottomUpMerge(ListNode* head) {
-        vector<ListNode*> lists;
-        for (ListNode *prev = nullptr, *node = head; node;) {
-            prev = node;
-            node = node->next;
-
-            prev->next = nullptr;
-            lists.emplace_back(prev);
-        }
-        if (lists.empty()) {
-            return nullptr;
-        }
-
-        for (size_t iteration = ceil(log2(lists.size())), space = 1; iteration > 0; --iteration, space *= 2) {
-            size_t step = space * 2;
-            for (size_t i = 0; i + space < lists.size(); i += step) {
-                lists[i] = mergeSortedList(lists[i], lists[i + space]);
-            }
-        }
-
-        return lists.front();
-    }
-
     // Time: O(nlog(n)), Space: O(log(n))
     ListNode* mergesort_TopDown(ListNode* head) {
         if (!head || !(head->next)) {
@@ -299,8 +248,9 @@ public:
         return pq.top().first;
     }
 
-    // TODO:
-    //  ListNode* mergesort_BottomUpInPlace(ListNode* head);
+    ListNode* mergesort_BottomUpInplace(ListNode* head) {
+        return nullptr;
+    }
 
     ListNode* sortList(ListNode* head) {
         //return quicksortList(head);
@@ -319,6 +269,7 @@ public:
         //return mergesort_TopDown(head);
         //return mergesort_BottomUpQueue(head);
         //return mergesort_BottomUpArray(head);
-        return mergesort_BottomUpHeap(head);
+        //return mergesort_BottomUpHeap(head);
+        return mergesort_BottomUpInplace(head);
     }
 };
