@@ -17,11 +17,44 @@ private:
             ListNode** ppNode = &(l1->val <= l2->val ? l1 : l2);
             *ppCur = *ppNode;
             *ppNode = (*ppNode)->next;
-            
+
             ppCur = &((*ppCur)->next);
         }
         *ppCur = (l1 ? l1 : l2);
-        
+
+        return head;
+    }
+
+    ListNode* splitList(ListNode* head, size_t k) {
+        ListNode** ppCur = &head;
+        while (*ppCur && 0 < k--) {
+            ppCur = &((*ppCur)->next);
+        }
+
+        ListNode* headLeft = *ppCur;
+        *ppCur = nullptr;
+        return headLeft;
+    }
+
+    ListNode* mergeSortedList(ListNode* l1, ListNode* l2, ListNode**& ppTail) {
+        assert(l1 || l2);
+
+        ListNode* head = nullptr;
+        ListNode** ppCur = &head;
+        while (l1 && l2) {
+            ListNode** ppNode = &(l1->val <= l2->val ? l1 : l2);
+            *ppCur = *ppNode;
+            *ppNode = (*ppNode)->next;
+
+            ppCur = &((*ppCur)->next);
+        }
+        *ppCur = (l1 ? l1 : l2);
+
+        while (*ppCur) {
+            ppCur = &((*ppCur)->next);
+        }
+        ppTail = ppCur;
+
         return head;
     }
 
@@ -149,57 +182,6 @@ public:
         }
     }
 
-    // Min Heap is overkilled. The list of length N is already broken into N 1-lenth lists.
-    ListNode* mergesortListMergeByMinHeap(ListNode* head) {
-        auto comp = [](const pair<ListNode*, size_t>& lft, const pair<ListNode*, size_t>& rht) { return rht.second < lft.second; };
-        priority_queue<pair<ListNode*, size_t>, vector<pair<ListNode*, size_t>>, decltype(comp)> pq(comp);
-        for (ListNode *prev = nullptr, *node = head; node;) {
-            prev = node;
-            node = node->next;
-
-            prev->next = nullptr;
-            pq.push(pair<ListNode*, size_t>(prev, 1));
-        }
-        if (pq.empty()) {
-            return nullptr;
-        }
-
-        while (1 < pq.size()) {
-            pair<ListNode*, size_t> p1 = pq.top();
-            pq.pop();
-            pair<ListNode*, size_t> p2 = pq.top();
-            pq.pop();
-
-            ListNode* head = mergeSortedList(p1.first, p2.first);
-            pq.emplace(head, p1.second + p2.second);
-        }
-
-        return pq.top().first;
-    }
-
-    ListNode* mergesortListBottomUpMerge(ListNode* head) {
-        vector<ListNode*> lists;
-        for (ListNode *prev = nullptr, *node = head; node;) {
-            prev = node;
-            node = node->next;
-
-            prev->next = nullptr;
-            lists.emplace_back(prev);
-        }
-        if (lists.empty()) {
-            return nullptr;
-        }
-
-        for (size_t iteration = ceil(log2(lists.size())), space = 1; iteration > 0; --iteration, space *= 2) {
-            size_t step = space * 2;
-            for (size_t i = 0; i + space < lists.size(); i += step) {
-                lists[i] = mergeSortedList(lists[i], lists[i + space]);
-            }
-        }
-
-        return lists.front();
-    }
-
     // Time: O(nlog(n)), Space: O(log(n))
     ListNode* mergesort_TopDown(ListNode* head) {
         if (!head || !(head->next)) {
@@ -220,11 +202,109 @@ public:
         return mergeSortedList(mergesort_TopDown(head1), mergesort_TopDown(head2));
     }
 
-    // TODO:
-    //  ListNode* mergesort_BottomUpQueueBased(ListNode* head);
-    //  ListNode* mergesort_BottomUpArrayBased(ListNode* head);
-    //  ListNode* mergesort_BottomUpMinHeap(ListNode* head);
-    //  ListNode* mergesort_BottomUpInPlace(ListNode* head);
+    // Time: O(nlog(n)), Space: O(n)
+    ListNode* mergesort_BottomUpQueue(ListNode* head) {
+        if (!head) {
+            return nullptr;
+        }
+
+        queue<ListNode*> lists;
+        for (ListNode* pCur = head; pCur;) {
+            ListNode* pNode = pCur;
+            pCur = pCur->next;
+
+            pNode->next = nullptr;
+            lists.emplace(pNode);
+        }
+
+        while (1 < lists.size()) {
+            ListNode* l1 = lists.front();
+            lists.pop();
+            ListNode* l2 = lists.front();
+            lists.pop();
+
+            lists.emplace(mergeSortedList(l1, l2));
+        }
+
+        return lists.front();
+    }
+
+    // Time: O(nlog(n)), Space: O(n)
+    ListNode* mergesort_BottomUpArray(ListNode* head) {
+        if (!head) {
+            return nullptr;
+        }
+
+        vector<ListNode*> lists;
+        for (ListNode* pCur = head; pCur;) {
+            ListNode* pNode = pCur;
+            pCur = pCur->next;
+
+            pNode->next = nullptr;
+            lists.emplace_back(pNode);
+        }
+
+        for (size_t height = ceil(log2(lists.size())), step = 2; 0 < height; --height, step *= 2) {
+            for (size_t i = 0; (i + step / 2) < lists.size(); i += step) {
+                lists[i] = mergeSortedList(lists[i], lists[i + step / 2]);
+            }
+        }
+
+        return lists.front();
+    }
+
+    // Time: O(nlog(n)), Space: O(n)
+    ListNode* mergesort_BottomUpHeap(ListNode* head) {
+        if (!head) {
+            return nullptr;
+        }
+
+        auto comp = [](const pair<ListNode*, size_t>& lft, const pair<ListNode*, size_t>& rht) { return rht.second < lft.second; };
+        priority_queue<pair<ListNode*, size_t>, vector<pair<ListNode*, size_t>>, decltype(comp)> pq(comp);
+        for (ListNode* pCur = head; pCur;) {
+            ListNode* pNode = pCur;
+            pCur = pCur->next;
+
+            pNode->next = nullptr;
+            pq.emplace(pNode, 1);
+        }
+
+        while (1 < pq.size()) {
+            auto p1 = pq.top();
+            pq.pop();
+            auto p2 = pq.top();
+            pq.pop();
+
+            pq.emplace(mergeSortedList(p1.first, p2.first), p1.second + p2.second);
+        }
+
+        return pq.top().first;
+    }
+
+    // Time: O(nlog(n)), Space: O(1)
+    ListNode* mergesort_BottomUpInplace(ListNode* head) {
+        size_t size = 0;
+        for (ListNode* pCur = head; pCur; pCur = pCur->next) {
+            ++size;
+        }
+
+        for (size_t count = 1; count < size; count *= 2) {
+            ListNode** ppCur = &head;
+            while (*ppCur) {
+                ListNode* pLft = *ppCur;
+                ListNode* pRht = splitList(pLft, count);
+                ListNode* pPending = splitList(pRht, count);
+
+                ListNode** ppTail;
+                *ppCur = mergeSortedList(pLft, pRht, ppTail);
+                *ppTail = pPending;
+
+                ppCur = ppTail;
+            }
+        }
+
+        return head;
+    }
 
     ListNode* sortList(ListNode* head) {
         //return quicksortList(head);
@@ -237,9 +317,10 @@ public:
         return pHeadNew;
         */
 
-        //return mergesortListMergeByMinHeap(head);
-        //return mergesortListBottomUpMerge(head);
-
-        return mergesort_TopDown(head);
+        //return mergesort_TopDown(head);
+        //return mergesort_BottomUpQueue(head);
+        //return mergesort_BottomUpArray(head);
+        //return mergesort_BottomUpHeap(head);
+        return mergesort_BottomUpInplace(head);
     }
 };
