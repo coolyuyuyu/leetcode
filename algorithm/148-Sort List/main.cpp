@@ -220,6 +220,7 @@ public:
         return mergeSortedList(mergesort_TopDown(head1), mergesort_TopDown(head2));
     }
 
+    // Time: O(nlog(n)), Space: O(n)
     ListNode* mergesort_BottomUpQueue(ListNode* head) {
         if (!head) {
             return nullptr;
@@ -246,6 +247,7 @@ public:
         return lists.front();
     }
 
+    // Time: O(nlog(n)), Space: O(n)
     ListNode* mergesort_BottomUpArray(ListNode* head) {
         if (!head) {
             return nullptr;
