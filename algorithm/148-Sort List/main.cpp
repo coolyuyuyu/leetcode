@@ -227,7 +227,7 @@ public:
         }
 
         queue<ListNode*> lists;
-        for (ListNode* pCur = head; pCur; ) {
+        for (ListNode* pCur = head; pCur;) {
             ListNode* pNode = pCur;
             pCur = pCur->next;
 
@@ -254,7 +254,7 @@ public:
         }
 
         vector<ListNode*> lists;
-        for (ListNode* pCur = head; pCur; ) {
+        for (ListNode* pCur = head; pCur;) {
             ListNode* pNode = pCur;
             pCur = pCur->next;
 
@@ -271,8 +271,32 @@ public:
         return lists.front();
     }
 
-    ListNode* mergesort_BottomUpMinHeap(ListNode* head) {
-        return nullptr;
+    // Time: O(nlog(n)), Space: O(n)
+    ListNode* mergesort_BottomUpHeap(ListNode* head) {
+        if (!head) {
+            return nullptr;
+        }
+
+        auto comp = [](const pair<ListNode*, size_t>& lft, const pair<ListNode*, size_t>& rht) { return rht.second < lft.second; };
+        priority_queue<pair<ListNode*, size_t>, vector<pair<ListNode*, size_t>>, decltype(comp)> pq(comp);
+        for (ListNode* pCur = head; pCur;) {
+            ListNode* pNode = pCur;
+            pCur = pCur->next;
+
+            pNode->next = nullptr;
+            pq.emplace(pNode, 1);
+        }
+        
+        while (1 < pq.size()) {
+            auto p1 = pq.top();
+            pq.pop();
+            auto p2 = pq.top();
+            pq.pop();
+            
+            pq.emplace(mergeSortedList(p1.first, p2.first), p1.second + p2.second);
+        }
+        
+        return pq.top().first;
     }
 
     // TODO:
@@ -294,6 +318,7 @@ public:
 
         //return mergesort_TopDown(head);
         //return mergesort_BottomUpQueue(head);
-        return mergesort_BottomUpArray(head);
+        //return mergesort_BottomUpArray(head);
+        return mergesort_BottomUpHeap(head);
     }
 };
