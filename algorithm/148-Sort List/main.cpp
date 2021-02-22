@@ -17,11 +17,11 @@ private:
             ListNode** ppNode = &(l1->val <= l2->val ? l1 : l2);
             *ppCur = *ppNode;
             *ppNode = (*ppNode)->next;
-            
+
             ppCur = &((*ppCur)->next);
         }
         *ppCur = (l1 ? l1 : l2);
-        
+
         return head;
     }
 
@@ -219,26 +219,26 @@ public:
 
         return mergeSortedList(mergesort_TopDown(head1), mergesort_TopDown(head2));
     }
-    
+
     ListNode* mergesort_BottomUpQueue(ListNode* head) {
         queue<ListNode*> lists;
         for (ListNode* pCur = head; pCur; ) {
             ListNode* pNode = pCur;
             pCur = pCur->next;
-            
+
             pNode->next = nullptr;
             lists.push(pNode);
         }
-        
+
         while (1 < lists.size()) {
             ListNode* l1 = lists.front();
             lists.pop();
             ListNode* l2 = lists.front();
             lists.pop();
-            
+
             lists.push(mergeSortedList(l1, l2));
         }
-        
+
         return (lists.empty() ? nullptr : lists.front());
     }
 
