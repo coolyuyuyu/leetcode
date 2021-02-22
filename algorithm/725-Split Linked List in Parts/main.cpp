@@ -3,48 +3,39 @@
  * struct ListNode {
  *     int val;
  *     ListNode *next;
- *     ListNode(int x) : val(x), next(NULL) {}
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
 class Solution {
 public:
+    ListNode* splitList(ListNode* head, int k) {
+        ListNode** ppCur = &head;
+        while (*ppCur && 0 < k--) {
+            ppCur = &((*ppCur)->next);
+        }
+
+        ListNode* headLeft = *ppCur;
+        *ppCur = nullptr;
+        return headLeft;
+    }
+
     vector<ListNode*> splitListToParts(ListNode* root, int k) {
-        assert(k);
+        assert(0 < k);
 
-        if (k == 1) {
-            return vector<ListNode*>{root};
+        int size = 0;
+        for (ListNode* pCur = root; pCur; pCur = pCur->next) {
+            ++size;
         }
 
-        int len = 0;
-        ListNode* pCur = root;
-        while (pCur) {
-            pCur = pCur->next;
-            ++len;
+        vector<ListNode*> parts(k, nullptr);
+        parts[0] = root;
+        for (int i = 1; i < k; ++i) {
+            int count = size / k + (i <= (size % k) ? 1 : 0);
+            parts[i] = splitList(parts[i - 1], count);
         }
 
-        vector<ListNode*> nodes(k);
-        int count = len / k;
-        int remaining = len % k;
-        pCur = root;
-        for (int i = 0; i < k && pCur; ++i) {
-            nodes[i] = pCur;
-
-            int n = count;
-            if (remaining) {
-                --remaining;
-                ++n;
-            }
-
-            for (; n > 1; --n) {
-                pCur = pCur->next;
-            }
-
-            ListNode* pNxt = pCur->next;
-            pCur->next = NULL;
-            pCur = pNxt;
-        }
-
-        return nodes;
-
+        return parts;
     }
 };
