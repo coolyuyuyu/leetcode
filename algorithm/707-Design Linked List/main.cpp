@@ -1,143 +1,131 @@
 class MyLinkedList {
-    friend ostream& operator<<(ostream& os, const MyLinkedList& linkedList) {
-        ListNode* node = linkedList.m_head->next;
-        if (node != linkedList.m_tail) {
-            cout << node->val;
-            node = node->next;
+private:
+    struct Node {
+        Node()
+            : val(0)
+            , pPrev(nullptr)
+            , pNext(nullptr) {
         }
-
-        while (node != linkedList.m_tail) {
-            cout << " " << node->val;
-            node = node->next;
+        Node(int val_, Node* pPrev_, Node* pNext_)
+            : val(val_)
+            , pPrev(pPrev_)
+            , pNext(pNext_) {
         }
-
-        return os;
-    }
+        int val;
+        Node* pPrev;
+        Node* pNext;
+    };
 
 public:
     /** Initialize your data structure here. */
-    MyLinkedList() {
-        m_head = new ListNode;
-        m_tail = new ListNode;
-        m_head->next = m_head->prev = m_tail;
-        m_tail->next = m_tail->prev = m_head;
+    MyLinkedList()
+        : m_pHead(new Node())
+        , m_pTail(new Node())
+        , m_len(0) {
+        m_pHead->pNext = m_pTail;
+        m_pTail->pPrev = m_pHead;
     }
-
+    
     ~MyLinkedList() {
-        while (m_size) {
-            deleteAtIndex(0);
+        while (m_pHead->pNext != m_pTail) {
+            erase(m_pHead->pNext);
         }
-
-        delete m_head;
-        delete m_tail;
+        
+        delete m_pHead;
+        delete m_pTail;
     }
 
     /** Get the value of the index-th node in the linked list. If the index is invalid, return -1. */
     int get(int index) {
-        ListNode* node = getNode(index);
-        return (node ? node->val : -1);
+        Node* pNode = getNode(index);
+        return (pNode ? pNode->val : -1);
     }
 
     /** Add a node of value val before the first element of the linked list. After the insertion, the new node will be the first node of the linked list. */
     void addAtHead(int val) {
-        ListNode* node = new ListNode(val);
-        node->next = m_head->next;
-        node->prev = m_head;
-        m_head->next->prev = node;
-        m_head->next = node;
-
-        ++m_size;
+        insert(m_pHead->pNext, val);
     }
 
     /** Append a node of value val to the last element of the linked list. */
     void addAtTail(int val) {
-        ListNode* node = new ListNode(val);
-        node->next = m_tail;
-        node->prev = m_tail->prev;
-        m_tail->prev->next = node;
-        m_tail->prev = node;
-
-        ++m_size;
+        insert(m_pTail, val);
     }
 
     /** Add a node of value val before the index-th node in the linked list. If index equals to the length of linked list, the node will be appended to the end of linked list. If index is greater than the length, the node will not be inserted. */
     void addAtIndex(int index, int val) {
-        if (index == 0) {
-            addAtHead(val);
-        }
-        else if (index < m_size) {
-            ListNode* node = new ListNode(val);
-            ListNode* targetNode = getNode(index);
-            node->next = targetNode;
-            node->prev = targetNode->prev;
-            targetNode->prev->next = node;
-            targetNode->prev = node;
-
-            ++m_size;
-        }
-        else if (index == m_size) {
+        if (index == m_len) {
             addAtTail(val);
+        }
+        else {
+            Node* pNode = getNode(index);
+            if (pNode) {
+                insert(pNode, val);
+            }
         }
     }
 
     /** Delete the index-th node in the linked list, if the index is valid. */
     void deleteAtIndex(int index) {
-        if (m_size < index + 1) {
-            return;
+        Node* pNode = getNode(index);
+        if (pNode) {
+            erase(pNode);
         }
-
-        ListNode* node = getNode(index);
-        node->next->prev = node->prev;
-        node->prev->next = node->next;
-        delete node;
-
-        --m_size;
     }
 
 private:
-    class ListNode {
-    public:
-        ListNode(int val_ = 0) : val(val_) {}
-        int val;
-        ListNode* prev = nullptr;
-        ListNode* next = nullptr;
-    };
-
-    ListNode* getNode(int index) {
-        if (index < 0 || m_size <= index) {
+    Node* getNode(int index) {
+        if (index < 0 || m_len <= index) {
             return nullptr;
         }
 
-        ListNode* node;
-        int mid = m_size / 2;
-        if (index < mid) {
-            node = m_head->next;
+        Node* pNode;
+        if (index < (m_len / 2)) {
+            pNode = m_pHead->pNext;
             while (index--) {
-                node = node->next;
+                pNode = pNode->pNext;
             }
         }
         else {
-            index = m_size - index - 1;
-            node = m_tail->prev;
+            index = m_len - index;
+            pNode = m_pTail;
             while (index--) {
-                node = node->prev;
+                pNode = pNode->pPrev;
             }
         }
-
-        return node;
+        return pNode;
     }
 
-    size_t m_size = 0;
-    ListNode* m_head;
-    ListNode* m_tail;
+    void insert(Node* pNode, int val) {
+        assert(pNode);
+
+        Node* pTmp = new Node(val, pNode->pPrev, pNode);
+        pTmp->pPrev->pNext = pTmp;
+        pTmp->pNext->pPrev = pTmp;
+
+        ++m_len;
+    }
+    
+    void erase(Node* pNode) {
+        assert(pNode);
+
+        pNode->pPrev->pNext = pNode->pNext;
+        pNode->pNext->pPrev = pNode->pPrev;
+        delete pNode;
+
+        --m_len;
+    }
+
+    Node* m_pHead;
+    Node* m_pTail;
+    int m_len;
 };
 
 /**
  * Your MyLinkedList object will be instantiated and called as such:
- * MyLinkedList obj = new MyLinkedList();
- * int param_1 = obj.get(index);
- * obj.addAtHead(val);
- * obj.addAtTail(val);
- * obj.addAtIndex(index,val);
- * obj.deleteAtIndex(index);
+ * MyLinkedList* obj = new MyLinkedList();
+ * int param_1 = obj->get(index);
+ * obj->addAtHead(val);
+ * obj->addAtTail(val);
+ * obj->addAtIndex(index,val);
+ * obj->deleteAtIndex(index);
  */
