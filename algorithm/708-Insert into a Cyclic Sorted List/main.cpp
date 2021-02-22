@@ -1,4 +1,4 @@
-\/*
+/*
 // Definition for a Node.
 class Node {
 public:
@@ -7,39 +7,41 @@ public:
 
     Node() {}
 
+    Node(int _val) {
+        val = _val;
+        next = NULL;
+    }
+
     Node(int _val, Node* _next) {
         val = _val;
         next = _next;
     }
 };
 */
+
 class Solution {
 public:
-    Node* insert(Node* pHead, int val) {
-        if (!pHead) {
-            Node* pNodeInsert = new Node(val, nullptr);
-            pNodeInsert->next = pNodeInsert;
-            return pNodeInsert;
+    Node* insert(Node* head, int insertVal) {
+        if (!head) {
+            head = new Node(insertVal);
+            head->next = head;
+            return head;
         }
 
-        Node* pPre = pHead;
-        Node* pCur = pHead->next;
-        bool inserted = false;
+        Node* pPre = head;
+        Node* pCur = pPre->next;
         do {
-            if ((pPre->val <= val && val <= pCur->val) ||
-                (pCur->val < pPre->val && pPre->val < val) ||
-                (pCur->val < pPre->val && val < pCur->val)) {
-                pPre->next = new Node(val, pCur);
-                inserted = true;
+            if ((pPre->val <= insertVal && insertVal <= pCur->val) ||
+                (pCur->val < pPre->val && pPre->val <= insertVal) ||
+                (pCur->val < pPre->val && insertVal <= pCur->val)) {
+                pPre->next = new Node(insertVal, pCur);
+                return head;
             }
             pPre = pCur;
             pCur = pCur->next;
-        } while (pPre != pHead && !inserted);
+        } while (pPre != head);
 
-        if (!inserted) {
-            pPre->next = new Node(val, pCur);
-        }
-
-        return pHead;
+        pPre->next = new Node(insertVal, pCur);
+        return head;
     }
 };
