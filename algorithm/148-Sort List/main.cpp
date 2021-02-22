@@ -232,7 +232,7 @@ public:
             pCur = pCur->next;
 
             pNode->next = nullptr;
-            lists.push(pNode);
+            lists.emplace(pNode);
         }
 
         while (1 < lists.size()) {
@@ -241,7 +241,7 @@ public:
             ListNode* l2 = lists.front();
             lists.pop();
 
-            lists.push(mergeSortedList(l1, l2));
+            lists.emplace(mergeSortedList(l1, l2));
         }
 
         return lists.front();
@@ -271,8 +271,11 @@ public:
         return lists.front();
     }
 
+    ListNode* mergesort_BottomUpMinHeap(ListNode* head) {
+        return nullptr;
+    }
+
     // TODO:
-    //  ListNode* mergesort_BottomUpMinHeap(ListNode* head);
     //  ListNode* mergesort_BottomUpInPlace(ListNode* head);
 
     ListNode* sortList(ListNode* head) {
