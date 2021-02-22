@@ -219,9 +219,30 @@ public:
 
         return mergeSortedList(mergesort_TopDown(head1), mergesort_TopDown(head2));
     }
+    
+    ListNode* mergesort_BottomUpQueue(ListNode* head) {
+        queue<ListNode*> lists;
+        for (ListNode* pCur = head; pCur; ) {
+            ListNode* pNode = pCur;
+            pCur = pCur->next;
+            
+            pNode->next = nullptr;
+            lists.push(pNode);
+        }
+        
+        while (1 < lists.size()) {
+            ListNode* l1 = lists.front();
+            lists.pop();
+            ListNode* l2 = lists.front();
+            lists.pop();
+            
+            lists.push(mergeSortedList(l1, l2));
+        }
+        
+        return (lists.empty() ? nullptr : lists.front());
+    }
 
     // TODO:
-    //  ListNode* mergesort_BottomUpQueue(ListNode* head);
     //  ListNode* mergesort_BottomUpArray(ListNode* head);
     //  ListNode* mergesort_BottomUpMinHeap(ListNode* head);
     //  ListNode* mergesort_BottomUpInPlace(ListNode* head);
@@ -240,6 +261,7 @@ public:
         //return mergesortListMergeByMinHeap(head);
         //return mergesortListBottomUpMerge(head);
 
-        return mergesort_TopDown(head);
+        //return mergesort_TopDown(head);
+        return mergesort_BottomUpQueue(head);
     }
 };
