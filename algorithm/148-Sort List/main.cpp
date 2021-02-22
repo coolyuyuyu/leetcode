@@ -221,6 +221,10 @@ public:
     }
 
     ListNode* mergesort_BottomUpQueue(ListNode* head) {
+        if (!head) {
+            return nullptr;
+        }
+        
         queue<ListNode*> lists;
         for (ListNode* pCur = head; pCur; ) {
             ListNode* pNode = pCur;
@@ -239,7 +243,11 @@ public:
             lists.push(mergeSortedList(l1, l2));
         }
 
-        return (lists.empty() ? nullptr : lists.front());
+        return lists.front();
+    }
+    
+    ListNode* mergesort_BottomUpArray(ListNode* head) {
+        return nullptr;
     }
 
     // TODO:
