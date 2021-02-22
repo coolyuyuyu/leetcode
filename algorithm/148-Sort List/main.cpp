@@ -224,7 +224,7 @@ public:
         if (!head) {
             return nullptr;
         }
-        
+
         queue<ListNode*> lists;
         for (ListNode* pCur = head; pCur; ) {
             ListNode* pNode = pCur;
@@ -245,7 +245,7 @@ public:
 
         return lists.front();
     }
-    
+
     ListNode* mergesort_BottomUpArray(ListNode* head) {
         return nullptr;
     }
