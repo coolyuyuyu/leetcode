@@ -1,34 +1,37 @@
 class Solution {
 public:
     bool isValid(string s) {
-        stack<char> brackets;
-        for (string::const_iterator iter = s.begin(); iter != s.end(); ++iter) {
-            char c = *iter;
+        stack<char> stk;
+        for (char c : s) {
             switch (c) {
-            case '(':
-            case '{':
-            case '[':
-                brackets.push(c);
-                break;
-            case ')':
-                if (brackets.empty() || brackets.top() != '(')
-                    return false;
-                brackets.pop();
-                break;
-            case '}':
-                if (brackets.empty() || brackets.top() != '{')
-                    return false;
-                brackets.pop();
-                break;
-            case ']':
-                if (brackets.empty() || brackets.top() != '[')
-                    return false;
-                brackets.pop();
-                break;
-            default:
-                break;
+                case '(':
+                case '{':
+                case '[':
+                    stk.emplace(c);
+                    break;
+                case ')':
+                    if (stk.empty() || stk.top() != '(') {
+                        return false;
+                    }
+                    stk.pop();
+                    break;
+                case '}':
+                    if (stk.empty() || stk.top() != '{}') {
+                        return false;
+                    }
+                    stk.pop();
+                    break;
+                case ']':
+                    if (stk.empty() || stk.top() != '[') {
+                        return false;
+                    }
+                    stk.pop();
+                    break;
+                default:
+                    assert(false);
             }
         }
-        return brackets.empty();
+
+        return stk.empty();
     }
 };
