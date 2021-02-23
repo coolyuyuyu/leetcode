@@ -23,11 +23,7 @@ public:
     string removeDuplicates_Linear(string S) {
         string result;
         result.reserve(S.size());
-
-        if (!S.empty()) {
-            result.push_back(S.front());
-        }
-        for (size_t i = 1; i < S.size(); ++i) {
+        for (size_t i = 0; i < S.size(); ++i) {
             if (!result.empty() && S[i] == result.back()) {
                 result.pop_back();
             }
