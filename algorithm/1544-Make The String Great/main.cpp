@@ -20,6 +20,21 @@ public:
         return result;
     }
 
+    string makeGood_Linear(string s) {
+        string result;
+        result.reserve(s.size());
+        for (auto c : s) {
+            if (!result.empty() && abs(result.back() - c) == 32)  {
+                result.pop_back();
+            }
+            else {
+                result.push_back(c);
+            }
+        }
+
+        return result;
+    }
+
     string makeGood(string s) {
         return makeGood_Stack(s);
     }
