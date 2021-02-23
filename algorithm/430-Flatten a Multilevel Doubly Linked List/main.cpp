@@ -6,47 +6,40 @@ public:
     Node* prev;
     Node* next;
     Node* child;
-
-    Node() {}
-
-    Node(int _val, Node* _prev, Node* _next, Node* _child) {
-        val = _val;
-        prev = _prev;
-        next = _next;
-        child = _child;
-    }
 };
 */
+
 class Solution {
 public:
-    void flatten(Node* pHead, Node** ppTail) {
-        if (!pHead) {
-            return;
-        }
+    void flattenHelper(Node* pHead, Node*& pTail) {
+        assert(pHead);
 
         for (Node* pCur = pHead; pCur; pCur = pCur->next) {
             if (pCur->child) {
                 Node* pChildHead = pCur->child;
-                Node* pChildTail = nullptr;
-                flatten(pChildHead, &pChildTail);
+                Node* pChildTail;
+                flattenHelper(pChildHead, pChildTail);
 
                 pChildHead->prev = pCur;
                 pChildTail->next = pCur->next;
-                if (pChildTail->next) {
-                    pChildTail->next->prev = pChildTail;
+                if (pCur->next) {
+                    pCur->next->prev = pChildTail;
                 }
-                pCur->next = pCur->child;
-                pCur->child = nullptr;
+                pCur->next = pChildHead;
 
+                pCur->child = nullptr;
                 pCur = pChildTail;
             }
-            *ppTail = pCur;
+
+            pTail = pCur;
         }
     }
 
     Node* flatten(Node* pHead) {
-        Node* pTail = nullptr;
-        flatten(pHead, &pTail);
+        if (pHead) {
+            Node* pTail;
+            flattenHelper(pHead, pTail);
+        }
         return pHead;
     }
 };
