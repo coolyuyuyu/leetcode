@@ -2,7 +2,7 @@ class Solution {
 public:
     vector<string> buildArray(vector<int>& target, int n) {
         vector<string> operations;
-        
+
         int i = 1;
         for (int t : target) {
             for (; i < t; ++i) {
@@ -12,7 +12,7 @@ public:
             operations.push_back("Push");
             ++i;
         }
-        
+
         return operations;
     }
 };
