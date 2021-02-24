@@ -7,7 +7,7 @@ public:
                 case '(':
                 case '{':
                 case '[':
-                    stk.emplace(c);
+                    stk.push(c);
                     break;
                 case ')':
                     if (stk.empty() || stk.top() != '(') {
