@@ -1,13 +1,13 @@
 class Solution {
 public:
-    string makeGood_Stack(string s) {
+    string makeGood_Stack(const string& s) {
         stack<char> stk;
         for (auto c : s) {
-            if (!stk.empty() && abs(stk.top() - c) == 32)  {
+            if (!stk.empty() && abs(stk.top() - c) == 32) {
                 stk.pop();
             }
             else {
-                stk.emplace(c);
+                stk.push(c);
             }
         }
 
@@ -20,11 +20,11 @@ public:
         return result;
     }
 
-    string makeGood_Linear(string s) {
+    string makeGood_Linear(const string& s) {
         string result;
         result.reserve(s.size());
         for (auto c : s) {
-            if (!result.empty() && abs(result.back() - c) == 32)  {
+            if (!result.empty() && abs(result.back() - c) == 32) {
                 result.pop_back();
             }
             else {
@@ -36,6 +36,7 @@ public:
     }
 
     string makeGood(string s) {
-        return makeGood_Stack(s);
+        //return makeGood_Stack(s);
+        return makeGood_Linear(s);
     }
 };
