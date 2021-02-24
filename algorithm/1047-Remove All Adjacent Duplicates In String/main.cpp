@@ -7,7 +7,7 @@ public:
                 stk.pop();
             }
             else {
-                stk.emplace(c);
+                stk.push(c);
             }
         }
 
