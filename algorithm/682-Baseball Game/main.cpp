@@ -1,33 +1,22 @@
 class Solution {
 public:
     int calPoints(vector<string>& ops) {
-        stack<int> points;
-        for (const string& op : ops) {
-            if (op == "D") {
-                points.push(points.top() * 2);
+        vector<int> points;
+        for (string op : ops) {
+            if (op == "+") {
+                points.push_back(points[points.size() - 1] + points[points.size() - 2]);
+            }
+            else if (op == "D") {
+                points.push_back(points.back() * 2);
             }
             else if (op == "C") {
-                points.pop();
-            }
-            else if (op == "+") {
-                int lastPoint = points.top();
-                points.pop();
-
-                int latestPoint = points.top() + lastPoint;
-                points.push(lastPoint);
-                points.push(latestPoint);
+                points.pop_back();
             }
             else {
-                points.push(stoi(op));
+                points.push_back(stoi(op, nullptr));
             }
         }
 
-        int sumOfPoints = 0;
-        while (!points.empty()) {
-            sumOfPoints += points.top();
-            points.pop();
-        }
-
-        return sumOfPoints;
+        return accumulate(points.begin(), points.end(), 0);
     }
 };
