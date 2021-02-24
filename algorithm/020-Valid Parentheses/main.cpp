@@ -16,7 +16,7 @@ public:
                     stk.pop();
                     break;
                 case '}':
-                    if (stk.empty() || stk.top() != '{}') {
+                    if (stk.empty() || stk.top() != '{') {
                         return false;
                     }
                     stk.pop();
