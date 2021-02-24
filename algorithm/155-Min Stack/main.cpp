@@ -5,43 +5,39 @@ public:
     }
 
     void push(int x) {
-        stk.push(x);
-        if (minStk.empty()) {
-            minStk.push(x);
+        if (m_min.empty() || x <= m_min.back()) {
+            m_min.push_back(x);
         }
-        else {
-            if (x <= minStk.top()) {
-                minStk.push(x);
-            }
-        }
+
+        m_data.push_back(x);
     }
 
     void pop() {
-        if (stk.top() == minStk.top()) {
-            minStk.pop();
+        if (m_data.back() == getMin()) {
+            m_min.pop_back();
         }
-        stk.pop();
+
+        m_data.pop_back();
     }
 
     int top() {
-        return stk.top();
+        return m_data.back();
     }
 
     int getMin() {
-        return minStk.top();
+        return m_min.back();
     }
 
 private:
-    stack<int> stk;
-    stack<int> minStk;
+    vector<int> m_data;
+    vector<int> m_min;
 };
-
 
 /**
  * Your MinStack object will be instantiated and called as such:
- * MinStack obj = new MinStack();
- * obj.push(x);
- * obj.pop();
- * int param_3 = obj.top();
- * int param_4 = obj.getMin();
+ * MinStack* obj = new MinStack();
+ * obj->push(x);
+ * obj->pop();
+ * int param_3 = obj->top();
+ * int param_4 = obj->getMin();
  */
