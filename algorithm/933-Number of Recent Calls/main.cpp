@@ -4,19 +4,14 @@ public:
     }
 
     int ping(int t) {
-        m_times.push(t);
-        while (!m_times.empty()) {
-            if (t - m_times.front() > 3000) {
-                m_times.pop();
-            }
-            else {
-                break;
-            }
+        while (!m_times.empty() && 3000 < (t - m_times.front())) {
+            m_times.pop();
         }
+        m_times.push(t);
 
         return m_times.size();
     }
-    
+
 private:
     queue<int> m_times;
 };
