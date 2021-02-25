@@ -3,59 +3,25 @@
  * struct ListNode {
  *     int val;
  *     ListNode *next;
- *     ListNode(int x) : val(x), next(NULL) {}
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
 class Solution {
 public:
-    int numComponents1(ListNode* head, vector<int>& G) {
-        unordered_set<int> vals;
-        for (int val : G) {
-            vals.insert(val);
-        }
-
-        int ans = 0;
-        while (head) {
-            if (vals.count(head->val) && (head->next == nullptr || !vals.count(head->next->val))) {
-                ++ans;
-            }
-
-            head = head->next;
-        }
-
-        return ans;
-    }
-
-    int numComponents2(ListNode* head, vector<int>& G) {
-        unordered_set<int> vals;
-        for (int val : G) {
-            vals.insert(val);
-        }
-
-        bool flag = false;
-        int ans = 0;
-        while (head) {
-            if (vals.count(head->val)) {
-                if (head->next == nullptr) {
-                    ++ans;
-                }
-                flag = true;
-            }
-            else {
-                if (flag) {
-                    ++ans;
-                }
-                flag = false;
-            }
-
-            head = head->next;
-        }
-
-        return ans;
-    }
-
     int numComponents(ListNode* head, vector<int>& G) {
-        //return numComponents1(head, G);
-        return numComponents2(head, G);
+        unordered_set<int> vals(G.begin(), G.end());
+
+        int num = 0;
+        for (ListNode* pCur = head; pCur; pCur = pCur->next) {
+            if (vals.find(pCur->val) != vals.end()) {
+                if (!(pCur->next) || vals.find(pCur->next->val) == vals.end()) {
+                    ++num;
+                }
+            }
+        }
+
+        return num;
     }
 };
