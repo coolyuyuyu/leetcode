@@ -9,6 +9,11 @@ public:
     MaxQueue () {
     }
 
+    void clear() {
+        m_stkI.clear();
+        m_stkO.clear();
+    }
+
     void push(const T& v) {
         m_stkI.push(v);
     }

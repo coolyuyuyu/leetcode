@@ -13,6 +13,11 @@ public:
     MaxStack() {
     }
 
+    void clear() {
+        m_data.clear();
+        m_max.clear()
+    }
+
     void push(const T& val) {
         m_data.push_back(val);
 
