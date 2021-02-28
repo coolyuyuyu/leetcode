@@ -20,6 +20,11 @@ public:
         m_maxIndexes.clear();
     }
 
+    void swap(MaxStack<T>& rhs) {
+        m_data.swap(rhs);
+        m_maxIndexes.swap(rhs);
+    }
+
     void push(const T& val) {
         m_data.push_back(val);
 
