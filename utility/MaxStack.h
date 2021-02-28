@@ -3,7 +3,7 @@ TODO:
     1. Generalize compare object as a template parameter of MaxStack
     2. throw exception when invalid operation (pop from empty, max from empty)
     3. Restrict T only for numeric type
-    4. template parameter std::less
+    4. template parameter for compare function, default std::less
 */
 
 #include <cassert>
