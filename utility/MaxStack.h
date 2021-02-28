@@ -3,8 +3,10 @@ TODO:
     1. Generalize compare object as a template parameter of MaxStack
     2. throw exception when invalid operation (pop from empty, max from empty)
     3. Restrict T only for numeric type
+    4. template parameter std::less
 */
 
+#include <cassert>
 #include <vector>
 
 template <typename T>
@@ -15,14 +17,14 @@ public:
 
     void clear() {
         m_data.clear();
-        m_max.clear()
+        m_maxIndexes.clear();
     }
 
     void push(const T& val) {
         m_data.push_back(val);
 
-        if (m_max.empty() || m_max.back() <= val) {
-            m_max.push_back(val);
+        if (m_maxIndexes.empty() || m_data[m_maxIndexes.back()] <= m_data.back()) {
+            m_maxIndexes.push_back(m_data.size() - 1);
         }
     }
 
@@ -30,20 +32,24 @@ public:
     void emplace(Args&&... args) {
         m_data.emplace_back(args...);
 
-        if (m_max.empty() || m_max.back() <= m_data.back()) {
-            m_max.push_back(m_data.back());
+        if (m_maxIndexes.empty() || m_data[m_maxIndexes.back()] <= m_data.back()) {
+            m_maxIndexes.push_back(m_data.size() - 1);
         }
     }
 
     void pop() {
-        if (m_data.back() == max()) {
-            m_max.pop_back();
+        assert(!empty());
+
+        if (m_data.size() == (m_maxIndexes.back() + 1)) {
+            m_maxIndexes.pop_back();
         }
 
         m_data.pop_back();
     }
 
     const T& top() {
+        assert(!empty());
+
         return m_data.back();
     }
 
@@ -52,7 +58,9 @@ public:
     }
 
     const T& max() {
-        return m_max.back();
+        assert(!empty());
+
+        return m_data[m_maxIndexes.back()];
     }
 
     const T& max() const {
@@ -69,5 +77,5 @@ public:
 
 private:
     std::vector<T> m_data;
-    std::vector<T> m_max;
+    std::vector<size_t> m_maxIndexes;
 };
