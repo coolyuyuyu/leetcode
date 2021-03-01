@@ -1,61 +1,73 @@
 /*
 TODO:
-    1. Generalize compare object as a template parameter of MaxStack
-    2. throw exception when invalid operation (pop from empty, max from empty)
-    3. Restrict T only for numeric type
-    4. template parameter for compare function, default std::less
+    1. throw exception when invalid operation (pop from empty, max from empty)
+    2. Restrict T only for numeric type\
 */
 
+#include <algorithm>
 #include <cassert>
 #include <vector>
 
-template <typename T>
+template <class T, class Compare = std::less<T>>
 class MaxStack {
 public:
     MaxStack() {
     }
 
     void clear() {
-        m_data.clear();
-        m_maxIndexes.clear();
+        m_elems.clear();
+        m_indexes.clear();
     }
 
     void swap(MaxStack<T>& rhs) {
-        m_data.swap(rhs);
-        m_maxIndexes.swap(rhs);
+        m_elems.swap(rhs.m_elems);
+        m_indexes.swap(rhs.m_indexes);
     }
 
     void push(const T& val) {
-        m_data.push_back(val);
-
-        if (m_maxIndexes.empty() || m_data[m_maxIndexes.back()] <= m_data.back()) {
-            m_maxIndexes.push_back(m_data.size() - 1);
+        m_elems.push_back(val);
+        if (m_indexes.empty()
+            || m_comp(m_elems[m_indexes.back()], m_elems.back())
+            || !m_comp(m_elems.back(), m_elems[m_indexes.back()])) {
+            m_indexes.push_back(m_elems.size() - 1);
         }
     }
 
     template <class... Args>
     void emplace(Args&&... args) {
-        m_data.emplace_back(args...);
-
-        if (m_maxIndexes.empty() || m_data[m_maxIndexes.back()] <= m_data.back()) {
-            m_maxIndexes.push_back(m_data.size() - 1);
+        m_elems.emplace_back(args...);
+        if (m_indexes.empty()
+            || m_comp(m_elems[m_indexes.back()], m_elems.back())
+            || !m_comp(m_elems.back(), m_elems[m_indexes.back()])) {
+            m_indexes.push_back(m_elems.size() - 1);
         }
     }
 
     void pop() {
         assert(!empty());
-
-        if (m_data.size() == (m_maxIndexes.back() + 1)) {
-            m_maxIndexes.pop_back();
+        if (m_elems.size() == (m_indexes.back() + 1)) {
+            m_indexes.pop_back();
         }
+        m_elems.pop_back();
+    }
 
-        m_data.pop_back();
+    void pop_max() {
+        size_t maxIndex = m_indexes.back();
+        m_indexes.pop_back();
+
+        std::vector<T> buf(m_elems.size() - maxIndex - 1);
+        std::move(m_elems.begin() + maxIndex + 1, m_elems.end(), buf.begin());
+
+        m_elems.erase(m_elems.begin() + maxIndex, m_elems.end());
+
+        for (const T& elem: buf) {
+            push(elem);
+        }
     }
 
     const T& top() {
         assert(!empty());
-
-        return m_data.back();
+        return m_elems.back();
     }
 
     const T& top() const {
@@ -64,8 +76,7 @@ public:
 
     const T& max() {
         assert(!empty());
-
-        return m_data[m_maxIndexes.back()];
+        return m_elems[m_indexes.back()];
     }
 
     const T& max() const {
@@ -73,14 +84,16 @@ public:
     }
 
     bool empty() const {
-        return m_data.empty();
+        assert(m_elems.empty() == m_indexes.empty());
+        return m_elems.empty();
     }
 
     size_t size() const {
-        return m_data.size();
+        return m_elems.size();
     }
 
 private:
-    std::vector<T> m_data;
-    std::vector<size_t> m_maxIndexes;
+    std::vector<T> m_elems;
+    std::vector<size_t> m_indexes;
+    Compare m_comp;
 };
