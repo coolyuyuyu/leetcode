@@ -7,6 +7,7 @@ TODO:
 */
 
 #include <algorithm>
+#include <cassert>
 #include <functional>
 
 #include "MaxStack.h"
