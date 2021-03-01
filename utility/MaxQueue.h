@@ -1,17 +1,25 @@
 /*
 TODO:
-    1. Support template compare function
-    2. Restrict T only for numeric type
+    1. support custom allocator
+    2. support range-based constructor
+    3. support initializer-list constructor
+    4. Restrict T only for numeric type
 */
 
 #include <algorithm>
+#include <functional>
 
 #include "MaxStack.h"
 
-template <class T>
+template <class T, class Compare = std::less<T>>
 class MaxQueue {
 public:
-    MaxQueue () {
+    MaxQueue() {
+    }
+
+    explicit MaxQueue(const Compare& comp)
+        : m_stkI(comp)
+        , m_stkO(comp) {
     }
 
     void clear() {
@@ -58,7 +66,7 @@ public:
     }
 
     const T& front() const {
-        return const_cast<MaxStack<T>*>(this)->front();
+        return const_cast<MaxQueue<T, Compare>*>(this)->front();
     }
 
     const T& max() {
@@ -78,7 +86,7 @@ public:
     }
 
     const T& max() const {
-        return const_cast<MaxQueue<T>*>(this)->max();
+        return const_cast<MaxQueue<T, Compare>*>(this)->max();
     }
 
     bool empty() const {
@@ -90,6 +98,6 @@ public:
     }
 
 private:
-    MaxStack<T> m_stkI;
-    MaxStack<T> m_stkO;
+    MaxStack<T, Compare> m_stkI;
+    MaxStack<T, Compare> m_stkO;
 };
