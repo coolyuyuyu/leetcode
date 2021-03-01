@@ -11,13 +11,10 @@ TODO:
 #include <functional>
 #include <vector>
 
-template <class T, class Compare = std::less<T>>
+template <class T, class Container = std::vector<T>, class Compare = std::less<typename Container::value_type>>
 class MaxStack {
 public:
-    MaxStack() {
-    }
-
-    explicit MaxStack(const Compare& comp)
+    explicit MaxStack(const Compare& comp = Compare())
         : m_comp(comp) {
     }
 
@@ -27,8 +24,8 @@ public:
     }
 
     void swap(MaxStack<T>& rhs) {
-        m_elems.swap(rhs.m_elems);
-        m_indexes.swap(rhs.m_indexes);
+        std::swap(m_elems, rhs.m_elems);
+        std::swap(m_indexes, rhs.m_indexes);
     }
 
     void push(const T& val) {
@@ -62,7 +59,7 @@ public:
         size_t maxIndex = m_indexes.back();
         m_indexes.pop_back();
 
-        std::vector<T> buf(m_elems.size() - maxIndex - 1);
+        Container buf(m_elems.size() - maxIndex - 1);
         std::move(m_elems.begin() + maxIndex + 1, m_elems.end(), buf.begin());
 
         m_elems.erase(m_elems.begin() + maxIndex, m_elems.end());
@@ -78,7 +75,7 @@ public:
     }
 
     const T& top() const {
-        return const_cast<MaxStack<T, Compare>*>(this)->top();
+        return const_cast<MaxStack<T, Container, Compare>*>(this)->top();
     }
 
     const T& max() {
@@ -87,7 +84,7 @@ public:
     }
 
     const T& max() const {
-        return const_cast<MaxStack<T, Compare>*>(this)->max();
+        return const_cast<MaxStack<T, Container, Compare>*>(this)->max();
     }
 
     bool empty() const {
@@ -100,7 +97,7 @@ public:
     }
 
 private:
-    std::vector<T> m_elems;
+    Container m_elems;
     std::vector<size_t> m_indexes;
     Compare m_comp;
 };
