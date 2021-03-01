@@ -1,16 +1,24 @@
 /*
 TODO:
-    1. Restrict T only for numeric type
+    1. support custom allocator
+    2. support range-based constructor
+    3. support initializer-list constructor
+    4. Restrict T only for numeric type
 */
 
 #include <algorithm>
 #include <cassert>
+#include <functional>
 #include <vector>
 
 template <class T, class Compare = std::less<T>>
 class MaxStack {
 public:
     MaxStack() {
+    }
+
+    explicit MaxStack(const Compare& comp)
+        : m_comp(comp) {
     }
 
     void clear() {
@@ -70,7 +78,7 @@ public:
     }
 
     const T& top() const {
-        return const_cast<MaxStack<T>*>(this)->top();
+        return const_cast<MaxStack<T, Compare>*>(this)->top();
     }
 
     const T& max() {
@@ -79,7 +87,7 @@ public:
     }
 
     const T& max() const {
-        return const_cast<MaxStack<T>*>(this)->max();
+        return const_cast<MaxStack<T, Compare>*>(this)->max();
     }
 
     bool empty() const {
