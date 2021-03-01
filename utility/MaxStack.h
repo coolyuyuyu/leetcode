@@ -9,6 +9,7 @@ TODO:
 #include <algorithm>
 #include <cassert>
 #include <functional>
+#include <type_traits>
 #include <vector>
 
 template <class T, class Container = std::vector<T>, class Compare = std::less<typename Container::value_type>>
@@ -70,21 +71,21 @@ public:
     }
 
     const T& top() {
+        return static_cast<typename std::remove_reference<decltype(*this)>::type const&>(*this).top();
+    }
+
+    const T& top() const {
         assert(!empty());
         return m_elems.back();
     }
 
-    const T& top() const {
-        return const_cast<MaxStack<T, Container, Compare>*>(this)->top();
-    }
-
     const T& max() {
-        assert(!empty());
-        return m_elems[m_indexes.back()];
+        return static_cast<typename std::remove_reference<decltype(*this)>::type const&>(*this).max();
     }
 
     const T& max() const {
-        return const_cast<MaxStack<T, Container, Compare>*>(this)->max();
+        assert(!empty());
+        return m_elems[m_indexes.back()];
     }
 
     bool empty() const {
