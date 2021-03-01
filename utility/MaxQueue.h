@@ -9,16 +9,14 @@ TODO:
 #include <algorithm>
 #include <cassert>
 #include <functional>
+#include <vector>
 
 #include "MaxStack.h"
 
-template <class T, class Compare = std::less<T>>
+template <class T, class Container = std::vector<T>, class Compare = std::less<typename Container::value_type>>
 class MaxQueue {
 public:
-    MaxQueue() {
-    }
-
-    explicit MaxQueue(const Compare& comp)
+    explicit MaxQueue(const Compare& comp = Compare())
         : m_stkI(comp)
         , m_stkO(comp) {
     }
@@ -29,8 +27,8 @@ public:
     }
 
     void swap(MaxQueue<T>& rhs) {
-        m_stkI.swap(rhs.m_stkI);
-        m_stkO.swap(rhs.m_stkO);
+        std::swap(m_stkI, rhs.m_stkI);
+        std::swap(m_stkO, rhs.m_stkO);
     }
 
     void push(const T& v) {
@@ -67,7 +65,7 @@ public:
     }
 
     const T& front() const {
-        return const_cast<MaxQueue<T, Compare>*>(this)->front();
+        return const_cast<MaxQueue<T, Container, Compare>*>(this)->front();
     }
 
     const T& max() {
@@ -87,7 +85,7 @@ public:
     }
 
     const T& max() const {
-        return const_cast<MaxQueue<T, Compare>*>(this)->max();
+        return const_cast<MaxQueue<T, Container, Compare>*>(this)->max();
     }
 
     bool empty() const {
@@ -99,6 +97,6 @@ public:
     }
 
 private:
-    MaxStack<T, Compare> m_stkI;
-    MaxStack<T, Compare> m_stkO;
+    MaxStack<T, Container, Compare> m_stkI;
+    MaxStack<T, Container, Compare> m_stkO;
 };
