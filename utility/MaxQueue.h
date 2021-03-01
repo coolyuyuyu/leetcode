@@ -1,9 +1,14 @@
+/*
+TODO:
+    1. Support template compare function
+    2. Restrict T only for numeric type
+*/
+
 #include <algorithm>
-#include <stdexcept>
 
 #include "MaxStack.h"
 
-template <typename T>
+template <class T>
 class MaxQueue {
 public:
     MaxQueue () {
@@ -14,16 +19,22 @@ public:
         m_stkO.clear();
     }
 
+    void swap(MaxQueue<T>& rhs) {
+        m_stkI.swap(rhs.m_stkI);
+        m_stkO.swap(rhs.m_stkO);
+    }
+
     void push(const T& v) {
         m_stkI.push(v);
     }
 
     template <class... Args>
-    void emplace (Args&&... args) {
+    void emplace(Args&&... args) {
         m_stkI.emplace(args...);
     }
 
     void pop() {
+        assert(!empty());
         if (m_stkO.empty()) {
             while (!m_stkI.empty()) {
                 m_stkO.push(m_stkI.top());
@@ -35,6 +46,7 @@ public:
     }
 
     const T& front() {
+        assert(!empty());
         if (m_stkO.empty()) {
             while (!m_stkI.empty()) {
                 m_stkO.push(m_stkI.top());
@@ -50,22 +62,23 @@ public:
     }
 
     const T& max() {
-        if (m_stkI.empty() && m_stkO.empty()) {
-            throw std::domain_error(std::string("empty"));
-        }
-        else if (!m_stkI.empty() && m_stkO.empty()) {
-            return m_stkI.max();
-        }
-        else if (m_stkI.empty() && !m_stkO.empty()) {
+        assert(!empty());
+        if (m_stkI.empty()) {
+            assert(!m_stkO.empty());
             return m_stkO.max();
         }
         else {
-            return std::max(m_stkI.max(), m_stkO.max());
+            if (m_stkO.empty()) {
+                return m_stkI.max();
+            }
+            else {
+                return std::max(m_stkI.max(), m_stkO.max());
+            }
         }
     }
 
     const T& max() const {
-        return const_cast<MaxStack<T>*>(this)->max();
+        return const_cast<MaxQueue<T>*>(this)->max();
     }
 
     bool empty() const {
