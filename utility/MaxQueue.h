@@ -9,6 +9,7 @@ TODO:
 #include <algorithm>
 #include <cassert>
 #include <functional>
+#include <type_traits>
 #include <vector>
 
 #include "MaxStack.h"
@@ -53,6 +54,10 @@ public:
     }
 
     const T& front() {
+        return static_cast<typename std::remove_reference<decltype(*this)>::type const&>(*this).front();
+    }
+
+    const T& front() const {
         assert(!empty());
         if (m_stkO.empty()) {
             while (!m_stkI.empty()) {
@@ -64,11 +69,11 @@ public:
         return m_stkO.top();
     }
 
-    const T& front() const {
-        return const_cast<MaxQueue<T, Container, Compare>*>(this)->front();
+    const T& max() {
+        return static_cast<typename std::remove_reference<decltype(*this)>::type const&>(*this).max();
     }
 
-    const T& max() {
+    const T& max() const {
         assert(!empty());
         if (m_stkI.empty()) {
             assert(!m_stkO.empty());
@@ -82,10 +87,6 @@ public:
                 return std::max(m_stkI.max(), m_stkO.max());
             }
         }
-    }
-
-    const T& max() const {
-        return const_cast<MaxQueue<T, Container, Compare>*>(this)->max();
     }
 
     bool empty() const {
