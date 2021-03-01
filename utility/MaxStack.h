@@ -1,7 +1,6 @@
 /*
 TODO:
-    1. throw exception when invalid operation (pop from empty, max from empty)
-    2. Restrict T only for numeric type\
+    1. Restrict T only for numeric type
 */
 
 #include <algorithm>
