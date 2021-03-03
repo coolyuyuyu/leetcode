@@ -1,46 +1,30 @@
 class Solution {
 public:
     string decodeString(string s) {
-        stringstream ss;
+        stack<pair<int, string>> stk({{0, ""}});
+        int k = 0;
+        for (char c : s) {
+            if ('0' <= c && c <= '9') {
+                k = k * 10 + c - '0';
+            }
+            else if (c == '[') {
+                stk.emplace(k, "");
+                k = 0;
+            }
+            else if (c == ']') {
+                int repeat = stk.top().first;
+                string token = stk.top().second;
+                stk.pop();
 
-        size_t index = 0;
-        while (index < s.size()) {
-            if (isalpha(s[index])) {
-                ss << s[index];
-                ++index;
+                for (int i = 0; i < repeat; ++i) {
+                    stk.top().second += token;
+                }
             }
             else {
-                int count = 0;
-                while (isdigit(s[index])) {
-                    count *= 10;
-                    count += (s[index] - '0');
-                    ++index;
-                }
-                assert(s[index] == '[');
-
-                size_t bgn = ++index;
-                size_t bracket = 1;
-                while (bracket != 0) {
-                    switch (s[index]) {
-                    case '[':
-                        ++bracket;
-                        break;
-                    case ']':
-                        --bracket;
-                        break;
-                    }
-                    ++index;
-                }
-                assert(s[index - 1] == ']');
-
-                size_t end = index - 1;
-                string decodeStr = decodeString(s.substr(bgn, end - bgn));
-                for (int i = 0; i < count; ++i) {
-                    ss << decodeStr;
-                }
+                stk.top().second.push_back(c);
             }
         }
 
-        return ss.str();
+        return stk.top().second;
     }
 };
