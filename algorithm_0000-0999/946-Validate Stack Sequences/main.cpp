@@ -5,7 +5,7 @@ public:
         size_t indexPushed = 0, indexPopped = 0;
         while (indexPopped < popped.size()) {
             while (stk.empty() || stk.top() != popped[indexPopped]) {
-                if (pushed.size() <= indexPushed ) {
+                if (pushed.size() <= indexPushed) {
                     return false;
                 }
                 stk.push(pushed[indexPushed++]);
