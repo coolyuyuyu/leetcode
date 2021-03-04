@@ -1,33 +1,25 @@
 class Solution {
 public:
-    bool verifyPreorder(const vector<int>& preorder, size_t first, size_t last) {
+    bool verifyPreorderHelper(vector<int>::const_iterator first, vector<int>::const_iterator last) {
         assert(first <= last);
-
-        size_t len = last - first;
-        if (len <= 1) {
+        if (distance(first, last) <= 2) {
             return true;
         }
 
-        int root = preorder[first];
+        int root = *first;
 
-        size_t index = first + 1;
-        for (; index < last; ++index) {
-            if (root < preorder[index]) {
-                break;
-            }
-        }
-        size_t rootIndex = index;
-        for (; index < last; ++index) {
-            if (preorder[index] < root) {
-                return false;
-            }
+        vector<int>::const_iterator lftFirst = ++first, lftLast = lftFirst;
+        for (; lftLast != last && *lftLast < root; ++lftLast) {
         }
 
-        return verifyPreorder(preorder, first + 1, rootIndex) && verifyPreorder(preorder, rootIndex, last);
+        vector<int>::const_iterator rhtFirst = lftLast, rhtLast = rhtFirst;
+        for (; rhtLast != last && root < *rhtLast; ++rhtLast) {
+        }
 
+        return rhtLast == last && verifyPreorderHelper(lftFirst, lftLast) && verifyPreorderHelper(rhtFirst, rhtLast);
     }
 
     bool verifyPreorder(vector<int>& preorder) {
-        return verifyPreorder(preorder, 0, preorder.size());
+        return verifyPreorderHelper(preorder.begin(), preorder.end());
     }
 };

@@ -2,20 +2,17 @@ class Solution {
 public:
     bool validateStackSequences(vector<int>& pushed, vector<int>& popped) {
         stack<int> stk;
-        auto itrPushed = pushed.begin();
-        auto itrPopped = popped.begin();
-        while (itrPopped != popped.end()) {
-            int val = *itrPopped;
-            while (stk.empty() || stk.top() != val) {
-                if (itrPushed == pushed.end()) {
+        size_t indexPushed = 0, indexPopped = 0;
+        while (indexPopped < popped.size()) {
+            while (stk.empty() || stk.top() != popped[indexPopped]) {
+                if (pushed.size() <= indexPushed) {
                     return false;
                 }
-                stk.push(*itrPushed);
-                ++itrPushed;
+                stk.push(pushed[indexPushed++]);
             }
 
             stk.pop();
-            ++itrPopped;
+            ++indexPopped;
         }
 
         return true;
