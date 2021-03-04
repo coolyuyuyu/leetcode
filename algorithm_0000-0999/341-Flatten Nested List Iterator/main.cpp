@@ -15,46 +15,51 @@
  *     const vector<NestedInteger> &getList() const;
  * };
  */
+
 class NestedIterator {
 public:
-    NestedIterator(vector<NestedInteger> &nestedList) {
-        m_stk.push(pair<const vector<NestedInteger>&, size_t>(nestedList, 0));
+    NestedIterator(vector<NestedInteger> &nestedList)
+        : m_itr(nestedList.cbegin())
+        , m_end(nestedList.cend()) {
     }
 
     int next() {
-        pair<const vector<NestedInteger>&, size_t>& p = m_stk.top();
-        int ret = p.first[p.second].getInteger();
-        p.second += 1;
-        return ret;
+        int val = m_itr->getInteger();
+        ++m_itr;
+        return val;
     }
 
     bool hasNext() {
-        while (m_stk.empty() == false) {
-            const pair<const vector<NestedInteger>&, size_t>& p = m_stk.top();
-            const vector<NestedInteger>& nestedList = p.first;
-            const size_t index = p.second;
-            if (index < nestedList.size()) {
-                const NestedInteger& nestedInt = nestedList[index];
-                if (nestedInt.isInteger()) {
-                    return true;
+        while (true) {
+            if (m_itr == m_end) {
+                if (m_stk.empty()) {
+                    return false;
                 }
                 else {
-                    m_stk.push(pair<const vector<NestedInteger>&, size_t>(nestedInt.getList(), 0));
+                    m_itr = m_stk.top().first;
+                    m_end = m_stk.top().second;
+                    m_stk.pop();
+                    ++m_itr;
                 }
             }
             else {
-                m_stk.pop();
-                if (m_stk.empty() == false) {
-                    m_stk.top().second += 1;
+                if (m_itr->isInteger()) {
+                    return true;
+                }
+                else {
+                    m_stk.emplace(m_itr, m_end);
+
+                    const vector<NestedInteger>& nestedList = m_itr->getList();
+                    m_itr = nestedList.cbegin();
+                    m_end = nestedList.cend();
                 }
             }
         }
-
-        return false;
     }
 
 private:
-    stack<pair<const vector<NestedInteger>&, size_t>> m_stk;
+    vector<NestedInteger>::const_iterator m_itr, m_end;
+    stack<pair<vector<NestedInteger>::const_iterator, vector<NestedInteger>::const_iterator>> m_stk;
 };
 
 /**
