@@ -4,73 +4,47 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-    void inorderTraversalIter1(TreeNode* root, vector<int>& vals) {
-        TreeNode* cur = root;
-        stack<TreeNode*> stk;
-        while (cur || !stk.empty()) {
-            if (cur) {
-                stk.push(cur);
-                cur = cur->left;
-            }
-            else {
-                cur = stk.top();
-                stk.pop();
-
-                vals.push_back(cur->val);
-
-                cur = cur->right;
-            }
-        }
-    }
-
-    void inorderTraversalIter2(TreeNode* root, vector<int>& vals) {
-        TreeNode* cur = root;
-        TreeNode* pre = NULL;
-        while (cur) {
-            if (cur->left) {
-                pre = cur->left;
-                while (pre->right && pre->right != cur) {
-                    pre = pre->right;
-                }
-
-                if (pre->right) {
-                    pre->right = NULL;
-                    vals.push_back(cur->val);
-                    cur = cur->right;
-                }
-                else {
-                    pre->right = cur;
-                    cur = cur->left;
-                }
-            }
-            else {
-                vals.push_back(cur->val);
-                cur = cur->right;
-            }
-        }
-    }
-
-    void inorderTraversalRecv(TreeNode* root, vector<int>& vals) {
+    void inorderTraversal_Recursive(TreeNode* root, vector<int>& vals) {
         if (!root) {
             return;
         }
 
-        inorderTraversalRecv(root->left, vals);
+        inorderTraversal_Recursive(root->left, vals);
         vals.push_back(root->val);
-        inorderTraversalRecv(root->right, vals);
+        inorderTraversal_Recursive(root->right, vals);
+    }
+
+    void inorderTraversal_Iterative(TreeNode* root, vector<int>& vals) {
+        stack<TreeNode*> stk;
+        while (root || !stk.empty()) {
+            if (root) {
+                while (root) {
+                    stk.push(root);
+                    root = root->left;
+                }
+            }
+            else {
+                root = stk.top();
+                stk.pop();
+
+                vals.push_back(root->val);
+                root = root->right;
+            }
+        }
     }
 
     vector<int> inorderTraversal(TreeNode* root) {
         vector<int> vals;
 
-        inorderTraversalIter1(root, vals);
-        //inorderTraversalIter2(root, vals);
-        //inorderTraversalRecv(root, vals);
+        //inorderTraversal_Recursive(root, vals);
+        inorderTraversal_Iterative(root, vals);
 
         return vals;
     }

@@ -4,49 +4,50 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-    void postorderTraversalIter(TreeNode* root, vector<int>& vals) {
+    void postorderTraversal_Recursive(TreeNode* root, vector<int>& vals) {
+        if (!root) {
+            return;
+        }
+
+        postorderTraversal_Recursive(root->left, vals);
+        postorderTraversal_Recursive(root->right, vals);
+        vals.push_back(root->val);
+    }
+
+    void postorderTraversal_Iterative(TreeNode* root, vector<int>& vals) {
         stack<TreeNode*> stk;
         if (root) {
             stk.push(root);
         }
 
         while (!stk.empty()) {
-            TreeNode* node = stk.top();
+            root = stk.top();
             stk.pop();
 
-            vals.push_back(node->val);
+            vals.push_back(root->val);
 
-            if (node->left) {
-                stk.push(node->left);
+            if (root->left) {
+                stk.push(root->left);
             }
-            if (node->right) {
-                stk.push(node->right);
+            if (root->right) {
+                stk.push(root->right);
             }
         }
-
         reverse(vals.begin(), vals.end());
-    }
-
-    void postorderTraversalRecv(TreeNode* root, vector<int>& vals) {
-        if (!root) {
-            return;
-        }
-
-        postorderTraversalRecv(root->left, vals);
-        postorderTraversalRecv(root->right, vals);
-        vals.push_back(root->val);
     }
 
     vector<int> postorderTraversal(TreeNode* root) {
         vector<int> vals;
 
-        postorderTraversalIter(root, vals);
-        //postorderTraversalRecv(root, vals);
+        //postorderTraversal_Recursive(root, vals);
+        postorderTraversal_Iterative(root, vals);
 
         return vals;
     }
