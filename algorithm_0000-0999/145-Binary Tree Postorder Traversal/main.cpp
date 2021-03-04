@@ -15,24 +15,24 @@ public:
         if (!root) {
             return;
         }
-        
+
         postorderTraversal_Recursive(root->left, vals);
         postorderTraversal_Recursive(root->right, vals);
         vals.push_back(root->val);
     }
-    
+
     void postorderTraversal_Iterative(TreeNode* root, vector<int>& vals) {
         stack<TreeNode*> stk;
         if (root) {
             stk.push(root);
         }
-        
+
         while (!stk.empty()) {
             root = stk.top();
             stk.pop();
-            
+
             vals.push_back(root->val);
-            
+
             if (root->left) {
                 stk.push(root->left);
             }
@@ -42,13 +42,13 @@ public:
         }
         reverse(vals.begin(), vals.end());
     }
-    
+
     vector<int> postorderTraversal(TreeNode* root) {
         vector<int> vals;
-        
+
         //postorderTraversal_Recursive(root, vals);
         postorderTraversal_Iterative(root, vals);
-        
+
         return vals;
     }
 };
