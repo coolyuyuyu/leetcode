@@ -4,68 +4,58 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-    int rangeSumBSTIter(TreeNode* root, int L, int R) {
-        int sum = 0;
-
-        TreeNode* cur = root;
-        stack<TreeNode*> stk;
-        while (cur || !stk.empty()) {
-            if (cur) {
-                stk.push(cur);
-                if (cur->val <= L) {
-                    cur = NULL;
-                }
-                else {
-                    cur = cur->left;
-                }
-            }
-            else {
-                cur = stk.top();
-                stk.pop();
-
-                if (L <= cur->val && cur->val <= R) {
-                    sum += cur->val;
-                }
-
-
-                if (R <= cur->val) {
-                    cur = NULL;
-                }
-                else {
-                    cur = cur->right;
-                }
-            }
-
-        }
-        return sum;
-    }
-
-    int rangeSumBSTRecv(TreeNode* root, int L, int R) {
+    int rangeSumBST_Recursive(TreeNode* root, int low, int high) {
+        assert(low <= high);
         if (!root) {
             return 0;
         }
 
-        if (root->val < L) {
-            return rangeSumBSTRecv(root->right, L, R);
+        if (low <= root->val && root->val <= high) {
+            return rangeSumBST_Recursive(root->left, low, root->val) + root->val + rangeSumBST_Recursive(root->right, root->val, high);
         }
-        else if (R < root->val) {
-            return rangeSumBSTRecv(root->left, L, R);
+        else if (high < root->val) {
+            return rangeSumBST_Recursive(root->left, low, high);
         }
         else {
-            assert(L <= root->val && root->val <= R);
-            return rangeSumBSTRecv(root->left, L, R) + root->val + rangeSumBSTRecv(root->right, L, R);
+            assert(root->val < low);
+            return rangeSumBST_Recursive(root->right, low, high);
         }
     }
 
+    int rangeSumBST_Iterative(TreeNode* root, int low, int high) {
+        stack<TreeNode*> stk({root});
 
-    int rangeSumBST(TreeNode* root, int L, int R) {
-        return rangeSumBSTIter(root, L, R);
+        int sum = 0;
+        while (!stk.empty()) {
+            TreeNode* node = stk.top();
+            stk.pop();
 
-        //return rangeSumBSTRecv(root, L, R);
+            if (low <= node->val && node->val <= high) {
+                sum += node->val;
+            }
+
+            if (node->right && !(high < node->val)) {
+                stk.push(node->right);
+            }
+            if (node->left && !(node->val < low)) {
+                stk.push(node->left);
+            }
+        }
+
+        return sum;
+    }
+
+    int rangeSumBST(TreeNode* root, int low, int high) {
+        assert(root && (low <= high));
+
+        //return rangeSumBST_Recursive(root, low, high);
+        return rangeSumBST_Iterative(root, low, high);
     }
 };
