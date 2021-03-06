@@ -4,32 +4,36 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
     TreeNode* increasingBST(TreeNode* root) {
-        TreeNode* newRoot = NULL;
-        TreeNode** ppNode = &newRoot;
-        stack<TreeNode*> nodes;
-        while (root || !nodes.empty()) {
+        TreeNode* pHeadNew = nullptr;
+        TreeNode** ppHeadNew = &pHeadNew;
+
+        stack<TreeNode*> stk;
+        while (root || !stk.empty()) {
             if (root) {
-                nodes.push(root);
+                stk.push(root);
                 root = root->left;
             }
             else {
-                root = nodes.top();
-                nodes.pop();
+                root = stk.top();
+                stk.pop();
 
-                *ppNode = root;
-                (*ppNode)->left = NULL;
-                ppNode = &((*ppNode)->right);
-                
+                *ppHeadNew = root;
+                (*ppHeadNew)->left = nullptr;
+                ppHeadNew = &((*ppHeadNew)->right);
+
                 root = root->right;
             }
         }
+        assert(!(*ppHeadNew));
 
-        return newRoot;
+        return pHeadNew;
     }
 };
