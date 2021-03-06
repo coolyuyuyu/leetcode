@@ -4,23 +4,46 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-    bool isUnivalTree(TreeNode* root) {
+    bool isUnivalTree_Recursive(TreeNode* root, int val) {
         if (!root) {
             return true;
         }
 
-        if (root->left && (root->val != root->left->val || !isUnivalTree(root->left))) {
-            return false;
-        }
-        if (root->right && (root->val != root->right->val || !isUnivalTree(root->right))) {
-            return false;
+        return (root->val == val) && isUnivalTree_Recursive(root->left, val) && isUnivalTree_Recursive(root->right, val);
+    }
+
+    bool isUnivalTree_Iterative(TreeNode* root, int val) {
+        stack<TreeNode*> stk({root});
+        while (!stk.empty()) {
+            TreeNode* node = stk.top();
+            stk.pop();
+
+            if (node->val != val) {
+                return false;
+            }
+
+            if (node->right) {
+                stk.push(node->right);
+            }
+            if (node->left) {
+                stk.push(node->left);
+            }
         }
 
         return true;
+    }
+
+    bool isUnivalTree(TreeNode* root) {
+        assert(root);
+
+        //return isUnivalTree_Recursive(root, root->val);
+        return isUnivalTree_Iterative(root, root->val);
     }
 };
