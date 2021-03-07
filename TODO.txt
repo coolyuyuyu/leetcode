@@ -3,3 +3,5 @@ Trie:
 Tree:
     653
         Use forward and backward iterator to dectect collision from both ends
+        
+    Just pending: 606, 617, 671
