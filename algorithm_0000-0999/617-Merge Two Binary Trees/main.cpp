@@ -25,7 +25,44 @@ public:
         return root1;
     }
 
+    TreeNode* mergeTrees_Iterative(TreeNode* root1, TreeNode* root2) {
+        if (!root1) {
+            return root2;
+        }
+        if (!root2) {
+            return root1;
+        }
+        assert(root1 && root2);
+
+        stack<pair<TreeNode*, TreeNode*>> stk;
+        stk.emplace(root1, root2);
+        while (!stk.empty()) {
+            TreeNode* node1 = stk.top().first;
+            TreeNode* node2 = stk.top().second;
+            stk.pop();
+
+            node1->val += node2->val;
+
+            if (!node1->right) {
+                swap(node1->right, node2->right);
+            }
+            if (node1->right && node2->right) {
+                stk.emplace(node1->right, node2->right);
+            }
+
+            if (!node1->left) {
+                swap(node1->left, node2->left);
+            }
+            if (node1->left && node2->left) {
+                stk.emplace(node1->left, node2->left);
+            }
+        }
+
+        return root1;
+    }
+
     TreeNode* mergeTrees(TreeNode* root1, TreeNode* root2) {
-        return mergeTrees_Recursive(root1, root2);
+        //return mergeTrees_Recursive(root1, root2);
+        return mergeTrees_Iterative(root1, root2);
     }
 };
