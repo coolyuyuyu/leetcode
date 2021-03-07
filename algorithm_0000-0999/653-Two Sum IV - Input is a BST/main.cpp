@@ -4,83 +4,57 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
-
-class BSTIterator{
-public:
-    BSTIterator(TreeNode* root, bool forward)
-        : m_forward(forward) {
-        while (root) {
-            m_stk.push(root);
-            root = m_forward ? root->left : root->right;
-        }
-    }
-
-    bool hasNext() {
-        return !m_stk.empty();
-    }
-
-    TreeNode* next() {
-        TreeNode* node = m_stk.top();
-        m_stk.pop();
-
-        TreeNode* root = m_forward ? node->right : node->left;
-        while (root) {
-            m_stk.push(root);
-            root = m_forward ? root->left : root->right;
-        }
-
-        return node;
-    }
-
-private:
-    stack<TreeNode*> m_stk;
-    bool m_forward;
-};
-
 class Solution {
 public:
-    bool findTarget(TreeNode* root, int k) {
-        /*
-        unordered_set<int> candidates;
-        return findTargetHelper(root, k, candidates);
-        */
+    bool findTarget_Recursive(TreeNode* root, int k, unordered_set<int>& visited) {
+        if (!root) {
+            return false;
+        }
 
-        BSTIterator forward(root, true);
-        BSTIterator backward(root, false);
-        TreeNode* nodeA = forward.hasNext() ? forward.next() : NULL;
-        TreeNode* nodeB = backward.hasNext() ? backward.next() : NULL;
-        while (nodeA != nodeB) {
-            int sum = nodeA->val + nodeB->val;
-            if (sum == k) {
+        if (visited.find(k - root->val) != visited.end()) {
+            return true;
+        }
+        visited.insert(root->val);
+
+        return (findTarget_Recursive(root->left, k, visited) || findTarget_Recursive(root->right, k, visited));
+    }
+
+    bool findTarget_Iterative(TreeNode* root, int k) {
+        unordered_set<int> visited;
+
+        stack<TreeNode*> stk;
+        if (root) {
+            stk.push(root);
+        }
+        while (!stk.empty()) {
+            root = stk.top();
+            stk.pop();
+
+            if (visited.find(k - root->val) != visited.end()) {
                 return true;
             }
-            else if (sum < k) {
-                nodeA = forward.next();
+            visited.insert(root->val);
+
+            if (root->right) {
+                stk.push(root->right);
             }
-            else {
-                nodeB = backward.next();
+            if (root->left) {
+                stk.push(root->left);
             }
         }
 
         return false;
     }
 
-    bool findTargetHelper(TreeNode* root, int k, unordered_set<int>& candidates) {
-        if (root) {
-            pair<unordered_set<int>::iterator, bool> p = candidates.insert(root->val);
-            if (p.second == false) {
-                return true;
-            }
-            else {
-                candidates.insert(k - root->val);
-                return findTargetHelper(root->left, k, candidates) || findTargetHelper(root->right, k, candidates);
-            }
-        }
-        else {
-            return false;
-        }
+    bool findTarget(TreeNode* root, int k) {
+        //unordered_set<int> visited;
+        //return findTarget_Recursive(root, k, visited);
+
+        return findTarget_Iterative(root, k);
     }
 };
