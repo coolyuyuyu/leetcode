@@ -4,24 +4,28 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-    TreeNode* mergeTrees(TreeNode* t1, TreeNode* t2) {
-        if (t1 == NULL) {
-            return t2;
+    TreeNode* mergeTrees_Recursive(TreeNode* root1, TreeNode* root2) {
+        if (!root1) {
+            return root2;
+        }
+        if (!root2) {
+            return root1;
         }
 
-        if (t2 == NULL) {
-            return t1;
-        }
+        root1->val += root2->val;
+        root1->left = mergeTrees_Recursive(root1->left, root2->left);
+        root1->right = mergeTrees_Recursive(root1->right, root2->right);
+        return root1;
+    }
 
-        TreeNode* root = NULL;
-        root = new TreeNode(t1->val + t2->val);
-        root->left = mergeTrees(t1->left, t2->left);
-        root->right = mergeTrees(t1->right, t2->right);
-        return root;
+    TreeNode* mergeTrees(TreeNode* root1, TreeNode* root2) {
+        return mergeTrees_Recursive(root1, root2);
     }
 };
