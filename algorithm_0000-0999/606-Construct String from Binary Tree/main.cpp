@@ -32,9 +32,48 @@ public:
         }
     }
 
+    void tree2str_Iterative(TreeNode* root, ostringstream& oss) {
+        if (!root) {
+            return;
+        }
+
+        set<TreeNode*> visited;
+        stack<TreeNode*> stk({root});
+        while (!stk.empty()) {
+            root = stk.top();
+            auto p = visited.insert(root);
+            if (p.second) {
+                if (1 < stk.size()) {
+                    oss << "(";
+                }
+                oss << root->val;
+
+                if (root->right) {
+                    if (!root->left) {
+                        oss << "()";
+                    }
+                    stk.push(root->right);
+                }
+                if (root->left) {
+                    stk.push(root->left);
+                }
+            }
+            else {
+                stk.pop();
+                visited.erase(p.first);
+
+                if (0 < stk.size()) {
+                    oss << ")";
+                }
+            }
+        }
+    }
+
     string tree2str(TreeNode* root) {
         ostringstream oss;
-        tree2str_Recursive(root, oss);
+
+        //tree2str_Recursive(root, oss);
+        tree2str_Iterative(root, oss);
 
         return oss.str();
     }
