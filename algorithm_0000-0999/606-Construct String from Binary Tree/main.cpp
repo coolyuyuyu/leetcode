@@ -4,31 +4,38 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-    string tree2str(TreeNode* t) {
-        string str;
-        if (t) {
-            str += to_string(t->val);
-
-            string lftStr = tree2str(t->left);
-            string rhtStr = tree2str(t->right);
-            if (!lftStr.empty()) {
-                str += ("(" + lftStr + ")");
-                if (!rhtStr.empty()) {
-                    str += ("(" + rhtStr + ")");
-                }
-            }
-            else {
-                if (!rhtStr.empty()) {
-                    str += ("()(" + rhtStr + ")");
-                }
-            }
+    void tree2str_Recursive(TreeNode* root, ostringstream& oss) {
+        if (!root) {
+            return;
         }
 
-        return str;
+        oss << root->val;
+        if (root->left || root->right) {
+            oss << "(";
+            tree2str_Recursive(root->left, oss);
+            oss << ")";
+
+            if (root->right) {
+                oss << "(";
+            }
+            tree2str_Recursive(root->right, oss);
+            if (root->right) {
+                oss << ")";
+            }
+        }
+    }
+
+    string tree2str(TreeNode* root) {
+        ostringstream oss;
+        tree2str_Recursive(root, oss);
+
+        return oss.str();
     }
 };
