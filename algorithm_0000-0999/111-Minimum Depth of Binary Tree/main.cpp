@@ -4,44 +4,63 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-    int minDepth(TreeNode* root) {
-        if (!root) {
-            return 0;
+    int minDepth_Recursive(TreeNode* root, int depth = 0) {
+        if (root) {
+            if (root->left && root->right) {
+                return min(minDepth_Recursive(root->left, depth + 1), minDepth_Recursive(root->right, depth + 1));
+            }
+            else if (root->left && !root->right) {
+                return minDepth_Recursive(root->left, depth + 1);
+            }
+            else if (!root->left && root->right) {
+                return minDepth_Recursive(root->right, depth + 1);
+            }
+            else {
+                assert(!root->left && !root->right);
+                return depth + 1;
+            }
         }
+        else {
+            return depth;
+        }
+    }
 
-        queue<TreeNode*> nodes;
-        nodes.push(root);
+    int minDepth_Iterative(TreeNode* root) {
+        queue<TreeNode*> q;
+        if (root) {
+            q.push(root);
+        }
+        for (int depth = 1; !q.empty(); ++depth) {
+            size_t n = q.size();
+            for (size_t i = 0; i < n; ++i) {
+                root = q.front();
+                q.pop();
 
-        int depth = 1;
-        while (!nodes.empty()) {
-            size_t count = nodes.size();
-            for (size_t i = 0; i < count; ++i) {
-                TreeNode* pNode = nodes.front();
-                nodes.pop();
-                if (pNode->left) {
-                    nodes.push(pNode->left);
-                    if (pNode->right) {
-                        nodes.push(pNode->right);
-                    }
-                    else {
-                    
-                    }
+                if (!root->left && !root->right) {
+                    return depth;
                 }
-                else {
-                    if (pNode->right) {
-                        nodes.push(pNode->right);
-                    }
-                    else {
-                        return depth;
-                    }
+
+                if (root->left) {
+                    q.push(root->left);
+                }
+                if (root->right) {
+                    q.push(root->right);
                 }
             }
-            ++depth;
         }
+
+        return 0;
+    }
+
+    int minDepth(TreeNode* root) {
+        //return minDepth_Recursive(root);
+        return minDepth_Iterative(root);
     }
 };
