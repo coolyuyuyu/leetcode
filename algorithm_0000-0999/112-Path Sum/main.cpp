@@ -4,41 +4,57 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-    bool hasPathSum(TreeNode* root, int sum) {
-        queue<pair<TreeNode*, int>> nodes;
+    bool hasPathSum_Recursive(TreeNode* root, int targetSum) {
+        if (!root) {
+            return false;
+        }
+
+        targetSum -= root->val;
+        if (!root->left && !root->right) {
+            return targetSum == 0;
+        }
+        else {
+            return (hasPathSum_Recursive(root->left, targetSum) || hasPathSum_Recursive(root->right, targetSum));
+        }
+    }
+
+    bool hasPathSum_Iterative(TreeNode* root, int targetSum) {
+        queue<pair<TreeNode*, int>> q;
         if (root) {
-            nodes.push(pair<TreeNode*, int>(root, root->val));
+            q.emplace(root, targetSum);
         }
+        while (!q.empty()) {
+            size_t n = q.size();
+            for (size_t i = 0; i < n; ++i) {
+                root = q.front().first;
+                targetSum = q.front().second - root->val;
+                q.pop();
 
-        bool success = false;
-        while (!nodes.empty()) {
-            const pair<TreeNode*, int>& p = nodes.front();
-            if (p.first->left) {
-                nodes.push(pair<TreeNode*, int>(p.first->left, p.second + p.first->left->val));
-                if (p.first->right) {
-                    nodes.push(pair<TreeNode*, int>(p.first->right, p.second + p.first->right->val));
+                if (!root->left && !root->right && targetSum == 0) {
+                    return true;
+                }
+
+                if (root->left) {
+                    q.emplace(root->left, targetSum);
+                }
+                if (root->right) {
+                    q.emplace(root->right, targetSum);
                 }
             }
-            else {
-                if (p.first->right) {
-                    nodes.push(pair<TreeNode*, int>(p.first->right, p.second + p.first->right->val));
-                }
-                else {
-                    if (p.second == sum) {
-                        success = true;
-                        break;
-                    }
-                }
-            }
-
-            nodes.pop();
         }
 
-        return success;
+        return false;
+    }
+
+    bool hasPathSum(TreeNode* root, int targetSum) {
+        //return hasPathSum_Recursive(root, targetSum);
+        return hasPathSum_Iterative(root, targetSum);
     }
 };
