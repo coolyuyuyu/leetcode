@@ -4,51 +4,82 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-    vector<string> binaryTreePaths(TreeNode* root) {
-        struct Item {
-            Item(TreeNode* pNode, const string& str)
-                : m_pNode(pNode)
-                , m_str(str)
-            {}
-            TreeNode* m_pNode;
-            string m_str;
-        };
-        stack<Item> stk;
-        if (root) {
-            stk.push(Item(root, ""));
+    void binaryTreePaths_Recursive(TreeNode* root, vector<int>& vals, vector<string>& results) {
+        if (!root) {
+            return;
         }
 
-        vector<string> paths;
+        vals.push_back(root->val);
+        if (!root->left && !root->right) {
+            ostringstream oss;
+            oss << vals.front();
+            for (size_t i = 1; i < vals.size(); ++i) {
+                oss << "->" << vals[i];
+            }
+            results.push_back(oss.str());
+        }
+        else {
+            binaryTreePaths_Recursive(root->left, vals, results);
+            binaryTreePaths_Recursive(root->right, vals, results);
+        }
+        vals.pop_back();
+    }
+
+    vector<string> binaryTreePaths_Iterative(TreeNode* root) {
+        vector<int> vals;
+        vector<string> results;
+
+        stack<pair<TreeNode*, bool>> stk;
+        if (root) {
+            stk.emplace(root, true);
+        }
+
         while (!stk.empty()) {
-            Item item = stk.top();
+            TreeNode* node = stk.top().first;
+            bool visited = stk.top().second;
             stk.pop();
 
-            TreeNode* pNode = item.m_pNode;
-            string path = item.m_str;
-            if (!path.empty()) {
-                path.append("->");
-            }
-            path.append(to_string(pNode->val));
+            if (visited) {
+                vals.push_back(node->val);
+                if (!node->left && !node->right) {
+                    ostringstream oss;
+                    oss << vals.front();
+                    for (size_t i = 1; i < vals.size(); ++i) {
+                        oss << "->" << vals[i];
+                    }
+                    results.push_back(oss.str());
+                }
 
-            bool end = true;
-            if (pNode->left) {
-                end = false;
-                stk.push(Item(pNode->left, path));
+                stk.emplace(node, false);
+
+                if (node->right) {
+                    stk.emplace(node->right, true);
+                }
+                if (node->left) {
+                    stk.emplace(node->left, true);
+                }
             }
-            if (pNode->right) {
-                end = false;
-                stk.push(Item(pNode->right, path));
-            }
-            if (end) {
-                paths.push_back(path);
+            else {
+                vals.pop_back();
             }
         }
 
-        return paths;
+        return results;
+    }
+
+    vector<string> binaryTreePaths(TreeNode* root) {
+        //vector<int> vals;
+        //vector<string> results;
+        //binaryTreePaths_Recursive(root, vals, results);
+        //return results;
+
+        return binaryTreePaths_Iterative(root);
     }
 };
