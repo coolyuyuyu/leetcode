@@ -7,49 +7,59 @@ public:
 
     Node() {}
 
+    Node(int _val) {
+        val = _val;
+    }
+
     Node(int _val, vector<Node*> _children) {
         val = _val;
         children = _children;
     }
 };
 */
+
 class Solution {
 public:
-    void postorderIter(Node* root, vector<int>& vals) {
-        stack<Node*> nodes;
-        if (root) {
-            nodes.push(root);
-        }
-
-        while (!nodes.empty()) {
-            Node* node = nodes.top();
-            nodes.pop();
-
-            vals.emplace_back(node->val);
-
-            const vector<Node*>& childs = node->children;
-            for (auto itr = childs.begin(); itr != childs.end(); ++itr) {
-                nodes.push(*itr);
-            }
-        }
-        reverse(vals.begin(), vals.end());
-    }
-
-    void postorderRecv(Node* root, vector<int>& vals) {
+    void postorder_Recursive(Node* root, vector<int>& vals) {
         if (!root) {
             return;
         }
 
         for (Node* node : root->children) {
-            postorderRecv(node, vals);
+            postorder_Recursive(node, vals);
         }
         vals.push_back(root->val);
     }
 
+    void postorder_Iterative(Node* root, vector<int>& vals) {
+        stack<pair<Node*, bool>> stk;
+        if (root) {
+            stk.emplace(root, false);
+        }
+
+        while (!stk.empty()) {
+            Node* node = stk.top().first;
+            bool visited = stk.top().second;
+            stk.pop();
+
+            if (visited) {
+                vals.push_back(node->val);
+            }
+            else {
+                stk.emplace(node, true);
+                for (size_t i = node->children.size(); 0 < i--;) {
+                    stk.emplace(node->children[i], false);
+                }
+            }
+        }
+    }
+
     vector<int> postorder(Node* root) {
         vector<int> vals;
-        postorderIter(root, vals);
-        //postorderRecv(root, vals);
+
+        //postorder_Recursive(root, vals);
+        postorder_Iterative(root, vals);
+
         return vals;
     }
 };
