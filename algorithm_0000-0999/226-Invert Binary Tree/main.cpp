@@ -4,45 +4,46 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-    TreeNode* invertTree(TreeNode* root) {
-        return invertTreeIter(root);
+    void invertTree_Recursive(TreeNode* root) {
+        if (root) {
+            swap(root->left, root->right);
+            invertTree_Recursive(root->left);
+            invertTree_Recursive(root->right);
+        }
     }
 
-    TreeNode* invertTreeIter(TreeNode* root) {
+    void invertTree_Iterative(TreeNode* root) {
         queue<TreeNode*> q;
         if (root) {
             q.push(root);
         }
-
         while (!q.empty()) {
-            TreeNode* pNode = q.front();
-            q.pop();
+            for (size_t i = q.size(); 0 < i; --i) {
+                root = q.front();
+                q.pop();
 
-            TreeNode* pLft = pNode->left;
-            pNode->left = pNode->right;
-            pNode->right = pLft;
-            if (pNode->left) {
-                q.push(pNode->left);
-            }
-            if (pNode->right) {
-                q.push(pNode->right);
+                swap(root->left, root->right);
+
+                if (root->left) {
+                    q.push(root->left);
+                }
+                if (root->right) {
+                    q.push(root->right);
+                }
             }
         }
-
-        return root;
     }
-    
-    TreeNode* invertTreeRecv(TreeNode* root) {
-        if (root) {
-            TreeNode* pLft = root->left;
-            root->left = invertTree(root->right);
-            root->right = invertTree(pLft);
-        }
+
+    TreeNode* invertTree(TreeNode* root) {
+        //invertTree_Recursive(root);
+        invertTree_Iterative(root);
 
         return root;
     }
