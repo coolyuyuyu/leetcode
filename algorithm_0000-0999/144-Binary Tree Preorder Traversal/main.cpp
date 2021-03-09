@@ -21,7 +21,7 @@ public:
         preorderTraversal_Recursive(root->right, vals);
     }
 
-    void preorderTraversal_Iterative(TreeNode* root, vector<int>& vals) {
+    void preorderTraversal_Iterative1(TreeNode* root, vector<int>& vals) {
         stack<TreeNode*> stk;
         if (root) {
             stk.push(root);
@@ -42,11 +42,37 @@ public:
         }
     }
 
+    void preorderTraversal_Iterative2(TreeNode* root, vector<int>& vals) {
+        stack<pair<TreeNode*, bool>> stk;
+        if (root) {
+            stk.emplace(root, true);
+        }
+
+        while (!stk.empty()) {
+            TreeNode* node = stk.top().first;
+            bool visited = stk.top().second;
+            stk.pop();
+
+            if (visited) {
+                vals.push_back(node->val);
+
+                stk.emplace(node, false);
+                if (node->right) {
+                    stk.emplace(node->right, true);
+                }
+                if (node->left) {
+                    stk.emplace(node->left, true);
+                }
+            }
+        }
+    }
+
     vector<int> preorderTraversal(TreeNode* root) {
         vector<int> vals;
 
         //preorderTraversal_Recursive(root, vals);
-        preorderTraversal_Iterative(root, vals);
+        //preorderTraversal_Iterative1(root, vals);
+        preorderTraversal_Iterative2(root, vals);
 
         return vals;
     }
