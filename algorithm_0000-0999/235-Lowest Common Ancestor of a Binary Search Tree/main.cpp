@@ -10,13 +10,13 @@
 
 class Solution {
 public:
-    TreeNode* lowestCommonAncestor_Recursive(TreeNode* root, TreeNode* p, TreeNode* q) {
-        assert(p->val < q->val);
+    TreeNode* lowestCommonAncestor_Recursive(TreeNode* root, int p, int q) {
+        assert(p < q);
 
-        if (q->val < root->val) {
+        if (q < root->val) {
             return lowestCommonAncestor_Recursive(root->left, p, q);
         }
-        else if (root->val < p->val) {
+        else if (root->val < p) {
             return lowestCommonAncestor_Recursive(root->right, p, q);
         }
         else {
@@ -24,14 +24,14 @@ public:
         }
     }
 
-    TreeNode* lowestCommonAncestor_Iterative(TreeNode* root, TreeNode* p, TreeNode* q) {
-        assert(p->val < q->val);
+    TreeNode* lowestCommonAncestor_Iterative(TreeNode* root, int p, int q) {
+        assert(p < q);
 
         while (root) {
-            if (q->val < root->val) {
+            if (q < root->val) {
                 root = root->left;
             }
-            else if (root->val < p->val) {
+            else if (root->val < p) {
                 root = root->right;
             }
             else {
@@ -47,7 +47,7 @@ public:
             swap(p, q);
         }
 
-        //return lowestCommonAncestor_Recursive(root, p, q);
-        return lowestCommonAncestor_Iterative(root, p, q);
+        //return lowestCommonAncestor_Recursive(root, p->val, q->val);
+        return lowestCommonAncestor_Iterative(root, p->val, q->val);
     }
 };
