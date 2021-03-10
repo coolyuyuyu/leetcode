@@ -6,10 +6,16 @@ public:
     DisjointSets(std::initializer_list<T> list)
     void clear();
     void make_set(const T& elem);
-    void merge(const T& elem1, const T& elem2) // link?
+    void merge(const T& elem1, const T& elem2) // link? // return false if already merged
     const T& root(const T& elem) const
     size_t size() const;
     
 private:
     std::map<T, T> m_map;
 };
+
+/*
+Optimization:
+    path compression
+    merge by rank
+*/
