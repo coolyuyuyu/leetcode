@@ -4,137 +4,102 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-
-    // iterative, required addition space for traveral store the visited elements
-    vector<int> findMode(TreeNode* root) {
+    void findMode_Recursive(TreeNode* root, vector<int>& mode, int& count, int& maxCount, int*& pPreVal) {
         if (!root) {
-            return {};
+            return;
         }
 
-        unordered_map<int, int> counts;
-        queue<TreeNode*> q;
-        q.push(root);
-        while (!q.empty()) {
-            TreeNode* pNode = q.front();
-            q.pop();
+        findMode_Recursive(root->left, mode, count, maxCount, pPreVal);
 
-            pair<unordered_map<int, int>::iterator, bool> p = counts.emplace(pNode->val, 1);
-            if (!p.second) {
-                ++p.first->second;
-            }
-
-            if (pNode->left) {
-                q.push(pNode->left);
-            }
-            if (pNode->right) {
-                q.push(pNode->right);
-            }
-        }
-
-        int maxCount = 0;
-        for (auto kv: counts) {
-            maxCount = max(maxCount, kv.second);
-        }
-
-        vector<int> modes;
-        for (auto kv : counts) {
-            if (kv.second == maxCount) {
-                modes.push_back(kv.first);
-            }
-        }
-
-        return modes;
-    }
-
-    // purely iterative, no stack, non-recursion, space-efficient
-    vector<int> findMode(TreeNode* root) {
-        vector<int> modes;
-
-        int count = 0;
-        int countMax = 0;
-        bool hasVisited = false;
-        int preVal;
-
-        TreeNode* cur = root;
-        TreeNode* pre = NULL;
-        while (cur) {
-            if (cur->left) {
-                pre = cur->left;
-                while (pre->right && pre->right != cur) {
-                    pre = pre->right;
-                }
-
-                if (pre->right) {
-                    pre->right = NULL;
-
-                    if (hasVisited) {
-                        if (preVal == cur->val) {
-                            ++count;
-                        }
-                        else {
-                            preVal = cur->val;
-                            count = 1;
-                        }
-
-                        if (countMax < count) {
-                            countMax = count;
-                            modes.clear();
-                            modes.push_back(cur->val);
-                        }
-                        else if (countMax == count) {
-                            modes.push_back(cur->val);
-                        }
-                    }
-                    else {
-                        count = countMax = 1;
-                        preVal = cur->val;
-                        modes.push_back(cur->val);
-                        hasVisited = true;
-                    }
-
-                    cur = cur->right;
-                }
-                else {
-                    pre->right = cur;
-                    cur = cur->left;
-                }
+        if (pPreVal) {
+            if (*pPreVal == root->val) {
+                ++count;
             }
             else {
-                if (hasVisited) {
-                    if (preVal == cur->val) {
+                pPreVal = &(root->val);
+                count = 1;
+            }
+
+            if (maxCount < count) {
+                maxCount = count;
+                mode.clear();
+                mode.push_back(root->val);
+            }
+            else if (maxCount == count) {
+                mode.push_back(root->val);
+            }
+        }
+        else {
+            pPreVal = &(root->val);
+            count = maxCount = 1;
+            mode.push_back(root->val);
+        }
+
+        findMode_Recursive(root->right, mode, count, maxCount, pPreVal);
+    }
+
+    void findMode_Iterative(TreeNode* root, vector<int>& mode, int& count, int& maxCount, int*& pPreVal) {
+        stack<pair<TreeNode*, bool>> stk;
+        if (root) {
+            stk.emplace(root, false);
+        }
+        while (!stk.empty()) {
+            TreeNode* node = stk.top().first;
+            bool visited = stk.top().second;
+            stk.pop();
+
+            if (visited) {
+                if (pPreVal) {
+                    if (*pPreVal == node->val) {
                         ++count;
                     }
                     else {
-                        preVal = cur->val;
+                        pPreVal = &(node->val);
                         count = 1;
                     }
 
-                    if (countMax < count) {
-                        countMax = count;
-                        modes.clear();
-                        modes.push_back(cur->val);
+                    if (maxCount < count) {
+                        maxCount = count;
+                        mode.clear();
+                        mode.push_back(node->val);
                     }
-                    else if (countMax == count) {
-                        modes.push_back(cur->val);
+                    else if (maxCount == count) {
+                        mode.push_back(node->val);
                     }
                 }
                 else {
-                    count = countMax = 1;
-                    preVal = cur->val;
-                    modes.push_back(cur->val);
-                    hasVisited = true;
+                    pPreVal = &(node->val);
+                    count = maxCount = 1;
+                    mode.push_back(node->val);
                 }
-
-                cur = cur->right;
             }
-        
+            else {
+                if (node->right) {
+                    stk.emplace(node->right, false);
+                }
+                stk.emplace(node, true);
+                if (node->left) {
+                    stk.emplace(node->left, false);
+                }
+            }
         }
+    }
 
-        return modes;
+    vector<int> findMode(TreeNode* root) {
+        vector<int> mode;
+        int count = 0, maxCount = 0;
+        int* pPreVal = nullptr;
+
+        //findMode_Recursive(root, mode, count, maxCount, pPreVal);
+        findMode_Iterative(root, mode, count, maxCount, pPreVal);
+
+        return mode;
     }
 };
