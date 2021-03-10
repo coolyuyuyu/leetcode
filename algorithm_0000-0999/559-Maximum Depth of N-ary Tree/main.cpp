@@ -7,55 +7,56 @@ public:
 
     Node() {}
 
+    Node(int _val) {
+        val = _val;
+    }
+
     Node(int _val, vector<Node*> _children) {
         val = _val;
         children = _children;
     }
 };
 */
+
 class Solution {
 public:
-    int maxDepthIter(Node* root) {        
-        queue<Node*> nodes;
-        if (root) {
-            nodes.push(root);
+    int maxDepth_Recursive(Node* root, int depth = 0) {
+        if(!root) {
+            return depth;
         }
-        
-        int depth = 0;
-        while (!nodes.empty()) {
-            ++depth;
-            
-            queue<Node*> childs;
-            while (!nodes.empty()) {
-                Node* node = nodes.front();
-                nodes.pop();
-                
-                for (Node* child : node->children) {
-                    childs.push(child);
-                }                
+        else {
+            int maxDepth = depth + 1;
+            for (Node* child : root->children) {
+                maxDepth = max(maxDepth, maxDepth_Recursive(child, depth + 1));
             }
-            nodes.swap(childs);            
+            return maxDepth;
         }
-        
+    }
+
+    int maxDepth_Iterative(Node* root) {
+        int depth = 0;
+        queue<Node*> q;
+        if (root) {
+            q.push(root);
+        }
+        for (; !q.empty(); ++depth) {
+            size_t n = q.size();
+            for (size_t i = 0; i < n; ++i) {
+                root = q.front();
+                q.pop();
+
+                for (Node* child : root->children) {
+                    q.push(child);
+
+                }
+            }
+        }
+
         return depth;
     }
-    
-    int maxDepthRecv(Node* root) {
-        if (!root) {
-            return 0;
-        }
-        
-        int maxDepth = 1;
-        for (Node* node : root->children) {
-            
-            maxDepth = max(maxDepth, 1 + maxDepthRecv(node));
-        }
-        
-        return maxDepth;
-    }
-    
+
     int maxDepth(Node* root) {
-        return maxDepthIter(root);
-        //return maxDepthRecv(root);
+        //return maxDepth_Recursive(root);
+        return maxDepth_Iterative(root);
     }
 };
