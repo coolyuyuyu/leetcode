@@ -19,6 +19,13 @@ public:
     T data;
 }
 
+// preorder Iterator
+// Inorder Iterator
+// Postorder Iterator
+// Foreward Iterator
+// Backward Iterator
+// Leaves Iterator
+
 class PreorderTraversal {
 public:
     PreorderTraversal(Node* root) {
