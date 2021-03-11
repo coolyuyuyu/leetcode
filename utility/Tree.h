@@ -19,6 +19,38 @@ public:
     T data;
 }
 
+class PreorderTraversal {
+public:
+    PreorderTraversal(Node* root) {
+        if (root) {
+            m_stk.push(root);
+        }
+    }
+    
+    Node* next() {
+        assert(!m_stk.empty());
+        
+        Node* node = m_stk.top();
+        m_stk.pop();
+
+        if (node->right) {
+            m_stk.push(node->right);
+        }
+        if (node->left) {
+            m_stk.push(node->left);
+        }
+        
+        return node;
+    }
+    
+    bool hasNext() const {
+        return !m_stk.empty();
+    }
+    
+private:
+    stack<Node*> m_stk;
+};
+
 class BSTIterator{
 public:
     BSTIterator(TreeNode* root, bool forward)
