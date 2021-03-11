@@ -9,44 +9,18 @@
  */
 class Solution {
 public:
-    TreeNode* lowestCommonAncestor_Recursive1(TreeNode* root, TreeNode* p, TreeNode* q, int& count) {
-        if (!root) {
-            count = 0;
-            return root;
-        }
-
-        int lftCount;
-        TreeNode* pLftLCA = lowestCommonAncestor_Recursive1(root->left, p, q, lftCount);
-        if (lftCount == 2) {
-            count = 2;
-            return pLftLCA;
-        }
-
-        int rhtCount;
-        TreeNode* pRhtLCA = lowestCommonAncestor_Recursive1(root->right, p, q, rhtCount);
-        if (rhtCount == 2) {
-            count = 2;
-            return pRhtLCA;
-        }
-
-        count = lftCount + rhtCount;
-        count += (root == p ? 1 : 0);
-        count += (root == q ? 1 : 0);
-        return root;
-    }
-
-    TreeNode* lowestCommonAncestor_Recursive2(TreeNode* root, TreeNode* p, TreeNode* q) {
+    TreeNode* lowestCommonAncestor_Recursive(TreeNode* root, TreeNode* p, TreeNode* q) {
         if (!root || root == p || root == q) {
             return root;
         }
         else {
-            TreeNode* lcaP = lowestCommonAncestor_Recursive2(root->left, p, q);
-            TreeNode* lcaQ = lowestCommonAncestor_Recursive2(root->right, p, q);
-            if (lcaP && lcaQ) {
+            TreeNode* lftLCA = lowestCommonAncestor_Recursive(root->left, p, q);
+            TreeNode* rhtLCA = lowestCommonAncestor_Recursive(root->right, p, q);
+            if (lftLCA && rhtLCA) {
                 return root;
             }
             else {
-                return lcaP ? lcaP : lcaQ;
+                return lftLCA ? lftLCA : rhtLCA;
             }
         }
     }
@@ -62,22 +36,26 @@ public:
             if (stk.top().second) {
                 stk.pop();
 
-                if (node == p || node == q) {
+                TreeNode* lftLCA = (node->left ? m[node->left] : nullptr);
+                TreeNode* rhtLCA = (node->right ? m[node->right] : nullptr);
+                if (lftLCA && rhtLCA) {
                     m[node] = node;
                 }
                 else {
-                    TreeNode* lcaP = (node->left ? m[node->left] : nullptr);
-                    TreeNode* lcaQ = (node->right ? m[node->right] : nullptr);
-                    if (lcaP && lcaQ) {
-                        m[node] = node;
-                    }
-                    else {
-                        m[node] = (lcaP ? lcaP : lcaQ);
-                    }
+                    m[node] = (lftLCA ? lftLCA : rhtLCA);
                 }
             }
             else {
-                stk.top().second = true;
+                if (node == p || node == q) {
+                    m[node] = node;
+
+                    stk.pop();
+                    continue;
+                }
+                else {
+                    stk.top().second = true;
+                }
+
                 if (node->right) {
                     stk.emplace(node->right, false);
                 }
@@ -91,11 +69,7 @@ public:
     }
 
     TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
-        //int count;
-        //return lowestCommonAncestor_Recursive1(root, p, q, count);
-
-        //return lowestCommonAncestor_Recursive2(root, p, q);
-
+        //return lowestCommonAncestor_Recursive(root, p, q);
         return lowestCommonAncestor_Iterative(root, p, q);
     }
 };
