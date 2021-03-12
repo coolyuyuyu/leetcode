@@ -13,7 +13,29 @@
 
 class Solution {
 public:
-    NodeCopy* copyRandomBinaryTree(Node* root) {
+    NodeCopy* copyRandomBinaryTree_Recursive(Node* root, map<Node*, NodeCopy*>& m) {
+        if (!root) {
+            return nullptr;
+        }
+
+        NodeCopy* rootNew; {
+            auto p = m.insert({root, nullptr});
+            if (p.second) {
+                p.first->second = new NodeCopy(root->val);
+            }
+            else {
+                return p.first->second;
+            }
+            rootNew = p.first->second;
+        }
+        rootNew->random = copyRandomBinaryTree_Recursive(root->random, m);
+        rootNew->left = copyRandomBinaryTree_Recursive(root->left, m);
+        rootNew->right = copyRandomBinaryTree_Recursive(root->right, m);
+
+        return rootNew;
+    }
+
+    NodeCopy* copyRandomBinaryTree_Iterative(Node* root) {
         Node* pHeadOld = root;
         Node** ppCurOld = &pHeadOld;
         NodeCopy* pHeadNew = nullptr;
@@ -53,5 +75,12 @@ public:
         }
 
         return pHeadNew;
+    }
+
+    NodeCopy* copyRandomBinaryTree(Node* root) {
+        //map<Node*, NodeCopy*> m;
+        //return copyRandomBinaryTree_Recursive(root, m);
+
+        return copyRandomBinaryTree_Iterative(root);
     }
 };
