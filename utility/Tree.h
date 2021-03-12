@@ -58,6 +58,48 @@ private:
     stack<Node*> m_stk;
 };
 
+class LeafIterator {
+public:
+    LeafIterator(Node* root) {
+        if (root) {
+            m_stk.push(root);
+        }
+    }
+
+    Node* next() {
+        assert(!m_stk.empty());
+        assert(!m_stk.top()->left && !m_stk.top()->right);
+
+        Node* node = m_stk.top();
+        m_stk.pop();
+
+        return node;
+    }
+
+    bool hasNext() const {
+        while (!m_stk.empty()) {
+            Node* node = m_stk.top();
+            if (!node->left && !node->right) {
+                return true;
+            }
+            
+            m_stk.pop();
+            
+            if (node->right) {
+                m_stk.push(node->right);
+            }
+            if (node->left) {
+                m_stk.push(node->left);
+            }
+        }
+        
+        return false;
+    }
+
+private:
+    mutable stack<Node*> m_stk;
+};
+
 class BSTIterator{
 public:
     BSTIterator(TreeNode* root, bool forward)
