@@ -21,25 +21,21 @@
  */
 class Solution {
 public:
-    bool isSubPathHelper(ListNode* head, TreeNode* root, bool samePrefix) {
+    bool isSubPath(ListNode* head, TreeNode* root, bool samePrefix = false) {
         if (!head) {
             return true;
         }
-        if (!root) {
+        else if (!root) {
             return false;
         }
 
-        if (head->val == root->val && (isSubPathHelper(head->next, root->left, true) || isSubPathHelper(head->next, root->right, true))) {
+        if (head->val == root->val && (isSubPath(head->next, root->left, true) || isSubPath(head->next, root->right, true))) {
             return true;
         }
-        if (samePrefix){
+        if (samePrefix) {
             return false;
         }
 
-        return isSubPathHelper(head, root->left, false) || isSubPathHelper(head, root->right, false);
-    }
-
-    bool isSubPath(ListNode* head, TreeNode* root) {
-        return isSubPathHelper(head, root, false);
+        return isSubPath(head, root->left) || isSubPath(head, root->right);
     }
 };
