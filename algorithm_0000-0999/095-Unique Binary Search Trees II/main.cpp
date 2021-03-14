@@ -4,46 +4,34 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-    vector<TreeNode*> generateTrees(int n) {
-        if (n == 0) {
-            return {};
+    TreeNode* cloneTree(TreeNode* root, int diff) {
+        if (!root) {
+            return nullptr;
         }
-
-        vector<vector<TreeNode*>> baseTrees = {{NULL}};
-        for (int i = 1; i <= n; ++i) {
-            vector<TreeNode*> trees;
-            for (int j = 1; j <= i; ++j) {
-                const vector<TreeNode*>& lftTrees = baseTrees[j - 1];
-                const vector<TreeNode*>& rhtTrees = baseTrees[i - j];
-                for (size_t x = 0; x < lftTrees.size(); ++x) {
-                    for (size_t y = 0; y < rhtTrees.size(); ++y) {
-                        TreeNode* root = new TreeNode(j);
-                        root->left = lftTrees[x];
-                        root->right = copyTree(rhtTrees[y], j);
-                        trees.push_back(root);
-                    }
-                }
-
-            }
-            baseTrees.push_back(trees);
-        }
-
-        return baseTrees.back();
+        return new TreeNode(root->val + diff, cloneTree(root->left, diff), cloneTree(root->right, diff));
     }
 
-    TreeNode* copyTree(TreeNode* root, int offset) {
-        TreeNode* newRoot = NULL;
-        if (root) {
-            newRoot = new TreeNode(root->val + offset);
-            newRoot->left = copyTree(root->left, offset);
-            newRoot->right = copyTree(root->right, offset);
+    vector<TreeNode*> generateTrees(int n) {
+        vector<vector<TreeNode*>> trees = {{nullptr}};
+        for (int i = 1; i <= n; ++i) {
+            trees.push_back({});
+            for (int j = 0; j < i; ++j) {
+                for (TreeNode* lft : trees[j]) {
+                    for (TreeNode* rht : trees[i - j - 1]) {
+                        TreeNode* root = new TreeNode(j + 1, lft, cloneTree(rht, j + 1));
+                        trees[i].push_back(root);
+                    }
+                }
+            }
         }
 
-        return newRoot;
+        return trees[n];
     }
 };
