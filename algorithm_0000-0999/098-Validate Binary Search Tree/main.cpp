@@ -68,7 +68,7 @@ public:
     }
 
     bool isValidBST(TreeNode* root) {
-        return isValidBST_Recursive(root);
-        //return isValidBST_Iterative(root);
+        //return isValidBST_Recursive(root);
+        return isValidBST_Iterative(root);
     }
 };
