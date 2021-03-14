@@ -9,7 +9,7 @@ public:
             }
             nums.push_back(num);
         }
-
-        return nums.back();
+        
+        return nums[n];
     }
 };
