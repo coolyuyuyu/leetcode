@@ -1,20 +1,18 @@
 class KthLargest {
 public:
-    KthLargest(int k, vector<int> nums)
-        : m_capacity(k)
-    {
-        assert(k >= 1);
-
+    KthLargest(int k, vector<int>& nums)
+        : m_k(k) {
         for (int num : nums) {
             add(num);
         }
     }
 
     int add(int val) {
-        if (m_pq.size() < m_capacity) {
+        if (m_pq.size() < m_k) {
             m_pq.push(val);
         }
         else {
+            assert(!m_pq.empty());
             if (m_pq.top() < val) {
                 m_pq.pop();
                 m_pq.push(val);
@@ -25,12 +23,12 @@ public:
     }
 
 private:
-    priority_queue<int, vector<int>, greater<int>> m_pq;
-    size_t m_capacity;
+    int m_k;
+    priority_queue<int, vector<int>, greater<int>> m_pq; // min_heap
 };
 
 /**
  * Your KthLargest object will be instantiated and called as such:
- * KthLargest obj = new KthLargest(k, nums);
- * int param_1 = obj.add(val);
+ * KthLargest* obj = new KthLargest(k, nums);
+ * int param_1 = obj->add(val);
  */
