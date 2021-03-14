@@ -12,14 +12,13 @@
 class Solution {
 public:
     vector<vector<int>> zigzagLevelOrder(TreeNode* root) {
+        vector<vector<int>> ret;
+
         queue<TreeNode*> q;
         if (root) {
             q.push(root);
         }
-
-        bool flip = false;
-        vector<vector<int>> ret;
-        while (!q.empty()) {
+        for (bool flip = false; !q.empty(); flip = !flip) {
             size_t len = q.size();
             ret.emplace_back(len);
             for (size_t i = 0; i < len; ++i) {
@@ -35,9 +34,8 @@ public:
 
                 ret.back()[flip ? (len - i - 1) : i] = node->val;
             }
-
-            flip = !flip;
         }
+
         return ret;
     }
 };
