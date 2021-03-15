@@ -11,7 +11,21 @@
  */
 class Solution {
 public:
-    vector<vector<int>> levelOrder(TreeNode* root) {
+    void levelOrder_Recursive(TreeNode* root, int depth, vector<vector<int>>& ret) {
+        if (!root) {
+            return;
+        }
+
+        if (ret.size() <= depth) {
+            ret.resize(depth + 1);
+        }
+
+        ret[depth].push_back(root->val);
+        levelOrder_Recursive(root->left, depth + 1, ret);
+        levelOrder_Recursive(root->right, depth + 1, ret);
+    }
+
+    vector<vector<int>> levelOrder_Iterative(TreeNode* root) {
         vector<vector<int>> ret;
 
         queue<TreeNode*> q;
@@ -37,5 +51,13 @@ public:
         }
 
         return ret;
+    }
+
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        //vector<vector<int>> ret;
+        //levelOrder_Recursive(root, 0, ret);
+        //return ret;
+
+        return levelOrder_Iterative(root);
     }
 };
