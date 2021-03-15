@@ -4,35 +4,62 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-    vector<vector<int>> levelOrderBottom(TreeNode* root) {
-        vector<vector<int>> lists;
-        queue<TreeNode*> nodes;
+    void levelOrder_Recursive(TreeNode* root, int depth, vector<vector<int>>& ret) {
+        if (!root) {
+            return;
+        }
+
+        if (ret.size() <= depth) {
+            ret.resize(depth + 1);
+        }
+
+        ret[depth].push_back(root->val);
+        levelOrder_Recursive(root->left, depth + 1, ret);
+        levelOrder_Recursive(root->right, depth + 1, ret);
+    }
+
+    vector<vector<int>> levelOrder_Iterative(TreeNode* root) {
+        vector<vector<int>> ret;
+
+        queue<TreeNode*> q;
         if (root) {
-            nodes.push(root);
+            q.push(root);
         }
-        while (!nodes.empty()) {
-            size_t count = nodes.size();
-            vector<int> nums;
-            nums.reserve(count);
-            for (size_t i = 0; i < count; ++i) {
-                TreeNode* pNode = nodes.front();
-                nodes.pop();
-                nums.push_back(pNode->val);
-                if (pNode->left) {
-                    nodes.push(pNode->left);
+        while (!q.empty()) {
+            size_t len = q.size();
+            ret.emplace_back(len);
+            for (size_t i = 0; i < len; ++i) {
+                TreeNode* node = q.front();
+                q.pop();
+
+                if (node->left) {
+                    q.push(node->left);
                 }
-                if (pNode->right) {
-                    nodes.push(pNode->right);
+                if (node->right) {
+                    q.push(node->right);
                 }
+
+                ret.back()[i] = node->val;
             }
-            lists.push_back(nums);
         }
-        reverse(lists.begin(), lists.end());
-        return lists;
+
+        return ret;
+    }
+
+    vector<vector<int>> levelOrderBottom(TreeNode* root) {
+        //vector<vector<int>> ret;
+        //levelOrder_Recursive(root, 0, ret);
+
+        vector<vector<int>> ret = levelOrder_Iterative(root);
+
+        reverse(ret.begin(), ret.end());
+        return ret;
     }
 };
