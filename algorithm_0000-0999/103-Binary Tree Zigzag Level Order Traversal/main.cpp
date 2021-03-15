@@ -11,7 +11,26 @@
  */
 class Solution {
 public:
-    vector<vector<int>> zigzagLevelOrder(TreeNode* root) {
+    void zigzagLevelOrder_Recursive(TreeNode* root, int depth, vector<vector<int>>& ret) {
+        if (!root) {
+            return;
+        }
+
+        if (ret.size() <= depth) {
+            ret.resize(depth + 1);
+        }
+
+        if (depth % 2 == 0) {
+            ret[depth].push_back(root->val);
+        }
+        else {
+            ret[depth].insert(ret[depth].begin(), root->val);
+        }
+        zigzagLevelOrder_Recursive(root->left, depth + 1, ret);
+        zigzagLevelOrder_Recursive(root->right, depth + 1, ret);
+    }
+
+    vector<vector<int>> zigzagLevelOrder_Iterative(TreeNode* root) {
         vector<vector<int>> ret;
 
         queue<TreeNode*> q;
@@ -37,5 +56,13 @@ public:
         }
 
         return ret;
+    }
+
+    vector<vector<int>> zigzagLevelOrder(TreeNode* root) {
+        vector<vector<int>> ret;
+        zigzagLevelOrder_Recursive(root, 0, ret);
+        return ret;
+
+        //return zigzagLevelOrder_Iterative(root);
     }
 };
