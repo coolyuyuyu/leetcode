@@ -1,61 +1,71 @@
-/**
- * Definition for binary tree with next pointer.
- * struct TreeLinkNode {
- *  int val;
- *  TreeLinkNode *left, *right, *next;
- *  TreeLinkNode(int x) : val(x), left(NULL), right(NULL), next(NULL) {}
- * };
- */
+/*
+// Definition for a Node.
+class Node {
+public:
+    int val;
+    Node* left;
+    Node* right;
+    Node* next;
+
+    Node() : val(0), left(NULL), right(NULL), next(NULL) {}
+
+    Node(int _val) : val(_val), left(NULL), right(NULL), next(NULL) {}
+
+    Node(int _val, Node* _left, Node* _right, Node* _next)
+        : val(_val), left(_left), right(_right), next(_next) {}
+};
+*/
+
 class Solution {
 public:
-    void connect(TreeLinkNode *root) {
-        connect_1(root);
-    }
-
-    void connect_0(TreeLinkNode *root) {
-        queue<TreeLinkNode*> nodes;
+    // Space: O(max level)
+    void connect_Iterative1(Node* root) {
+        // top-down level order traversal
+        queue<Node*> q;
         if (root) {
-            nodes.push(root);
+            q.push(root);
         }
+        while (!q.empty()) {
+            Node* pHead = nullptr;
+            Node** ppNode = &pHead;
+            for (size_t i = q.size(); 0 < i; --i) {
+                Node* pCur = q.front();
+                q.pop();
 
-        while (!nodes.empty()) {
-            TreeLinkNode* pHead = NULL;
-            TreeLinkNode** ppCur = &pHead;
-            for (size_t n = nodes.size(); n > 0; --n) {
-                TreeLinkNode* node = nodes.front();
-                nodes.pop();
+                *ppNode = pCur;
+                ppNode = &(pCur->next);
 
-                *ppCur = node;
-                ppCur = &(node->next);
-
-                if (node->left) {
-                    nodes.push(node->left);
+                if (pCur->left) {
+                    q.push(pCur->left);
                 }
-                if (node->right) {
-                    nodes.push(node->right);
+                if (pCur->right) {
+                    q.push(pCur->right);
                 }
             }
         }
     }
 
-    void connect_1(TreeLinkNode *pRoot) {
-        while (pRoot) {
-            TreeLinkNode* pChildHead = NULL;
-            TreeLinkNode** ppChildHead = &pChildHead;
-            for (TreeLinkNode* pParent = pRoot; pParent; pParent = pParent->next) {
-                TreeLinkNode* pChildLft = pParent->left;
-                if (pChildLft) {
-                    *ppChildHead = pChildLft;
-                    ppChildHead = &(pChildLft->next);
+    // Space: O(1)
+    void connect_Iterative2(Node* root) {
+        for (Node *pHead = root, *pChildHead = nullptr; pHead; pHead = pChildHead, pChildHead = nullptr) {
+            Node** ppChildNode = &pChildHead;
+            for (Node* pNode = pHead; pNode; pNode = pNode->next) {
+                if (pNode->left) {
+                    *ppChildNode = pNode->left;
+                    ppChildNode = &((*ppChildNode)->next);
                 }
-                TreeLinkNode* pChildRht = pParent->right;
-                if (pChildRht) {
-                    *ppChildHead = pChildRht;
-                    ppChildHead = &(pChildRht->next);
+                if (pNode->right) {
+                    *ppChildNode = pNode->right;
+                    ppChildNode = &((*ppChildNode)->next);
                 }
             }
-
-            pRoot = pChildHead;
         }
+    }
+
+    Node* connect(Node* root) {
+        //connect_Iterative1(root);
+        connect_Iterative2(root);
+
+        return root;
     }
 };
