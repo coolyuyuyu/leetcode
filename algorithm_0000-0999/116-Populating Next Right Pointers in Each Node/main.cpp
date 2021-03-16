@@ -1,55 +1,54 @@
-/**
- * Definition for binary tree with next pointer.
- * struct TreeLinkNode {
- *  int val;
- *  TreeLinkNode *left, *right, *next;
- *  TreeLinkNode(int x) : val(x), left(NULL), right(NULL), next(NULL) {}
- * };
- */
+/*
+// Definition for a Node.
+class Node {
+public:
+    int val;
+    Node* left;
+    Node* right;
+    Node* next;
+
+    Node() : val(0), left(NULL), right(NULL), next(NULL) {}
+
+    Node(int _val) : val(_val), left(NULL), right(NULL), next(NULL) {}
+
+    Node(int _val, Node* _left, Node* _right, Node* _next)
+        : val(_val), left(_left), right(_right), next(_next) {}
+};
+*/
+
 class Solution {
 public:
-    void connect(TreeLinkNode *root) {
-        connect_1(root);
-    }
-    void connect_0(TreeLinkNode *root) {
-        queue<TreeLinkNode*> nodes;
-        if (root) {
-            nodes.push(root);
-        }
-
-        while (!nodes.empty()) {
-            TreeLinkNode* pHead = NULL;
-            TreeLinkNode** ppCur = &pHead;
-            for (size_t n = nodes.size(); n > 0; --n) {
-                TreeLinkNode* node = nodes.front();
-                nodes.pop();
-
-                *ppCur = node;
-                ppCur = &(node->next);
-
-                if (node->left) {
-                    nodes.push(node->left);
-                }
-                if (node->right) {
-                    nodes.push(node->right);
-                }
-            }
-        }
-    }
-
-    void connect_1(TreeLinkNode *root) {
-        if (!root) {
+    void connect_Recursive(Node* root) {
+        if (!root || !root->left) {
             return;
         }
 
-        for (; root->left; root = root->left) {
-            TreeLinkNode* parentPre = NULL;
-            for (TreeLinkNode* parentCur = root; parentCur; parentCur = parentCur->next) {
-                parentCur->left->next = parentCur->right;
-                if (parentCur->next) {
-                    parentCur->right->next = parentCur->next->left;
+        assert(root->right);
+
+        root->left->next = root->right;
+        if (root->next) {
+            root->right->next = root->next->left;
+        }
+
+        connect_Recursive(root->left);
+        connect_Recursive(root->right);
+    }
+
+    void connect_Iterative(Node* root) {
+        for (Node* head = root; head && head->left; head = head->left) {
+            for (Node* node = head; node; node = node->next) {
+                node->left->next = node->right;
+                if (node->next) {
+                    node->right->next = node->next->left;
                 }
             }
         }
+    }
+
+    Node* connect(Node* root) {
+        //connect_Recursive(root);
+        connect_Iterative(root);
+
+        return root;
     }
 };
