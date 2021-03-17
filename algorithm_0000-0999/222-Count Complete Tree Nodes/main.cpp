@@ -4,35 +4,54 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-    int countNodes(TreeNode* root) {
-        size_t count = 0;
+    int leftHeight(TreeNode* root) {
+        return root ? (1 + leftHeight(root->left)) : 0;
+    }
 
-        deque<pair<TreeNode*, size_t>> q;
-        if (root) {
-            q.emplace_back(root, 1);
+    // Time: O((logN)^2)
+    int countNodes_Recursive(TreeNode* root) {
+        if (!root) {
+            return 0;
         }
-        while (!q.empty()) {
-            count = q.back().second;
 
-            size_t n = q.size();
-            for (size_t i = 0; i < n; ++i) {
-                pair<TreeNode*, size_t> p = q.front();
-                q.pop_front();
+        int lftH = leftHeight(root->left);
+        int rhtH = leftHeight(root->right);
+        assert(lftH == rhtH || lftH == (rhtH + 1));
+        if (lftH == rhtH) {
+            return 1 + (1 << lftH) - 1 + countNodes_Recursive(root->right);
+        }
+        else {
+            return 1 +  (1 << rhtH) - 1 + countNodes_Recursive(root->left);
+        }
+    }
 
-                if (p.first->left) {
-                    q.emplace_back(p.first->left, p.second * 2);
-                }
-                if (p.first->right) {
-                    q.emplace_back(p.first->right, p.second * 2 + 1);
-                }
+    // Time: O((logN)^2)
+    int countNodes_Itertive(TreeNode* root) {
+        int numNodes = 0;
+
+        for (int h = leftHeight(root); root; --h) {
+            if ((leftHeight(root->right) + 1) == h) {
+                numNodes += (1 << (h - 1));
+                root = root->right;
+            }
+            else {
+                numNodes += (1 << (h - 2));
+                root = root->left;
             }
         }
 
-        return count;
+        return numNodes;
+    }
+
+    int countNodes(TreeNode* root) {
+        //return countNodes_Recursive(root);
+        return countNodes_Itertive(root);
     }
 };
