@@ -18,6 +18,24 @@ public:
 
 class Solution {
 public:
+    // Space: O(h)
+    void connect_Recursive(Node* root, vector<Node**>& ppNodes, int depth = 0) {
+        if (!root) {
+            return;
+        }
+
+        if (ppNodes.size() <= depth) {
+            ppNodes.resize(depth + 1);
+        }
+        if (ppNodes[depth]) {
+            *(ppNodes[depth]) = root;
+        }
+        ppNodes[depth] = &(root->next);
+
+        connect_Recursive(root->left, ppNodes, depth + 1);
+        connect_Recursive(root->right, ppNodes, depth + 1);
+    }
+
     // Space: O(max level)
     void connect_Iterative1(Node* root) {
         // top-down level order traversal
@@ -63,6 +81,9 @@ public:
     }
 
     Node* connect(Node* root) {
+        //vector<Node**> ppNodes;
+        //connect_Recursive(root, ppNodes);
+
         //connect_Iterative1(root);
         connect_Iterative2(root);
 
