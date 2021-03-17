@@ -11,7 +11,20 @@
  */
 class Solution {
 public:
-    vector<int> rightSideView(TreeNode* root) {
+    void rightSideView_Recursive(TreeNode* root, int depth, vector<int>& nums) {
+        if (!root) {
+            return;
+        }
+
+        if (nums.size() <= depth) {
+            nums.push_back(root->val);
+        }
+
+        rightSideView_Recursive(root->right, depth + 1, nums);
+        rightSideView_Recursive(root->left, depth + 1, nums);
+    }
+
+    vector<int> rightSideView_Iterative(TreeNode* root) {
         queue<TreeNode*> q;
         if (root) {
             q.push(root);
@@ -35,5 +48,13 @@ public:
         }
 
         return vals;
+    }
+
+    vector<int> rightSideView(TreeNode* root) {
+        //vector<int> nums;
+        //rightSideView_Recursive(root, 0, nums);
+        //return nums;
+
+        return rightSideView_Iterative(root);
     }
 };
