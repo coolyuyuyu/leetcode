@@ -11,8 +11,8 @@
  */
 class Solution {
 public:
-    int leftHeight(TreeNode* root) {
-        return root ? (1 + leftHeight(root->left)) : 0;
+    int lftHeight(TreeNode* root) {
+        return root ? (1 + lftHeight(root->left)) : 0;
     }
 
     // Time: O((logN)^2)
@@ -21,8 +21,8 @@ public:
             return 0;
         }
 
-        int lftH = leftHeight(root->left);
-        int rhtH = leftHeight(root->right);
+        int lftH = lftHeight(root->left);
+        int rhtH = lftHeight(root->right);
         assert(lftH == rhtH || lftH == (rhtH + 1));
         if (lftH == rhtH) {
             return 1 + (1 << lftH) - 1 + countNodes_Recursive(root->right);
@@ -36,8 +36,8 @@ public:
     int countNodes_Itertive(TreeNode* root) {
         int numNodes = 0;
 
-        for (int h = leftHeight(root); root; --h) {
-            if ((leftHeight(root->right) + 1) == h) {
+        for (int h = lftHeight(root); root; --h) {
+            if ((lftHeight(root->right) + 1) == h) {
                 numNodes += (1 << (h - 1));
                 root = root->right;
             }
