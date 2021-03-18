@@ -4,65 +4,70 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-
-    int countUnivalSubtrees(TreeNode* root, bool& unival) {
+    pair<int, bool> countUnivalSubtrees_Recursive(TreeNode* root) {
         if (!root) {
-            unival = true;
-            return 0;
+            return {0, true};
         }
 
-        bool lftUnival, rhtUnival;
-        int count = countUnivalSubtrees(root->left, lftUnival) + countUnivalSubtrees(root->right, rhtUnival);
-        if (lftUnival && rhtUnival) {
-            if (root->left) {
-                if (root->right) {
-                    if (root->val == root->left->val && root->val == root->right->val) {
-                        unival = true;
-                    }
-                    else {
-                        unival = false;
-                    }
-                }
-                else {
-                    if (root->val == root->left->val) {
-                        unival = true;
-                    }
-                    else {
-                        unival = false;
-                    }
-                }
-            }
-            else {
-                if (root->right) {
-                    if (root->val == root->right->val) {
-                        unival = true;
-                    }
-                    else {
-                        unival = false;
-                    }
-                }
-                else {
-                    unival = true;
-                }
-            }
-        }
-        else {
-            unival = false;
-        }
-        if (unival) {
-            ++count;
+        pair<int, bool> lftResult = countUnivalSubtrees_Recursive(root->left), rhtReult = countUnivalSubtrees_Recursive(root->right);
+        int count = lftResult.first + rhtReult.first;
+        bool uniVal = false;
+        if ((lftResult.second && (!root->left || root->left->val == root->val)) &&
+            (rhtReult.second && (!root->right || root->right->val == root->val))) {
+            count += 1;
+            uniVal = true;
         }
 
-        return count;
+        return {count, uniVal};
     }
 
+    int countUnivalSubtrees_Iterative(TreeNode* root) {
+        map<TreeNode*, pair<int, bool>> m = {{nullptr, {0, true}}}; // node -> <count, uniVal>
+
+        stack<pair<TreeNode*, bool>> stk;
+        if (root) {
+            stk.emplace(root, false);
+        }
+        while (!stk.empty()) {
+            TreeNode* node = stk.top().first;
+            bool visited = stk.top().second;
+            stk.pop();
+
+            if (visited) {
+                pair<int, bool> lftResult = m[node->left], rhtReult = m[node->right];
+                int count = lftResult.first + rhtReult.first;
+                bool uniVal = false;
+                if ((lftResult.second && (!node->left || node->left->val == node->val)) &&
+                    (rhtReult.second && (!node->right || node->right->val == node->val))) {
+                    count += 1;
+                    uniVal = true;
+                }
+                m[node] = {count, uniVal};
+            }
+            else {
+                stk.emplace(node, true);
+                if (node->right) {
+                    stk.emplace(node->right, false);
+                }
+                if (node->left) {
+                    stk.emplace(node->left, false);
+                }
+            }
+        }
+
+        return m[root].first;
+    }
+
+
     int countUnivalSubtrees(TreeNode* root) {
-        bool unival;
-        return countUnivalSubtrees(root, unival);
+        //return countUnivalSubtrees_Recursive(root).first;
+        return countUnivalSubtrees_Iterative(root);
     }
 };
