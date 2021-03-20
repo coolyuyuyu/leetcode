@@ -10,7 +10,7 @@
 class Solution {
 public:
     TreeNode* inorderSuccessor(TreeNode* root, TreeNode* p) {
-        TreeNode* next = NULL;
+        TreeNode* next = nullptr;
         if (p->right) {
             next = p->right;
             while (next->left) {
@@ -19,12 +19,11 @@ public:
         }
         else {
             while (root != p) {
-                if (root->val > p->val) {
+                if (p->val < root->val) {
                     next = root;
                     root = root->left;
                 }
                 else {
-                    assert(root->val < p->val);
                     root = root->right;
                 }
             }
