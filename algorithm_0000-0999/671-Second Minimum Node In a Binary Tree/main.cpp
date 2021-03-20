@@ -18,13 +18,13 @@ public:
         }
 
         if (root->val == val) {
-            int val1 = findSecondMinimumValue_Recursive(root->left, val);
-            int val2 = findSecondMinimumValue_Recursive(root->right, val);
-            if (val1 != -1 && val2 != -1) {
-                return min(val1, val2);
+            int lftVal = findSecondMinimumValue_Recursive(root->left, val);
+            int rhtVal = findSecondMinimumValue_Recursive(root->right, val);
+            if (lftVal != -1 && rhtVal != -1) {
+                return min(lftVal, rhtVal);
             }
             else {
-                return (val1 == -1 ? val2 : val1);
+                return (lftVal == -1 ? rhtVal : lftVal);
             }
         }
         else {
@@ -33,41 +33,39 @@ public:
     }
 
     // find next greater
-    int findSecondMinimumValue_Iterative(TreeNode* root, int target) {
-        assert(root);
+    int findSecondMinimumValue_Iterative(TreeNode* root, int val) {
+        int* pRet = nullptr;
 
-        bool found = false;
-        int minDifferentVal = -1;
-
-        queue<TreeNode*> q({root});
+        queue<TreeNode*> q;
+        if (root) {
+            q.push(root);
+        }
         while (!q.empty()) {
-            size_t n = q.size();
-            for (size_t i = 0; i < n; ++i) {
-                root = q.front();
-                q.pop();
+            TreeNode* node = q.front();
+            q.pop();
 
-                if (root->val != target) {
-                    if (found) {
-                        if (root->val < minDifferentVal) {
-                            minDifferentVal = root->val;
-                        }
-                    }
-                    else {
-                        found = true;
-                        minDifferentVal = root->val;
+            if (val < node->val) {
+                if (pRet) {
+                    if (node->val < *pRet) {
+                        pRet = &(node->val);
                     }
                 }
-
-                if (root->left) {
-                    q.push(root->left);
+                else {
+                    pRet = &(node->val);
                 }
-                if (root->right) {
-                    q.push(root->right);
+            }
+
+            if (node->val == val) {
+                if (node->left) {
+                    q.push(node->left);
+                }
+                if (node->right) {
+                    q.push(node->right);
                 }
             }
         }
 
-        return minDifferentVal;
+        return (pRet ? *pRet : -1);
     }
 
     int findSecondMinimumValue(TreeNode* root) {
