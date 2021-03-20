@@ -32,7 +32,7 @@ public:
     }
 
     bool isBalanced_Iterative(TreeNode* root) {
-        map<TreeNode*, pair<bool, int>> m;
+        map<TreeNode*, int> m; // <node, height>, only consists of balanced tree
 
         stack<pair<TreeNode*, bool>> stk;
         if (root) {
@@ -44,14 +44,19 @@ public:
             stk.pop();
 
             if (visited) {
-                pair<bool, int> pLft = node->left ? m[node->left] : make_pair(true, 0);
-                pair<bool, int> pRht = node->right ? m[node->right] : make_pair(true, 0);
-                if (pLft.first && pRht.first && abs(pLft.second - pRht.second) <= 1) {
-                    m.emplace(node, make_pair(true, max(pLft.second, pRht.second) + 1));
-                }
-                else {
+                bool lftBalanced = !node->left || m.find(node->left) != m.end();
+                bool rhtBalanced = !node->right || m.find(node->right) != m.end();
+                if (!lftBalanced || !rhtBalanced) {
                     return false;
                 }
+
+                int lftHeight = node->left ? m[node->left] : 0;
+                int rhtHeight = node->right ? m[node->right] : 0;
+                if (1 < abs(lftHeight - rhtHeight)) {
+                    return false;
+                }
+
+                m.emplace(node, max(lftHeight, rhtHeight) + 1);
             }
             else {
                 stk.emplace(node, true);
