@@ -1,10 +1,8 @@
 Trie:
     1410. HTML Entity Parser
 Tree:
-    108
-    110
+    108. Convert Sorted Array to Binary Search Tree  
     156. Binary Tree Upside Down
-    653
+    653. Two Sum IV - Input is a BST
         Use forward and backward iterator to dectect collision from both ends
-        
-    Just pending: 606, 617, 671
+    606. Construct String from Binary Tree
