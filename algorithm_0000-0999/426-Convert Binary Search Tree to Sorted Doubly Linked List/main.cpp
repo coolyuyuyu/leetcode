@@ -25,13 +25,13 @@ public:
 class Solution {
 public:
     Node* append(Node* l1, Node* l2) {
-        if (!l1 || !l2) {
-            return (l1 ? l1 : l2);
-        }
-        else {
+        if (l1 && l2) {
             swap(l1->left->right, l2->left->right);
             swap(l1->left, l2->left);
             return l1;
+        }
+        else {
+            return (l1 ? l1 : l2);
         }
     }
 
@@ -40,44 +40,41 @@ public:
             return nullptr;
         }
 
-        Node* lftChild = treeToDoublyList_Recursive(root->left);
-        Node* rhtChild = treeToDoublyList_Recursive(root->right);
+        Node* lft = treeToDoublyList_Recursive(root->left);
+        Node* rht = treeToDoublyList_Recursive(root->right);
         root->left = root->right = root;
-
-        return append(append(lftChild, root), rhtChild);
+        return append(append(lft, root), rht);
     }
 
     Node* treeToDoublyList_Iterative(Node* root) {
-        Node* pHead = nullptr;
+        Node* head = nullptr;
 
-        stack<Node*> stk;
-        Node* pCur = root;
-        while (pCur || !stk.empty()) {
-            if (pCur) {
-                stk.emplace(pCur);
-                pCur = pCur->left;
+        // inorder traversal
+        stack<pair<Node*, bool>> stk;
+        if (root) {
+            stk.emplace(root, nullptr);
+        }
+        while (!stk.empty()) {
+            Node* node = stk.top().first;
+            bool visited = stk.top().second;
+            stk.pop();
+
+            if (visited) {
+                node->left = node->right = node;
+                head = append(head, node);
             }
             else {
-                pCur = stk.top();
-                stk.pop();
-                Node* pRht = pCur->right;
-
-                if (!pHead) {
-                    pHead = pCur;
-                    pHead->left = pHead->right = pHead;
+                if (node->right) {
+                    stk.emplace(node->right, false);
                 }
-                else {
-                    pCur->left = pHead->left;
-                    pCur->right = pHead;
-                    pHead->left->right = pCur;
-                    pHead->left = pCur;
+                stk.emplace(node, true);
+                if (node->left) {
+                    stk.emplace(node->left, false);
                 }
-
-                pCur = pRht;
             }
         }
 
-        return pHead;
+        return head;
     }
 
     Node* treeToDoublyList(Node* root) {
