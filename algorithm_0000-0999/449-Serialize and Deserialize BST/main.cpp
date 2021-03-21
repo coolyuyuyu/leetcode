@@ -10,55 +10,60 @@
 class Codec {
 public:
     // Encodes a tree to a single string.
-    string serialize(TreeNode* pRoot) {
-        string str;
+    string serialize(TreeNode* root) {
+        ostringstream oss;
 
+        bool first = true;
         stack<TreeNode*> stk;
-        stk.emplace(pRoot);
+        if (root) {
+            stk.emplace(root);
+        }
         while (!stk.empty()) {
-            TreeNode* pNode = stk.top();
+            TreeNode* node = stk.top();
             stk.pop();
 
-            if (pNode) {
-                str += to_string(pNode->val) + " ";
-                stk.emplace(pNode->right);
-                stk.emplace(pNode->left);
+            if (0 < oss.tellp()) {
+                oss << " ";
+            }
+            oss << node->val;
+
+            if (node->right) {
+                stk.push(node->right);
+            }
+            if (node->left) {
+                stk.push(node->left);
             }
         }
 
-        if (!str.empty()) {
-            str.pop_back();
-        }
-
-        return str;
+        return oss.str();
     }
 
     // Decodes your encoded data to tree.
     TreeNode* deserialize(string data) {
-        TreeNode* pRoot = nullptr;
-        stack<pair<TreeNode**, pair<int, int>>> stk;
-        stk.emplace(&pRoot, pair<int, int>(INT_MIN, INT_MAX));
+        TreeNode* pHead = nullptr;
+        TreeNode** ppCur = &pHead;
 
-        istringstream iss(data);
         int num;
-        while (iss >> num) {
-            while (num < stk.top().second.first ||  stk.top().second.second < num) {
+        stack<TreeNode*> stk;
+        for (istringstream iss(data); iss >> num;) {
+            while (!stk.empty() && stk.top()->val < num) {
+                ppCur = &(stk.top()->right);
                 stk.pop();
             }
-            TreeNode** ppNode = stk.top().first;
-            pair<int, int> range = stk.top().second;
 
-            stk.pop();
+            *ppCur = new TreeNode(num);
+            stk.push(*ppCur);
 
-            *ppNode = new TreeNode(num);
-            stk.emplace(&((*ppNode)->right), pair<int, int>(num, range.second));
-            stk.emplace(&((*ppNode)->left), pair<int, int>(range.first, num));
+            ppCur = &((*ppCur)->left);
         }
 
-        return pRoot;
+        return pHead;
     }
 };
 
 // Your Codec object will be instantiated and called as such:
-// Codec codec;
-// codec.deserialize(codec.serialize(root));
+// Codec* ser = new Codec();
+// Codec* deser = new Codec();
+// string tree = ser->serialize(root);
+// TreeNode* ans = deser->deserialize(tree);
+// return ans;
