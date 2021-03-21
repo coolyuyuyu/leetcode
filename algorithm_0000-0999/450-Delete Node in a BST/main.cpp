@@ -4,56 +4,50 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-    TreeNode* deleteNodeRecv(TreeNode* pRoot, int key) {
-        if (!pRoot) {
+    TreeNode* deleteNode_Recursive(TreeNode* root, int key) {
+        if (!root) {
             return nullptr;
         }
 
-        if (key < pRoot->val) {
-            pRoot->left = deleteNodeRecv(pRoot->left, key);
+        if (key < root->val) {
+            root->left = deleteNode_Recursive(root->left, key);
         }
-        else if (pRoot->val < key) {
-            pRoot->right = deleteNodeRecv(pRoot->right, key);
+        else if (key == root->val) {
+            if (!root->left || !root->right) {
+                TreeNode* del = root;
+                root = (root->left ? root->left : root->right);
+                delete del;
+            }
+            else {
+                TreeNode* tmp = root->right;
+                while (tmp->left) {
+                    tmp = tmp->left;
+                }
+                root->val = tmp->val;
+                root->right = deleteNode_Recursive(root->right, root->val);
+            }
         }
         else {
-            // leaf
-            if (!pRoot->left && !pRoot->right) {
-                delete pRoot;
-                return nullptr;
-            }
-
-            // one child
-            if (!pRoot->left || !pRoot->right) {
-                TreeNode* ret = pRoot->left ? pRoot->left : pRoot->right;
-                delete pRoot;
-                return ret;
-            }
-
-            // two childs
-            TreeNode* pTmp = pRoot->right;
-            while (pTmp->left) {
-                pTmp = pTmp->left;
-            }
-            pRoot->val = pTmp->val;
-            pRoot->right = deleteNodeRecv(pRoot->right, pRoot->val);
+            root->right = deleteNode_Recursive(root->right, key);
         }
 
-        return pRoot;
+        return root;
     }
 
-    TreeNode* deleteNodeIter(TreeNode* pRoot, int key) {
-        TreeNode** ppNode = &pRoot;
+    TreeNode* deleteNode_Iterative(TreeNode* root, int key) {
+        TreeNode** ppNode = &root;
         while (*ppNode) {
-            int val = (*ppNode)->val;
-            if (key < val) {
+            if (key < (*ppNode)->val) {
                 ppNode = &((*ppNode)->left);
             }
-            else if (key == val) {
+            else if (key == (*ppNode)->val) {
                 break;
             }
             else {
@@ -61,43 +55,35 @@ public:
             }
         }
 
-        if (*ppNode == nullptr) {
-            return pRoot;
-        }
-
-        if ((*ppNode)->left && (*ppNode)->right) {
-            TreeNode* pTmp = (*ppNode)->right;
-            if (pTmp->left) {
-                TreeNode* pParent = nullptr;
-                while (pTmp->left) {
-                    pParent = pTmp;
-                    pTmp = pTmp->left;
-                }
-                pParent->left = pTmp->right;
-
-                pTmp->left = (*ppNode)->left;
-                pTmp->right = (*ppNode)->right;
+        if (*ppNode) {
+            TreeNode* del = *ppNode;
+            if (!((*ppNode)->left) || !((*ppNode)->right)) {
+                *ppNode = ((*ppNode)->left ? (*ppNode)->left : (*ppNode)->right);
             }
             else {
-                pTmp->left = (*ppNode)->left;
+                TreeNode* tmp = (*ppNode)->right;
+                if (tmp->left) {
+                    TreeNode* parent;
+                    while (tmp->left) {
+                        parent = tmp;
+                        tmp = tmp->left;
+                    }
+                    parent->left = tmp->right;
+
+                    tmp->right = (*ppNode)->right;
+                }
+                tmp->left = (*ppNode)->left;
+                *ppNode = tmp;
             }
 
-            TreeNode* pDel = *ppNode;
-            *ppNode = pTmp;
-            delete pDel;
-        }
-        else {
-            TreeNode* pDel = *ppNode;
-            *ppNode = (*ppNode)->left ? (*ppNode)->left : (*ppNode)->right;
-            delete pDel;
+            delete del;
         }
 
-        return pRoot;
+        return root;
     }
 
-    TreeNode* deleteNode(TreeNode* pRoot, int key) {
-        //return deleteNodeRecv(pRoot, key);
-
-        return deleteNodeIter(pRoot, key);
+    TreeNode* deleteNode(TreeNode* root, int key) {
+        //return deleteNode_Recursive(root, key);
+        return deleteNode_Iterative(root, key);
     }
 };
