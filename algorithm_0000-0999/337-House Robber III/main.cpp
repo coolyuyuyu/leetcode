@@ -33,9 +33,6 @@ public:
 
         // postorder traversal
         stack<pair<TreeNode*, bool>> stk({{root, false}});
-        if (root) {
-            stk.emplace(root, false);
-        }
         while (!stk.empty()) {
             TreeNode* node = stk.top().first;
             bool visited = stk.top().second;
