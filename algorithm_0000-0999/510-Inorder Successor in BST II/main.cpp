@@ -17,13 +17,14 @@ public:
             while (node->left) {
                 node = node->left;
             }
-            return node;
         }
         else {
             while (node->parent && node->parent->right == node) {
                 node = node->parent;
             }
-            return node->parent;
+            node = node->parent;
         }
+
+        return node;
     }
 };
