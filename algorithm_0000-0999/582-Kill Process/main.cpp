@@ -8,8 +8,7 @@ public:
 
         vector<int> vals;
 
-        queue<int> q;
-        q.push(kill);
+        queue<int> q({kill});
         while (!q.empty()) {
             int parent = q.front();
             q.pop();
