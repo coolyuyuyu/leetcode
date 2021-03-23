@@ -4,68 +4,69 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-    vector<vector<string>> printTree(TreeNode* root) {
-        vector<vector<string>> ret;
-        queue<pair<TreeNode*, size_t>> nodes;
+    size_t height(TreeNode* root) {
+        if (!root) {
+            return 0;
+        }
+
+        size_t h = max(height(root->left), height(root->right)) + 1;
+        return h;
+    }
+
+    void printTree_Recursive(TreeNode* root, const pair<size_t, size_t>& range, vector<vector<string>>::iterator itr) {
+        if (!root) {
+            return;
+        }
+
+        size_t index = range.first + (range.second - range.first) / 2;
+        itr->at(index) = to_string(root->val);
+
+        ++itr;
+        printTree_Recursive(root->left, {range.first, index}, itr);
+        printTree_Recursive(root->right, {index + 1, range.second}, itr);
+    }
+
+    void printTree_Iterative(TreeNode* root, vector<vector<string>>& ret) {
+        int h = ret.size();
+        int w = ret.empty() ? 0 : ret.front().size();
+
+        queue<pair<TreeNode*, pair<size_t, size_t>>> q; // <node, range>
         if (root) {
-            nodes.push(pair<TreeNode*, size_t>(root, 0));
+            q.emplace(root, make_pair(0, w));
         }
+        for (size_t depth = 0; !q.empty(); ++depth) {
+            for (size_t i = q.size(); 0 < i; --i) {
+                TreeNode* node = q.front().first;
+                pair<size_t, size_t> range = q.front().second;
+                q.pop();
 
-        size_t level = 0;
-        while (!nodes.empty()) {
-            ++level;
+                size_t index = range.first + (range.second - range.first) / 2;
+                ret[depth][index] = to_string(node->val);
 
-            vector<string> row(pow(2, level - 1));
-            for (size_t n = nodes.size(); n > 0; --n) {
-                pair<TreeNode*, size_t> p = nodes.front();
-                nodes.pop();
-
-                TreeNode* node = p.first;
-                size_t index = p.second;
-                row[index] = to_string(node->val);
-
-                TreeNode* lft = node->left;
-                if (lft) {
-                    nodes.push(pair<TreeNode*, size_t>(lft, index * 2));
+                if (node->left) {
+                    q.emplace(node->left, make_pair(range.first, index));
                 }
-                TreeNode* rht = node->right;
-                if (rht) {
-                    nodes.push(pair<TreeNode*, size_t>(rht, index * 2 + 1));
+                if (node->right) {
+                    q.emplace(node->right, make_pair(index + 1, range.second));
                 }
             }
-            ret.push_back(row);
         }
-        assert(!ret.empty());
+    }
 
-        size_t rowLen = pow(2, level) - 1;
-        size_t emptyAhead = 0;
-        size_t space = 2;
-        for (size_t i = ret.size(); i > 0; --i) {
-            vector<string>& row = ret[i - 1];
+    vector<vector<string>> printTree(TreeNode* root) {
+        size_t h = height(root);
+        size_t w = (1 << h) - 1;
+        vector<vector<string>> ret(h, vector<string>(w));
 
-            for (size_t j = 0; j < emptyAhead; ++j) {
-                row.insert(row.begin(), "");
-            }
-
-            for (vector<string>::iterator it = row.begin() + emptyAhead + 1; it != row.end(); ++it) {
-                for (size_t k = space - 1; k > 0; --k) {
-                    it = row.insert(it, "");
-                };
-                it += (space - 1);
-            }
-
-            while (row.size() < rowLen) {
-                row.push_back("");
-            }
-
-            emptyAhead += (space / 2);
-            space *= 2;
-        }
+        //printTree_Recursive(root, {0, w}, ret.begin());
+        printTree_Iterative(root, ret);
 
         return ret;
     }
