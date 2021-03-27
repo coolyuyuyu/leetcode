@@ -4,53 +4,39 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class CBTInserter {
 public:
-    CBTInserter(TreeNode* root) {
-        assert(root);
-
-        queue<TreeNode*> q;
-        q.push(root);
-        while (!q.empty()) {
-            TreeNode* node = q.front();
-            q.pop();
-
-            m_nodes.push_back(node);
-
-            if (node->left) {
-                q.push(node->left);
-            }
-            if (node->right) {
-                q.push(node->right);
-            }
-        }
+    CBTInserter(TreeNode* root)
+        : m_root(root)
+        , m_q({root}) {
     }
 
     int insert(int v) {
-        TreeNode* node = new TreeNode(v);
-        size_t index = m_nodes.size();
-        m_nodes.push_back(node);
+        for (TreeNode* node = m_q.front(); node->left && node->right; node = m_q.front()) {
+            m_q.pop();
 
-        TreeNode* parent = m_nodes[index / 2 - (index % 2 == 0 ? 1 : 0)];
-        if (index % 2 == 0) {
-            parent->right = node;
+            m_q.push(node->left);
+            m_q.push(node->right);
         }
-        else {
-            parent->left = node;
-        }
-        return parent->val;
+
+        TreeNode** ppInsert = &(m_q.front()->left ? m_q.front()->right : m_q.front()->left);
+        *ppInsert = new TreeNode(v);
+
+        return m_q.front()->val;
     }
 
     TreeNode* get_root() {
-        return m_nodes.front();
+        return m_root;
     }
 
 private:
-    vector<TreeNode*> m_nodes;
     TreeNode* m_root;
+    queue<TreeNode*> m_q;
 };
 
 /**
