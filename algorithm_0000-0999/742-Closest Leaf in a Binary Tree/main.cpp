@@ -4,61 +4,58 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-    TreeNode* search(TreeNode* root, int k, unordered_map<TreeNode*, TreeNode*>& backEdges) {
+    TreeNode* buildBackEdgesFromTarget2Root(TreeNode* root, int k, unordered_map<TreeNode*, TreeNode*>& backEdges) {
         if (!root || root->val == k) {
             return root;
         }
 
-        TreeNode* target = search(root->left, k, backEdges);
-        if (target) {
+        TreeNode* target = nullptr;
+        if ((target = buildBackEdgesFromTarget2Root(root->left, k, backEdges))) {
             backEdges.emplace(root->left, root);
             return target;
         }
 
-        target = search(root->right, k, backEdges);
-        if (target) {
+        if ((target = buildBackEdgesFromTarget2Root(root->right, k, backEdges))) {
             backEdges.emplace(root->right, root);
+            return target;
         }
 
-        return target;
+        return nullptr;
     }
 
     int findClosestLeaf(TreeNode* root, int k) {
         unordered_map<TreeNode*, TreeNode*> backEdges;
-        TreeNode* source = search(root, k, backEdges);
-        assert(source);
+        TreeNode* source = buildBackEdgesFromTarget2Root(root, k, backEdges);
 
-        queue<TreeNode*> candidates;
-        candidates.emplace(source);
-        unordered_set<TreeNode*> seen;
+        // bfs
+        queue<TreeNode*> candidates({source});
+        unordered_set<TreeNode*> visited;
         while (!candidates.empty()) {
             TreeNode* node = candidates.front();
             candidates.pop();
 
-            if (seen.find(node) != seen.end()) {
-                continue;
-            }
-            seen.insert(node);
-
-            if (node->left == nullptr && node->right == nullptr) {
+            if (!node->left && !node->right) {
                 return node->val;
             }
 
-            if (node->left && seen.find(node->left) == seen.end()) {
-                candidates.emplace(node->left);
+            if (node->left && visited.insert(node->left).second) {
+                candidates.push(node->left);
             }
 
-            if (node->right && seen.find(node->right) == seen.end()) {
-                candidates.emplace(node->right);
+            if (node->right && visited.insert(node->right).second) {
+                candidates.push(node->right);
             }
 
-            if (backEdges.find(node) != backEdges.end() && seen.find(backEdges[node]) == seen.end()) {
-                candidates.emplace(backEdges[node]);
+            auto backItr = backEdges.find(node);
+            if (backItr != backEdges.end() && visited.insert(backItr->second).second) {
+                candidates.push(backItr->second);
             }
         }
 
