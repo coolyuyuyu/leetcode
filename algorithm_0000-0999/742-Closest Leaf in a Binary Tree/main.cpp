@@ -36,7 +36,7 @@ public:
 
         // bfs
         queue<TreeNode*> candidates({source});
-        unordered_set<TreeNode*> visited;
+        unordered_set<TreeNode*> visited({source});
         while (!candidates.empty()) {
             TreeNode* node = candidates.front();
             candidates.pop();
