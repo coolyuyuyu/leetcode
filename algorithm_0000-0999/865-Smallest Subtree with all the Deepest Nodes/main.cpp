@@ -4,51 +4,88 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-
-    int computeDepth(TreeNode* root, int level, unordered_map<TreeNode*, int>& levels) {
+    int height(TreeNode* root) {
         if (!root) {
-            return level;
+            return 0;
         }
 
-        levels.emplace(root, level + 1);
-        int depthLft = computeDepth(root->left, level + 1, levels);
-        int depthRht = computeDepth(root->right, level + 1, levels);
-        return max(depthLft, depthRht);
+        return max(height(root->left), height(root->right)) + 1;
     }
 
-    TreeNode* subtreeWithAllDeepest(TreeNode* root, int depth, const unordered_map<TreeNode*, int>& levels) {
+    TreeNode* subtreeWithAllDeepest_Recursive(TreeNode* root, int height, int depth = 0) {
         if (!root) {
             return nullptr;
         }
 
-        auto itr = levels.find(root);
-        assert(itr != levels.end());
-        if (itr->second == depth) {
+        ++depth;
+        if (height <= depth) {
             return root;
         }
 
-        TreeNode* lft = subtreeWithAllDeepest(root->left, depth, levels);
-        TreeNode* rht = subtreeWithAllDeepest(root->right, depth, levels);
+        TreeNode* lft = subtreeWithAllDeepest_Recursive(root->left, height, depth);
+        TreeNode* rht = subtreeWithAllDeepest_Recursive(root->right, height, depth);
         if (lft && rht) {
             return root;
         }
-        if (lft) {
-            return lft;
+        else {
+            return (lft ? lft : rht);
         }
-        if (rht) {
-            return rht;
+    }
+
+    TreeNode* subtreeWithAllDeepest_Iterative(TreeNode* root, int height) {
+        map<TreeNode*, TreeNode*> m; // <node, lowest_common_ancestor>
+
+        // postorder traversal
+        stack<tuple<TreeNode*, int, bool>> stk; // <node, depth, visited>
+        if (root) {
+            stk.emplace(root, 1, false);
         }
-        return nullptr;
+        while (!stk.empty()) {
+            TreeNode* node = get<0>(stk.top());
+            int depth = get<1>(stk.top());
+            bool visited = get<2>(stk.top());
+            stk.pop();
+
+            if (visited) {
+                if (height <= depth) {
+                    m[node] = node;
+                }
+                else {
+                    TreeNode* lftLCA = (node->left ? m[node->left] : nullptr);
+                    TreeNode* rhtLCA = (node->right ? m[node->right] : nullptr);
+                    if (lftLCA && rhtLCA) {
+                        m[node] = node;
+                    }
+                    else {
+                        m[node] = (lftLCA ? lftLCA : rhtLCA);
+                    }
+                }
+            }
+            else {
+                stk.emplace(node, depth, true);
+                if (node->right) {
+                    stk.emplace(node->right, depth + 1, false);
+                }
+                if (node->left) {
+                    stk.emplace(node->left, depth + 1, false);
+                }
+            }
+        }
+
+        return m[root];
     }
 
     TreeNode* subtreeWithAllDeepest(TreeNode* root) {
-        unordered_map<TreeNode*, int> levels;
-        size_t depth = computeDepth(root, 0, levels);
-        return subtreeWithAllDeepest(root, depth, levels);
+        int h = height(root);
+
+        //return subtreeWithAllDeepest_Recursive(root, h);
+        return subtreeWithAllDeepest_Iterative(root, h);
     }
 };
