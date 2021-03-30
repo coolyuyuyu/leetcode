@@ -26,6 +26,7 @@ public:
     }
 
     void bstToGst_Iterative(TreeNode* root, int& sum) {
+        // reverse inorder traversal
         stack<pair<TreeNode*, bool>> stk;
         if (root) {
             stk.emplace(root, false);
