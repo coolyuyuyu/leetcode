@@ -1,7 +1,6 @@
 Trie:
     1410. HTML Entity Parser
 Tree:
-    108. Convert Sorted Array to Binary Search Tree
     156. Binary Tree Upside Down
     536. Construct Binary Tree from String
     549. Binary Tree Longest Consecutive Sequence II
