@@ -1,14 +1,18 @@
+#include <initializer_list>
+#include <functional>
 #include <map>
 
-template<typename T>
+template<typename T, class Container = std::map<T, T>, class Equal = std::equal_to<T>>
 class DisjointSets {
 public:
-    DisjointSets()
-        : m_size(0) {
+    DisjointSets(const Equal& equal = Equal())
+        : m_equal(equal)
+        , m_size(0) {
     }
 
-    DisjointSets(std::initializer_list<pair<T, T> list)
-        : m_size(0) {
+    DisjointSets(std::initializer_list<pair<T, T> list, const Equal& equal = Equal())
+        : m_equal(equal)
+        , m_size(0) {
         for (const std::pair<T, T>& p : list) {
             merge(p.first, p.second);
         }
@@ -28,20 +32,24 @@ public:
 
     bool merge(const T& elem1, const T& elem2) // link? // return false if already merged
 
-    bool contain(const T& elem) const;
+    bool contain(const T& elem) const {
+        T root;
+        return (root(elem, root));
+    }
 
     size_t size() const {
         return m_size;
     }
 
-    set<T> set(const T& elem) const;
-    vector<set<T>> sets(const T& elem) const;
+    std::set<T> set(const T& elem) const;
+    std::vector<std::set<T>> sets(const T& elem) const;
 
 private:
     bool root(const T& elem, T& root) const // return found
 
+    Equal m_equal;
     size_t m_size;
-    std::map<T, T> m_map;
+    mutable Container m_map;
 };
 
 /*
