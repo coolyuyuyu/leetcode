@@ -21,41 +21,31 @@ public:
     }
 
     TreeNode* sortedArrayToBST_Iterative(vector<int>& nums) {
-        map<pair<size_t, size_t>, TreeNode*> m;
+        TreeNode* pRoot = nullptr;
 
-        stack<pair<pair<size_t, size_t>, bool>> stk;
+        // level order traversal
+        queue<tuple<TreeNode**, size_t, size_t>> q; // <node, bgn, end>
         if (!nums.empty()) {
-            stk.emplace(make_pair(0, nums.size()), false);
+            q.emplace(&pRoot, 0, nums.size());
         }
-        while (!stk.empty()) {
-            size_t bgn = stk.top().first.first, end = stk.top().first.second;
-            bool visited = stk.top().second;
-            stk.pop();
+        while (!q.empty()) {
+            TreeNode** ppNode = get<0>(q.front());
+            size_t bgn = get<1>(q.front());
+            size_t end = get<2>(q.front());
+            q.pop();
 
             size_t mid = bgn + (end - bgn) / 2;
-            if (visited) {
-                TreeNode* root = new TreeNode(nums[mid]);
-                if (bgn < mid) {
-                    root->left = m[{bgn, mid}];
-                }
-                if ((mid + 1) < end) {
-                    root->right = m[{mid + 1, end}];
-                }
-                m[{bgn, end}] = root;
+            *ppNode = new TreeNode(nums[mid]);
+
+            if (bgn < mid) {
+                q.emplace(&((*ppNode)->left), bgn, mid);
             }
-            else {
-                stk.emplace(make_pair(bgn, end), true);
-                if (bgn < mid) {
-                    stk.emplace(make_pair(bgn, mid), false);
-                }
-                if ((mid + 1) < end) {
-                    stk.emplace(make_pair(mid + 1, end), false);
-                }
+            if ((mid + 1) < end) {
+                q.emplace(&((*ppNode)->right), mid + 1, end);
             }
         }
 
-        auto itr = m.find(make_pair(0, nums.size()));
-        return (itr != m.end() ? itr->second : nullptr);
+        return pRoot;
     }
 
     TreeNode* sortedArrayToBST(vector<int>& nums) {
