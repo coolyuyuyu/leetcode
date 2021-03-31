@@ -37,7 +37,7 @@ public:
     int maxAncestorDiff_Iterative(TreeNode* root) {
         int maxDiff = 0;
 
-        unordered_map<TreeNode*, pair<int, int>> m; // <node>
+        unordered_map<TreeNode*, pair<int, int>> m; // <node, <minVal, maxVal>>
 
         // postorder traversal
         stack<pair<TreeNode*, bool>> stk;
