@@ -10,6 +10,7 @@ TODO:
 #include <cassert>
 #include <functional>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 #include "MaxStack.h"
@@ -38,7 +39,7 @@ public:
 
     template <class... Args>
     void emplace(Args&&... args) {
-        m_stkI.emplace(args...);
+        m_stkI.emplace(std::forward<Args>(args)...);
     }
 
     void pop() {

@@ -10,6 +10,7 @@ TODO:
 #include <cassert>
 #include <functional>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 template <class T, class Container = std::vector<T>, class Compare = std::less<typename Container::value_type>>
@@ -40,7 +41,7 @@ public:
 
     template <class... Args>
     void emplace(Args&&... args) {
-        m_elems.emplace_back(args...);
+        m_elems.emplace_back(std::forward<Args>(args)...);
         if (m_indexes.empty()
             || m_comp(m_elems[m_indexes.back()], m_elems.back())
             || !m_comp(m_elems.back(), m_elems[m_indexes.back()])) {
