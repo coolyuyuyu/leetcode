@@ -5,3 +5,5 @@ Tree:
     536. Construct Binary Tree from String
     549. Binary Tree Longest Consecutive Sequence II
     606. Construct String from Binary Tree
+
+Search:
