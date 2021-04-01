@@ -14,7 +14,7 @@ public:
         if (m_pq.size() < m_k) {
             m_pq.push(val);
         }
-        else if (m_comp(val, m_pq.top())) {
+        else if (!m_comp(m_pq.top(), val)) {
             m_pq.pop();
             m_pq.push(val);
         }
