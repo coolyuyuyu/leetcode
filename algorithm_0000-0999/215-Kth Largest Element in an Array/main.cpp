@@ -255,6 +255,21 @@ public:
         }
     }
 
+    int findKthSmallest_Heap(const vector<int>& nums, size_t k) {
+        priority_queue<int> pq; // max_heap
+        for (int num : nums) {
+            if (pq.size() <= k) {
+                pq.push(num);
+            }
+            else if (num < pq.top()) {
+                pq.pop();
+                pq.push(num);
+            }
+        }
+
+        return pq.top();
+    }
+
     int findKthSmallest(vector<int>& nums, size_t k) {
         //Time: T(n) = O(nlogn)
         //return findKthSmallestBySort(nums, k);
@@ -269,7 +284,11 @@ public:
 
         //Recursive Partition
         //Time: T(n) = O(n) for average case, O(n) for worst case
-        return findKthSmallestBestRecv(nums, 0, nums.size(), k);
+        //return findKthSmallestBestRecv(nums, 0, nums.size(), k);
+
+        //Heap
+        //Time: T(n) = O(nlogk)
+        return findKthSmallest_Heap(nums, k);
     }
 
     int findKthLargest(vector<int>& nums, size_t k) {
