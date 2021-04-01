@@ -7,6 +7,7 @@ class SegmentTree {
 public:
     SegmentTree()
     
+    explicit
     template<class InputIterator>
     SegmentTree(InputIterator first, InputIterator last, const Compare& comp = Compare())
 
@@ -80,7 +81,7 @@ public:
     
     Compare comp() const;
     
-private:
+protected:
     void clear() {
         
     }
