@@ -9,8 +9,8 @@ public:
             pq.pop();
 
             int diff = x - y;
-            if (diff != 0) {
-                pq.push(abs(diff));
+            if (0 < diff) {
+                pq.push(diff);
             }
         }
 
