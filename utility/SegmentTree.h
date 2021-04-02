@@ -2,16 +2,16 @@
 #include <functional>
 #include <initializer_list>
 
-template<class T, class Container = std::vector<T>, class Compare = std::less<typename Container::value_type>>
+template<class T, class Container = std::vector<T>, class BinaryOperation = std::min<typename Container::value_type>>
 class SegmentTree {
 public:
     SegmentTree()
     
     explicit
-    template<class InputIterator>
-    SegmentTree(InputIterator first, InputIterator last, const Compare& comp = Compare())
+    template<class InputIterator> // consider rename input iterator
+    SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op = BinaryOperation())
 
-    SegmentTree(std::initializer_list<T> list, const Compare& comp = Compare())
+    SegmentTree(std::initializer_list<T> list, const BinaryOperation& op = BinaryOperation())
     
     /*
     template<typename _Seq = _Sequence, typename _Requires = typename
@@ -79,7 +79,9 @@ public:
     void swap(SegmentTree&)
     
     
-    Compare comp() const;
+    BinaryOperation op() const {
+        return m_op;
+    }
     
 protected:
     void clear() {
@@ -90,7 +92,7 @@ protected:
 
     Container m_container;
     
-    Compare m_comp;
+    BinaryOperation m_op
 /*
 priority_queue
 priority_queue::priority_queue
