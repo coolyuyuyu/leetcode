@@ -1,33 +1,33 @@
 class Solution {
 public:
-    vector<int> topKFrequent(vector<int>& nums, int k) {
-        unordered_map<int, int> counts;
+    vector<int> topKFrequent_Heap(vector<int>& nums, int k) {
+        unordered_map<int, int> counts; // <num, frequency>
         for (int num : nums) {
             ++counts[num];
         }
 
-        typedef pair<int, int> NumCount;
-        auto comp = [](const NumCount& lft, const NumCount& rht) { return lft.second > rht.second; };
-        priority_queue<NumCount, vector<NumCount>, decltype(comp)> pq(comp);
-        for (auto numCount : counts) {
+        auto comp = [](const pair<int, int>& p1, const pair<int, int>& p2) -> bool {
+            return (p1.second > p2.second);
+        };
+        priority_queue<pair<int, int>, vector<pair<int, int>>, decltype(comp)> pq(comp); // min_heap
+        for (const pair<int, int>& p : counts) {
             if (pq.size() < k) {
-                pq.emplace(numCount.first, numCount.second);
+                pq.push(p);
             }
-            else {
-                if (comp(numCount, pq.top())) {
-                    pq.pop();
-                    pq.emplace(numCount.first, numCount.second);
-                }
+            else if (comp(p, pq.top())) {
+                pq.pop();
+                pq.push(p);
             }
         }
 
-        vector<int> ans;
-        while (!pq.empty()) {
-            NumCount numCount = pq.top();
-            pq.pop();
-
-            ans.push_back(numCount.first);
+        vector<int> ret;
+        for (; !pq.empty(); pq.pop()) {
+            ret.push_back(pq.top().first);
         }
-        return ans;
+        return ret;
+    }
+
+    vector<int> topKFrequent(vector<int>& nums, int k) {
+        return topKFrequent_Heap(nums, k);
     }
 };
