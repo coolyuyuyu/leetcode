@@ -1,31 +1,32 @@
 class Solution {
 public:
-    int kthSmallestPriorityQueue(const vector<vector<int>>& matrix, int k) {
+    // Time: O(KlogN), Space: O(N)
+    int kthSmallest_Heap(const vector<vector<int>>& matrix, size_t k) {
         typedef pair<vector<int>::const_iterator, vector<int>::const_iterator> ItrPair;
-        auto comp = [](const ItrPair& lft, const ItrPair& rht) { return *(lft.first) > *(rht.first); };
-
-        priority_queue<ItrPair, vector<ItrPair>, decltype(comp)> pq(comp);
-        for (const vector<int>& vals : matrix) {
-            if (!vals.empty()) {
-                pq.emplace(vals.begin(), vals.end());
+        auto comp = [](const ItrPair& p1, const ItrPair& p2) {
+            return (*(p1.first) > *(p2.first));
+        };
+        priority_queue<ItrPair, vector<ItrPair>, decltype(comp)> pq(comp); // min_heap
+        for (const vector<int>& nums : matrix) {
+            if (!nums.empty()) {
+              pq.emplace(nums.begin(), nums.end());
             }
         }
 
-        while (k > 1) {
-            ItrPair itrPair = pq.top();
+        while (0 < k--) {
+            ItrPair p = pq.top();
             pq.pop();
 
-            --k;
-
-            ++itrPair.first;
-            if (itrPair.first != itrPair.second) {
-                pq.emplace(itrPair.first, itrPair.second);
+            ++p.first;
+            if (p.first != p.second) {
+                pq.push(p);
             }
         }
 
         return *(pq.top().first);
     }
 
+    /*
     int countLessEqual(const vector<int>& nums, int target) {
         ++target;
 
@@ -53,7 +54,7 @@ public:
         return count;
     }
 
-    int kthSmallestBinarySearch(vector<vector<int>>& matrix, int k) {
+    int kthSmallest_BinarySearch(vector<vector<int>>& matrix, int k) {
         int lo = matrix.front().front();
         int hi = matrix.back().back();
         while (lo <= hi) {
@@ -69,10 +70,10 @@ public:
 
         return lo;
     }
+    */
 
-    int kthSmallest(vector<vector<int>>& matrix, int k) {
-        //return kthSmallestPriorityQueue(matrix, k);
-
-        return kthSmallestBinarySearch(matrix, k);
+    int kthSmallest(vector<vector<int>>& matrix, size_t k) {
+        return kthSmallest_Heap(matrix, k - 1);
+        //return kthSmallest_BinarySearch(matrix, k);
     }
 };
