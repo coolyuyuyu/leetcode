@@ -7,3 +7,7 @@ Tree:
     606. Construct String from Binary Tree
 
 Search:
+    215. Kth Largest Element in an Array
+
+Binary_Search
+    378. Kth Smallest Element in a Sorted Matrix
