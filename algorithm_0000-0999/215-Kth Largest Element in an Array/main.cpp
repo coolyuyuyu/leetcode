@@ -1,6 +1,5 @@
 class Solution {
 public:
-
     void sort(vector<int>& nums, size_t first, size_t last) {
         assert(first <= last);
 
@@ -258,7 +257,7 @@ public:
     int findKthSmallest_Heap(const vector<int>& nums, size_t k) {
         priority_queue<int> pq; // max_heap
         for (int num : nums) {
-            if (pq.size() <= k) {
+            if (pq.size() <= (k + 1)) {
                 pq.push(num);
             }
             else if (num < pq.top()) {
@@ -271,27 +270,28 @@ public:
     }
 
     int findKthSmallest(vector<int>& nums, size_t k) {
-        //Time: T(n) = O(nlogn)
+        //Time: O(NlogN)
         //return findKthSmallestBySort(nums, k);
 
         //Recursive Partition
-        //Time: T(n) = O(n) for average case, O(n^2) for worst case
+        //Time: O(N) for average case, O(N^2) for worst case
         //return findKthSmallestByPartitionRecv(nums, 0, nums.size(), k);
 
         //Iterative Partition
-        //Time: T(n) = O(n) for average case, O(n^2) for worst case
+        //Time: O(N) for average case, O(N^2) for worst case
         //return findKthSmallestByPartitionIter(nums, k);
 
         //Recursive Partition
-        //Time: T(n) = O(n) for average case, O(n) for worst case
+        //Time: O(N) for average case, O(N) for worst case
         //return findKthSmallestBestRecv(nums, 0, nums.size(), k);
 
         //Heap
-        //Time: T(n) = O(nlogk)
+        //Time: O(NlogK)
+        //Space: O(K)
         return findKthSmallest_Heap(nums, k);
     }
 
     int findKthLargest(vector<int>& nums, size_t k) {
-        return findKthSmallest(nums, nums.size() - k);
+        return findKthSmallest(nums, nums.size() - k - 1);
     }
 };
