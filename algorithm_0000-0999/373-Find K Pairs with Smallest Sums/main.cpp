@@ -1,34 +1,33 @@
 class Solution {
 public:
-    vector<pair<int, int>> kSmallestPairs(vector<int>& nums1, vector<int>& nums2, int k) {
-        typedef pair<int, int> NumPair;
-        auto comp = [](const NumPair& lft, const NumPair& rht) { return lft.first + lft.second < rht.first + rht.second; };
-        priority_queue<NumPair, vector<NumPair>, decltype(comp)> pq(comp);
-        for (size_t i = 0; i < nums1.size(); ++i) {
-            for (size_t j = 0; j < nums2.size(); ++j) {
+    vector<vector<int>> kSmallestPairs_Heap(vector<int>& nums1, vector<int>& nums2, size_t k) {
+        auto comp = [](const pair<int, int>& p1, const pair<int, int>& p2) {
+            return ((p1.first + p1.second) < (p2.first + p2.second));
+        };
+        priority_queue<pair<int, int>, vector<pair<int, int>>, decltype(comp)> pq(comp); // max_heap
+        for (int num1 : nums1) {
+            for (int num2 : nums2) {
                 if (pq.size() < k) {
-                    pq.emplace(nums1[i], nums2[j]);
+                    pq.emplace(num1, num2);
+                }
+                else if (comp({num1, num2}, pq.top())) {
+                    pq.pop();
+                    pq.emplace(num1, num2);
                 }
                 else {
-                    const NumPair& numPair = pq.top();
-                    if (comp(NumPair(nums1[i], nums2[j]), numPair)) {
-                        pq.pop();
-                        pq.emplace(nums1[i], nums2[j]);
-                    }
-                    else {
-                        break;
-                    }
+                    break;
                 }
             }
         }
 
-        vector<pair<int, int>> ans;
-        while (!pq.empty()) {
-            NumPair numPair = pq.top();
-            pq.pop();
-
-            ans.push_back(numPair);
+        vector<vector<int>> ret;
+        for (; !pq.empty(); pq.pop()) {
+            ret.push_back({pq.top().first, pq.top().second});
         }
-        return ans;
+        return ret;
+    }
+
+    vector<vector<int>> kSmallestPairs(vector<int>& nums1, vector<int>& nums2, size_t k) {
+        return kSmallestPairs_Heap(nums1, nums2, k);
     }
 };
