@@ -1,98 +1,89 @@
 #include <vector>
 #include <functional>
 #include <initializer_list>
+#include <type_traits>
 
-template<class T, class Container = std::vector<T>, class BinaryOperation = std::min<typename Container::value_type>>
+
+// https://github.com/gcc-mirror/gcc/blob/master/libstdc%2B%2B-v3/include/bits/stl_queue.h
+template<typename T, typename Container = std::vector<T>, typename BinaryOperation = std::plus<typename Container::value_type>>
 class SegmentTree {
 public:
+    static_assert(std::is_same<T, typename Container::value_type>::value, "value_type must be the same as the underlying container");
+
+    // __and_ needs update
+    template<typename Cntr = Container, typename = typename enable_if<__and_<is_default_constructible<BinaryOperation>, is_default_constructible<Cntr>>::value>::type>
     SegmentTree()
-    
+        : m_cntr()
+        , m_op() {
+    }
+
     explicit
-    template<class InputIterator> // consider rename input iterator
-    SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op = BinaryOperation())
+    SegmentTree(const BinaryOperation& op, const Container& cntr)
+        : m_cntr(cntr)
+        , m_op(op)
+    {}
 
-    SegmentTree(std::initializer_list<T> list, const BinaryOperation& op = BinaryOperation())
-    
-    /*
-    template<typename _Seq = _Sequence, typename _Requires = typename
-	       enable_if<__and_<is_default_constructible<_Compare>,
-				is_default_constructible<_Seq>>::value>::type>
-	priority_queue()
-	: c(), comp() { }
+    explicit
+    SegmentTree(const BinaryOperation& op, Container&& cntr = Container())
+        //: m_cntr(std::move(cntr)), m_op(op)
+    {}
 
-      explicit
-      priority_queue(const _Compare& __x, const _Sequence& __s)
-      : c(__s), comp(__x)
-      { std::make_heap(c.begin(), c.end(), comp); }
+    template<typename InputIterator>
+    SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, const Container& cntr)
+        : m_cntr(cntr)
+        , m_op(op)
+    {
+    }
 
-      explicit
-      priority_queue(const _Compare& __x, _Sequence&& __s = _Sequence())
-      : c(std::move(__s)), comp(__x)
-      { std::make_heap(c.begin(), c.end(), comp); }
-
-      template<typename _Alloc, typename _Requires = _Uses<_Alloc>>
-	explicit
-	priority_queue(const _Alloc& __a)
-	: c(__a), comp() { }
-
-      template<typename _Alloc, typename _Requires = _Uses<_Alloc>>
-	priority_queue(const _Compare& __x, const _Alloc& __a)
-	: c(__a), comp(__x) { }
-
-      // _GLIBCXX_RESOLVE_LIB_DEFECTS
-      // 2537. Constructors [...] taking allocators should call make_heap
-      template<typename _Alloc, typename _Requires = _Uses<_Alloc>>
-	priority_queue(const _Compare& __x, const _Sequence& __c,
-		       const _Alloc& __a)
-	: c(__c, __a), comp(__x)
-	{ std::make_heap(c.begin(), c.end(), comp); }
-
-      template<typename _Alloc, typename _Requires = _Uses<_Alloc>>
-	priority_queue(const _Compare& __x, _Sequence&& __c, const _Alloc& __a)
-	: c(std::move(__c), __a), comp(__x)
-	{ std::make_heap(c.begin(), c.end(), comp); }
-
-      template<typename _Alloc, typename _Requires = _Uses<_Alloc>>
-	priority_queue(const priority_queue& __q, const _Alloc& __a)
-	: c(__q.c, __a), comp(__q.comp) { }
-
-      template<typename _Alloc, typename _Requires = _Uses<_Alloc>>
-	priority_queue(priority_queue&& __q, const _Alloc& __a)
-	: c(std::move(__q.c), __a), comp(std::move(__q.comp)) { }
-    */
+    template<typename InputIterator>
+    SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op = BinaryOperation(), Container&& cntr = Container())
+        //: m_cntr(std::move(cntr)), m_op(op)
+    {
+    //c.insert(c.end(), __first, __last);
+    //std::make_heap(c.begin(), c.end(), comp);
+    }
 
     //range (1)
-    void assign (InputIterator first, InputIterator last);
+    template<typename InputIterator>
+    void assign(InputIterator first, InputIterator last) {
+        build(first, last, );
+    }
     //initializer list (3)
-    
-    void assign(std::initializer_list<T> l);
+
+    //void assign(std::initializer_list<T> l);
 
 
+    //bool empty() const;
+    //size_t size() const;
+    //void swap();
+    //const T& top() const;
+    //const T& query(size_t lo, size_t hi) const;
+    
+    void clear() {
+        m_cntr.clear()
+    }
+    
+    //void set(size_t index, const T& val);
+    //void swap(SegmentTree&)
+    
 
-    bool empty() const;
-    size_t size() const;
-    void swap();
-    const T& top() const;
-    const T& query(size_t lo, size_t hi) const;
-    void clear();
-    void set(size_t index, const T& val);
-    void swap(SegmentTree&)
-    
-    
+
     BinaryOperation op() const {
         return m_op;
     }
-    
-protected:
-    void clear() {
-        
-    }
-    
-    void build();
 
-    Container m_container;
+protected:
     
-    BinaryOperation m_op
+    template<typename InputIterator>
+    void build(InputIterator first, InputIterator last) {
+        typename iterator_traits<InputIterator>::difference_type size = std::distance(first, last);
+    }
+
+    Container m_cntr;
+    BinaryOperation m_op;
+};
+
+
 /*
 priority_queue
 priority_queue::priority_queue
