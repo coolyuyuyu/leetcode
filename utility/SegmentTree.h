@@ -18,6 +18,7 @@ public:
         : m_cntr()
         , m_op()
         , m_size(0) {
+        cout << "constructor: " << "default" << endl;
     }
 
     explicit
@@ -25,7 +26,9 @@ public:
         : m_cntr(cntr)
         , m_op(op)
         , m_size(cntr.size())
-    {}
+    {
+        cout << "constructor: " << "copy container" << endl;
+    }
 
     explicit
     SegmentTree(const BinaryOperation& op, Container&& cntr = Container())
@@ -33,27 +36,88 @@ public:
         , m_op(op)
         , m_size(cntr.size())
         //: m_cntr(std::move(cntr)), m_op(op)
-    {}
-
-    template<typename InputIterator>
-    SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, const Container& cntr)
-        : m_cntr(cntr)
-        , m_op(op)
     {
+        cout << "constructor:" << "move container123" << endl;
+    }
+
+
+
+    // --- range ---
+    
+    // check out is_default_constructible<BinaryOperation>
+    template<typename InputIterator>
+    explicit
+    SegmentTree(InputIterator first, InputIterator last, const Container& cntr)
+        : m_cntr()
+        , m_op()
+    {
+        cout << "constructor:" << "range copy" << endl;
+    }
+
+    // check out is_default_constructible<BinaryOperation>
+    template<typename InputIterator>
+    explicit
+    SegmentTree(InputIterator first, InputIterator last, Container&& cntr = Container())
+        : m_cntr()
+        , m_op()
+    {
+        cout << "constructor:" << "range move" << endl;
     }
 
     template<typename InputIterator>
-    SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op = BinaryOperation(), Container&& cntr = Container())
+    explicit
+    SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, const Container& cntr)
         : m_cntr()
         , m_op(op)
-        , m_size(cntr.size() + std::distance(first, last))
-        //: m_cntr(std::move(cntr)), m_op(op)
     {
-    //c.insert(c.end(), __first, __last);
-    //std::make_heap(c.begin(), c.end(), comp);
+        cout << "constructor:" << "range op + copy" << endl;
     }
 
-    //range (1)
+    template<typename InputIterator>
+    explicit
+    SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, Container&& cntr = Container())
+        : m_cntr()
+        , m_op(op)
+    {
+        cout << "constructor:" << "range op + move" << endl;
+    }
+
+    // --- initializer_list ---
+
+    // check out is_default_constructible<BinaryOperation>
+    explicit
+    SegmentTree(std::initializer_list<T> l, const Container& cntr)
+        : m_cntr()
+        , m_op()
+    {
+        cout << "constructor:" << "initializer_list copy" << endl;
+    }
+
+    // check out is_default_constructible<BinaryOperation>
+    explicit
+    SegmentTree(std::initializer_list<T> l, Container&& cntr = Container())
+        : m_cntr()
+        , m_op()
+    {
+        cout << "constructor:" << "initializer_list move" << endl;
+    }
+
+    explicit
+    SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, const Container& cntr)
+        : m_cntr()
+        , m_op(op)
+    {
+        cout << "constructor:" << "initializer_list op + copy" << endl;
+    }
+
+    explicit
+    SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, Container&& cntr = Container())
+        : m_cntr()
+        , m_op(op)
+    {
+        cout << "constructor:" << "initializer_list op + move" << endl;
+    }
+    
     template<typename InputIterator>
     void assign(InputIterator first, InputIterator last) {
         clear();
@@ -61,8 +125,10 @@ public:
         //build(first, last, );
     }
 
-    //void assign(std::initializer_list<T> l);
-
+    void assign(std::initializer_list<T> l) {
+        clear();
+        //m_size = std::distance(first, last);
+    }
 
     bool empty() const {
         return (m_size == 0);
@@ -88,15 +154,15 @@ public:
     void clear() {
         m_cntr.clear();
     }
-    
+
     //void set(size_t index, const T& val);
 
 
     BinaryOperation op() const {
         return m_op;
     }
-    
-    
+
+
     void update(size_t i, const T& val) {
         //update(0, m_size - 1, 0, i, val);
     }
@@ -122,6 +188,8 @@ protected:
 };
 
 
+
+
 /*
 priority_queue
 priority_queue::priority_queue
@@ -138,4 +206,30 @@ swap (priority_queue)
 non-member specializations:
 uses_allocator<priority_queue>
 */
-};
+
+
+
+int main() {
+    vector<int> vv;
+
+
+    auto bop = [](int a, int b) -> int {
+        return a + b;
+    };
+
+    cout << "---initializer_list---" << endl;
+    SegmentTree<int> st_i_default({1,2,3}, vv);
+    SegmentTree<int> st_i_move0({1,2,3});
+    SegmentTree<int> st_i_move1({1,2,3}, std::move(vv));
+    
+    SegmentTree<int, vector<int>, decltype(bop)> st_i_2({1,2,3}, bop);
+    SegmentTree<int, vector<int>, decltype(bop)> st_i_3({1,2,3}, bop, vv);
+    SegmentTree<int, vector<int>, decltype(bop)> st_i_4({1,2,3}, bop, std::move(vv));
+    cout << "---initializer_list---" << endl;
+    //SegmentTree<int> st_i_2({1,2,3}, vv);
+
+    cout << "--" << endl;
+    SegmentTree<int, vector<int>, decltype(bop)> st3(bop);
+    cout << "--" << endl;
+    std::cout << "Hello World123!\n";
+}
