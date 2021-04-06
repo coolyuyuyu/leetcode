@@ -1,7 +1,7 @@
 class Solution {
 public:
     int eatenApples_Heap(vector<int>& apples, vector<int>& days) {
-        int numAte = 0;
+        int numEaten = 0;
 
         typedef pair<int, int> CountTime;
         auto comp = [](const CountTime& ct1, const CountTime& ct2) {
@@ -17,7 +17,7 @@ public:
                 pq.pop();
             }
             if (!pq.empty()) {
-                ++numAte;
+                ++numEaten;
 
                 CountTime ct = pq.top();
                 pq.pop();
@@ -28,7 +28,7 @@ public:
             }
         }
 
-        return numAte;
+        return numEaten;
     }
 
     int eatenApples(vector<int>& apples, vector<int>& days) {
