@@ -1,5 +1,6 @@
 class Solution {
 public:
+    /*
     int getUnvisitedClosest(const vector<int>& distances, const vector<bool>& visiteds, int N) {
         assert(distances.size() == visiteds.size());
 
@@ -55,5 +56,57 @@ public:
         }
 
         return maxDistance;
+    }
+    */
+
+    int networkDelayTime_Heap(vector<vector<int>>& times, int n, int k) {
+        typedef pair<int, int> NodeDistance;
+
+        vector<vector<pair<int, int>>> graph(n);
+        for (const auto& time : times) {
+            graph[time[0] - 1].emplace_back(time[1] - 1, time[2]);
+        }
+
+        set<int> visited;
+        int distance = 0;
+
+        auto comp = [](const NodeDistance& p1, const NodeDistance& p2) {
+            if (p1.second == p2.second) {
+                return (p1.first < p2.first);
+            }
+            else {
+                return (p1.second > p2.second);
+            }
+        };
+        priority_queue<NodeDistance, vector<NodeDistance>, decltype(comp)> pq(comp); // min_heap
+        pq.emplace(k - 1, 0);
+        while (!pq.empty()) {
+            NodeDistance nd = pq.top();
+            pq.pop();
+
+            if (visited.insert(nd.first).second == false) {
+                continue;
+            }
+            distance = nd.second;
+
+            for (const pair<int, int>& edge : graph[nd.first]) {
+                pq.emplace(edge.first, edge.second + nd.second);
+            }
+        }
+
+        return (visited.size() == n ? distance : -1);
+    }
+
+    int networkDelayTime(vector<vector<int>>& times, int n, int k) {
+        // Assume |V| nodes, |E| edges
+
+        // Floyd-Warshall
+        // Bellman-Ford
+        // Dijkstra
+
+        // Heap
+        // Time: O(ElogE), Space: O(V + E)
+        return networkDelayTime_Heap(times, n, k);
+
     }
 };
