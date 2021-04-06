@@ -16,8 +16,7 @@ public:
             }
         }
 
-        size_t index = 0;
-        for (; !pq.empty(); pq.pop()) {
+        for (size_t index = 0; !pq.empty(); pq.pop()) {
             const NumCount& nc = pq.top();
             for (int i = 0; i < nc.second; ++i) {
                 if (barcodes.size() <= index) {
