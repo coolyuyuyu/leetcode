@@ -2,8 +2,9 @@
 #include <vector>
 #include <functional>
 #include <initializer_list>
+#include <iterator>
+#include <tuple>
 #include <type_traits>
-
 
 
 // https://github.com/gcc-mirror/gcc/blob/master/libstdc%2B%2B-v3/include/bits/stl_queue.h
@@ -43,7 +44,7 @@ public:
 
 
     // --- range ---
-    
+
     // check out is_default_constructible<BinaryOperation>
     template<typename InputIterator>
     explicit
@@ -60,7 +61,8 @@ public:
     SegmentTree(InputIterator first, InputIterator last, Container&& cntr = Container())
         : m_cntr()
         , m_op()
-    {
+        , m_size(std::distance(first, last)) {
+        build(first);
         cout << "constructor:" << "range move" << endl;
     }
 
@@ -78,7 +80,8 @@ public:
     SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, Container&& cntr = Container())
         : m_cntr()
         , m_op(op)
-    {
+        , m_size(std::distance(first, last)) {
+        build(first);
         cout << "constructor:" << "range op + move" << endl;
     }
 
@@ -98,8 +101,10 @@ public:
     SegmentTree(std::initializer_list<T> l, Container&& cntr = Container())
         : m_cntr()
         , m_op()
+        , m_size(std::distance(l.begin(), l.end()))
     {
         cout << "constructor:" << "initializer_list move" << endl;
+        build(l.begin());
     }
 
     explicit
@@ -114,20 +119,22 @@ public:
     SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, Container&& cntr = Container())
         : m_cntr()
         , m_op(op)
+        , m_size(std::distance(l.begin(), l.end()))
     {
         cout << "constructor:" << "initializer_list op + move" << endl;
+        //build(l.begin());
     }
-    
+
     template<typename InputIterator>
     void assign(InputIterator first, InputIterator last) {
         clear();
+
         m_size = std::distance(first, last);
-        //build(first, last, );
+        build(first);
     }
 
     void assign(std::initializer_list<T> l) {
-        clear();
-        //m_size = std::distance(first, last);
+        assign(l.begin(), l.end());
     }
 
     bool empty() const {
@@ -146,76 +153,136 @@ public:
 
     const T& top() const {
         assert(!empty());
-        return m_cntr.front();
-    }
 
-    //const T& query(size_t lo, size_t hi) const;
+        return m_cntr[0];
+    }
 
     void clear() {
         m_cntr.clear();
+        m_size = 0;
     }
-
-    //void set(size_t index, const T& val);
-
 
     BinaryOperation op() const {
         return m_op;
     }
 
+    void set(size_t index, const T& val) {
+        assert(index < size());
+        
+        // std::tuple<int, int, int>: <lo, hi, index, visited>
+        std::stack<std::tuple<size_t, size_t, size_t, bool>> stk({{0, size() - 1, 0, false}});
+        while (!stk.empty()) {
+            size_t l = std::get<0>(stk.top());
+            size_t h = std::get<1>(stk.top());
+            size_t i = std::get<2>(stk.top());
+            bool visited = std::get<3>(stk.top());
+            stk.pop();
+            
+            if (index < l || h < index) {
+                continue;
+            }
 
-    void update(size_t i, const T& val) {
-        //update(0, m_size - 1, 0, i, val);
+            if (l == h) {
+                assert(index == l);
+                m_cntr[i] = val;
+            }
+            else {
+                if (visited) {
+                    m_cntr[i] = m_op(m_cntr[lftChild(i)], m_cntr[rhtChild(i)]);
+                }
+                else {
+                    size_t m = l + (h - l) / 2;
+                    stk.emplace(l, h, i, true);
+                    stk.emplace(l, m, lftChild(i), false);
+                    stk.emplace(m + 1, h, rhtChild(i), false);
+                }
+            }
+        }
     }
 
     T query(size_t lo, size_t hi) const {
-        return T();
-        //return query(0, m_size - 1, 0, lo , hi);
-    }
+        assert(lo <= hi && hi < size());
 
-    const T& operator[](size_t i) const {
-        return m_cntr.front();
-    }
+        T val = T();
 
-protected:
-    template<typename InputIterator>
-    void build(InputIterator first, InputIterator last) {
-        if (!empty()) {
-            m_cntr.resize(m_size - 1);
-            
-            
-            size_t minIndex = std::numeric_limits<size_t>::max()
-            buildTopDown(0, size() - 1, 0, minIndex);
-            
-            
-            build();
-        }
-        typename iterator_traits<InputIterator>::difference_type size = std::distance(first, last);
-    }
-
-    void build() {
-        assert(!empty());
-
-        std::stack<pair<std::tuple<size_t, size_t, size_t>, bool>> stk;
-        stk.emplace({{0, size() - 1, 0}, false});
+        std::stack<tuple<size_t, size_t, size_t>> stk({{0, size() - 1, 0}});
         while (!stk.empty()) {
-            size_t lo = std::get<0>(stk.top().first);
-            size_t hi = std::get<1>(stk.top().first);
-            size_t index = std::get<2>(stk.top().first);
-            bool visited = stk.top().second;
+            size_t l = std::get<0>(stk.top());
+            size_t h = std::get<1>(stk.top());
+            size_t i = std::get<2>(stk.top());
             stk.pop();
 
-            if (lo == hi) {
+            if (h < lo || hi < l) {
+                continue;
+            }
+
+            if (lo <= l && h <= hi) {
+                val = m_op(val, m_cntr[i]);
+            }
+            else {
+                size_t m = l + (h - l) / 2;
+                stk.emplace(l, m, lftChild(i));
+                stk.emplace(m + 1, h, rhtChild(i));
+            }
+        }
+
+        return val;
+    }
+
+    const T& operator[](size_t index) const {
+        assert(index < size());
+
+        size_t l = 0, h = size() - 1, i = 0;
+        while (l < h) {
+            size_t m = l + (h - l) / 2;
+            if (index <= m) {
+                h = m;
+                i = lftChild(i);
+            }
+            else {
+                l = m + 1;
+                i = rhtChild(i);
+            }
+        }
+
+        return m_cntr[index];
+    }
+
+//protected:
+public:
+    template<typename InputIterator>
+    void build(InputIterator itr) {
+        if (empty()) {
+            return;
+        }
+
+        // TODO: Trade off, may cost too much memory.
+        size_t height = static_cast<size_t>(ceil(log2(static_cast<double>(size())))) + 1;
+        size_t capacity = (size_t(2) << (height - 1)) - 1;
+        m_cntr.resize(capacity);
+
+        // std::tuple<int, int, int>: <lo, hi, index, visited>
+        std::stack<std::tuple<size_t, size_t, size_t, bool>> stk({{0, size() - 1, 0, false}});
+        while (!stk.empty()) {
+            size_t l = std::get<0>(stk.top());
+            size_t h = std::get<1>(stk.top());
+            size_t i = std::get<2>(stk.top());
+            bool visited = std::get<3>(stk.top());
+            stk.pop();
+
+            if (l == h) {
+                m_cntr[i] = *std::next(itr, l);
                 continue;
             }
 
             if (visited) {
-                m_cntr[index] = m_op(m_cntr[lftChildIndex(index)], m_cntr[rhtChildIndex(index)]);
+                m_cntr[i] = m_op(m_cntr[lftChild(i)], m_cntr[rhtChild(i)]);
             }
             else {
-                size_t mid = lo + (hi - lo) / 2;
-                stk.emplace(lo, mid, lftChildIndex(index), false);
-                stk.emplace(mid + 1, hi, rhtChildIndex(index), false);
-                stk.emplace(lo, hi, index, true);
+                size_t m = l + (h - l) / 2;
+                stk.emplace(l, h, i, true);
+                stk.emplace(l, m, lftChild(i), false);
+                stk.emplace(m + 1, h, rhtChild(i), false);
             }
         }
     }
@@ -225,107 +292,32 @@ protected:
     size_t m_size;
 
 private:
-    inline size_t lftChildIndex(size_t index) {
-        return (index * 2 + 1);
+    inline size_t lftChild(size_t i) const {
+        return (i * 2 + 1);
     }
 
-    inline size_t rhtChildIndex(size_t index) {
-        return (index * 2 + 2);
+    inline size_t rhtChild(size_t i) const {
+        return (i * 2 + 2);
     }
 };
 
 
 
 
-/*
-class RangeSumSegmentTreeByHeap : public RangeSumStrategy {
-public:
-    RangeSumSegmentTreeByHeap(vector<int>& nums)
-        : m_size(nums.size()) {
-        if (0 < m_size) {
-            build(0, m_size - 1, 0, nums);
-        }
-    }
-
-    void update(size_t i, int val) {
-        update(0, m_size - 1, 0, i, val);
-    }
-
-    int sum(size_t lo, size_t hi) const {
-        return query(0, m_size - 1, 0, lo , hi);
-    }
-
-private:
-    inline size_t lftChildIndex(size_t parent) const {
-        return parent * 2 + 1;
-    }
-
-    inline size_t rhtChildIndex(size_t parent) const {
-        return parent * 2 + 2;
-    }
-
-    void build(size_t lo, size_t hi, size_t parent, const vector<int>& nums) {
-        assert(lo <= hi);
-
-        if (lo == hi) {
-            if (m_sums.size() <= parent) {
-                m_sums.resize(parent + 1);
-            }
-            m_sums[parent] = nums[lo];
-            return;
-        }
-
-        size_t mid = lo + (hi - lo) / 2;
-        size_t lftChild = lftChildIndex(parent), rhtChild = rhtChildIndex(parent);
-        build(lo, mid, lftChild, nums);
-        build(mid + 1, hi, rhtChild, nums);
-        m_sums[parent] = m_sums[lftChild] + m_sums[rhtChild];
-    }
-
-    void update(size_t lo, size_t hi, size_t parent, size_t i, int val) {
-        assert(lo <= hi);
-
-        if (i < lo || hi < i) {
-            return;
-        }
-
-        if (lo == hi) {
-            assert(i == lo);
-            m_sums[parent] = val;
-        }
-        else {
-            size_t mid = lo + (hi - lo) / 2;
-            size_t lftChild = lftChildIndex(parent), rhtChild = rhtChildIndex(parent);
-            update(lo, mid, lftChild, i, val);
-            update(mid + 1, hi, rhtChild, i, val);
-            m_sums[parent] = m_sums[lftChild] + m_sums[rhtChild];
-        }
-    }
-
-    int query(size_t lo, size_t hi, size_t parent, size_t i, size_t j) const {
-        assert(lo <= hi);
-
-        if (j < lo || hi < i) {
-            return 0;
-        }
-
-        if (i <= lo && hi <= j) {
-            return m_sums[parent];
-        }
-        else {
-            size_t mid = lo + (hi - lo) / 2;
-            return query(lo, mid, lftChildIndex(parent), i, j) + query(mid + 1, hi, rhtChildIndex(parent), i, j);
-        }
-    }
-
-    size_t m_size;
-    vector<int> m_sums;
-};
-*/
 
 
 int main() {
-    vector<int> vv;
+    vector<int> vv = {-2,0,3,-5,2,-1};
+    SegmentTree<int> stst(vv.begin(), vv.end());
+    cout << stst.query(0, 2) << endl;
+    cout << stst.query(2, 5) << endl;
+    cout << stst.query(0, 5) << endl;
+    //return 0;
+
+    /*
+    Range"]
+[[[-2,0,3,-5,2,-1]],[0,2],[2,5],[0,5]]
+    */
 
 
     auto bop = [](int a, int b) -> int {
@@ -336,7 +328,7 @@ int main() {
     SegmentTree<int> st_i_default({1,2,3}, vv);
     SegmentTree<int> st_i_move0({1,2,3});
     SegmentTree<int> st_i_move1({1,2,3}, std::move(vv));
-    
+
     SegmentTree<int, vector<int>, decltype(bop)> st_i_2({1,2,3}, bop);
     SegmentTree<int, vector<int>, decltype(bop)> st_i_3({1,2,3}, bop, vv);
     SegmentTree<int, vector<int>, decltype(bop)> st_i_4({1,2,3}, bop, std::move(vv));
@@ -347,4 +339,32 @@ int main() {
     SegmentTree<int, vector<int>, decltype(bop)> st3(bop);
     cout << "--" << endl;
     std::cout << "Hello World123!\n";
+
+    SegmentTree<int> sstt({0,1,2,3,4,5});
+    /*
+    for (size_t i = 0; i < sstt.m_cntr.size(); ++i) {
+        cout << "Internal[" << i << "]: " << sstt.m_cntr[i] << endl;
+    }
+
+
+    for (size_t i = 0; i < 6; ++i) {
+        cout << "External[" << i << "]: " << sstt[i] << endl;
+    }
+    */
+
+    cout << "top: " << sstt.top() << endl;
+
+    //cout << "query[3,4]: " << sstt.query(3, 4) << endl;
+    cout << "query[0,3]: " << sstt.query(0, 3) << endl;
+    //return 0;
+  //  return 1;
+
+    sstt.set(1, 100);
+    for (size_t i = 0; i < 6; ++i) {
+        for (size_t j = i; j < 6; ++j) {
+            cout << "query[" << i << "," << j << "]: " << sstt.query(i, j) << endl;
+        }
+    }
+
+    cout << sstt.op()(111,999) << endl;
 }
