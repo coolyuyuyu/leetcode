@@ -168,7 +168,7 @@ public:
 
     void set(size_t index, const T& val) {
         assert(index < size());
-        
+
         // std::tuple<int, int, int>: <lo, hi, index, visited>
         std::stack<std::tuple<size_t, size_t, size_t, bool>> stk({{0, size() - 1, 0, false}});
         while (!stk.empty()) {
@@ -177,7 +177,7 @@ public:
             size_t i = std::get<2>(stk.top());
             bool visited = std::get<3>(stk.top());
             stk.pop();
-            
+
             if (index < l || h < index) {
                 continue;
             }
@@ -248,8 +248,20 @@ public:
         return m_cntr[index];
     }
 
-//protected:
-public:
+protected:
+    Container m_cntr;
+    BinaryOperation m_op;
+    size_t m_size;
+
+private:
+    inline size_t lftChild(size_t i) const {
+        return (i * 2 + 1);
+    }
+
+    inline size_t rhtChild(size_t i) const {
+        return (i * 2 + 2);
+    }
+
     template<typename InputIterator>
     void build(InputIterator itr) {
         if (empty()) {
@@ -285,19 +297,6 @@ public:
                 stk.emplace(m + 1, h, rhtChild(i), false);
             }
         }
-    }
-
-    Container m_cntr;
-    BinaryOperation m_op;
-    size_t m_size;
-
-private:
-    inline size_t lftChild(size_t i) const {
-        return (i * 2 + 1);
-    }
-
-    inline size_t rhtChild(size_t i) const {
-        return (i * 2 + 2);
     }
 };
 
