@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cassert>
 #include <vector>
 #include <functional>
@@ -5,7 +6,12 @@
 #include <iterator>
 #include <tuple>
 #include <type_traits>
+#include <vector>
 
+// TODO:
+/*
+    iterative implementation cost too much memory
+*/
 
 // https://github.com/gcc-mirror/gcc/blob/master/libstdc%2B%2B-v3/include/bits/stl_queue.h
 template<typename T, typename Container = std::vector<T>, typename BinaryOperation = std::plus<T>>
@@ -63,7 +69,9 @@ public:
         , m_op()
         , m_size(std::distance(first, last)) {
         build(first);
+        //build(0, m_size - 1, 0, first);
         cout << "constructor:" << "range move" << endl;
+        cout << "recursive overall template size:" << sizeof(T) * m_cntr.capacity() << endl;
     }
 
     template<typename InputIterator>
@@ -166,17 +174,17 @@ public:
         return m_op;
     }
 
+    
+    // iterative set V1
     void set(size_t index, const T& val) {
         assert(index < size());
-
+        
         // std::tuple<int, int, int>: <lo, hi, index, visited>
-        std::stack<std::tuple<size_t, size_t, size_t, bool>> stk({{0, size() - 1, 0, false}});
+        std::vector<std::tuple<size_t, size_t, size_t, bool>> stk({{0, size() - 1, 0, false}});
         while (!stk.empty()) {
-            size_t l = std::get<0>(stk.top());
-            size_t h = std::get<1>(stk.top());
-            size_t i = std::get<2>(stk.top());
-            bool visited = std::get<3>(stk.top());
-            stk.pop();
+            size_t l, h, i; bool visited;
+            std::tie(l, h, i, visited) = stk.back();
+            stk.pop_back();
 
             if (index < l || h < index) {
                 continue;
@@ -192,25 +200,95 @@ public:
                 }
                 else {
                     size_t m = l + (h - l) / 2;
-                    stk.emplace(l, h, i, true);
-                    stk.emplace(l, m, lftChild(i), false);
-                    stk.emplace(m + 1, h, rhtChild(i), false);
+                    stk.emplace_back(l, h, i, true);
+                    stk.emplace_back(l, m, lftChild(i), false);
+                    stk.emplace_back(m + 1, h, rhtChild(i), false);
                 }
             }
         }
     }
+    
+    // iterative set V2
+    /*
+    void set(size_t index, const T& val) {
+        assert(index < size());
+        
+        // std::tuple<int, int, int>: <lo, hi, index, visited>
+        std::vector<std::tuple<size_t, size_t, size_t>> stk;
+        size_t l(0), h(size() - 1), i(0);
+        while ((l <= index && index <= h) || !stk.empty()) {
+            if (l <= index && index <= h) {
+                while (l <= index && index <= h) {
+                    stk.emplace_back(l, h, i);
+                    
+                    size_t m = l + (h - l) / 2;
+                    
+                    //l;
+                    h = m;
+                    i = lftChild(i);
+                }
+            }
+            else {
+                std::tie(l, h, i) = stk.back();
+                stk.pop_back();
+                if (l == h) {
+                    assert(index == l);
+                    m_cntr[i] = val;
+                }
+                else {
 
+                    m_cntr[i] = m_op(m_cntr[lftChild(i)], m_cntr[rhtChild(i)]);
+
+                    size_t m = l + (h - l) / 2;
+
+                    l = m + 1;
+                    //h;
+                    i = rhtChild(i);
+                }
+            }
+        
+        }
+    }
+    */
+    
+    /*
+    // recursive set
+    void set(size_t index, const T& val) {
+        set(0, size() - 1, 0, index, val);
+    }
+    void set(size_t lo, size_t hi, size_t parent, size_t i, const T& val) {
+        assert(lo <= hi);
+
+        if (i < lo || hi < i) {
+            return;
+        }
+
+        if (lo == hi) {
+            assert(i == lo);
+            m_cntr[parent] = val;
+        }
+        else {
+            size_t mid = lo + (hi - lo) / 2;
+            size_t lft = lftChild(parent), rht = rhtChild(parent);
+            set(lo, mid, lft, i, val);
+            set(mid + 1, hi, rht, i, val);
+            m_cntr[parent] = m_cntr[lft] + m_cntr[rht];
+        }
+    }
+    */
+
+    /*
+    // iterative query
     T query(size_t lo, size_t hi) const {
         assert(lo <= hi && hi < size());
 
         T val = T();
 
-        std::stack<tuple<size_t, size_t, size_t>> stk({{0, size() - 1, 0}});
+        std::vector<tuple<size_t, size_t, size_t>> stk({{0, size() - 1, 0}});
         while (!stk.empty()) {
-            size_t l = std::get<0>(stk.top());
-            size_t h = std::get<1>(stk.top());
-            size_t i = std::get<2>(stk.top());
-            stk.pop();
+            size_t l, h, i;
+            std::tie(l, h, i) = stk.back();
+            stk.pop_back();
 
             if (h < lo || hi < l) {
                 continue;
@@ -221,13 +299,35 @@ public:
             }
             else {
                 size_t m = l + (h - l) / 2;
-                stk.emplace(l, m, lftChild(i));
-                stk.emplace(m + 1, h, rhtChild(i));
+                stk.emplace_back(l, m, lftChild(i));
+                stk.emplace_back(m + 1, h, rhtChild(i));
             }
         }
 
         return val;
     }
+    */
+    
+    // recursive query
+    T query(size_t lo, size_t hi) const {
+        return query(0, size() - 1, 0, lo , hi);
+    }
+    T query(size_t lo, size_t hi, size_t parent, size_t i, size_t j) const {
+        assert(lo <= hi);
+
+        if (j < lo || hi < i) {
+            return 0;
+        }
+
+        if (i <= lo && hi <= j) {
+            return m_cntr[parent];
+        }
+        else {
+            size_t mid = lo + (hi - lo) / 2;
+            return query(lo, mid, lftChild(parent), i , j) + query(mid + 1, hi, rhtChild(parent), i , j);
+        }
+    }
+    
 
     const T& operator[](size_t index) const {
         assert(index < size());
@@ -248,20 +348,8 @@ public:
         return m_cntr[index];
     }
 
-protected:
-    Container m_cntr;
-    BinaryOperation m_op;
-    size_t m_size;
-
-private:
-    inline size_t lftChild(size_t i) const {
-        return (i * 2 + 1);
-    }
-
-    inline size_t rhtChild(size_t i) const {
-        return (i * 2 + 2);
-    }
-
+//protected:
+public:
     template<typename InputIterator>
     void build(InputIterator itr) {
         if (empty()) {
@@ -274,16 +362,19 @@ private:
         m_cntr.resize(capacity);
 
         // std::tuple<int, int, int>: <lo, hi, index, visited>
-        std::stack<std::tuple<size_t, size_t, size_t, bool>> stk({{0, size() - 1, 0, false}});
+        std::vector<std::tuple<size_t, size_t, size_t, bool>> stk({{0, size() - 1, 0, false}});
         while (!stk.empty()) {
-            size_t l = std::get<0>(stk.top());
-            size_t h = std::get<1>(stk.top());
-            size_t i = std::get<2>(stk.top());
-            bool visited = std::get<3>(stk.top());
-            stk.pop();
+            size_t l, h, i; bool visited;
+            std::tie(l, h, i, visited) = stk.back();
+            stk.pop_back();
 
             if (l == h) {
-                m_cntr[i] = *std::next(itr, l);
+                m_cntr[i] = *itr++;
+                
+                if (l == (size() - 1)) {
+                    cout << "cap:" << m_cntr.capacity() << endl;
+                }
+                
                 continue;
             }
 
@@ -292,14 +383,46 @@ private:
             }
             else {
                 size_t m = l + (h - l) / 2;
-                stk.emplace(l, h, i, true);
-                stk.emplace(l, m, lftChild(i), false);
-                stk.emplace(m + 1, h, rhtChild(i), false);
+                stk.emplace_back(l, h, i, true);
+                stk.emplace_back(m + 1, h, rhtChild(i), false);
+                stk.emplace_back(l, m, lftChild(i), false);
             }
         }
     }
-};
 
+    
+    template<typename InputIterator>
+    void build(size_t lo, size_t hi, size_t parent, InputIterator& itr) {
+        assert(lo <= hi);
+
+        if (lo == hi) {
+            if (m_cntr.size() <= parent) {
+                m_cntr.resize(parent + 1);
+            }
+            m_cntr[parent] = *itr++;
+            return;
+        }
+
+        size_t mid = lo + (hi - lo) / 2;
+        size_t lft = lftChild(parent), rht = rhtChild(parent);
+        build(lo, mid, lft, itr);
+        build(mid + 1, hi, rht, itr);
+        m_cntr[parent] = m_cntr[lft] + m_cntr[rht];
+    }
+
+    Container m_cntr;
+    BinaryOperation m_op;
+    size_t m_size;
+
+private:
+    inline size_t lftChild(size_t i) const {
+        return (i * 2 + 1);
+    }
+
+    inline size_t rhtChild(size_t i) const {
+        return (i * 2 + 2);
+    }
+};
 
 
 
