@@ -310,8 +310,8 @@ public:
             }
             else {
                 size_t m = l + (h - l) / 2;
-                stk.emplace_back(l, m, lftChild(i));
                 stk.emplace_back(m + 1, h, rhtChild(i));
+                stk.emplace_back(l, m, lftChild(i));
             }
         }
 
