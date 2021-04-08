@@ -10,8 +10,17 @@
 
 // TODO:
 /*
-    iterative implementation cost too much memory
+    1. build may or not prepare all size
+    1. build may or may not shrink to fit at end
+    2. implement move for optional container
 */
+
+// Recursive set:   1000ms->600ms, 400MB->217MB
+// Recursive query: 1000ms->800ms, 400MB->385MB
+// both Recursive:  1000ms->400ms, 400MB->155MB
+//#define Iterative_Set
+//#define Iterative_Query
+
 
 // https://github.com/gcc-mirror/gcc/blob/master/libstdc%2B%2B-v3/include/bits/stl_queue.h
 template<typename T, typename Container = std::vector<T>, typename BinaryOperation = std::plus<T>>
@@ -20,7 +29,7 @@ public:
     static_assert(std::is_same<T, typename Container::value_type>::value, "value_type must be the same as the underlying container");
 
     // __and_ needs update
-    template<typename Cntr = Container, typename = typename enable_if<__and_<is_default_constructible<BinaryOperation>, is_default_constructible<Cntr>>::value>::type>
+    template<typename Cntr = Container, typename = typename std::enable_if<__and_<std::is_default_constructible<BinaryOperation>, std::is_default_constructible<Cntr>>::value>::type>
     SegmentTree()
         : m_cntr()
         , m_op()
@@ -68,8 +77,8 @@ public:
         : m_cntr()
         , m_op()
         , m_size(std::distance(first, last)) {
-        build(first);
-        //build(0, m_size - 1, 0, first);
+        build(first, last);
+        //build(0, m_size - 1, 0, first, last);
         cout << "constructor:" << "range move" << endl;
         cout << "recursive overall template size:" << sizeof(T) * m_cntr.capacity() << endl;
     }
@@ -89,7 +98,7 @@ public:
         : m_cntr()
         , m_op(op)
         , m_size(std::distance(first, last)) {
-        build(first);
+        build(first, last);
         cout << "constructor:" << "range op + move" << endl;
     }
 
@@ -112,7 +121,9 @@ public:
         , m_size(std::distance(l.begin(), l.end()))
     {
         cout << "constructor:" << "initializer_list move" << endl;
-        build(l.begin());
+        build(l.begin(), l.end());
+        
+        cout << "cap:" << m_cntr.capacity() << ", size: " << m_cntr.size() << endl;
     }
 
     explicit
@@ -130,7 +141,7 @@ public:
         , m_size(std::distance(l.begin(), l.end()))
     {
         cout << "constructor:" << "initializer_list op + move" << endl;
-        //build(l.begin());
+        //build(l.begin(), l.end());
     }
 
     template<typename InputIterator>
@@ -138,7 +149,7 @@ public:
         clear();
 
         m_size = std::distance(first, last);
-        build(first);
+        build(first, last);
     }
 
     void assign(std::initializer_list<T> l) {
@@ -174,11 +185,10 @@ public:
         return m_op;
     }
 
-    
-    // iterative set V1
+#if defined(Iterative_Set) 
     void set(size_t index, const T& val) {
         assert(index < size());
-        
+
         // std::tuple<int, int, int>: <lo, hi, index, visited>
         std::vector<std::tuple<size_t, size_t, size_t, bool>> stk({{0, size() - 1, 0, false}});
         while (!stk.empty()) {
@@ -201,18 +211,18 @@ public:
                 else {
                     size_t m = l + (h - l) / 2;
                     stk.emplace_back(l, h, i, true);
-                    stk.emplace_back(l, m, lftChild(i), false);
                     stk.emplace_back(m + 1, h, rhtChild(i), false);
+                    stk.emplace_back(l, m, lftChild(i), false);
                 }
             }
         }
     }
-    
+
     // iterative set V2
     /*
     void set(size_t index, const T& val) {
         assert(index < size());
-        
+
         // std::tuple<int, int, int>: <lo, hi, index, visited>
         std::vector<std::tuple<size_t, size_t, size_t>> stk;
         size_t l(0), h(size() - 1), i(0);
@@ -220,9 +230,9 @@ public:
             if (l <= index && index <= h) {
                 while (l <= index && index <= h) {
                     stk.emplace_back(l, h, i);
-                    
+
                     size_t m = l + (h - l) / 2;
-                    
+
                     //l;
                     h = m;
                     i = lftChild(i);
@@ -246,12 +256,13 @@ public:
                     i = rhtChild(i);
                 }
             }
-        
+
         }
     }
     */
     
-    /*
+#else
+    
     // recursive set
     void set(size_t index, const T& val) {
         set(0, size() - 1, 0, index, val);
@@ -275,9 +286,9 @@ public:
             m_cntr[parent] = m_cntr[lft] + m_cntr[rht];
         }
     }
-    */
-
-    /*
+#endif
+    
+#if defined(Iterative_Query)
     // iterative query
     T query(size_t lo, size_t hi) const {
         assert(lo <= hi && hi < size());
@@ -306,8 +317,8 @@ public:
 
         return val;
     }
-    */
     
+#else
     // recursive query
     T query(size_t lo, size_t hi) const {
         return query(0, size() - 1, 0, lo , hi);
@@ -327,7 +338,7 @@ public:
             return query(lo, mid, lftChild(parent), i , j) + query(mid + 1, hi, rhtChild(parent), i , j);
         }
     }
-    
+#endif
 
     const T& operator[](size_t index) const {
         assert(index < size());
@@ -351,15 +362,15 @@ public:
 //protected:
 public:
     template<typename InputIterator>
-    void build(InputIterator itr) {
+    void build(InputIterator itr, InputIterator last) {
         if (empty()) {
             return;
         }
 
         // TODO: Trade off, may cost too much memory.
-        size_t height = static_cast<size_t>(ceil(log2(static_cast<double>(size())))) + 1;
-        size_t capacity = (size_t(2) << (height - 1)) - 1;
-        m_cntr.resize(capacity);
+        //size_t height = static_cast<size_t>(ceil(log2(static_cast<double>(size())))) + 1;
+        //size_t capacity = (size_t(2) << (height - 1)) - 1;
+        //m_cntr.resize(capacity);
 
         // std::tuple<int, int, int>: <lo, hi, index, visited>
         std::vector<std::tuple<size_t, size_t, size_t, bool>> stk({{0, size() - 1, 0, false}});
@@ -369,12 +380,17 @@ public:
             stk.pop_back();
 
             if (l == h) {
-                m_cntr[i] = *itr++;
-                
-                if (l == (size() - 1)) {
-                    cout << "cap:" << m_cntr.capacity() << endl;
+            
+                if (m_cntr.size() <= i) {
+                    m_cntr.resize(i + 1);
                 }
-                
+            
+                m_cntr[i] = *itr++;
+
+                if (l == (size() - 1)) {
+                    m_cntr.shrink_to_fit();
+                }
+
                 continue;
             }
 
@@ -390,9 +406,9 @@ public:
         }
     }
 
-    
+
     template<typename InputIterator>
-    void build(size_t lo, size_t hi, size_t parent, InputIterator& itr) {
+    void build(size_t lo, size_t hi, size_t parent, InputIterator& itr, InputIterator last) {
         assert(lo <= hi);
 
         if (lo == hi) {
@@ -405,8 +421,8 @@ public:
 
         size_t mid = lo + (hi - lo) / 2;
         size_t lft = lftChild(parent), rht = rhtChild(parent);
-        build(lo, mid, lft, itr);
-        build(mid + 1, hi, rht, itr);
+        build(lo, mid, lft, itr, last);
+        build(mid + 1, hi, rht, itr, last);
         m_cntr[parent] = m_cntr[lft] + m_cntr[rht];
     }
 
@@ -423,7 +439,6 @@ private:
         return (i * 2 + 2);
     }
 };
-
 
 
 
