@@ -8,18 +8,22 @@
 #include <type_traits>
 #include <vector>
 
+
 // TODO:
 /*
     1. build may or not prepare all size
     1. build may or may not shrink to fit at end
     2. implement move for optional container
+    3. support at . exception throw
 */
+#ifdef __SEGMENT_TREE_H__
 
 // Recursive set:   1000ms->600ms, 400MB->217MB
 // Recursive query: 1000ms->800ms, 400MB->385MB
 // both Recursive:  1000ms->400ms, 400MB->155MB
-//#define Iterative_Set
-//#define Iterative_Query
+#define Iterative_Build
+#define Iterative_Set
+#define Iterative_Query
 
 
 // https://github.com/gcc-mirror/gcc/blob/master/libstdc%2B%2B-v3/include/bits/stl_queue.h
@@ -38,7 +42,7 @@ public:
     }
 
     explicit
-    SegmentTree(const BinaryOperation& op, const Container& cntr)
+        SegmentTree(const BinaryOperation& op, const Container& cntr)
         : m_cntr(cntr)
         , m_op(op)
         , m_size(cntr.size())
@@ -47,7 +51,7 @@ public:
     }
 
     explicit
-    SegmentTree(const BinaryOperation& op, Container&& cntr = Container())
+        SegmentTree(const BinaryOperation& op, Container&& cntr = Container())
         : m_cntr()
         , m_op(op)
         , m_size(cntr.size())
@@ -63,7 +67,7 @@ public:
     // check out is_default_constructible<BinaryOperation>
     template<typename InputIterator>
     explicit
-    SegmentTree(InputIterator first, InputIterator last, const Container& cntr)
+        SegmentTree(InputIterator first, InputIterator last, const Container& cntr)
         : m_cntr()
         , m_op()
     {
@@ -73,19 +77,18 @@ public:
     // check out is_default_constructible<BinaryOperation>
     template<typename InputIterator>
     explicit
-    SegmentTree(InputIterator first, InputIterator last, Container&& cntr = Container())
+        SegmentTree(InputIterator first, InputIterator last, Container&& cntr = Container())
         : m_cntr()
         , m_op()
         , m_size(std::distance(first, last)) {
         build(first, last);
-        //build(0, m_size - 1, 0, first, last);
         cout << "constructor:" << "range move" << endl;
         cout << "recursive overall template size:" << sizeof(T) * m_cntr.capacity() << endl;
     }
 
     template<typename InputIterator>
     explicit
-    SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, const Container& cntr)
+        SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, const Container& cntr)
         : m_cntr()
         , m_op(op)
     {
@@ -94,7 +97,7 @@ public:
 
     template<typename InputIterator>
     explicit
-    SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, Container&& cntr = Container())
+        SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, Container&& cntr = Container())
         : m_cntr()
         , m_op(op)
         , m_size(std::distance(first, last)) {
@@ -106,7 +109,7 @@ public:
 
     // check out is_default_constructible<BinaryOperation>
     explicit
-    SegmentTree(std::initializer_list<T> l, const Container& cntr)
+        SegmentTree(std::initializer_list<T> l, const Container& cntr)
         : m_cntr()
         , m_op()
     {
@@ -115,19 +118,19 @@ public:
 
     // check out is_default_constructible<BinaryOperation>
     explicit
-    SegmentTree(std::initializer_list<T> l, Container&& cntr = Container())
+        SegmentTree(std::initializer_list<T> l, Container&& cntr = Container())
         : m_cntr()
         , m_op()
         , m_size(std::distance(l.begin(), l.end()))
     {
         cout << "constructor:" << "initializer_list move" << endl;
         build(l.begin(), l.end());
-        
+
         cout << "cap:" << m_cntr.capacity() << ", size: " << m_cntr.size() << endl;
     }
 
     explicit
-    SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, const Container& cntr)
+        SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, const Container& cntr)
         : m_cntr()
         , m_op(op)
     {
@@ -135,7 +138,7 @@ public:
     }
 
     explicit
-    SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, Container&& cntr = Container())
+        SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, Container&& cntr = Container())
         : m_cntr()
         , m_op(op)
         , m_size(std::distance(l.begin(), l.end()))
@@ -185,12 +188,13 @@ public:
         return m_op;
     }
 
+
 #if defined(Iterative_Set) 
     void set(size_t index, const T& val) {
         assert(index < size());
 
         // std::tuple<int, int, int>: <lo, hi, index, visited>
-        std::vector<std::tuple<size_t, size_t, size_t, bool>> stk({{0, size() - 1, 0, false}});
+        std::vector<std::tuple<size_t, size_t, size_t, bool>> stk({ {0, size() - 1, 0, false} });
         while (!stk.empty()) {
             size_t l, h, i; bool visited;
             std::tie(l, h, i, visited) = stk.back();
@@ -216,13 +220,8 @@ public:
                 }
             }
         }
-    }
 
-    // iterative set V2
-    /*
-    void set(size_t index, const T& val) {
-        assert(index < size());
-
+        /*
         // std::tuple<int, int, int>: <lo, hi, index, visited>
         std::vector<std::tuple<size_t, size_t, size_t>> stk;
         size_t l(0), h(size() - 1), i(0);
@@ -258,44 +257,41 @@ public:
             }
 
         }
+        */
     }
-    */
     
 #else
-    
-    // recursive set
     void set(size_t index, const T& val) {
         set(0, size() - 1, 0, index, val);
     }
-    void set(size_t lo, size_t hi, size_t parent, size_t i, const T& val) {
-        assert(lo <= hi);
+    void set(size_t l, size_t h, size_t i, size_t index, const T& val) {
+        assert(l <= h);
 
-        if (i < lo || hi < i) {
+        if (index < l || h < index) {
             return;
         }
 
-        if (lo == hi) {
-            assert(i == lo);
-            m_cntr[parent] = val;
+        if (l == h) {
+            assert(index == l);
+            m_cntr[i] = val;
         }
         else {
-            size_t mid = lo + (hi - lo) / 2;
-            size_t lft = lftChild(parent), rht = rhtChild(parent);
-            set(lo, mid, lft, i, val);
-            set(mid + 1, hi, rht, i, val);
-            m_cntr[parent] = m_cntr[lft] + m_cntr[rht];
+            size_t m = l + (h - l) / 2;
+            size_t lft = lftChild(i), rht = rhtChild(i);
+            set(l, m, lft, index, val);
+            set(m + 1, h, rht, index, val);
+            m_cntr[i] = m_op(m_cntr[lft], m_cntr[rht]);
         }
     }
 #endif
-    
+
 #if defined(Iterative_Query)
-    // iterative query
     T query(size_t lo, size_t hi) const {
         assert(lo <= hi && hi < size());
 
         T val = T();
 
-        std::vector<tuple<size_t, size_t, size_t>> stk({{0, size() - 1, 0}});
+        std::vector<tuple<size_t, size_t, size_t>> stk({ {0, size() - 1, 0} });
         while (!stk.empty()) {
             size_t l, h, i;
             std::tie(l, h, i) = stk.back();
@@ -319,23 +315,22 @@ public:
     }
     
 #else
-    // recursive query
     T query(size_t lo, size_t hi) const {
-        return query(0, size() - 1, 0, lo , hi);
+        return query(0, size() - 1, 0, lo, hi);
     }
-    T query(size_t lo, size_t hi, size_t parent, size_t i, size_t j) const {
-        assert(lo <= hi);
+    T query(size_t l, size_t h, size_t i, size_t lo, size_t hi) const {
+        assert(l <= h);
 
-        if (j < lo || hi < i) {
+        if (hi < l || h < lo) {
             return 0;
         }
 
-        if (i <= lo && hi <= j) {
-            return m_cntr[parent];
+        if (lo <= l && h <= hi) {
+            return m_cntr[i];
         }
         else {
-            size_t mid = lo + (hi - lo) / 2;
-            return query(lo, mid, lftChild(parent), i , j) + query(mid + 1, hi, rhtChild(parent), i , j);
+            size_t m = l + (h - l) / 2;
+            return m_op(query(l, m, lftChild(i), lo, hi), query(m + 1, h, rhtChild(i), lo, hi));
         }
     }
 #endif
@@ -359,8 +354,10 @@ public:
         return m_cntr[index];
     }
 
-//protected:
+    //protected:
 public:
+
+#if defined(Iterative_Build)
     template<typename InputIterator>
     void build(InputIterator itr, InputIterator last) {
         if (empty()) {
@@ -373,18 +370,18 @@ public:
         //m_cntr.resize(capacity);
 
         // std::tuple<int, int, int>: <lo, hi, index, visited>
-        std::vector<std::tuple<size_t, size_t, size_t, bool>> stk({{0, size() - 1, 0, false}});
+        std::vector<std::tuple<size_t, size_t, size_t, bool>> stk({ {0, size() - 1, 0, false} });
         while (!stk.empty()) {
             size_t l, h, i; bool visited;
             std::tie(l, h, i, visited) = stk.back();
             stk.pop_back();
 
             if (l == h) {
-            
+
                 if (m_cntr.size() <= i) {
                     m_cntr.resize(i + 1);
                 }
-            
+
                 m_cntr[i] = *itr++;
 
                 if (l == (size() - 1)) {
@@ -406,7 +403,13 @@ public:
         }
     }
 
-
+#else
+    template<typename InputIterator>
+    void build(InputIterator first, InputIterator last) {
+        if (!empty()) {
+            build(0, m_size - 1, 0, first, last);
+        }
+    }
     template<typename InputIterator>
     void build(size_t lo, size_t hi, size_t parent, InputIterator& itr, InputIterator last) {
         assert(lo <= hi);
@@ -423,8 +426,9 @@ public:
         size_t lft = lftChild(parent), rht = rhtChild(parent);
         build(lo, mid, lft, itr, last);
         build(mid + 1, hi, rht, itr, last);
-        m_cntr[parent] = m_cntr[lft] + m_cntr[rht];
+        m_cntr[parent] = m_op(m_cntr[lft], m_cntr[rht]);
     }
+#endif
 
     Container m_cntr;
     BinaryOperation m_op;
@@ -440,8 +444,7 @@ private:
     }
 };
 
-
-
+#endif
 
 int main() {
     vector<int> vv = {-2,0,3,-5,2,-1};
