@@ -1,3 +1,6 @@
+#ifndef __SEGMENT_TREE_H__
+#define __SEGMENT_TREE_H__
+
 #include <algorithm>
 #include <cassert>
 #include <vector>
@@ -16,14 +19,13 @@
     2. implement move for optional container
     3. support at . exception throw
 */
-#ifdef __SEGMENT_TREE_H__
 
 // Recursive set:   1000ms->600ms, 400MB->217MB
 // Recursive query: 1000ms->800ms, 400MB->385MB
 // both Recursive:  1000ms->400ms, 400MB->155MB
-#define Iterative_Build
-#define Iterative_Set
-#define Iterative_Query
+//#define Iterative_Build
+//#define Iterative_Set
+//#define Iterative_Query
 
 
 // https://github.com/gcc-mirror/gcc/blob/master/libstdc%2B%2B-v3/include/bits/stl_queue.h
@@ -42,7 +44,7 @@ public:
     }
 
     explicit
-        SegmentTree(const BinaryOperation& op, const Container& cntr)
+    SegmentTree(const BinaryOperation& op, const Container& cntr)
         : m_cntr(cntr)
         , m_op(op)
         , m_size(cntr.size())
@@ -51,7 +53,7 @@ public:
     }
 
     explicit
-        SegmentTree(const BinaryOperation& op, Container&& cntr = Container())
+    SegmentTree(const BinaryOperation& op, Container&& cntr = Container())
         : m_cntr()
         , m_op(op)
         , m_size(cntr.size())
@@ -67,58 +69,61 @@ public:
     // check out is_default_constructible<BinaryOperation>
     template<typename InputIterator>
     explicit
-        SegmentTree(InputIterator first, InputIterator last, const Container& cntr)
+    SegmentTree(InputIterator first, InputIterator last, const Container& cntr)
         : m_cntr()
         , m_op()
     {
         cout << "constructor:" << "range copy" << endl;
+        build(first, last);
     }
 
     // check out is_default_constructible<BinaryOperation>
     template<typename InputIterator>
     explicit
-        SegmentTree(InputIterator first, InputIterator last, Container&& cntr = Container())
+    SegmentTree(InputIterator first, InputIterator last, Container&& cntr = Container())
         : m_cntr()
         , m_op()
         , m_size(std::distance(first, last)) {
-        build(first, last);
         cout << "constructor:" << "range move" << endl;
         cout << "recursive overall template size:" << sizeof(T) * m_cntr.capacity() << endl;
+        build(first, last);
     }
 
     template<typename InputIterator>
     explicit
-        SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, const Container& cntr)
+    SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, const Container& cntr)
         : m_cntr()
         , m_op(op)
     {
         cout << "constructor:" << "range op + copy" << endl;
+        build(first, last);
     }
 
     template<typename InputIterator>
     explicit
-        SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, Container&& cntr = Container())
+    SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, Container&& cntr = Container())
         : m_cntr()
         , m_op(op)
         , m_size(std::distance(first, last)) {
-        build(first, last);
         cout << "constructor:" << "range op + move" << endl;
+        build(first, last);
     }
 
     // --- initializer_list ---
 
     // check out is_default_constructible<BinaryOperation>
     explicit
-        SegmentTree(std::initializer_list<T> l, const Container& cntr)
+    SegmentTree(std::initializer_list<T> l, const Container& cntr)
         : m_cntr()
         , m_op()
     {
         cout << "constructor:" << "initializer_list copy" << endl;
+        build(l.begin(), l.end());
     }
 
     // check out is_default_constructible<BinaryOperation>
     explicit
-        SegmentTree(std::initializer_list<T> l, Container&& cntr = Container())
+    SegmentTree(std::initializer_list<T> l, Container&& cntr = Container())
         : m_cntr()
         , m_op()
         , m_size(std::distance(l.begin(), l.end()))
@@ -130,21 +135,22 @@ public:
     }
 
     explicit
-        SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, const Container& cntr)
+    SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, const Container& cntr)
         : m_cntr()
         , m_op(op)
     {
         cout << "constructor:" << "initializer_list op + copy" << endl;
+        build(l.begin(), l.end());
     }
 
     explicit
-        SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, Container&& cntr = Container())
+    SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, Container&& cntr = Container())
         : m_cntr()
         , m_op(op)
         , m_size(std::distance(l.begin(), l.end()))
     {
         cout << "constructor:" << "initializer_list op + move" << endl;
-        //build(l.begin(), l.end());
+        build(l.begin(), l.end());
     }
 
     template<typename InputIterator>
@@ -188,13 +194,12 @@ public:
         return m_op;
     }
 
-
-#if defined(Iterative_Set) 
+#if defined(Iterative_Set)
     void set(size_t index, const T& val) {
         assert(index < size());
 
         // std::tuple<int, int, int>: <lo, hi, index, visited>
-        std::vector<std::tuple<size_t, size_t, size_t, bool>> stk({ {0, size() - 1, 0, false} });
+        std::vector<std::tuple<size_t, size_t, size_t, bool>> stk({{0, size() - 1, 0, false}});
         while (!stk.empty()) {
             size_t l, h, i; bool visited;
             std::tie(l, h, i, visited) = stk.back();
@@ -220,50 +225,15 @@ public:
                 }
             }
         }
-
-        /*
-        // std::tuple<int, int, int>: <lo, hi, index, visited>
-        std::vector<std::tuple<size_t, size_t, size_t>> stk;
-        size_t l(0), h(size() - 1), i(0);
-        while ((l <= index && index <= h) || !stk.empty()) {
-            if (l <= index && index <= h) {
-                while (l <= index && index <= h) {
-                    stk.emplace_back(l, h, i);
-
-                    size_t m = l + (h - l) / 2;
-
-                    //l;
-                    h = m;
-                    i = lftChild(i);
-                }
-            }
-            else {
-                std::tie(l, h, i) = stk.back();
-                stk.pop_back();
-                if (l == h) {
-                    assert(index == l);
-                    m_cntr[i] = val;
-                }
-                else {
-
-                    m_cntr[i] = m_op(m_cntr[lftChild(i)], m_cntr[rhtChild(i)]);
-
-                    size_t m = l + (h - l) / 2;
-
-                    l = m + 1;
-                    //h;
-                    i = rhtChild(i);
-                }
-            }
-
-        }
-        */
     }
-    
+
 #else
     void set(size_t index, const T& val) {
+        assert(index < size());
+
         set(0, size() - 1, 0, index, val);
     }
+
     void set(size_t l, size_t h, size_t i, size_t index, const T& val) {
         assert(l <= h);
 
@@ -289,9 +259,12 @@ public:
     T query(size_t lo, size_t hi) const {
         assert(lo <= hi && hi < size());
 
-        T val = T();
+        if (lo == hi) {
+            return (*this)[lo];
+        }
 
-        std::vector<tuple<size_t, size_t, size_t>> stk({ {0, size() - 1, 0} });
+        std::unique_ptr<T> pVal;
+        std::vector<tuple<size_t, size_t, size_t>> stk({{0, size() - 1, 0}});
         while (!stk.empty()) {
             size_t l, h, i;
             std::tie(l, h, i) = stk.back();
@@ -302,7 +275,12 @@ public:
             }
 
             if (lo <= l && h <= hi) {
-                val = m_op(val, m_cntr[i]);
+                if (pVal) {
+                    *pVal = m_op(*pVal, m_cntr[i]);
+                }
+                else {
+                    pVal = make_unique<T>(m_cntr[i]);
+                }
             }
             else {
                 size_t m = l + (h - l) / 2;
@@ -311,26 +289,44 @@ public:
             }
         }
 
-        return val;
+        return *pVal;
     }
-    
+
 #else
     T query(size_t lo, size_t hi) const {
-        return query(0, size() - 1, 0, lo, hi);
+        assert(lo <= hi && hi < size());
+
+        if (lo == hi) {
+            return (*this)[lo];
+        }
+        else {
+            return query(0, size() - 1, 0, lo, hi).first;
+        }
     }
-    T query(size_t l, size_t h, size_t i, size_t lo, size_t hi) const {
+
+    std::pair<T, bool> query(size_t l, size_t h, size_t i, size_t lo, size_t hi) const {
         assert(l <= h);
 
-        if (hi < l || h < lo) {
-            return 0;
+        if (h < lo || hi < l) {
+            std::pair<T, bool> p;
+            p.second = false;
+            return p;
         }
 
         if (lo <= l && h <= hi) {
-            return m_cntr[i];
+            return { m_cntr[i], true };
         }
         else {
             size_t m = l + (h - l) / 2;
-            return m_op(query(l, m, lftChild(i), lo, hi), query(m + 1, h, rhtChild(i), lo, hi));
+            std::pair<T, bool> lft = query(l, m, lftChild(i), lo, hi);
+            std::pair<T, bool> rht = query(m + 1, h, rhtChild(i), lo, hi);
+            if (lft.second && rht.second) {
+                return {m_op(lft.first, rht.first), true};
+            }
+            else {
+                assert(lft.second || rht.second);
+                return (lft.second ? lft : rht);
+            }
         }
     }
 #endif
@@ -351,15 +347,21 @@ public:
             }
         }
 
-        return m_cntr[index];
+        return m_cntr[i];
     }
 
-    //protected:
-public:
+    const T& at(size_t index) const {
+        if (size() <= index) {
+            // throw exception
+        }
 
+        return (*this)[index];
+    }
+
+protected:
 #if defined(Iterative_Build)
     template<typename InputIterator>
-    void build(InputIterator itr, InputIterator last) {
+    void build(InputIterator first, InputIterator last) {
         if (empty()) {
             return;
         }
@@ -370,20 +372,17 @@ public:
         //m_cntr.resize(capacity);
 
         // std::tuple<int, int, int>: <lo, hi, index, visited>
-        std::vector<std::tuple<size_t, size_t, size_t, bool>> stk({ {0, size() - 1, 0, false} });
+        std::vector<std::tuple<size_t, size_t, size_t, bool>> stk({{0, size() - 1, 0, false}});
         while (!stk.empty()) {
             size_t l, h, i; bool visited;
             std::tie(l, h, i, visited) = stk.back();
             stk.pop_back();
 
             if (l == h) {
-
                 if (m_cntr.size() <= i) {
                     m_cntr.resize(i + 1);
                 }
-
-                m_cntr[i] = *itr++;
-
+                m_cntr[i] = *first++;
                 if (l == (size() - 1)) {
                     m_cntr.shrink_to_fit();
                 }
@@ -402,7 +401,6 @@ public:
             }
         }
     }
-
 #else
     template<typename InputIterator>
     void build(InputIterator first, InputIterator last) {
@@ -410,23 +408,28 @@ public:
             build(0, m_size - 1, 0, first, last);
         }
     }
-    template<typename InputIterator>
-    void build(size_t lo, size_t hi, size_t parent, InputIterator& itr, InputIterator last) {
-        assert(lo <= hi);
 
-        if (lo == hi) {
-            if (m_cntr.size() <= parent) {
-                m_cntr.resize(parent + 1);
+    template<typename InputIterator>
+    void build(size_t l, size_t h, size_t i, InputIterator& first, InputIterator last) {
+        assert(l <= h);
+
+        if (l == h) {
+            if (m_cntr.size() <= i) {
+                m_cntr.resize(i + 1);
             }
-            m_cntr[parent] = *itr++;
+            m_cntr[i] = *first++;
+            if (l == (size() - 1)) {
+                m_cntr.shrink_to_fit();
+            }
+
             return;
         }
 
-        size_t mid = lo + (hi - lo) / 2;
-        size_t lft = lftChild(parent), rht = rhtChild(parent);
-        build(lo, mid, lft, itr, last);
-        build(mid + 1, hi, rht, itr, last);
-        m_cntr[parent] = m_op(m_cntr[lft], m_cntr[rht]);
+        size_t m = l + (h - l) / 2;
+        size_t lft = lftChild(i), rht = rhtChild(i);
+        build(l, m, lft, first, last);
+        build(m + 1, h, rht, first, last);
+        m_cntr[i] = m_op(m_cntr[lft], m_cntr[rht]);
     }
 #endif
 
@@ -447,6 +450,12 @@ private:
 #endif
 
 int main() {
+    auto comp = [](int a, int b) -> int {
+        return std::max<int>(a, b);
+    };
+    SegmentTree<int, vector<int>, decltype(comp)> sstt({ -1,-2,-3,-4,-5, -6 }, comp);
+    
+    
     vector<int> vv = {-2,0,3,-5,2,-1};
     SegmentTree<int> stst(vv.begin(), vv.end());
     cout << stst.query(0, 2) << endl;
