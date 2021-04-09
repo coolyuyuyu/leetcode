@@ -33,6 +33,10 @@ template<typename T, typename Container = std::vector<T>, typename BinaryOperati
 class SegmentTree {
 public:
     static_assert(std::is_same<T, typename Container::value_type>::value, "value_type must be the same as the underlying container");
+    
+    SegmentTree() = default;
+    SegmentTree(SegmentTree&&) noexcept = default;
+    
 
     // __and_ needs update
     template<typename Cntr = Container, typename = typename std::enable_if<__and_<std::is_default_constructible<BinaryOperation>, std::is_default_constructible<Cntr>>::value>::type>
