@@ -1,5 +1,5 @@
-#ifndef __SEGMENT_TREE_H__
-#define __SEGMENT_TREE_H__
+#ifndef __SEGMENT_TREE_H__3B3F2F06_799B_4581_B7A4_4C01B9324782
+#define __SEGMENT_TREE_H__3B3F2F06_799B_4581_B7A4_4C01B9324782
 
 #include <algorithm>
 #include <cassert>
@@ -9,6 +9,7 @@
 #include <iterator>
 #include <tuple>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 
@@ -64,11 +65,9 @@ public:
 
     explicit
     SegmentTree(const BinaryOperation& op, Container&& cntr = Container())
-        : m_cntr()
+        : m_cntr(std::move(cntr))
         , m_op(op)
-        , m_size(cntr.size())
-        //: m_cntr(std::move(cntr)), m_op(op)
-    {
+        , m_size(cntr.size()) {
         cout << "constructor:" << "move container123" << endl;
     }
 
@@ -80,8 +79,9 @@ public:
     template<typename InputIterator>
     explicit
     SegmentTree(InputIterator first, InputIterator last, const Container& cntr)
-        : m_cntr()
+        : m_cntr(cntr)
         , m_op()
+        , m_size(cntr.size()+ std::distance(first, last))
     {
         cout << "constructor:" << "range copy" << endl;
         build(first, last);
@@ -91,9 +91,9 @@ public:
     template<typename InputIterator>
     explicit
     SegmentTree(InputIterator first, InputIterator last, Container&& cntr = Container())
-        : m_cntr()
+        : m_cntr(std::move(cntr))
         , m_op()
-        , m_size(std::distance(first, last)) {
+        , m_size(m_cntr.size() + std::distance(first, last)) {
         cout << "constructor:" << "range move" << endl;
         cout << "recursive overall template size:" << sizeof(T) * m_cntr.capacity() << endl;
         build(first, last);
@@ -102,8 +102,9 @@ public:
     template<typename InputIterator>
     explicit
     SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, const Container& cntr)
-        : m_cntr()
+        : m_cntr(cntr)
         , m_op(op)
+        , m_size(m_cntr.size() + std::distance(first, last))
     {
         cout << "constructor:" << "range op + copy" << endl;
         build(first, last);
@@ -112,9 +113,9 @@ public:
     template<typename InputIterator>
     explicit
     SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, Container&& cntr = Container())
-        : m_cntr()
+        : m_cntr(std::move(cntr))
         , m_op(op)
-        , m_size(std::distance(first, last)) {
+        , m_size(m_cntr.size() + std::distance(first, last)) {
         cout << "constructor:" << "range op + move" << endl;
         build(first, last);
     }
@@ -124,9 +125,9 @@ public:
     // check out is_default_constructible<BinaryOperation>
     explicit
     SegmentTree(std::initializer_list<T> l, const Container& cntr)
-        : m_cntr()
+        : m_cntr(cntr)
         , m_op()
-    {
+        , m_size(m_cntr.size() + l.size()) {
         cout << "constructor:" << "initializer_list copy" << endl;
         build(l.begin(), l.end());
     }
@@ -134,10 +135,9 @@ public:
     // check out is_default_constructible<BinaryOperation>
     explicit
     SegmentTree(std::initializer_list<T> l, Container&& cntr = Container())
-        : m_cntr()
+        : m_cntr(std::move(cntr))
         , m_op()
-        , m_size(std::distance(l.begin(), l.end()))
-    {
+        , m_size(m_cntr.size() + l.size()) {
         cout << "constructor:" << "initializer_list move" << endl;
         build(l.begin(), l.end());
 
@@ -146,19 +146,18 @@ public:
 
     explicit
     SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, const Container& cntr)
-        : m_cntr()
+        : m_cntr(cntr)
         , m_op(op)
-    {
+        , m_size(m_cntr.size() + l.size()) {
         cout << "constructor:" << "initializer_list op + copy" << endl;
         build(l.begin(), l.end());
     }
 
     explicit
     SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, Container&& cntr = Container())
-        : m_cntr()
+        : m_cntr(ste::move(cntr))
         , m_op(op)
-        , m_size(std::distance(l.begin(), l.end()))
-    {
+        , m_size(m_cntr.size() + l.size()) {
         cout << "constructor:" << "initializer_list op + move" << endl;
         build(l.begin(), l.end());
     }
