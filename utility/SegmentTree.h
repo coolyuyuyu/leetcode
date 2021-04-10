@@ -57,19 +57,19 @@ public:
 
     explicit
     SegmentTree(const BinaryOperation& op, const Container& cntr)
-        : m_cntr(cntr)
+        : m_cntr()
         , m_op(op)
-        , m_size(m_cntr.size()) {
-        build<typename Container::iterator>(0, m_cntr.size());
+        , m_size(cntr.size()) {
+        build(cntr.begin(), cntr.end());
         cout << "constructor: " << "copy container" << endl;
     }
 
     explicit
     SegmentTree(const BinaryOperation& op, Container&& cntr = Container())
-        : m_cntr(std::move(cntr))
+        : m_cntr()
         , m_op(op)
-        , m_size(m_cntr.size()) {
-        build<typename Container::iterator>(0, m_cntr.size());
+        , m_size(cntr.size()) {
+        build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()));
         cout << "constructor:" << "move container" << endl;
     }
 
@@ -79,43 +79,43 @@ public:
     template<typename InputIterator>
     explicit
     SegmentTree(InputIterator first, InputIterator last, const Container& cntr)
-        : m_cntr(cntr)
+        : m_cntr()
         , m_op()
         , m_size(m_cntr.size()+ std::distance(first, last)) {
         cout << "constructor:" << "range copy" << endl;
-        build(0, m_cntr.size(), first, last);
+        build(cntr.begin(), cntr.end(), first, last);
     }
 
     // check out is_default_constructible<BinaryOperation>
     template<typename InputIterator>
     explicit
     SegmentTree(InputIterator first, InputIterator last, Container&& cntr = Container())
-        : m_cntr(std::move(cntr))
+        : m_cntr()
         , m_op()
         , m_size(m_cntr.size() + std::distance(first, last)) {
         cout << "constructor:" << "range move" << endl;
         cout << "recursive overall template size:" << sizeof(T) * m_cntr.capacity() << endl;
-        build(0, m_cntr.size(), first, last);
+        build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()), first, last);
     }
 
     template<typename InputIterator>
     explicit
     SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, const Container& cntr)
-        : m_cntr(cntr)
+        : m_cntr()
         , m_op(op)
         , m_size(m_cntr.size() + std::distance(first, last)) {
         cout << "constructor:" << "range op + copy" << endl;
-        build(0, m_cntr.size(), first, last);
+        build(cntr.begin(), cntr.end(), first, last);
     }
 
     template<typename InputIterator>
     explicit
     SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, Container&& cntr = Container())
-        : m_cntr(std::move(cntr))
+        : m_cntr()
         , m_op(op)
         , m_size(m_cntr.size() + std::distance(first, last)) {
         cout << "constructor:" << "range op + move" << endl;
-        build(0, m_cntr.size(), first, last);
+        build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()), first, last);
     }
 
     // --- initializer_list ---
@@ -123,35 +123,35 @@ public:
     // check out is_default_constructible<BinaryOperation>
     explicit
     SegmentTree(std::initializer_list<T> l, const Container& cntr)
-        : m_cntr(cntr)
+        : m_cntr()
         , m_op()
         , m_size(m_cntr.size() + l.size()) {
         cout << "constructor:" << "initializer_list copy" << endl;
 
-        build(0, m_cntr.size(), l.begin(), l.end());
+        build(cntr.begin(), cntr.end(), l.begin(), l.end());
     }
 
     // check out is_default_constructible<BinaryOperation>
     explicit
     SegmentTree(std::initializer_list<T> l, Container&& cntr = Container())
-        : m_cntr(std::move(cntr))
+        : m_cntr()
         , m_op()
         , m_size(m_cntr.size() + l.size()) {
         cout << "constructor:" << "initializer_list move" << endl;
 
-        build(0, m_cntr.size(), l.begin(), l.end());
+        build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()), l.begin(), l.end());
 
         cout << "cap:" << m_cntr.capacity() << ", size: " << m_cntr.size() << endl;
     }
 
     explicit
     SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, const Container& cntr)
-        : m_cntr(cntr)
+        : m_cntr()
         , m_op(op)
         , m_size(m_cntr.size() + l.size()) {
         cout << "constructor:" << "initializer_list op + copy" << endl;
 
-        build(0, m_cntr.size(), l.begin(), l.end());
+        build(cntr.begin(), cntr.end(), l.begin(), l.end());
     }
 
     explicit
@@ -160,7 +160,7 @@ public:
         , m_op(op)
         , m_size(m_cntr.size() + l.size()) {
         cout << "constructor:" << "initializer_list op + move" << endl;
-        build(0, m_cntr.size(), l.begin(), l.end());
+        build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()), l.begin(), l.end());
     }
 
     template<typename InputIterator>
@@ -168,7 +168,7 @@ public:
         clear();
 
         m_size = std::distance(first, last);
-        build(0, m_cntr.size(), first, last);
+        build(first, last);
     }
 
     void assign(std::initializer_list<T> l) {
@@ -370,8 +370,8 @@ public:
 
 protected:
 #ifdef SEGMENT_TREE_ITERATIVE_BUILD_IMP
-    template<typename InputIterator>
-    void build(size_t moveIndex, size_t moveSize, InputIterator first = InputIterator(), InputIterator last = InputIterator()) {
+    template<typename InputIterator1, typename InputIterator2 = typename Container::iterator>
+    void build(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2 = InputIterator2(), InputIterator2 last2 = InputIterator2()) {
         if (empty()) {
             return;
         }
@@ -393,11 +393,11 @@ protected:
                     m_cntr.resize(i + 1);
                 }
 
-                if (moveIndex < moveSize) {
-                    m_cntr[i] = std::move(m_cntr[moveIndex++]);
+                if (first1 != last1) {
+                    m_cntr[i] = *first1++;
                 }
                 else {
-                    m_cntr[i] = *first++;
+                    m_cntr[i] = *first2++;
                 }
 
                 if (l == (size() - 1)) {
