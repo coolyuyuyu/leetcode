@@ -20,12 +20,18 @@
     3. support at . exception throw
 */
 
+#ifdef SEGMENT_TREE_ITERATIVE_IMP
+    #define SEGMENT_TREE_ITERATIVE_BUILD_IMP
+    #define SEGMENT_TREE_ITERATIVE_SET_IMP
+    #define SEGMENT_TREE_ITERATIVE_QUERY_IMP
+#endif
+
 // Recursive set:   1000ms->600ms, 400MB->217MB
 // Recursive query: 1000ms->800ms, 400MB->385MB
 // both Recursive:  1000ms->400ms, 400MB->155MB
-//#define Iterative_Build
-//#define Iterative_Set
-//#define Iterative_Query
+//#define SEGMENT_TREE_ITERATIVE_BUILD_IMP
+//#define SEGMENT_TREE_ITERATIVE_SET_IMP
+//#define SEGMENT_TREE_ITERATIVE_QUERY_IMP
 
 
 // https://github.com/gcc-mirror/gcc/blob/master/libstdc%2B%2B-v3/include/bits/stl_queue.h
@@ -198,7 +204,7 @@ public:
         return m_op;
     }
 
-#if defined(Iterative_Set)
+#ifdef SEGMENT_TREE_ITERATIVE_SET_IMP
     void set(size_t index, const T& val) {
         assert(index < size());
 
@@ -259,7 +265,7 @@ public:
     }
 #endif
 
-#if defined(Iterative_Query)
+#ifdef SEGMENT_TREE_ITERATIVE_QUERY_IMP
     T query(size_t lo, size_t hi) const {
         assert(lo <= hi && hi < size());
 
@@ -363,7 +369,7 @@ public:
     }
 
 protected:
-#if defined(Iterative_Build)
+#ifdef SEGMENT_TREE_ITERATIVE_BUILD_IMP
     template<typename InputIterator>
     void build(InputIterator first, InputIterator last) {
         if (empty()) {
