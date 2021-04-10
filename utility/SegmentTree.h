@@ -419,22 +419,29 @@ protected:
         }
     }
 #else
-    template<typename InputIterator>
-    void build(InputIterator first, InputIterator last) {
+    template<typename InputIterator1, typename InputIterator2 = typename Container::iterator>
+    void build(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2 = InputIterator2(), InputIterator2 last2 = InputIterator2()) {
         if (!empty()) {
-            build(0, m_size - 1, 0, first, last);
+            build(0, m_size - 1, 0, first1, last1, first2, last2);
         }
     }
 
-    template<typename InputIterator>
-    void build(size_t l, size_t h, size_t i, InputIterator& first, InputIterator last) {
+    template<typename InputIterator1, typename InputIterator2>
+    void build(size_t l, size_t h, size_t i, InputIterator1& first1, InputIterator1 last1, InputIterator2 first2, InputIterator2 last2) {
         assert(l <= h);
 
         if (l == h) {
             if (m_cntr.size() <= i) {
                 m_cntr.resize(i + 1);
             }
-            m_cntr[i] = *first++;
+
+            if (first1 != last1) {
+                m_cntr[i] = *first1++;
+            }
+            else {
+                m_cntr[i] = *first2++;
+            }
+            
             if (l == (size() - 1)) {
                 m_cntr.shrink_to_fit();
             }
@@ -444,8 +451,8 @@ protected:
 
         size_t m = l + (h - l) / 2;
         size_t lft = lftChild(i), rht = rhtChild(i);
-        build(l, m, lft, first, last);
-        build(m + 1, h, rht, first, last);
+        build(l, m, lft, first1, last1, first2, last2);
+        build(m + 1, h, rht, first1, last1, first2, last2);
         m_cntr[i] = m_op(m_cntr[lft], m_cntr[rht]);
     }
 #endif
