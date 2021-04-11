@@ -14,9 +14,8 @@
 
 /*
 // TODO:
-    1. Investigate why iterative implementation slow
-        Recursive set:   1000ms->600ms, 400MB->217MB
-        Recursive query: 1000ms->800ms, 400MB->385MB
+    1. Investigate why iterative QUERY implementation slow
+    2. refactor: extract get index funtion. [] and set
 */
 
 #define SEGMENT_TREE_ITERATIVE_IMP
