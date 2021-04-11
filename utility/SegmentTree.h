@@ -277,7 +277,7 @@ public:
         }
 
         if (lo <= l && h <= hi) {
-            return { m_cntr[i], true };
+            return {m_cntr[i], true};
         }
         else {
             size_t m = l + (h - l) / 2;
