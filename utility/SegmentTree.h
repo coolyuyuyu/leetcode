@@ -164,32 +164,24 @@ public:
             throw std::out_of_range("invalid subscript");
         }
 
-        // std::tuple<int, int, int>: <lo, hi, index, visited>
-        std::vector<std::tuple<size_t, size_t, size_t, bool>> stk({{0, size() - 1, 0, false}});
-        while (!stk.empty()) {
-            size_t l, h, i; bool visited;
-            std::tie(l, h, i, visited) = stk.back();
-            stk.pop_back();
-
-            if (index < l || h < index) {
-                continue;
-            }
-
-            if (l == h) {
-                assert(index == l);
-                m_cntr[i] = val;
+        size_t l = 0, h = size() - 1, i = 0;
+        while (l < h) {
+            size_t m = l + (h - l) / 2;
+            if (index <= m) {
+                h = m;
+                i = lftChild(i);
             }
             else {
-                if (visited) {
-                    m_cntr[i] = m_op(m_cntr[lftChild(i)], m_cntr[rhtChild(i)]);
-                }
-                else {
-                    size_t m = l + (h - l) / 2;
-                    stk.emplace_back(l, h, i, true);
-                    stk.emplace_back(m + 1, h, rhtChild(i), false);
-                    stk.emplace_back(l, m, lftChild(i), false);
-                }
+                l = m + 1;
+                i = rhtChild(i);
             }
+        }
+        m_cntr[i] = val;
+
+        while (!root(i)) {
+            size_t p = parent(i);
+            m_cntr[p] = m_op(m_cntr[lftChild(p)], m_cntr[rhtChild(p)]);
+            i = p;
         }
     }
 
@@ -331,6 +323,15 @@ public:
     }
 
 protected:
+    inline bool root(size_t i) const {
+        return (i == 0);
+    }
+
+    inline size_t parent(size_t i) const {
+        assert(!root(i));
+        return (i - 1) / 2;
+    }
+
     inline size_t lftChild(size_t i) const {
         return (i * 2 + 1);
     }
