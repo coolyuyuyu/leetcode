@@ -1,6 +1,15 @@
+#ifndef __DISJOINT_SETS_H__493A883A_6A4F_4328_8CB1_58CB15279742
+#define __DISJOINT_SETS_H__493A883A_6A4F_4328_8CB1_58CB15279742
+
 #include <initializer_list>
 #include <functional>
 #include <map>
+
+/*
+Optimization:
+    path compression
+    merge by rank
+*/
 
 template<typename T, class Container = std::map<T, T>, class Equal = std::equal_to<T>>
 class DisjointSets {
@@ -52,8 +61,4 @@ private:
     mutable Container m_map;
 };
 
-/*
-Optimization:
-    path compression
-    merge by rank
-*/
+#endif
