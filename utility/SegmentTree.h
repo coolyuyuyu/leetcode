@@ -331,6 +331,14 @@ public:
     }
 
 protected:
+    inline size_t lftChild(size_t i) const {
+        return (i * 2 + 1);
+    }
+
+    inline size_t rhtChild(size_t i) const {
+        return (i * 2 + 2);
+    }
+
 #ifdef SEGMENT_TREE_ITERATIVE_BUILD_IMP
     template<typename InputIterator1, typename InputIterator2 = typename Container::iterator>
     void build(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2 = InputIterator2(), InputIterator2 last2 = InputIterator2()) {
@@ -399,7 +407,7 @@ protected:
             else {
                 m_cntr[i] = *first2++;
             }
-            
+
             if (l == (size() - 1)) {
                 m_cntr.shrink_to_fit();
             }
@@ -418,15 +426,6 @@ protected:
     Container m_cntr;
     BinaryOperation m_op;
     size_t m_size;
-
-private:
-    inline size_t lftChild(size_t i) const {
-        return (i * 2 + 1);
-    }
-
-    inline size_t rhtChild(size_t i) const {
-        return (i * 2 + 2);
-    }
 };
 
 #endif
