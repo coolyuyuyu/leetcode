@@ -7,6 +7,7 @@
 #include <functional>
 #include <initializer_list>
 #include <iterator>
+#include <stdexcept>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -17,9 +18,7 @@
 /*
     1. build may or not prepare all size
     1. build may or may not shrink to fit at end
-    2. implement move for optional container
     3. support minmax segment tree
-    3. support at . exception throw
 */
 
 #define SEGMENT_TREE_ITERATIVE_IMP
@@ -49,117 +48,87 @@ public:
         : m_cntr()
         , m_op()
         , m_size(0) {
-        cout << "constructor: " << "default" << endl;
-
-        cout << "BinaryOperation:" << std::is_default_constructible<BinaryOperation>::value << endl;
-        cout << "Cntr:" << std::is_default_constructible<Container>::value << endl;
     }
 
-    explicit
-    SegmentTree(const BinaryOperation& op, const Container& cntr)
+    explicit SegmentTree(const BinaryOperation& op, const Container& cntr)
         : m_cntr()
         , m_op(op)
         , m_size(cntr.size()) {
         build(cntr.begin(), cntr.end());
-        cout << "constructor: " << "copy container" << endl;
     }
 
-    explicit
-    SegmentTree(const BinaryOperation& op, Container&& cntr = Container())
+    explicit SegmentTree(const BinaryOperation& op, Container&& cntr = Container())
         : m_cntr()
         , m_op(op)
         , m_size(cntr.size()) {
         build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()));
-        cout << "constructor:" << "move container" << endl;
     }
 
     // --- range ---
 
     // check out is_default_constructible<BinaryOperation>
     template<typename InputIterator>
-    explicit
-    SegmentTree(InputIterator first, InputIterator last, const Container& cntr)
+    explicit SegmentTree(InputIterator first, InputIterator last, const Container& cntr)
         : m_cntr()
         , m_op()
-        , m_size(m_cntr.size()+ std::distance(first, last)) {
-        cout << "constructor:" << "range copy" << endl;
+        , m_size(cntr.size()+ std::distance(first, last)) {
         build(cntr.begin(), cntr.end(), first, last);
     }
 
     // check out is_default_constructible<BinaryOperation>
     template<typename InputIterator>
-    explicit
-    SegmentTree(InputIterator first, InputIterator last, Container&& cntr = Container())
+    explicit SegmentTree(InputIterator first, InputIterator last, Container&& cntr = Container())
         : m_cntr()
         , m_op()
-        , m_size(m_cntr.size() + std::distance(first, last)) {
-        cout << "constructor:" << "range move" << endl;
-        cout << "recursive overall template size:" << sizeof(T) * m_cntr.capacity() << endl;
+        , m_size(cntr.size() + std::distance(first, last)) {
         build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()), first, last);
     }
 
     template<typename InputIterator>
-    explicit
-    SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, const Container& cntr)
+    explicit SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, const Container& cntr)
         : m_cntr()
         , m_op(op)
-        , m_size(m_cntr.size() + std::distance(first, last)) {
-        cout << "constructor:" << "range op + copy" << endl;
+        , m_size(cntr.size() + std::distance(first, last)) {
         build(cntr.begin(), cntr.end(), first, last);
     }
 
     template<typename InputIterator>
-    explicit
-    SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, Container&& cntr = Container())
+    explicit SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op, Container&& cntr = Container())
         : m_cntr()
         , m_op(op)
-        , m_size(m_cntr.size() + std::distance(first, last)) {
-        cout << "constructor:" << "range op + move" << endl;
+        , m_size(cntr.size() + std::distance(first, last)) {
         build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()), first, last);
     }
 
     // --- initializer_list ---
 
     // check out is_default_constructible<BinaryOperation>
-    explicit
-    SegmentTree(std::initializer_list<T> l, const Container& cntr)
+    explicit SegmentTree(std::initializer_list<T> l, const Container& cntr)
         : m_cntr()
         , m_op()
-        , m_size(m_cntr.size() + l.size()) {
-        cout << "constructor:" << "initializer_list copy" << endl;
-
+        , m_size(cntr.size() + l.size()) {
         build(cntr.begin(), cntr.end(), l.begin(), l.end());
     }
 
     // check out is_default_constructible<BinaryOperation>
-    explicit
-    SegmentTree(std::initializer_list<T> l, Container&& cntr = Container())
+    explicit SegmentTree(std::initializer_list<T> l, Container&& cntr = Container())
         : m_cntr()
         , m_op()
-        , m_size(m_cntr.size() + l.size()) {
-        cout << "constructor:" << "initializer_list move" << endl;
-
+        , m_size(cntr.size() + l.size()) {
         build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()), l.begin(), l.end());
-
-        cout << "cap:" << m_cntr.capacity() << ", size: " << m_cntr.size() << endl;
     }
 
-    explicit
-    SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, const Container& cntr)
+    explicit SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, const Container& cntr)
         : m_cntr()
         , m_op(op)
-        , m_size(m_cntr.size() + l.size()) {
-        cout << "constructor:" << "initializer_list op + copy" << endl;
-
+        , m_size(cntr.size() + l.size()) {
         build(cntr.begin(), cntr.end(), l.begin(), l.end());
     }
 
-    explicit
-    SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, Container&& cntr = Container())
-        : m_cntr(std::move(cntr))
+    explicit SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, Container&& cntr = Container())
+        : m_cntr()
         , m_op(op)
-        , m_size(m_cntr.size() + l.size()) {
-        cout << "constructor:" << "initializer_list op + move" << endl;
+        , m_size(cntr.size() + l.size()) {
         build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()), l.begin(), l.end());
     }
 
@@ -175,11 +144,11 @@ public:
         assign(l.begin(), l.end());
     }
 
-    bool empty() const {
+    inline bool empty() const {
         return (m_size == 0);
     }
 
-    size_t size() const {
+    inline size_t size() const {
         return m_size;
     }
 
@@ -206,7 +175,9 @@ public:
 
 #ifdef SEGMENT_TREE_ITERATIVE_SET_IMP
     void set(size_t index, const T& val) {
-        assert(index < size());
+        if (size() <= index) {
+            throw std::out_of_range("invalid subscript");
+        }
 
         // std::tuple<int, int, int>: <lo, hi, index, visited>
         std::vector<std::tuple<size_t, size_t, size_t, bool>> stk({{0, size() - 1, 0, false}});
@@ -239,7 +210,9 @@ public:
 
 #else
     void set(size_t index, const T& val) {
-        assert(index < size());
+        if (size() <= index) {
+            throw std::out_of_range("invalid subscript");
+        }
 
         set(0, size() - 1, 0, index, val);
     }
@@ -267,7 +240,9 @@ public:
 
 #ifdef SEGMENT_TREE_ITERATIVE_QUERY_IMP
     T query(size_t lo, size_t hi) const {
-        assert(lo <= hi && hi < size());
+        if (hi < lo || size() < hi) {
+            throw std::out_of_range("invalid range");
+        }
 
         if (lo == hi) {
             return (*this)[lo];
@@ -304,7 +279,9 @@ public:
 
 #else
     T query(size_t lo, size_t hi) const {
-        assert(lo <= hi && hi < size());
+        if (hi < lo || size() < hi) {
+            throw std::out_of_range("invalid range");
+        }
 
         if (lo == hi) {
             return (*this)[lo];
@@ -362,7 +339,7 @@ public:
 
     const T& at(size_t index) const {
         if (size() <= index) {
-            // throw exception
+            throw std::out_of_range("invalid subscript");
         }
 
         return (*this)[index];
@@ -418,6 +395,7 @@ protected:
             }
         }
     }
+
 #else
     template<typename InputIterator1, typename InputIterator2 = typename Container::iterator>
     void build(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2 = InputIterator2(), InputIterator2 last2 = InputIterator2()) {
@@ -427,7 +405,7 @@ protected:
     }
 
     template<typename InputIterator1, typename InputIterator2>
-    void build(size_t l, size_t h, size_t i, InputIterator1& first1, InputIterator1 last1, InputIterator2 first2, InputIterator2 last2) {
+    void build(size_t l, size_t h, size_t i, InputIterator1& first1, InputIterator1 last1, InputIterator2& first2, InputIterator2 last2) {
         assert(l <= h);
 
         if (l == h) {
