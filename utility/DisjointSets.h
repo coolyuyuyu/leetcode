@@ -11,9 +11,12 @@ Optimization:
     merge by rank
 */
 
-template<typename T, class Container = std::map<T, T>, class Equal = std::equal_to<T>>
+template<typename T, class Container = std::map<T, T>, class Equal = std::equal_to<typename Container::key_type>>
 class DisjointSets {
 public:
+    static_assert(std::is_same<T, typename Container::key_type>::value, "key_type must be the same as the underlying container key_type");
+    static_assert(std::is_same<T, typename Container::mapped_type>::value, "mapped_type must be the same as the underlying container mapped_type");
+
     DisjointSets(const Equal& equal = Equal())
         : m_equal(equal)
         , m_size(0) {
