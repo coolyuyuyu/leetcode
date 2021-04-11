@@ -224,7 +224,7 @@ public:
             return (*this)[lo];
         }
 
-        std::unique_ptr<T> pVal;
+        T val, *pVal(nullptr);
         std::vector<tuple<size_t, size_t, size_t>> stk({{0, size() - 1, 0}});
         while (!stk.empty()) {
             size_t l, h, i;
@@ -240,7 +240,7 @@ public:
                     *pVal = m_op(*pVal, m_cntr[i]);
                 }
                 else {
-                    pVal = make_unique<T>(m_cntr[i]);
+                    pVal = &(val = m_cntr[i]);
                 }
             }
             else {
