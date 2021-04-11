@@ -3,7 +3,6 @@
 
 #include <algorithm>
 #include <cassert>
-#include <vector>
 #include <functional>
 #include <initializer_list>
 #include <iterator>
@@ -12,7 +11,6 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
-
 
 // TODO:
 /*
@@ -36,8 +34,6 @@
 //#define SEGMENT_TREE_ITERATIVE_SET_IMP
 //#define SEGMENT_TREE_ITERATIVE_QUERY_IMP
 
-
-// https://github.com/gcc-mirror/gcc/blob/master/libstdc%2B%2B-v3/include/bits/stl_queue.h
 template<typename T, typename Container = std::vector<T>, typename BinaryOperation = std::plus<typename Container::value_type>>
 class SegmentTree {
 public:
@@ -64,9 +60,6 @@ public:
         build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()));
     }
 
-    // --- range ---
-
-    // check out is_default_constructible<BinaryOperation>
     template<typename InputIterator>
     explicit SegmentTree(InputIterator first, InputIterator last, const Container& cntr)
         : m_cntr()
@@ -75,7 +68,6 @@ public:
         build(cntr.begin(), cntr.end(), first, last);
     }
 
-    // check out is_default_constructible<BinaryOperation>
     template<typename InputIterator>
     explicit SegmentTree(InputIterator first, InputIterator last, Container&& cntr = Container())
         : m_cntr()
@@ -100,9 +92,6 @@ public:
         build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()), first, last);
     }
 
-    // --- initializer_list ---
-
-    // check out is_default_constructible<BinaryOperation>
     explicit SegmentTree(std::initializer_list<T> l, const Container& cntr)
         : m_cntr()
         , m_op()
@@ -110,7 +99,6 @@ public:
         build(cntr.begin(), cntr.end(), l.begin(), l.end());
     }
 
-    // check out is_default_constructible<BinaryOperation>
     explicit SegmentTree(std::initializer_list<T> l, Container&& cntr = Container())
         : m_cntr()
         , m_op()
@@ -352,11 +340,6 @@ protected:
         if (empty()) {
             return;
         }
-
-        // TODO: Trade off, may cost too much memory.
-        //size_t height = static_cast<size_t>(ceil(log2(static_cast<double>(size())))) + 1;
-        //size_t capacity = (size_t(2) << (height - 1)) - 1;
-        //m_cntr.resize(capacity);
 
         // std::tuple<int, int, int>: <lo, hi, index, visited>
         std::vector<std::tuple<size_t, size_t, size_t, bool>> stk({{0, size() - 1, 0, false}});
