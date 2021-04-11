@@ -12,27 +12,24 @@
 #include <utility>
 #include <vector>
 
-// TODO:
 /*
-    1. build may or not prepare all size
-    1. build may or may not shrink to fit at end
-    3. support minmax segment tree
+// TODO:
+    1. Investigate why iterative implementation slow
+        Recursive set:   1000ms->600ms, 400MB->217MB
+        Recursive query: 1000ms->800ms, 400MB->385MB
 */
 
 #define SEGMENT_TREE_ITERATIVE_IMP
+
+//#define SEGMENT_TREE_ITERATIVE_BUILD_IMP
+//#define SEGMENT_TREE_ITERATIVE_SET_IMP
+//#define SEGMENT_TREE_ITERATIVE_QUERY_IMP
 
 #ifdef SEGMENT_TREE_ITERATIVE_IMP
     #define SEGMENT_TREE_ITERATIVE_BUILD_IMP
     #define SEGMENT_TREE_ITERATIVE_SET_IMP
     #define SEGMENT_TREE_ITERATIVE_QUERY_IMP
 #endif
-
-// Recursive set:   1000ms->600ms, 400MB->217MB
-// Recursive query: 1000ms->800ms, 400MB->385MB
-// both Recursive:  1000ms->400ms, 400MB->155MB
-//#define SEGMENT_TREE_ITERATIVE_BUILD_IMP
-//#define SEGMENT_TREE_ITERATIVE_SET_IMP
-//#define SEGMENT_TREE_ITERATIVE_QUERY_IMP
 
 template<typename T, typename Container = std::vector<T>, typename BinaryOperation = std::plus<typename Container::value_type>>
 class SegmentTree {
