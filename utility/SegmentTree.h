@@ -18,16 +18,16 @@
     2. refactor: extract get index funtion. [] and set
 */
 
-#define SEGMENT_TREE_ITERATIVE_IMP
+#define SEGMENT_TREE_ITERATIVE_IMPL
 
-//#define SEGMENT_TREE_ITERATIVE_BUILD_IMP
-//#define SEGMENT_TREE_ITERATIVE_SET_IMP
-//#define SEGMENT_TREE_ITERATIVE_QUERY_IMP
+//#define SEGMENT_TREE_ITERATIVE_BUILD_IMPL
+//#define SEGMENT_TREE_ITERATIVE_SET_IMPL
+//#define SEGMENT_TREE_ITERATIVE_QUERY_IMPL
 
-#ifdef SEGMENT_TREE_ITERATIVE_IMP
-    #define SEGMENT_TREE_ITERATIVE_BUILD_IMP
-    #define SEGMENT_TREE_ITERATIVE_SET_IMP
-    #define SEGMENT_TREE_ITERATIVE_QUERY_IMP
+#ifdef SEGMENT_TREE_ITERATIVE_IMPL
+    #define SEGMENT_TREE_ITERATIVE_BUILD_IMPL
+    #define SEGMENT_TREE_ITERATIVE_SET_IMPL
+    #define SEGMENT_TREE_ITERATIVE_QUERY_IMPL
 #endif
 
 template<typename T, typename Container = std::vector<T>, typename BinaryOperation = std::plus<typename Container::value_type>>
@@ -157,7 +157,7 @@ public:
         return m_op;
     }
 
-#ifdef SEGMENT_TREE_ITERATIVE_SET_IMP
+#ifdef SEGMENT_TREE_ITERATIVE_SET_IMPL
     void set(size_t index, const T& val) {
         if (size() <= index) {
             throw std::out_of_range("invalid subscript");
@@ -214,7 +214,7 @@ public:
     }
 #endif
 
-#ifdef SEGMENT_TREE_ITERATIVE_QUERY_IMP
+#ifdef SEGMENT_TREE_ITERATIVE_QUERY_IMPL
     T query(size_t lo, size_t hi) const {
         if (hi < lo || size() < hi) {
             throw std::out_of_range("invalid range");
@@ -339,7 +339,7 @@ protected:
         return (i * 2 + 2);
     }
 
-#ifdef SEGMENT_TREE_ITERATIVE_BUILD_IMP
+#ifdef SEGMENT_TREE_ITERATIVE_BUILD_IMPL
     template<typename InputIterator1, typename InputIterator2 = typename Container::iterator>
     void build(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2 = InputIterator2(), InputIterator2 last2 = InputIterator2()) {
         if (empty()) {
