@@ -105,3 +105,5 @@ private:
     MaxStack<T, Container, Compare> m_stkI;
     MaxStack<T, Container, Compare> m_stkO;
 };
+
+#endif
