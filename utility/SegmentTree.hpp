@@ -33,6 +33,8 @@
 template<typename T, typename Container = std::vector<T>, typename BinaryOperation = std::plus<typename Container::value_type>>
 class SegmentTree {
 public:
+    typedef T value_type;
+
     static_assert(std::is_same<T, typename Container::value_type>::value, "value_type must be the same as the underlying container");
 
     template<typename = typename std::enable_if<std::is_default_constructible<Container>::value && std::is_default_constructible<BinaryOperation>::value>::type>
