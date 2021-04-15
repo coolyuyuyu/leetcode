@@ -1,3 +1,7 @@
+#ifndef __MAX_STACK_HPP__59A0E159_B687_442E_A2CC_33F91FA3A7EB
+#define __MAX_STACK_HPP__59A0E159_B687_442E_A2CC_33F91FA3A7EB
+
+
 /*
 TODO:
     1. support custom allocator
@@ -103,3 +107,5 @@ private:
     std::vector<size_t> m_indexes;
     Compare m_comp;
 };
+
+#endif
