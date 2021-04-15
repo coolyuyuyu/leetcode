@@ -13,7 +13,7 @@ TODO:
 #include <utility>
 #include <vector>
 
-#include "MaxStack.h"
+#include "MaxStack.hpp"
 
 template <class T, class Container = std::vector<T>, class Compare = std::less<typename Container::value_type>>
 class MaxQueue {
