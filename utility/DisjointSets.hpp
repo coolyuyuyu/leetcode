@@ -101,6 +101,8 @@ public:
     }
 
     bool merge(T elem1, T elem2) {
+        assert(elem1 != elem2);
+
         T root1;
         bool found1 = m_find(m_map, elem1, root1);
         T root2;
