@@ -10,6 +10,8 @@
 
 /*
 Todo:
+    1. swap, std::swap
+    2. ==, !=
     FindFullCompress
 */
 
@@ -230,5 +232,11 @@ public:
     mutable Find m_find;
     size_t m_size;
 };
+
+namespace std {
+template<typename T, typename Map, typename Find>
+inline void swap(DisjointSets<T, Map, Find>& x, DisjointSets<T, Map, Find>& y) {
+    x.swap(y);
+}
 
 #endif
