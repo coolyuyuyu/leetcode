@@ -82,7 +82,7 @@ public:
         m_size = 0;
     }
 
-    void swap(DisjointSets<T>& rhs) {
+    void swap(DisjointSets& rhs) {
         swap(m_map, rhs.m_map);
         swap(m_find, rhs.m_find);
         swap(m_size, rhs.m_size);
