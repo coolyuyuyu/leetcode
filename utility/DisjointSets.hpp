@@ -48,6 +48,8 @@ public:
     typedef T value_type;
     typedef Map map_type;
 
+    friend bool operator==(const DisjointSets&, const DisjointSets&);
+
     static_assert(std::is_same<T, typename Map::key_type>::value, "value_type must be the same as the underlying container key_type");
     static_assert(std::is_same<T, typename Map::mapped_type>::value, "value_type must be the same as the underlying container mapped_type");
 
@@ -237,6 +239,18 @@ namespace std {
 template<typename T, typename Map, typename Find>
 inline void swap(DisjointSets<T, Map, Find>& x, DisjointSets<T, Map, Find>& y) {
     x.swap(y);
+}
+
+template<typename T, typename Map, typename Find>
+inline bool operator==(const DisjointSets<T, Map, Find>& x, const DisjointSets<T, Map, Find>& y) {
+    return (x.size() == y.size() && x.sets() == y.sets());
+}
+
+template<typename T, typename Map, typename Find>
+inline bool operator!=(const DisjointSets<T, Map, Find>& x, const DisjointSets<T, Map, Find>& y) {
+    return !(x == y);
+}
+
 }
 
 #endif
