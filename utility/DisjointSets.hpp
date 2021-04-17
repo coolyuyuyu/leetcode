@@ -45,10 +45,23 @@ struct FindFullCompress {
             return false;
         }
         else {
-            root = elem;
-            while (itr->second != root) {
-                root = itr->second;
-                itr = map.find(root);
+            T tmp(elem);
+            vector<Map::key_type> candidates;
+            while (true) {
+                typename Map::iterator itr2 = map.find(itr->second);
+                if (itr->second != itr->second) {
+                    candidates.push_back(tmp);
+                    tmp = itr->second
+                }
+                else {
+                    break;
+                }
+
+                itr = itr2;
+            }
+
+            for (typename Map::key_type candidate : candidates) {
+                map[candidate] = root;
             }
 
             return true;
