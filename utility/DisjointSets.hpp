@@ -5,6 +5,7 @@
 #include <cassert>
 #include <functional>
 #include <initializer_list>
+#include <set>
 #include <map>
 #include <type_traits>
 #include <utility>
@@ -13,6 +14,7 @@
 /*
 Todo:
     1. FindFullCompress
+    2. m_find not mutable
 */
 
 template <typename Map, typename T>
@@ -38,7 +40,19 @@ template <typename Map, typename T>
 struct FindFullCompress {
     bool operator()(Map& map, T elem, T& root) const {
         std::cout << "FindFullCompress" << std::endl;
-        return true;
+        typename Map::iterator itr = map.find(elem);
+        if (itr == map.end()) {
+            return false;
+        }
+        else {
+            root = elem;
+            while (itr->second != root) {
+                root = itr->second;
+                itr = map.find(root);
+            }
+
+            return true;
+        }
     }
 };
 
@@ -49,11 +63,13 @@ public:
     typedef T value_type;
     typedef Map map_type;
 
-    friend bool operator==(const DisjointSets& x, const DisjointSets& y) {
-        return (x.size() == y.size() && x.sets() == y.sets());
+    template<typename T1, typename Map1, typename Find1>
+    friend bool operator==(const DisjointSets& x, const DisjointSets<T1, Map1, Find1>& y) {
+        return (x.size() == y.size() && x.sets<std::set>() == y.sets<std::set>());
     }
 
-    friend bool operator!=(const DisjointSets& x, const DisjointSets& y) {
+    template<typename T1, typename Map1, typename Find1>
+    friend bool operator!=(const DisjointSets& x, const DisjointSets<T1, Map1, Find1>& y) {
         return !(x == y);
     }
 
@@ -225,18 +241,18 @@ public:
             T root;
             m_find(m_map, p.first, root);
 
-            ss[root].push_back(p.first);
+            ss[root].insert(ss[root].end(), p.first);
         }
 
         Container<Container<T, Args...>, Args...> ret;
         for (std::pair<const T, Container<T, Args...>>& p : ss) {
-            ret.push_back(std::move(p.second));
+            ret.insert(ret.end(), std::move(p.second));
         }
 
         return ret;
     }
 
-//protected:
+    //protected:
     mutable Map m_map;
     mutable Find m_find;
     size_t m_size;
