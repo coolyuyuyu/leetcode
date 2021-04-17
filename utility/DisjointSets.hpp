@@ -1,6 +1,7 @@
 #ifndef __DISJOINT_SETS_HPP__493A883A_6A4F_4328_8CB1_58CB15279742
 #define __DISJOINT_SETS_HPP__493A883A_6A4F_4328_8CB1_58CB15279742
 
+#include <algorithm>
 #include <functional>
 #include <initializer_list>
 #include <map>
@@ -10,7 +11,6 @@
 
 /*
 Todo:
-    1. swap, std::swap
     2. ==, !=
     FindFullCompress
 */
@@ -43,6 +43,7 @@ struct FindFullCompress {
 };
 
 template<typename T, typename Map = std::map<T, T>, typename Find = FindNoCompress<Map, T>, typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
+//template<typename T, typename Map = std::map<T, T>, typename Find = FindNoCompress<Map, typename Map::key_type>>
 class DisjointSets {
 public:
     typedef T value_type;
@@ -86,10 +87,10 @@ public:
         m_size = 0;
     }
 
-    void swap(DisjointSets& rhs) {
-        swap(m_map, rhs.m_map);
-        swap(m_find, rhs.m_find);
-        swap(m_size, rhs.m_size);
+    void swap(DisjointSets& rhs) noexcept {
+        std::swap(m_map, rhs.m_map);
+        std::swap(m_find, rhs.m_find);
+        std::swap(m_size, rhs.m_size);
     }
 
     bool make_set(T elem) {
@@ -235,12 +236,6 @@ public:
     size_t m_size;
 };
 
-namespace std {
-template<typename T, typename Map, typename Find>
-inline void swap(DisjointSets<T, Map, Find>& x, DisjointSets<T, Map, Find>& y) {
-    x.swap(y);
-}
-
 template<typename T, typename Map, typename Find>
 inline bool operator==(const DisjointSets<T, Map, Find>& x, const DisjointSets<T, Map, Find>& y) {
     return (x.size() == y.size() && x.sets() == y.sets());
@@ -251,6 +246,11 @@ inline bool operator!=(const DisjointSets<T, Map, Find>& x, const DisjointSets<T
     return !(x == y);
 }
 
+namespace std {
+    template<typename T, typename Map, typename Find>
+    inline void swap(DisjointSets<T, Map, Find>& x, DisjointSets<T, Map, Find>& y) noexcept(noexcept(x.swap(y))) {
+        x.swap(y);
+    }
 }
 
 #endif
