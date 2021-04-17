@@ -17,9 +17,9 @@ Todo:
     2. m_find not mutable
 */
 
-template <typename Map, typename T>
+template <typename Map>
 struct FindNoCompress {
-    bool operator()(Map& map, T elem, T& root) const {
+    bool operator()(Map& map, typename Map::key_type elem, typename Map::key_type& root) const {
         typename Map::iterator itr = map.find(elem);
         if (itr == map.end()) {
             return false;
@@ -36,9 +36,9 @@ struct FindNoCompress {
     }
 };
 
-template <typename Map, typename T>
+template <typename Map>
 struct FindFullCompress {
-    bool operator()(Map& map, T elem, T& root) const {
+    bool operator()(Map& map, typename Map::key_type elem, typename Map::key_type& root) const {
         std::cout << "FindFullCompress" << std::endl;
         typename Map::iterator itr = map.find(elem);
         if (itr == map.end()) {
@@ -56,8 +56,8 @@ struct FindFullCompress {
     }
 };
 
-template<typename T, typename Map = std::map<T, T>, typename Find = FindNoCompress<Map, T>, typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
-//template<typename T, typename Map = std::map<T, T>, typename Find = FindNoCompress<Map, typename Map::key_type>>
+template<typename T, typename Map = std::map<T, T>, typename Find = FindNoCompress<Map>, typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
+//template<typename T, typename Map = std::map<T, T>, typename Find = FindNoCompress<Map>>
 class DisjointSets {
 public:
     typedef T value_type;
@@ -254,7 +254,7 @@ public:
 
     //protected:
     mutable Map m_map;
-    mutable Find m_find;
+    Find m_find;
     size_t m_size;
 };
 
