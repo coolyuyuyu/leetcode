@@ -2,6 +2,7 @@
 #define __DISJOINT_SETS_HPP__493A883A_6A4F_4328_8CB1_58CB15279742
 
 #include <algorithm>
+#include <cassert>
 #include <functional>
 #include <initializer_list>
 #include <map>
@@ -11,8 +12,7 @@
 
 /*
 Todo:
-    2. ==, !=
-    FindFullCompress
+    1. FindFullCompress
 */
 
 template <typename Map, typename T>
@@ -49,7 +49,13 @@ public:
     typedef T value_type;
     typedef Map map_type;
 
-    friend bool operator==(const DisjointSets&, const DisjointSets&);
+    friend bool operator==(const DisjointSets& x, const DisjointSets& y) {
+        return (x.size() == y.size() && x.sets() == y.sets());
+    }
+
+    friend bool operator!=(const DisjointSets& x, const DisjointSets& y) {
+        return !(x == y);
+    }
 
     static_assert(std::is_same<T, typename Map::key_type>::value, "value_type must be the same as the underlying container key_type");
     static_assert(std::is_same<T, typename Map::mapped_type>::value, "value_type must be the same as the underlying container mapped_type");
@@ -65,11 +71,11 @@ public:
 
     template<typename InputIterator>
     explicit DisjointSets(InputIterator first, InputIterator last, const Find& find = Find())
-        : m_map()
+        : m_map({ { 1,3 }, { 2,3 }, { 3,3 }, { 4,3 }, { 9,9 }, { 7,9 } })
         , m_find(find)
         , m_size(0) {
         for (InputIterator itr = first; itr != last; ++itr) {
-            merge(itr.first, itr.second);
+            merge(itr->first, itr->second);
         }
     }
 
@@ -213,7 +219,7 @@ public:
     }
 
     template<template<typename, typename...> class Container = std::vector, typename... Args >
-    Container<Container<T, Args...>, Args...> sets(T elem) const {
+    Container<Container<T, Args...>, Args...> sets() const {
         std::map<T, Container<T, Args...>> ss;
         for (const std::pair<T, T>& p : m_map) {
             T root;
@@ -235,16 +241,6 @@ public:
     mutable Find m_find;
     size_t m_size;
 };
-
-template<typename T, typename Map, typename Find>
-inline bool operator==(const DisjointSets<T, Map, Find>& x, const DisjointSets<T, Map, Find>& y) {
-    return (x.size() == y.size() && x.sets() == y.sets());
-}
-
-template<typename T, typename Map, typename Find>
-inline bool operator!=(const DisjointSets<T, Map, Find>& x, const DisjointSets<T, Map, Find>& y) {
-    return !(x == y);
-}
 
 namespace std {
     template<typename T, typename Map, typename Find>
