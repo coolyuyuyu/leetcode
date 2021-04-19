@@ -72,13 +72,13 @@ public:
     typedef Map map_type;
 
     template<typename T1, typename Map1, typename Find1>
-    friend bool operator==(const DisjointSets& x, const DisjointSets<T1, Map1, Find1>& y) {
-        return (x.size() == y.size() && x.sets<std::set>() == y.template sets<std::set>());
+    bool operator==(const DisjointSets<T1, Map1, Find1>& rhs) const {
+        return (size() == rhs.size() && sets<std::set>() == rhs.template sets<std::set>());
     }
 
     template<typename T1, typename Map1, typename Find1>
-    friend bool operator!=(const DisjointSets& x, const DisjointSets<T1, Map1, Find1>& y) {
-        return !(x == y);
+    bool operator!=(const DisjointSets<T1, Map1, Find1>& rhs) const {
+        return !(*this == rhs);
     }
 
     static_assert(std::is_same<T, typename Map::key_type>::value, "value_type must be the same as the underlying container key_type");
