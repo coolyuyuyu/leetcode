@@ -39,23 +39,28 @@ struct FindNoCompress {
 template <typename Map>
 struct FindFullCompress {
     bool operator()(Map& map, typename Map::key_type elem, typename Map::key_type& root) const {
-        std::cout << "FindFullCompress" << std::endl;
         typename Map::iterator itr = map.find(elem);
         if (itr == map.end()) {
             return false;
         }
         else {
-            typename Map::key_type root(itr->second);
+            root = itr->second;
+            if (root == elem) {
+                return true;
+            }
+
             vector<Map::key_type> candidates;
             while (true) {
-                typename Map::iterator itr2 = map.find(root);
-                if (itr2->second == root) {
+                itr = map.find(root);
+                assert(itr != map.end());
+
+                if (itr->second == root) {
                     break;
                 }
 
                 candidates.push_back(elem);
                 elem = root;
-                root = itr2->second;
+                root = itr->second;
             }
 
             for (typename Map::key_type candidate : candidates) {
