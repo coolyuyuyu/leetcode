@@ -42,7 +42,7 @@ struct FindFullCompress {
                 return true;
             }
 
-            std::vector<Map::key_type> candidates;
+            std::vector<typename Map::key_type> candidates;
             while (true) {
                 itr = map.find(root);
                 assert(itr != map.end());
@@ -73,7 +73,7 @@ public:
 
     template<typename T1, typename Map1, typename Find1>
     friend bool operator==(const DisjointSets& x, const DisjointSets<T1, Map1, Find1>& y) {
-        return (x.size() == y.size() && x.sets<std::set>() == y.sets<std::set>());
+        return (x.size() == y.size() && x.sets<std::set>() == y.template sets<std::set>());
     }
 
     template<typename T1, typename Map1, typename Find1>
