@@ -3,19 +3,12 @@
 
 #include <algorithm>
 #include <cassert>
-#include <functional>
 #include <initializer_list>
 #include <set>
 #include <map>
 #include <type_traits>
 #include <utility>
 #include <vector>
-
-/*
-Todo:
-    1. FindFullCompress
-    2. m_find not mutable
-*/
 
 template <typename Map>
 struct FindNoCompress {
@@ -49,7 +42,7 @@ struct FindFullCompress {
                 return true;
             }
 
-            vector<Map::key_type> candidates;
+            std::vector<Map::key_type> candidates;
             while (true) {
                 itr = map.find(root);
                 assert(itr != map.end());
@@ -72,8 +65,7 @@ struct FindFullCompress {
     }
 };
 
-template<typename T, typename Map = std::map<T, T>, typename Find = FindNoCompress<Map>, typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
-//template<typename T, typename Map = std::map<T, T>, typename Find = FindNoCompress<Map>>
+template<typename T, typename Map = std::map<T, T>, typename Find = FindFullCompress<Map>, typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
 class DisjointSets {
 public:
     typedef T value_type;
@@ -93,7 +85,7 @@ public:
     static_assert(std::is_same<T, typename Map::mapped_type>::value, "value_type must be the same as the underlying container mapped_type");
 
     DisjointSets(const Find& find = Find())
-        : m_map({ {1,1}, {2,1},{3,2}, {4,3}, {9,7} , {7,7} })
+        : m_map()
         , m_find(find)
         , m_size(0) {
     }
@@ -103,7 +95,7 @@ public:
 
     template<typename InputIterator>
     explicit DisjointSets(InputIterator first, InputIterator last, const Find& find = Find())
-        : m_map({ { 1,3 }, { 2,3 }, { 3,3 }, { 4,3 }, { 9,9 }, { 7,9 } })
+        : m_map()
         , m_find(find)
         , m_size(0) {
         for (InputIterator itr = first; itr != last; ++itr) {
@@ -111,11 +103,11 @@ public:
         }
     }
 
-    explicit DisjointSets(std::initializer_list<std::pair<T, T>> l, const Find& find = Find())
+    explicit DisjointSets(std::initializer_list<std::pair<const T, T>> l, const Find& find = Find())
         : m_map()
         , m_find(find)
         , m_size(0) {
-        for (const std::pair<T, T>& p : l) {
+        for (const std::pair<const T, T>& p : l) {
             merge(p.first, p.second);
         }
     }
@@ -231,29 +223,30 @@ public:
         return true;
     }
 
-    template<template<typename, typename...> class Container = std::vector, typename... Args >
+    template<template<typename, typename...> class Container = std::vector, typename... Args>
     Container<T, Args...> set(T elem) const {
+        Container<T, Args...> ret;
+
         T root;
         if (!m_find(m_map, elem, root)) {
-            return {};
+            return ret;
         }
 
-        Container<T, Args...> ret;
-        for (const std::pair<T, T>& p : m_map) {
+        for (const std::pair<const T, T>& p : m_map) {
             T rootTmp;
             m_find(m_map, p.first, rootTmp);
             if (rootTmp == root) {
-                ret.push_back(p.first);
+                ret.insert(ret.end(), p.first);
             }
         }
 
         return ret;
     }
 
-    template<template<typename, typename...> class Container = std::vector, typename... Args >
+    template<template<typename, typename...> class Container = std::vector, typename... Args>
     Container<Container<T, Args...>, Args...> sets() const {
         std::map<T, Container<T, Args...>> ss;
-        for (const std::pair<T, T>& p : m_map) {
+        for (const std::pair<const T, T>& p : m_map) {
             T root;
             m_find(m_map, p.first, root);
 
@@ -268,7 +261,7 @@ public:
         return ret;
     }
 
-    //protected:
+protected:
     mutable Map m_map;
     Find m_find;
     size_t m_size;
