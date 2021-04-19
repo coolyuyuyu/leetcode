@@ -175,6 +175,14 @@ public:
         return (m_find(m_map, elem1, root1) && m_find(m_map, elem2, root2) && root1 == root2);
     }
 
+    T root(T elem) const {
+        T r;
+        bool found = m_find(m_map, elem, r);
+        assert(found);
+
+        return r;
+    }
+
     bool contain(T elem) const {
         T root;
         return (m_find(m_map, elem, root));
