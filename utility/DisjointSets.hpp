@@ -65,6 +65,166 @@ struct FindFullCompress {
     }
 };
 
+//template<typename Sequence, typename = typename std::enable_if<std::is_unsigned<typename Sequence::value_type>::value, typename Sequence::value_type>::type>
+template<typename Sequence>
+class SequenceAdapter {
+public:
+    typedef typename Sequence::value_type value_type;
+    typedef value_type key_type;
+    typedef value_type mapped_type;
+
+    class Iterator {
+    public:
+        Iterator() = default;
+        Iterator(const Iterator&) = default;
+        Iterator(Iterator&&) = default;
+
+        explicit Iterator(SequenceAdapter& parent, value_type index)
+            : m_parent(parent)
+            , m_p(index, (m_parent.get().m_seq.size() <= index ? m_parent.get().m_extraVal : *(m_parent.get().m_seq.data() + index))) {
+        }
+
+        std::pair<value_type, std::reference_wrapper<value_type>>* operator->() {
+            return &m_p;
+        }
+
+        const std::pair<value_type, std::reference_wrapper<value_type>>* operator->() const {
+            return const_cast<Iterator*>(this)->operator->();
+        }
+
+        std::pair<value_type, std::reference_wrapper<value_type>>& operator*() {
+            return m_p;
+        }
+
+        const std::pair<value_type, std::reference_wrapper<value_type>>& operator*() const {
+            return const_cast<Iterator*>(this)->operator*();
+        }
+
+        Iterator& operator=(const Iterator& rhs) {
+            m_parent = rhs.m_parent;
+            m_p = rhs.m_p;
+            return *this;
+        }
+        const Iterator& operator=(const Iterator& rhs) const {
+            return const_cast<Iterator*>(this)->operator=(rhs);
+        };
+
+
+        bool operator==(const Iterator& rhs) const {
+            return &(m_parent.get()) == &(rhs.m_parent.get()) && m_p.first == rhs.m_p.first;
+        }
+        bool operator!=(const Iterator& rhs) const {
+            return !(*this == rhs);
+        }
+
+        Iterator  operator++(int) /* postfix */ {
+            Iterator itr(*this);
+            ++(*this);
+            return itr;
+        }
+
+        Iterator& operator++() /*prefix*/ {
+            if (m_p.first == m_parent.get().m_seq.size()) {
+                return *this;
+            }
+            else {
+                ++m_p.first;
+                while (m_p.first < static_cast<value_type>(m_parent.get().m_seq.size()) && m_parent.get().m_seq[m_p.first] == m_parent.get().m_extraVal) {
+                    ++m_p.first;
+                }
+                m_p.second = *(m_parent.get().m_seq.data() + m_p.first);
+            }
+
+            return *this;
+        }
+
+    
+
+    private:
+        std::reference_wrapper<SequenceAdapter<Sequence>> m_parent;
+        std::pair<value_type, std::reference_wrapper<value_type>> m_p;
+    };
+
+    typedef Iterator iterator;
+    typedef const iterator const_iterator;
+
+    friend class Iterator;
+
+    SequenceAdapter()
+        : m_seq()
+        , m_extraVal(std::numeric_limits<value_type>::max()) {
+    }
+
+    SequenceAdapter(const SequenceAdapter&) = default;
+    SequenceAdapter(SequenceAdapter&&) = default;
+
+    bool operator==(const SequenceAdapter& rhs) const {
+        return (this == &rhs);
+    }
+    bool operator!=(const SequenceAdapter& rhs) const {
+        return !(*this == rhs);
+    }
+
+    value_type& operator[](value_type i) {
+        if (static_cast<value_type>(m_seq.size()) <= i) {
+            m_seq.resize(i + 1, m_extraVal);
+        }
+        return m_seq[i];
+    }
+
+    const value_type& operator[](value_type i) const {
+        return const_cast<SequenceAdapter*>(this)->operator[](i);
+    }
+
+    void clear() {
+        m_seq.clear();
+    }
+
+    iterator find(value_type i) {
+        if (static_cast<value_type>(m_seq.size()) <= i || m_seq[i] == m_extraVal) {
+            return end();
+        }
+        return iterator(*this, i);
+    }
+
+    const_iterator find(value_type i) const {
+        return const_cast<SequenceAdapter*>(this)->find(i);
+    }
+
+    iterator begin() noexcept {
+        for (value_type i = 0; i < static_cast<value_type>(m_seq.size()); ++i) {
+            if (m_seq[i] != m_extraVal) {
+                return iterator(*this, i);
+            }
+        }
+        return end();
+    }
+
+    const_iterator begin() const noexcept {
+        return const_cast<SequenceAdapter*>(this)->begin();
+    }
+
+    iterator end() noexcept {
+        return iterator(*this, static_cast<value_type>(m_seq.size()));
+    }
+
+    const_iterator end() const noexcept {
+        return const_cast<SequenceAdapter*>(this)->end();
+    }
+
+    const_iterator cbegin() const noexcept {
+        return begin();
+    }
+
+    const_iterator cend() const noexcept {
+        return end();
+    }
+
+protected:
+    Sequence m_seq;
+    value_type m_extraVal;
+};
+
 template<typename T, typename Map = std::map<T, T>, typename Find = FindFullCompress<Map>, typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
 class DisjointSets {
 public:
