@@ -3,7 +3,9 @@
 
 #include <algorithm>
 #include <cassert>
+#include <functional>
 #include <initializer_list>
+#include <limits>
 #include <set>
 #include <map>
 #include <type_traits>
@@ -13,8 +15,8 @@
 template <typename Map>
 struct FindNoCompress {
     bool operator()(Map& map, typename Map::key_type elem, typename Map::key_type& root) const {
-        typename Map::iterator itr = map.find(elem);
-        if (itr == map.end()) {
+        typename Map::const_iterator itr = map.find(elem);
+        if (itr == map.cend()) {
             return false;
         }
         else {
@@ -32,8 +34,8 @@ struct FindNoCompress {
 template <typename Map>
 struct FindFullCompress {
     bool operator()(Map& map, typename Map::key_type elem, typename Map::key_type& root) const {
-        typename Map::iterator itr = map.find(elem);
-        if (itr == map.end()) {
+        typename Map::const_iterator itr = map.find(elem);
+        if (itr == map.cend()) {
             return false;
         }
         else {
@@ -45,7 +47,7 @@ struct FindFullCompress {
             std::vector<typename Map::key_type> candidates;
             while (true) {
                 itr = map.find(root);
-                assert(itr != map.end());
+                assert(itr != map.cend());
 
                 if (itr->second == root) {
                     break;
@@ -63,6 +65,152 @@ struct FindFullCompress {
             return true;
         }
     }
+};
+
+template<typename Sequence, typename =   typename std::enable_if<std::is_unsigned<typename Sequence::value_type>::value>::type>
+class SequenceWrapper {
+public:
+    typedef typename Sequence::value_type value_type;
+    typedef value_type key_type;
+    typedef value_type mapped_type;
+
+    class Iterator {
+    public:
+        Iterator() = default;
+        Iterator(const Iterator&) = default;
+        Iterator(Iterator&&) = default;
+
+        explicit Iterator(SequenceWrapper& parent, value_type index)
+            : m_parent(parent)
+            , m_p(index, (m_parent.get().m_seq.size() <= index ? m_parent.get().m_extraVal : *(m_parent.get().m_seq.data() + index))) {
+        }
+
+        std::pair<value_type, std::reference_wrapper<value_type>>* operator->() {
+            return &m_p;
+        }
+
+        const std::pair<value_type, std::reference_wrapper<value_type>>* operator->() const {
+            return const_cast<Iterator*>(this)->operator->();
+        }
+
+        std::pair<value_type, std::reference_wrapper<value_type>>& operator*() {
+            return m_p;
+        }
+
+        const std::pair<value_type, std::reference_wrapper<value_type>>& operator*() const {
+            return const_cast<Iterator*>(this)->operator*();
+        }
+
+        Iterator& operator=(const Iterator& rhs) = default;
+
+        const Iterator& operator=(const Iterator& rhs) const {
+            return const_cast<Iterator*>(this)->operator=(rhs);
+        };
+
+        bool operator==(const Iterator& rhs) const {
+            return (&(m_parent.get()) == &(rhs.m_parent.get()) && m_p.first == rhs.m_p.first);
+        }
+
+        bool operator!=(const Iterator& rhs) const {
+            return !(*this == rhs);
+        }
+
+        Iterator operator++(int) {
+            Iterator itr(*this);
+            ++(*this);
+            return itr;
+        }
+
+        Iterator& operator++() {
+            Sequence& seq = m_parent.get().m_seq;
+            if (static_cast<value_type>(seq.size()) <= m_p.first) {
+                return *this;
+            }
+            else {
+                ++m_p.first;
+                while (m_p.first < static_cast<value_type>(seq.size()) && seq[m_p.first] == m_parent.get().m_extraVal) {
+                    ++m_p.first;
+                }
+                m_p.second = *(seq.data() + m_p.first);
+            }
+
+            return *this;
+        }
+
+    private:
+        std::reference_wrapper<SequenceWrapper<Sequence>> m_parent;
+        std::pair<value_type, std::reference_wrapper<value_type>> m_p;
+    };
+
+    typedef Iterator iterator;
+    typedef const iterator const_iterator;
+
+    SequenceWrapper()
+        : m_seq()
+        , m_extraVal(std::numeric_limits<value_type>::max()) {
+    }
+
+    SequenceWrapper(const SequenceWrapper&) = default;
+    SequenceWrapper(SequenceWrapper&&) = default;
+
+    value_type& operator[](value_type i) {
+        if (static_cast<value_type>(m_seq.size()) <= i) {
+            m_seq.resize(i + 1, m_extraVal);
+        }
+        return m_seq[i];
+    }
+
+    const value_type& operator[](value_type i) const {
+        return const_cast<SequenceWrapper*>(this)->operator[](i);
+    }
+
+    void clear() {
+        m_seq.clear();
+    }
+
+    iterator find(value_type i) {
+        if (static_cast<value_type>(m_seq.size()) <= i || m_seq[i] == m_extraVal) {
+            return end();
+        }
+        return iterator(*this, i);
+    }
+
+    const_iterator find(value_type i) const {
+        return const_cast<SequenceWrapper*>(this)->find(i);
+    }
+
+    iterator begin() noexcept {
+        for (value_type i = 0; i < static_cast<value_type>(m_seq.size()); ++i) {
+            if (m_seq[i] != m_extraVal) {
+                return iterator(*this, i);
+            }
+        }
+        return end();
+    }
+
+    const_iterator begin() const noexcept {
+        return const_cast<SequenceWrapper*>(this)->begin();
+    }
+
+    iterator end() noexcept {
+        return iterator(*this, static_cast<value_type>(m_seq.size()));
+    }
+
+    const_iterator end() const noexcept {
+        return const_cast<SequenceWrapper*>(this)->end();
+    }
+
+    const_iterator cbegin() const noexcept {
+        return begin();
+    }
+
+    const_iterator cend() const noexcept {
+        return end();
+    }
+
+protected:
+    Sequence m_seq;
+    value_type m_extraVal;
 };
 
 template<typename T, typename Map = std::map<T, T>, typename Find = FindFullCompress<Map>, typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
@@ -328,7 +476,8 @@ public:
 
         int effort = 0;
 
-        DisjointSets<int> ds;
+        //DisjointSets<int> ds;
+        DisjointSets<unsigned, SequenceWrapper<vector<unsigned>>, FindFullCompress<SequenceWrapper<vector<unsigned>>>> ds;
         ds.make_set(srcId);
         ds.make_set(dstId);
         while (!ds.connected(srcId, dstId)) {
