@@ -67,8 +67,7 @@ struct FindFullCompress {
     }
 };
 
-//template<typename Sequence, typename = typename std::enable_if<std::is_unsigned<typename Sequence::value_type>::value, typename Sequence::value_type>::type>
-template<typename Sequence>
+template<typename Sequence, typename =   typename std::enable_if<std::is_unsigned<typename Sequence::value_type>::value>::type>
 class SequenceAdapter {
 public:
     typedef typename Sequence::value_type value_type;
