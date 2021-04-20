@@ -3,7 +3,9 @@
 
 #include <algorithm>
 #include <cassert>
+#include <functional>
 #include <initializer_list>
+#include <limits>
 #include <set>
 #include <map>
 #include <type_traits>
@@ -100,45 +102,41 @@ public:
             return const_cast<Iterator*>(this)->operator*();
         }
 
-        Iterator& operator=(const Iterator& rhs) {
-            m_parent = rhs.m_parent;
-            m_p = rhs.m_p;
-            return *this;
-        }
+        Iterator& operator=(const Iterator& rhs) = default;
+
         const Iterator& operator=(const Iterator& rhs) const {
             return const_cast<Iterator*>(this)->operator=(rhs);
         };
 
-
         bool operator==(const Iterator& rhs) const {
-            return &(m_parent.get()) == &(rhs.m_parent.get()) && m_p.first == rhs.m_p.first;
+            return (&(m_parent.get()) == &(rhs.m_parent.get()) && m_p.first == rhs.m_p.first);
         }
+
         bool operator!=(const Iterator& rhs) const {
             return !(*this == rhs);
         }
 
-        Iterator  operator++(int) /* postfix */ {
+        Iterator operator++(int) {
             Iterator itr(*this);
             ++(*this);
             return itr;
         }
 
-        Iterator& operator++() /*prefix*/ {
-            if (m_p.first == m_parent.get().m_seq.size()) {
+        Iterator& operator++() {
+            Sequence& seq = m_parent.get().m_seq;
+            if (static_cast<value_type>(seq.size()) <= m_p.first) {
                 return *this;
             }
             else {
                 ++m_p.first;
-                while (m_p.first < static_cast<value_type>(m_parent.get().m_seq.size()) && m_parent.get().m_seq[m_p.first] == m_parent.get().m_extraVal) {
+                while (m_p.first < static_cast<value_type>(seq.size()) && seq[m_p.first] == m_parent.get().m_extraVal) {
                     ++m_p.first;
                 }
-                m_p.second = *(m_parent.get().m_seq.data() + m_p.first);
+                m_p.second = *(seq.data() + m_p.first);
             }
 
             return *this;
         }
-
-    
 
     private:
         std::reference_wrapper<SequenceAdapter<Sequence>> m_parent;
@@ -148,8 +146,6 @@ public:
     typedef Iterator iterator;
     typedef const iterator const_iterator;
 
-    friend class Iterator;
-
     SequenceAdapter()
         : m_seq()
         , m_extraVal(std::numeric_limits<value_type>::max()) {
@@ -157,13 +153,6 @@ public:
 
     SequenceAdapter(const SequenceAdapter&) = default;
     SequenceAdapter(SequenceAdapter&&) = default;
-
-    bool operator==(const SequenceAdapter& rhs) const {
-        return (this == &rhs);
-    }
-    bool operator!=(const SequenceAdapter& rhs) const {
-        return !(*this == rhs);
-    }
 
     value_type& operator[](value_type i) {
         if (static_cast<value_type>(m_seq.size()) <= i) {
