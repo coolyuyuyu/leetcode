@@ -68,7 +68,7 @@ struct FindFullCompress {
 };
 
 template<typename Sequence, typename =   typename std::enable_if<std::is_unsigned<typename Sequence::value_type>::value>::type>
-class SequenceAdapter {
+class SequenceWrapper {
 public:
     typedef typename Sequence::value_type value_type;
     typedef value_type key_type;
@@ -80,7 +80,7 @@ public:
         Iterator(const Iterator&) = default;
         Iterator(Iterator&&) = default;
 
-        explicit Iterator(SequenceAdapter& parent, value_type index)
+        explicit Iterator(SequenceWrapper& parent, value_type index)
             : m_parent(parent)
             , m_p(index, (m_parent.get().m_seq.size() <= index ? m_parent.get().m_extraVal : *(m_parent.get().m_seq.data() + index))) {
         }
@@ -138,20 +138,20 @@ public:
         }
 
     private:
-        std::reference_wrapper<SequenceAdapter<Sequence>> m_parent;
+        std::reference_wrapper<SequenceWrapper<Sequence>> m_parent;
         std::pair<value_type, std::reference_wrapper<value_type>> m_p;
     };
 
     typedef Iterator iterator;
     typedef const iterator const_iterator;
 
-    SequenceAdapter()
+    SequenceWrapper()
         : m_seq()
         , m_extraVal(std::numeric_limits<value_type>::max()) {
     }
 
-    SequenceAdapter(const SequenceAdapter&) = default;
-    SequenceAdapter(SequenceAdapter&&) = default;
+    SequenceWrapper(const SequenceWrapper&) = default;
+    SequenceWrapper(SequenceWrapper&&) = default;
 
     value_type& operator[](value_type i) {
         if (static_cast<value_type>(m_seq.size()) <= i) {
@@ -161,7 +161,7 @@ public:
     }
 
     const value_type& operator[](value_type i) const {
-        return const_cast<SequenceAdapter*>(this)->operator[](i);
+        return const_cast<SequenceWrapper*>(this)->operator[](i);
     }
 
     void clear() {
@@ -176,7 +176,7 @@ public:
     }
 
     const_iterator find(value_type i) const {
-        return const_cast<SequenceAdapter*>(this)->find(i);
+        return const_cast<SequenceWrapper*>(this)->find(i);
     }
 
     iterator begin() noexcept {
@@ -189,7 +189,7 @@ public:
     }
 
     const_iterator begin() const noexcept {
-        return const_cast<SequenceAdapter*>(this)->begin();
+        return const_cast<SequenceWrapper*>(this)->begin();
     }
 
     iterator end() noexcept {
@@ -197,7 +197,7 @@ public:
     }
 
     const_iterator end() const noexcept {
-        return const_cast<SequenceAdapter*>(this)->end();
+        return const_cast<SequenceWrapper*>(this)->end();
     }
 
     const_iterator cbegin() const noexcept {
