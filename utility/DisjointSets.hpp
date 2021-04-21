@@ -67,7 +67,7 @@ struct FindFullCompress {
     }
 };
 
-template<typename Sequence, typename =   typename std::enable_if<std::is_unsigned<typename Sequence::value_type>::value>::type>
+template<typename Sequence, typename = typename std::enable_if<std::is_unsigned<typename Sequence::value_type>::value>::type>
 class SequenceWrapper {
 public:
     typedef typename Sequence::value_type value_type;
@@ -213,7 +213,7 @@ protected:
     value_type m_extraVal;
 };
 
-template<typename T, typename Map = std::map<T, T>, typename Find = FindFullCompress<Map>, typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
+template<typename T, typename Map = std::map<T, T>, typename Find = FindFullCompress<Map>>
 class DisjointSets {
 public:
     typedef T value_type;
