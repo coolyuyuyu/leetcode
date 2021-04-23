@@ -87,8 +87,6 @@ public:
         Iterator(const Iterator&) = default;
         Iterator(Iterator&&) = default;
 
-        explicit Iterator(SequenceWrapper& parent, value_type index)
-            : m_parent(parent)
         explicit Iterator(SequenceWrapper& wrapper, SequenceWrapper::value_type index)
             : m_pWrapper(&wrapper)
             , m_val(index, (static_cast<SequenceWrapper::value_type>(m_pWrapper->m_seq.size()) <= index ? m_pWrapper->m_extraVal : m_pWrapper->m_seq[index])) {
@@ -145,7 +143,6 @@ public:
             return !(*this == rhs);
         }
 
-            else {
     private:
         SequenceWrapper<Sequence>* m_pWrapper;
         value_type m_val;
