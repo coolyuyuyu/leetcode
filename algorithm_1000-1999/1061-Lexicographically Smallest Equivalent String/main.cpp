@@ -3,11 +3,11 @@
 
 #include <algorithm>
 #include <cassert>
-#include <functional>
 #include <initializer_list>
+#include <iterator>
 #include <limits>
-#include <set>
 #include <map>
+#include <set>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -67,7 +67,7 @@ struct FindFullCompress {
     }
 };
 
-template<typename Sequence, typename =   typename std::enable_if<std::is_unsigned<typename Sequence::value_type>::value>::type>
+template<typename Sequence, typename = typename std::enable_if<std::is_unsigned<typename Sequence::value_type>::value>::type>
 class SequenceWrapper {
 public:
     typedef typename Sequence::value_type value_type;
@@ -76,70 +76,77 @@ public:
 
     class Iterator {
     public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = std::pair<const SequenceWrapper::value_type, SequenceWrapper::value_type&>;
+        using pointer = value_type*;
+        using const_pointer = const value_type*;
+        using reference = value_type&;
+        using const_reference = const value_type&;
+
         Iterator() = default;
         Iterator(const Iterator&) = default;
         Iterator(Iterator&&) = default;
 
-        explicit Iterator(SequenceWrapper& parent, value_type index)
-            : m_parent(parent)
-            , m_p(index, (m_parent.get().m_seq.size() <= index ? m_parent.get().m_extraVal : *(m_parent.get().m_seq.data() + index))) {
+        explicit Iterator(SequenceWrapper& wrapper, SequenceWrapper::value_type index)
+            : m_pWrapper(&wrapper)
+            , m_val(index, (static_cast<SequenceWrapper::value_type>(m_pWrapper->m_seq.size()) <= index ? m_pWrapper->m_extraVal : m_pWrapper->m_seq[index])) {
         }
 
-        std::pair<value_type, std::reference_wrapper<value_type>>* operator->() {
-            return &m_p;
+        reference operator*() { return m_val; }
+        const_reference operator*() const { return m_val; }
+
+        pointer operator->() { return &m_val; }
+        const_pointer operator->() const { return &m_val; }
+
+        Iterator& operator++() {
+            Sequence& seq = m_pWrapper->m_seq;
+            SequenceWrapper::value_type index(m_val.first);
+            SequenceWrapper::value_type size(seq.size());
+            if (size <= index) {
+                return *this;
+            }
+            else {
+                ++index;
+                while (index < size && seq[index] == m_pWrapper->m_extraVal) {
+                    ++index;
+                }
+
+                m_val.~value_type();
+                new (&m_val) value_type(index, (size <= index ? m_pWrapper->m_extraVal : seq[index]));
+            }
+
+            return *this;
         }
 
-        const std::pair<value_type, std::reference_wrapper<value_type>>* operator->() const {
-            return const_cast<Iterator*>(this)->operator->();
+        Iterator operator++(int) {
+            Iterator tmp(*this);
+            ++(*this);
+            return tmp;
         }
 
-        std::pair<value_type, std::reference_wrapper<value_type>>& operator*() {
-            return m_p;
-        }
+        Iterator& operator=(const Iterator& rhs) {
+            m_pWrapper = rhs.m_pWrapper;
+            m_val.~value_type();
+            new (&m_val) value_type(rhs.m_val);
 
-        const std::pair<value_type, std::reference_wrapper<value_type>>& operator*() const {
-            return const_cast<Iterator*>(this)->operator*();
+            return *this;
         }
-
-        Iterator& operator=(const Iterator& rhs) = default;
 
         const Iterator& operator=(const Iterator& rhs) const {
             return const_cast<Iterator*>(this)->operator=(rhs);
         };
 
         bool operator==(const Iterator& rhs) const {
-            return (&(m_parent.get()) == &(rhs.m_parent.get()) && m_p.first == rhs.m_p.first);
+            return (m_pWrapper == rhs.m_pWrapper && m_val.first == rhs.m_val.first);
         }
 
         bool operator!=(const Iterator& rhs) const {
             return !(*this == rhs);
         }
 
-        Iterator operator++(int) {
-            Iterator itr(*this);
-            ++(*this);
-            return itr;
-        }
-
-        Iterator& operator++() {
-            Sequence& seq = m_parent.get().m_seq;
-            if (static_cast<value_type>(seq.size()) <= m_p.first) {
-                return *this;
-            }
-            else {
-                ++m_p.first;
-                while (m_p.first < static_cast<value_type>(seq.size()) && seq[m_p.first] == m_parent.get().m_extraVal) {
-                    ++m_p.first;
-                }
-                m_p.second = *(seq.data() + m_p.first);
-            }
-
-            return *this;
-        }
-
     private:
-        std::reference_wrapper<SequenceWrapper<Sequence>> m_parent;
-        std::pair<value_type, std::reference_wrapper<value_type>> m_p;
+        SequenceWrapper<Sequence>* m_pWrapper;
+        value_type m_val;
     };
 
     typedef Iterator iterator;
@@ -180,7 +187,7 @@ public:
     }
 
     iterator begin() noexcept {
-        for (value_type i = 0; i < static_cast<value_type>(m_seq.size()); ++i) {
+        for (value_type i = 0, size = static_cast<value_type>(m_seq.size()); i < size; ++i) {
             if (m_seq[i] != m_extraVal) {
                 return iterator(*this, i);
             }
@@ -213,7 +220,7 @@ protected:
     value_type m_extraVal;
 };
 
-template<typename T, typename Map = std::map<T, T>, typename Find = FindFullCompress<Map>, typename = typename std::enable_if<std::is_integral<T>::value, T>::type>
+template<typename T, typename Map = std::map<T, T>, typename Find = FindFullCompress<Map>>
 class DisjointSets {
 public:
     typedef T value_type;
@@ -387,7 +394,7 @@ public:
             return ret;
         }
 
-        for (const std::pair<const T, T>& p : m_map) {
+        for (const auto& p : m_map) {
             T rootTmp;
             m_find(m_map, p.first, rootTmp);
             if (rootTmp == root) {
@@ -401,7 +408,7 @@ public:
     template<template<typename, typename...> class Container = std::vector, typename... Args>
     Container<Container<T, Args...>, Args...> sets() const {
         std::map<T, Container<T, Args...>> ss;
-        for (const std::pair<const T, T>& p : m_map) {
+        for (const auto& p : m_map) {
             T root;
             m_find(m_map, p.first, root);
 
