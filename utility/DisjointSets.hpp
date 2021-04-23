@@ -100,18 +100,19 @@ public:
 
         Iterator& operator++() {
             Sequence& seq = m_pWrapper->m_seq;
+            SequenceWrapper::value_type index(m_val.first);
             SequenceWrapper::value_type size(seq.size());
-            if (size <= m_val.first) {
+            if (size <= index) {
                 return *this;
             }
             else {
-                SequenceWrapper::value_type key(m_val.first + 1);
-                while (key < size && seq[key] == m_pWrapper->m_extraVal) {
-                    ++key;
+                ++index;
+                while (index < size && seq[index] == m_pWrapper->m_extraVal) {
+                    ++index;
                 }
 
                 m_val.~value_type();
-                new (&m_val) value_type(key, (size <= key ? m_pWrapper->m_extraVal : seq[key]));
+                new (&m_val) value_type(index, (size <= index ? m_pWrapper->m_extraVal : seq[index]));
             }
 
             return *this;
