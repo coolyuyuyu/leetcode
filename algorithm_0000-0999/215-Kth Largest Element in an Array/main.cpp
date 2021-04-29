@@ -1,3 +1,5 @@
+#define NDEBUG
+
 class Solution {
 public:
     void sort(vector<int>& nums, size_t first, size_t last) {
@@ -191,12 +193,13 @@ public:
         sort(nums, first, first + 5);
     }
 
-    int findKthSmallestBestRecv(vector<int>& nums,size_t first, size_t last, size_t k) {
+    int findKthSmallestBestRecv(vector<int>& nums, size_t first, size_t last, size_t k) {
+        assert(first <= k && k < last);
+
         size_t len = last - first;
-        assert(k < len);
         if (len <= 5) {
             sort(nums, first, last);
-            return nums[first + k];
+            return nums[k];
         }
 
         int medianOfMedians; {
@@ -214,33 +217,27 @@ public:
         }
 
         // reorder: less than pivor, equal to pivot, larger than pivot.
-        size_t lenS, lenM, lenL; {
-            size_t smaller = first, equal = first, larger = last;
-            while (equal < larger) {
-                if (nums[equal] < medianOfMedians) {
-                    swap(nums[smaller++], nums[equal++]);
-                }
-                else if (nums[equal] == medianOfMedians) {
-                    ++equal;
-                }
-                else {
-                    swap(nums[equal], nums[--larger]);
-                }
+        size_t smaller = first, equal = first, larger = last;
+        while (equal < larger) {
+            if (nums[equal] < medianOfMedians) {
+                swap(nums[smaller++], nums[equal++]);
             }
-
-            lenS = smaller - first;
-            lenM = equal - smaller;
-            lenL = len - lenS - lenM;
+            else if (nums[equal] == medianOfMedians) {
+                ++equal;
+            }
+            else {
+                swap(nums[equal], nums[--larger]);
+            }
         }
 
-        if (k < lenS) {
-            return findKthSmallestBestRecv(nums, first, first + lenS, k);
+        if (k < smaller) {
+            return findKthSmallestBestRecv(nums, first, smaller, k);
         }
-        else if (k < lenS + lenM){
-            return nums[first + lenS];
+        else if (k < equal){
+            return nums[smaller];
         }
         else {
-            return findKthSmallestBestRecv(nums, first + lenS + lenM, last, k - lenS - lenM);
+            return findKthSmallestBestRecv(nums, equal, last, k);
         }
     }
 
