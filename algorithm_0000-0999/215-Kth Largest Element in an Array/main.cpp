@@ -257,7 +257,7 @@ public:
     int findKthSmallest_Heap(const vector<int>& nums, size_t k) {
         priority_queue<int> pq; // max_heap
         for (int num : nums) {
-            if (pq.size() <= (k + 1)) {
+            if (pq.size() <= k) {
                 pq.push(num);
             }
             else if (num < pq.top()) {
@@ -292,6 +292,6 @@ public:
     }
 
     int findKthLargest(vector<int>& nums, size_t k) {
-        return findKthSmallest(nums, nums.size() - k - 1);
+        return findKthSmallest(nums, nums.size() - k);
     }
 };
