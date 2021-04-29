@@ -10,7 +10,7 @@ Search:
     215. Kth Largest Element in an Array
         search apporach consider "EIP Dutch Natioal Flag Problem" to partition array by pivot
         Decision tree to sort 5 elements
-    
+
 
 Binary_Search
     378. Kth Smallest Element in a Sorted Matrix
@@ -26,10 +26,14 @@ SegmentTree:
     Floyd-Warshell
     Bellman-Ford
     Dijkstra
-    
+
 
 Union Find:
     399. Evaluate Division
+
+Template:
+    1. search k smallest
+        378. Kth Smallest Element in a Sorted Matrix
 
 
 Graph:
@@ -37,4 +41,3 @@ Graph:
     Floyd-Warshell
     Bellman-Ford
     Dijkstra
-    
