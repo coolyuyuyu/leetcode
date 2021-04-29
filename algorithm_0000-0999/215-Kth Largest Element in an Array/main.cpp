@@ -186,7 +186,7 @@ public:
         assert(false);
     }
 
-    // Use decision tree to sort 5 elements within 7 steps
+    // Decision tree to sort 5 elements within 7 steps
     void sort5Elems(vector<int>& nums, size_t first) {
         sort(nums, first, first + 5);
     }
@@ -199,7 +199,7 @@ public:
             return nums[first + k];
         }
 
-        int medianOfMedians = 0; {
+        int medianOfMedians; {
             vector<int> medians;
             medians.reserve(len / 5);
             for (size_t start = first; start < last; start += 5) {
@@ -213,44 +213,34 @@ public:
             medianOfMedians = findKthSmallestBestRecv(medians, 0, medians.size(), medians.size() / 2);
         }
 
-        size_t len1, len2, len3;
-        {
-            vector<int> nums1, nums2, nums3;
-            for (size_t i = first; i < last; ++i) {
-                if (nums[i] < medianOfMedians) {
-                    nums1.emplace_back(nums[i]);
+        // reorder: less than pivor, equal to pivot, larger than pivot.
+        size_t lenS, lenM, lenL; {
+            size_t smaller = first, equal = first, larger = last;
+            while (equal < larger) {
+                if (nums[equal] < medianOfMedians) {
+                    swap(nums[smaller++], nums[equal++]);
                 }
-                else if (nums[i] == medianOfMedians) {
-                    nums2.emplace_back(nums[i]);
+                else if (nums[equal] == medianOfMedians) {
+                    ++equal;
                 }
                 else {
-                    nums3.emplace_back(nums[i]);
+                    swap(nums[equal], nums[--larger]);
                 }
             }
-            len1 = nums1.size();
-            len2 = nums2.size();
-            len3 = nums3.size();
 
-            size_t i = first;
-            for (size_t j = 0; j < nums1.size(); ++j) {
-                nums[i++] = nums1[j];
-            }
-            for (size_t j = 0; j < nums2.size(); ++j) {
-                nums[i++] = nums2[j];
-            }
-            for (size_t j = 0; j < nums3.size(); ++j) {
-                nums[i++] = nums3[j];
-            }
+            lenS = smaller - first;
+            lenM = equal - smaller;
+            lenL = len - lenS - lenM;
         }
 
-        if (k < len1) {
-            return findKthSmallestBestRecv(nums, first, first + len1, k);
+        if (k < lenS) {
+            return findKthSmallestBestRecv(nums, first, first + lenS, k);
         }
-        else if (k < len1 + len2){
-            return nums[first + len1];
+        else if (k < lenS + lenM){
+            return nums[first + lenS];
         }
         else {
-            return findKthSmallestBestRecv(nums, first + len1 + len2, last, k - len1 - len2);
+            return findKthSmallestBestRecv(nums, first + lenS + lenM, last, k - lenS - lenM);
         }
     }
 
@@ -283,12 +273,12 @@ public:
 
         //Recursive Partition
         //Time: O(N) for average case, O(N) for worst case
-        //return findKthSmallestBestRecv(nums, 0, nums.size(), k);
+        return findKthSmallestBestRecv(nums, 0, nums.size(), k);
 
         //Heap
         //Time: O(NlogK)
         //Space: O(K)
-        return findKthSmallest_Heap(nums, k);
+        //return findKthSmallest_Heap(nums, k);
     }
 
     int findKthLargest(vector<int>& nums, size_t k) {
