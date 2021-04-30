@@ -7,7 +7,7 @@
 
 
 template<typename InputIterator, typename Compare = std::less<typename std::iterator_traits<InputIterator>::value_type>>
-typename std::iterator_traits<InputIterator>::value_type findSmallest_Heap(InputIterator first, InputIterator last, size_t k, Compare comp = Compare()) {
+typename std::iterator_traits<InputIterator>::value_type findSmallest_Heap(InputIterator first, InputIterator last, typename std::iterator_traits<InputIterator>::difference_type k, Compare comp = Compare()) {
     priority_queue<typename std::iterator_traits<InputIterator>::value_type> pq;
     for (; first != last; ++first) {
         if (pq.size() <= k) {
