@@ -1,7 +1,7 @@
 class Solution {
 public:
     vector<int> decrypt(vector<int>& code, int k) {
-        int len = code.size();
+        size_t len = code.size();
 
         vector<int> ret(len, 0);
         if (k == 0) {
@@ -38,7 +38,6 @@ public:
                 }
             }
         }
-
 
         return ret;
     }
