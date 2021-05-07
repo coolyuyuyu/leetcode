@@ -1,3 +1,10 @@
+Template:
+    rename to nth_elements
+    
+API:
+    nth_elements
+    215. Kth Largest Element in an Array
+
 Trie:
     1410. HTML Entity Parser
 Tree:
@@ -15,6 +22,8 @@ Search:
 Binary_Search
     378. Kth Smallest Element in a Sorted Matrix
     1760. Minimum Limit of Balls in a Bag
+    1337. The K Weakest Rows in a Matrix
+
 
 
 SegmentTree:
