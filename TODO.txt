@@ -24,6 +24,7 @@ Binary_Search
     1760. Minimum Limit of Balls in a Bag
     1337. The K Weakest Rows in a Matrix
     1608. Special Array With X Elements Greater Than or Equal X
+    1539. Kth Missing Positive Number
 
 
 
