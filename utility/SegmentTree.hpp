@@ -63,7 +63,7 @@ public:
         : m_cntr()
         , m_op()
         , m_size(cntr.size()+ std::distance(first, last)) {
-        build(cntr.begin(), cntr.end(), first, last);
+        build(cntr.begin(), cntr.end(), first);
     }
 
     template<typename InputIterator>
@@ -71,7 +71,7 @@ public:
         : m_cntr()
         , m_op()
         , m_size(cntr.size() + std::distance(first, last)) {
-        build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()), first, last);
+        build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()), first);
     }
 
     template<typename InputIterator>
@@ -79,7 +79,7 @@ public:
         : m_cntr()
         , m_op(op)
         , m_size(cntr.size() + std::distance(first, last)) {
-        build(cntr.begin(), cntr.end(), first, last);
+        build(cntr.begin(), cntr.end(), first);
     }
 
     template<typename InputIterator>
@@ -87,35 +87,35 @@ public:
         : m_cntr()
         , m_op(op)
         , m_size(cntr.size() + std::distance(first, last)) {
-        build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()), first, last);
+        build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()), first);
     }
 
     explicit SegmentTree(std::initializer_list<T> l, const Container& cntr)
         : m_cntr()
         , m_op()
         , m_size(cntr.size() + l.size()) {
-        build(cntr.begin(), cntr.end(), l.begin(), l.end());
+        build(cntr.begin(), cntr.end(), l.begin());
     }
 
     explicit SegmentTree(std::initializer_list<T> l, Container&& cntr = Container())
         : m_cntr()
         , m_op()
         , m_size(cntr.size() + l.size()) {
-        build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()), l.begin(), l.end());
+        build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()), l.begin());
     }
 
     explicit SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, const Container& cntr)
         : m_cntr()
         , m_op(op)
         , m_size(cntr.size() + l.size()) {
-        build(cntr.begin(), cntr.end(), l.begin(), l.end());
+        build(cntr.begin(), cntr.end(), l.begin());
     }
 
     explicit SegmentTree(std::initializer_list<T> l, const BinaryOperation& op, Container&& cntr = Container())
         : m_cntr()
         , m_op(op)
         , m_size(cntr.size() + l.size()) {
-        build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()), l.begin(), l.end());
+        build(std::make_move_iterator(cntr.begin()), std::make_move_iterator(cntr.end()), l.begin());
     }
 
     template<typename InputIterator>
@@ -185,7 +185,6 @@ public:
             i = p;
         }
     }
-
 #else
     void set(size_t index, const T& val) {
         if (size() <= index) {
@@ -254,7 +253,6 @@ public:
 
         return *pVal;
     }
-
 #else
     T query(size_t lo, size_t hi) const {
         if (hi < lo || size() < hi) {
@@ -343,7 +341,7 @@ protected:
 
 #ifdef SEGMENT_TREE_ITERATIVE_BUILD_IMPL
     template<typename InputIterator1, typename InputIterator2 = typename Container::iterator>
-    void build(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2 = InputIterator2(), InputIterator2 last2 = InputIterator2()) {
+    void build(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2 = InputIterator2()) {
         if (empty()) {
             return;
         }
@@ -385,17 +383,16 @@ protected:
             }
         }
     }
-
 #else
     template<typename InputIterator1, typename InputIterator2 = typename Container::iterator>
-    void build(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2 = InputIterator2(), InputIterator2 last2 = InputIterator2()) {
+    void build(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2 = InputIterator2()) {
         if (!empty()) {
-            build(0, m_size - 1, 0, first1, last1, first2, last2);
+            build(0, m_size - 1, 0, first1, last1, first2);
         }
     }
 
     template<typename InputIterator1, typename InputIterator2>
-    void build(size_t l, size_t h, size_t i, InputIterator1& first1, InputIterator1 last1, InputIterator2& first2, InputIterator2 last2) {
+    void build(size_t l, size_t h, size_t i, InputIterator1& first1, InputIterator1 last1, InputIterator2& first2) {
         assert(l <= h);
 
         if (l == h) {
@@ -419,8 +416,8 @@ protected:
 
         size_t m = l + (h - l) / 2;
         size_t lft = lftChild(i), rht = rhtChild(i);
-        build(l, m, lft, first1, last1, first2, last2);
-        build(m + 1, h, rht, first1, last1, first2, last2);
+        build(l, m, lft, first1, last1, first2);
+        build(m + 1, h, rht, first1, last1, first2);
         m_cntr[i] = m_op(m_cntr[lft], m_cntr[rht]);
     }
 #endif
