@@ -1,26 +1,20 @@
 class Solution {
 public:
     vector<vector<int>> generate(int numRows) {
-        vector<vector<int>> lists;
-        lists.reserve(numRows);
-
-        if (0 < numRows) {
-            vector<int> nums(1, 1);
-            lists.push_back(nums);
+        if (numRows == 0) {
+            return {};
         }
 
-        for (int i = 1; i < numRows; ++i) {
-            int count = i + 1;
-            vector<int> nums;
-            nums.reserve(count);
-            nums.push_back(1);
-            const vector<int>& prevNums = lists.back();
-            for (size_t j = 0; j < prevNums.size() - 1; ++j) {
-                nums.push_back(prevNums[j] + prevNums[j + 1]);
+        vector<vector<int>> ret(numRows);
+        ret[0].push_back(1);
+        for (size_t i = 1; i < numRows; ++i) {
+            ret[i].push_back(1);
+            for (size_t j = 1; j < ret[i - 1].size(); ++j) {
+                ret[i].push_back(ret[i - 1][j - 1] + ret[i - 1][j]);
             }
-            nums.push_back(1);
-            lists.push_back(nums);
+            ret[i].push_back(1);
         }
-        return lists;
+
+        return ret;
     }
 };
