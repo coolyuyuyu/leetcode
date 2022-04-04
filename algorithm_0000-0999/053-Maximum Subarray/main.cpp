@@ -7,8 +7,12 @@ public:
         int subAns = 0;
         for (int num : nums) {
             subAns += num;
-            ans = max(ans, subAns);
-            subAns = max(subAns, 0);
+            if (ans < subAns) {
+                ans = subAns;
+            }
+            if (subAns < 0) {
+                subAns = 0;
+            }
         }
 
         return ans;
