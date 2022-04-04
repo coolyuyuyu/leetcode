@@ -1,19 +1,22 @@
 class Solution {
 public:
-    vector<int> getRow(int rowIndex) {
-        vector<int> nums;
-        nums.push_back(1);
-        for (int i = 1; i <= rowIndex; ++i) {
-            vector<int> tmpNums;
-            tmpNums.reserve(nums.size() + 1);
-            tmpNums.push_back(1);
-            for (size_t j = 0; j < nums.size() - 1; ++j) {
-                tmpNums.push_back(nums[j] + nums[j + 1]);
+    vector<int> getRow_BruteForce(size_t rowIndex) {
+        vector<int> row = {1};
+        for (; 0 < rowIndex; -- rowIndex) {
+            vector<int> tmpRow;
+            tmpRow.push_back(1);
+            for (size_t i = 1; i < row.size(); ++i) {
+                tmpRow.push_back(row[i - 1] + row[i]);
             }
-            tmpNums.push_back(1);
-            nums.swap(tmpNums);
+            tmpRow.push_back(1);
+
+            row.swap(tmpRow);
         }
 
-        return nums;
+        return row;
+    }
+
+    vector<int> getRow(int rowIndex) {
+        return getRow_BruteForce(rowIndex);
     }
 };
