@@ -1,6 +1,6 @@
 class Solution {
 public:
-    vector<vector<int>> generate(int numRows) {
+    vector<vector<int>> generate_BruteForce(int numRows) {
         if (numRows == 0) {
             return {};
         }
@@ -16,5 +16,9 @@ public:
         }
 
         return ret;
+    }
+
+    vector<vector<int>> generate(int numRows) {
+        return generate_BruteForce(numRows);
     }
 };
