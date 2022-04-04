@@ -1,12 +1,14 @@
 class Solution {
 public:
     int removeElement(vector<int>& nums, int val) {
-        size_t index = 0;
-        for (vector<int>::const_iterator iter = nums.begin(); iter != nums.end(); ++iter) {
-            if (*iter == val)
+        size_t i = 0;
+        for (size_t j = 0; j < nums.size(); ++j) {
+            if (nums[j] == val) {
                 continue;
-            nums[index++] = *iter;
+            }
+            nums[i++] = nums[j];
         }
-        return index;
+
+        return i;
     }
 };
