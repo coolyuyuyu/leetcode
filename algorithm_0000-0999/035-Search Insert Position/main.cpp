@@ -26,8 +26,13 @@ public:
         return lo;
     }
 
+    size_t searchInsert_std(vector<int>& nums, int target) {
+        return std::lower_bound(nums.begin(), nums.end(), target) - nums.begin();
+    }
+
     int searchInsert(vector<int>& nums, int target) {
         //return searchInsert_BruteForce(nums, target);
-        return searchInsert_BinarySearch(nums, target);
+        //return searchInsert_BinarySearch(nums, target);
+        return searchInsert_std(nums, target);
     }
 };
