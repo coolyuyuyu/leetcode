@@ -1,21 +1,19 @@
 class Solution {
 public:
     vector<int> plusOne(vector<int>& digits) {
-        digits.back() += 1;
-        bool carry = false;
-        for (vector<int>::reverse_iterator iter = digits.rbegin(); iter != digits.rend(); ++iter) {
-            if (carry) {
-                *iter += 1;
-                carry = false;
+        bool carry = true;
+        for (size_t i = digits.size(); 0 < i-- && carry;) {
+            if (++digits[i] == 10) {
+                digits[i] = 0;
             }
-            if (10 <= *iter) {
-                *iter %= 10;
-                carry = true;
+            else {
+                carry = false;
             }
         }
         if (carry) {
             digits.insert(digits.begin(), 1);
         }
+
         return digits;
     }
 };
