@@ -1,9 +1,9 @@
 class Solution {
 public:
     bool containsDuplicate(vector<int>& nums) {
-        set<int> s;
-        for (vector<int>::const_iterator iter = nums.begin(); iter != nums.end(); ++iter) {
-            pair<set<int>::const_iterator, bool> p = s.emplace(*iter);
+        unordered_set<int> h;
+        for (int num : nums) {
+            auto p = h.insert(num);
             if (!p.second) {
                 return true;
             }
