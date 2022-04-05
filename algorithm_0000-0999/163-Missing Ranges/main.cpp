@@ -1,64 +1,48 @@
 class Solution {
 public:
-    size_t searchInsert(const vector<int>& nums, int target) {
-        size_t lo = 0, hi = nums.size();
-        while (lo < hi) {
-            size_t mid = lo + (hi - lo) / 2;
-            if (nums[mid] < target) {
-                lo = mid + 1;
-            }
-            else {
-                hi = mid;
-            }
-        }
-
-        return lo;
-    }
-
     vector<string> findMissingRanges(vector<int>& nums, int lower, int upper) {
-        assert(nums.empty() ? true : lower <= nums.front() && nums.back() <= upper);
         if (nums.empty()) {
-            string range = to_string(lower);
-            if (lower != upper) {
+            string range = std::to_string(lower);
+            if (lower < upper) {
                 range += "->";
-                range += to_string(upper);
+                range += std::to_string(upper);
             }
             return {range};
         }
 
-        vector<string> ans;
+        assert(lower <= nums.front() && nums.back() <= upper);
 
+        vector<string> ranges;
         if (lower < nums.front()) {
-            string str = to_string(lower);
-            if (lower + 1 < nums.front()) {
-                str += "->";
-                str += to_string(nums.front() - 1);
+            string range = std::to_string(lower);
+            if ((lower + 1) < nums.front()) {
+                range += "->";
+                range += std::to_string(nums.front() - 1);
             }
-            ans.emplace_back(str);
+            ranges.push_back(range);
         }
-
         for (size_t i = 1; i < nums.size(); ++i) {
-            if (nums[i - 1] < nums[i] && nums[i - 1] + 1 < nums[i]) {
-                string str = to_string(nums[i - 1] + 1);
-                if (nums[i - 1] + 1 < nums[i] - 1) {
-                    str += "->";
-                    str += to_string(nums[i] - 1);
-                }
-                ans.emplace_back(str);
-
+            int dist = nums[i] - nums[i - 1];
+            if (dist == 1) {
+                continue;
             }
-        }
 
+            string range = std::to_string(nums[i - 1] + 1);
+            if (2 < dist) {
+                range += "->";
+                range += std::to_string(nums[i] - 1);
+            }
+            ranges.push_back(range);
+        }
         if (nums.back() < upper) {
-            string str = to_string(nums.back() + 1);
-            if (nums.back() + 1 < upper) {
-                str += "->";
-                str += to_string(upper);
+            string range = std::to_string(nums.back() + 1);
+            if ((nums.back() + 1) < upper) {
+                range += "->";
+                range += std::to_string(upper);
             }
-            ans.emplace_back(str);
-
+            ranges.push_back(range);
         }
 
-        return ans;
+        return ranges;
     }
 };
