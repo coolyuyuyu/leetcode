@@ -1,22 +1,22 @@
-class TwoSum {
+class Strategy {
 public:
-    /** Initialize your data structure here. */
-    TwoSum() {        
-    }
-    
-    /** Add the number to an internal data structure.. */
+    virtual void add(int number) = 0;
+    virtual bool find(int value) = 0;
+};
+
+class HashStrategy : public Strategy {
+public:
     void add(int number) {
         auto p = m_duplicates.emplace(number, false);
-        if (p.second == false) {
+        if (!p.second) {
             p.first->second = true;
-        }
+        }        
     }
     
-    /** Find if there exists any pair of numbers which sum is equal to the value. */
     bool find(int value) {
-        for (const pair<int, bool>& p : m_duplicates) {
+        for (auto p : m_duplicates) {
             int x = p.first;
-            int y = value - x;
+            int y = static_cast<long>(value) - x;
             if (x == y) {
                 if (p.second) {
                     return true;
@@ -27,19 +27,40 @@ public:
                     return true;
                 }
             }
-            
         }
         
         return false;
     }
-    
+
 private:
     unordered_map<int, bool> m_duplicates;
 };
 
+class TwoSum {
+public:
+    TwoSum() {
+        m_pStrategy = new HashStrategy();
+    }
+    
+    ~TwoSum() {
+        delete m_pStrategy;
+    }
+    
+    void add(int number) {
+        m_pStrategy->add(number);        
+    }
+    
+    bool find(int value) {
+        return m_pStrategy->find(value);;
+    }
+
+private:
+    Strategy* m_pStrategy;
+};
+
 /**
  * Your TwoSum object will be instantiated and called as such:
- * TwoSum obj = new TwoSum();
- * obj.add(number);
- * bool param_2 = obj.find(value);
+ * TwoSum* obj = new TwoSum();
+ * obj->add(number);
+ * bool param_2 = obj->find(value);
  */
