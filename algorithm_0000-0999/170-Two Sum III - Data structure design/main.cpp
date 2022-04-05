@@ -99,3 +99,4 @@ private:
  * obj->add(number);
  * bool param_2 = obj->find(value);
  */
+ 
