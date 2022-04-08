@@ -1,19 +1,20 @@
 class Solution {
 public:
     vector<string> summaryRanges(vector<int>& nums) {
-        vector<string> ans;
-        for (size_t index = 1, preIndex = 0; index <= nums.size(); ++index) {
-            if (nums.size() == index || index - preIndex < nums[index] - nums[preIndex]) {
-                string range = to_string(nums[preIndex]);
-                if(preIndex + 1 < index) {
+        vector<string> ranges;
+        for (size_t preIdx = 0, idx = 1; idx <= nums.size(); ++idx) {
+            if (idx == nums.size() || (nums[idx - 1] + 1 < nums[idx])) {
+                string range = std::to_string(nums[preIdx]);
+                if ((preIdx + 1) < idx) {
                     range += "->";
-                    range += to_string(nums[index - 1]);
+                    range += std::to_string(nums[idx - 1]);
                 }
-                ans.emplace_back(range);
+                ranges.push_back(range);
 
-                preIndex = index;
+                preIdx = idx;
             }
         }
-        return ans;
+
+        return ranges;
     }
 };
