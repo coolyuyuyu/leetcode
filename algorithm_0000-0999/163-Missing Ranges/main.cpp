@@ -1,6 +1,6 @@
 class Solution {
 public:
-    vector<string> findMissingRanges(vector<int>& nums, int lower, int upper) {
+    vector<string> findMissingRanges_BruteForce1(vector<int>& nums, int lower, int upper) {
         if (nums.empty()) {
             string range = std::to_string(lower);
             if (lower < upper) {
@@ -44,5 +44,31 @@ public:
         }
 
         return ranges;
+    }
+
+    vector<string> findMissingRanges_BruteForce2(vector<int>& nums, int lower, int upper) {
+        vector<string> ranges;
+        int preNum = lower - 1;
+        for (size_t i = 0; i <= nums.size(); ++i) {
+            int curNum = i < nums.size() ? nums[i] : upper + 1;
+            int dist = curNum - preNum;
+            if (1 < dist) {
+                string range = std::to_string(preNum + 1);
+                if (2 < dist) {
+                    range += "->";
+                    range += std::to_string(curNum - 1);
+                }
+                ranges.push_back(range);
+            }
+
+            preNum = curNum;
+        }
+
+        return ranges;
+    }
+
+    vector<string> findMissingRanges(vector<int>& nums, int lower, int upper) {
+        //return findMissingRanges_BruteForce1(nums, lower, upper);
+        return findMissingRanges_BruteForce2(nums, lower, upper);
     }
 };
