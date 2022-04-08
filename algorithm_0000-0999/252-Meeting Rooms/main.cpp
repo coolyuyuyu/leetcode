@@ -1,27 +1,32 @@
-/**
- * Definition for an interval.
- * struct Interval {
- *     int start;
- *     int end;
- *     Interval() : start(0), end(0) {}
- *     Interval(int s, int e) : start(s), end(e) {}
- * };
- */
 class Solution {
 public:
-    static bool comp(const Interval& lft, const Interval& rht) {
-        return lft.start < rht.start;
+    // Time: O(N^2)
+    bool canAttendMeetings_BruteForce(vector<vector<int>>& intervals) {
+        for (size_t i = 0; i < intervals.size(); ++i) {
+            for (size_t j = i + 1; j < intervals.size(); ++j) {
+                if (intervals[j][0] < intervals[i][1] && intervals[i][0] < intervals[j][1]) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
-    bool canAttendMeetings(vector<Interval>& intervals) {
-        sort(intervals.begin(), intervals.end(), comp);
-
-        for (size_t i = 0; i + 1 < intervals.size(); ++i) {
-            if (intervals[i].end > intervals[i + 1].start) {
+    // Time: O(NlogN)
+    bool canAttendMeetings_Sort(vector<vector<int>>& intervals) {
+        sort(intervals.begin(), intervals.end());
+        for (size_t i = 1; i < intervals.size(); ++i) {
+            if (intervals[i][0] < intervals[i - 1][1]) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    bool canAttendMeetings(vector<vector<int>>& intervals) {
+        //return canAttendMeetings_BruteForce(intervals);
+        return canAttendMeetings_Sort(intervals);
     }
 };
