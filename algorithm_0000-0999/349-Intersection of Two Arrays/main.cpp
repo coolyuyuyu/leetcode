@@ -1,58 +1,75 @@
 class Solution {
 public:
-    vector<int> intersection1(vector<int>& nums1, vector<int>& nums2) {
-        set<int> s1(nums1.begin(), nums1.end());
-        set<int> s2(nums2.begin(), nums2.end());
+    vector<int> intersection_SearchSorted(vector<int>& nums1, vector<int>& nums2) {
+        std::sort(nums1.begin(), nums1.end());
+        std::sort(nums2.begin(), nums2.end());
 
-        vector<int> result(min(nums1.size(), nums2.size()));
-        vector<int>::iterator it = set_intersection(s1.begin(), s1.end(), s2.begin(), s2.end(), result.begin());
-        result.resize(it - result.begin());
-        return result;
+        vector<int> nums;
+        for (size_t i = 0; i < nums1.size(); ++i) {
+            if (0 < i && nums1[i] == nums1[i - 1]) {
+                continue;
+            }
+
+            if (std::binary_search(nums2.begin(), nums2.end(), nums1[i])) {
+                nums.push_back(nums1[i]);
+            }
+        }
+        return nums;
     }
 
-    int search(const vector<int>& nums, int target) {
-        if (nums.empty()) {
-            return -1;
-        }
+    vector<int> intersection_SearchSortedNonOverlapped(vector<int>& nums1, vector<int>& nums2) {
+        std::sort(nums1.begin(), nums1.end());
+        std::sort(nums2.begin(), nums2.end());
 
-        size_t lo = 0;
-        size_t hi = nums.size() - 1;
-        while (lo <= hi) {
-            size_t mid = lo + (hi - lo) / 2;
-            if (nums[mid] == target) {
-                return mid;
+        vector<int> nums;
+        for (auto itr1 = nums1.begin(), itr2 = nums2.begin(); itr1 != nums1.end() && itr2 != nums2.end(); ++itr1) {
+            if (itr1 != nums1.begin() && *itr1 == *(itr1 - 1)) {
+                continue;
             }
-            else if (target < nums[mid]) {
-                if (mid == 0) {
-                    return -1;
-                }
-                hi = mid - 1;
+
+            itr2 = std::lower_bound(itr2, nums2.end(), *itr1);
+            if (itr2 != nums2.end() && *itr2 == *itr1 ) {
+                nums.push_back(*itr1);
+            }
+        }
+        return nums;
+    }
+
+    vector<int> intersection_LinearOnSorted(vector<int>& nums1, vector<int>& nums2) {
+        std::set<int> set1(nums1.begin(), nums1.end());
+        std::set<int> set2(nums2.begin(), nums2.end());
+
+        vector<int> nums;
+        for (auto itr1 = set1.begin(), itr2 = set2.begin(); itr1 != set1.end() && itr2 != set2.end();) {
+            if (*itr1 < *itr2) {
+                ++itr1;
+            }
+            else if (*itr1 == *itr2) {
+                nums.push_back(*itr1);
+                ++itr1;
+                ++itr2;
             }
             else {
-                assert(nums[mid] < target);
-                lo = mid + 1;
+                ++itr2;
             }
         }
-
-        return -1;
+        return nums;
     }
 
-    vector<int> intersection2(vector<int>& nums1, vector<int>& nums2) {
-        unordered_set<int> ans;
+    vector<int> intersection_StdLibrary(vector<int>& nums1, vector<int>& nums2) {
+        std::set<int> set1(nums1.begin(), nums1.end());
+        std::set<int> set2(nums2.begin(), nums2.end());
 
-        sort(nums2.begin(), nums2.end());
-        for (int num : nums1) {
-            if (ans.find(num) == ans.end() && 0 <= search(nums2, num)) {
-                ans.insert(num);
-            }
-        }
-
-        return vector<int>(ans.begin(), ans.end());
+        vector<int> nums(std::min(nums1.size(), nums2.size()));
+        auto it = std::set_intersection(set1.begin(), set1.end(), set2.begin(), set2.end(), nums.begin());
+        nums.resize(it - nums.begin());
+        return nums;
     }
 
     vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
-        //return intersection1(nums1, nums2);
-
-        return intersection2(nums1, nums2);
+        //return intersection_SearchSorted(nums1, nums2);
+        return intersection_SearchSortedNonOverlapped(nums1, nums2);
+        //return intersection_LinearOnSorted(nums1, nums2);
+        //return intersection_StdLibrary(nums1, nums2);
     }
 };
