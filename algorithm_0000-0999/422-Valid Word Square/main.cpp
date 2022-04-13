@@ -10,8 +10,8 @@ public:
                     return false;
                 }
             }
-            for (size_t k = words[i].size(); k < words.size(); ++k) {
-                if (i < words[k].size()) {
+            for (size_t j = words[i].size(); j < words.size(); ++j) {
+                if (i < words[j].size()) {
                     return false;
                 }
             }
