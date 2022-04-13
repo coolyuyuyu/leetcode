@@ -1,25 +1,25 @@
 class Solution {
 public:
-    int findContentChildren(vector<int>& g, vector<int>& s) {
-        sort(g.begin(), g.end());
-        sort(s.begin(), s.end());
+    // Time: O(MlogM + NlogN)
+    int findContentChildren_Sort(vector<int>& g, vector<int>& s) {
+        std::sort(g.begin(), g.end());
+        std::sort(s.begin(), s.end());
 
-        int result = 0;
-        int sIndex = 0;
-        for (int gIndex = 0; gIndex < g.size(); ++gIndex) {
-            while (sIndex < s.size() && s[sIndex] < g[gIndex]) {
-                ++sIndex;
-            }
-
-            if (sIndex < s.size()) {
-                ++result;
-                ++sIndex;
+        int cnt = 0;
+        for (size_t i = 0, j = 0; i < g.size() && j < s.size();) {
+            if (g[i] <= s[j]) {
+                ++i; ++j;
+                ++cnt;
             }
             else {
-                break;
+                ++j;
             }
         }
 
-        return result;
+        return cnt;
+    }
+
+    int findContentChildren(vector<int>& g, vector<int>& s) {
+        return findContentChildren_Sort(g, s);
     }
 };
