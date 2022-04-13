@@ -1,26 +1,22 @@
 class Solution {
 public:
     int islandPerimeter(vector<vector<int>>& grid) {
-        int primeter = 0;
-        int width = grid.front().size();
-        int length = grid.size();        
-        for (int i = 0; i < length; ++i) {
-            vector<int>& row = grid[i];
-            for (int j = 0; j < width; ++j) {
-                if (grid[i][j]) {
-                    primeter += 4;
-
-                    if (0 < i && grid[i - 1][j]) {
-                        primeter -= 2;
+        int p = 0;
+        size_t rowCnt = grid.size(), colCnt = grid.empty() ? 0 : grid.front().size();
+        for (size_t r = 0; r < rowCnt; ++r) {
+            for (size_t c = 0; c < colCnt; ++c) {
+                if (grid[r][c]) {
+                    p += 4;
+                    if (0 < c && grid[r][c - 1]) {
+                        p -= 2;
                     }
-
-                    if (0 < j && grid[i][j - 1]) {
-                        primeter -= 2;
+                    if (0 < r && grid[r - 1][c]) {
+                        p -= 2;
                     }
                 }
             }
         }
 
-        return primeter;
+        return p;
     }
 };
