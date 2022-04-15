@@ -1,17 +1,15 @@
 class Solution {
 public:
-    int distributeCandies(vector<int>& candies) {
-        int maxCount = candies.size() / 2;
-
-        unordered_set<int> candySet;
-        for (int candy : candies) {
-            candySet.insert(candy);
-
-            if (candySet.size() >= maxCount) {
-                return maxCount;
+    int distributeCandies(vector<int>& types) {
+        size_t halfCnt = types.size() / 2;
+        unordered_set<int> s;
+        for (int type : types) {
+            s.insert(type);
+            if (halfCnt <= s.size()) {
+                return halfCnt;
             }
         }
 
-        return candySet.size();
+        return s.size();
     }
 };
