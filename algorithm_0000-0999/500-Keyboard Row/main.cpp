@@ -3,28 +3,24 @@ public:
     static unordered_map<char, int> rows;
 
     vector<string> findWords(vector<string>& words) {
-        vector<string> result;
-        for (size_t i = 0; i < words.size(); ++i) {
-            const string& word = words[i];
-            if (word.empty()) {
-                result.push_back(word);
-                continue;
-            }
+        vector<string> ans;
+        for (const string& word : words) {
+            assert(!word.empty());
 
             int row = rows[word.front()];
             bool sameRow = true;
-            for (size_t j = 1; j < word.size(); ++j) {
-                if (rows[word[j]] != row) {
+            for (size_t i = 1; i < word.size(); ++i) {
+                if (rows[word[i]] != row) {
                     sameRow = false;
                     break;
                 }
             }
             if (sameRow) {
-                result.push_back(word);
+                ans.push_back(word);
             }
         }
 
-        return result;
+        return ans;
     }
 };
 
