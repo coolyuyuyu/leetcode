@@ -1,18 +1,15 @@
 class Solution {
 public:
     vector<int> nextGreaterElement(vector<int>& nums1, vector<int>& nums2) {
-        map<int, int> greaters;
-
-        stack<int> stk;
-        for (int num : nums2) {
-            while (!stk.empty() && stk.top() < num) {
-                greaters[stk.top()] = num;
-                stk.pop();
+        map<int, int> greaters; {
+            stack<int> stk;
+            for (int num : nums2) {
+                while (!stk.empty() && stk.top() < num) {
+                    greaters[stk.top()] = num;
+                    stk.pop();
+                }
+                stk.push(num);
             }
-            stk.push(num);
-        }
-        while (!stk.empty()) {
-            stk.pop();
         }
 
         vector<int> ans;
