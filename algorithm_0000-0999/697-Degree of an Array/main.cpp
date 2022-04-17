@@ -1,33 +1,21 @@
 class Solution {
 public:
     int findShortestSubArray(vector<int>& nums) {
-        unordered_map<int, pair<size_t, int>> indexDegreePairs;
-        int maxDegree = INT_MIN;
-        int minLen = INT_MAX;
-        for (size_t i = 0; i < nums.size(); ++i) {
-            int degree, len; {
-                auto p = indexDegreePairs.insert({ nums[i], { i, 1 } });
-                if (!p.second) {
-                    pair<size_t, int>& indexDegreePair = p.first->second;
-                    ++indexDegreePair.second;
-
-                    degree = indexDegreePair.second;
-                    len = i - indexDegreePair.first + 1;
-                }
-                else {
-                    degree = 1;
-                    len = 1;
-                }
+        size_t minLen = 0;
+        unordered_map<int, pair<size_t, size_t>> m; // val -> [first index, count]
+        for (size_t maxCnt = 0, i = 0; i < nums.size(); ++i) {
+            auto p = m.emplace(nums[i], pair<size_t, size_t>{i, 1});
+            auto itr = p.first;
+            if (!p.second) {
+                ++(itr->second.second);
             }
 
-            if (maxDegree < degree) {
-                maxDegree = degree;
-                minLen = len;
+            if (maxCnt < itr->second.second) {
+                maxCnt = itr->second.second;
+                minLen = i - itr->second.first + 1;
             }
-            else if (maxDegree == degree) {
-                if (len < minLen) {
-                    minLen = len;
-                }
+            else if (maxCnt == itr->second.second) {
+                minLen = std::min(minLen, i - itr->second.first + 1);
             }
         }
 
