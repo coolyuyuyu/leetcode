@@ -1,24 +1,33 @@
 class Solution {
 public:
-    char nextGreatestLetter(vector<char>& letters, char target) {
-        assert(letters.empty() == false);
-        if (target >= letters.back() || target < letters.front()) {
-            return letters.front();
-        }
-
-        ++target;
-        size_t lft = 0;
-        size_t rht = letters.size();
-        while (lft < rht) {
-            size_t mid = lft + (rht - lft) / 2;
-            if (target <= letters[mid]) {
-                rht = mid;
+    char nextGreatestLetter_BinarySearch(vector<char>& letters, char target) {
+        size_t lo = 0;
+        size_t hi = letters.size();
+        while (lo < hi) {
+            size_t mid = lo + (hi - lo) / 2;
+            if (letters[mid] <= target) {
+                lo = mid + 1;
             }
             else {
-                lft = mid + 1;
+                hi = mid;
             }
         }
+        assert(lo == hi);
 
-        return rht == letters.size() ? letters.front() : letters[rht];
+        assert(!letters.empty());;
+        return (lo == letters.size() ? letters.front() : letters[lo]);
+    }
+
+    char nextGreatestLetter_StdLibrary(vector<char>& letters, char target) {
+        auto itr = std::upper_bound(letters.begin(), letters.end(), target);
+        if (itr == letters.end()) {
+            itr = letters.begin();
+        }
+        return *itr;
+    }
+
+    char nextGreatestLetter(vector<char>& letters, char target) {
+        return nextGreatestLetter_BinarySearch(letters, target);
+        //return nextGreatestLetter_StdLibrary(letters, target);
     }
 };
