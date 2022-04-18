@@ -1,52 +1,43 @@
 class Solution {
 public:
-    bool complete(const vector<int>& counts, const string& word) {
-        int totalCount = accumulate(counts.begin(), counts.end(), 0);
-
-        vector<int> newCounts = counts;
+    bool checkCompleting(const string& word, vector<int> cnts, int len) {
         for (char c : word) {
-            size_t index = c - 'a';
-            if (newCounts[index] >= 1) {
-                --newCounts[index];
-                --totalCount;
-            }
-
-            if (totalCount == 0) {
-                return true;
+            if (0 < cnts[c - 'a']) {
+                --cnts[c - 'a'];
+                if (--len == 0) {
+                    break;
+                }
             }
         }
-
-        return false;
+        return len == 0;
     }
 
     string shortestCompletingWord(string licensePlate, vector<string>& words) {
-        vector<int> counts(26, 0);
+        vector<int> cnts(26, 0);
         for (char c : licensePlate) {
-            if ('A' <= c && c <= 'Z') {
-                ++counts[c - 'A'];
-            }
-            else if ('a' <= c && c <= 'z') {
-                ++counts[c - 'a'];
+            if (isalpha(c)) {
+                ++cnts[tolower(c) - 'a'];
             }
         }
+        int len = std::accumulate(cnts.begin(), cnts.end(), 0);
 
-        size_t ansIndex;
-        bool foundOne = false;
+        bool found = false;
+        size_t index;
         for (size_t i = 0; i < words.size(); ++i) {
-            const string& word = words[i];
-            if (complete(counts, word)) {
-                if (foundOne) {
-                    if (words[i].size() < words[ansIndex].size()) {
-                        ansIndex = i;
+            if (checkCompleting(words[i], cnts, len)) {
+                cout << words[i] << " is completeing" << endl;;
+                if (found) {
+                    if (words[i].size() < words[index].size()) {
+                        index = i;
                     }
                 }
                 else {
-                    foundOne = true;
-                    ansIndex = i;
+                    found = true;
+                    index = i;
                 }
             }
         }
 
-        return words[ansIndex];
+        return words[index];
     }
 };
