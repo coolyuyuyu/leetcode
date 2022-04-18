@@ -1,18 +1,20 @@
 class Solution {
 public:
     bool isOneBitCharacter(vector<int>& bits) {
-        bool lastOne = true;
+        assert(!bits.empty());
+
+        bool isLastOneBit = true;
         for (size_t i = 0; i < bits.size();) {
-            if (bits[i] == 0) {
-                lastOne = true;
-                i += 1;
+            if (bits[i] == 1) {
+                isLastOneBit = false;
+                i += 2;
             }
             else {
-                lastOne = false;
-                i += 2;
+                isLastOneBit = true;
+                i += 1;
             }
         }
 
-        return lastOne;
+        return isLastOneBit;
     }
 };
