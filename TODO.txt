@@ -55,5 +55,4 @@ Graph:
     Dijkstra
 
 Array
-   Easy: 661 
-   
+   Easy: 661. Image Smoother 
