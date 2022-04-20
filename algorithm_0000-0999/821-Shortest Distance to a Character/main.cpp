@@ -1,20 +1,21 @@
 class Solution {
 public:
-    vector<int> shortestToChar(string S, char C) {
-        vector<int> ans(S.size());
-        for (int prev = 0 - S.size(), i = 0; i < S.size(); ++i) {
-            if (S[i] == C) {
+    vector<int> shortestToChar(string s, char c) {
+        vector<int> dists(s.size());
+        for (int prev = 0 - s.size(), i = 0; i < s.size(); ++i) {
+            if (s[i] == c) {
                 prev = i;
             }
-            ans[i] = i - prev;
-        }
-        for (int prev = INT_MAX, i = S.size() - 1; 0 <= i; --i) {
-            if (S[i] == C) {
-                prev = i;
-            }
-            ans[i] = min(ans[i], prev - i);
+            dists[i] = i - prev;
         }
 
-        return ans;
+        for (int prev = 2 * s.size(), i = s.size(); 0 < i--;) {
+            if (s[i] == c) {
+                prev = i;
+            }
+            dists[i] = std::min(dists[i], prev - i);
+        }
+
+        return dists;
     }
 };
