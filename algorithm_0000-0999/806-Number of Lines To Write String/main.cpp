@@ -1,19 +1,21 @@
 class Solution {
 public:
-    vector<int> numberOfLines(vector<int>& widths, string S) {
-        int lineCnt = 0;
-        int charCnt = 0;
-        for (size_t i = 0; i < S.size(); ++i) {
-            size_t index = S[i] - 'a';
-            if (charCnt + widths[index] > 100) {
+    vector<int> numberOfLines(vector<int>& widths, string s) {
+        int lineCnt = 0, charCnt = 0;
+        for (char c : s) {
+            int w = widths[c - 'a'];
+            if (100 < (charCnt + w)) {
                 ++lineCnt;
-                charCnt = widths[index];
+                charCnt = w;
             }
             else {
-                charCnt += widths[index];
+                charCnt += w;
             }
         }
+        if (0 < charCnt) {
+            ++lineCnt;
+        }
 
-        return {lineCnt + 1, charCnt};
+        return {lineCnt, charCnt};
     }
 };
