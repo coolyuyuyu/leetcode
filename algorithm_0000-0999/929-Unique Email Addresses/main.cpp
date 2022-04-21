@@ -1,28 +1,31 @@
 class Solution {
 public:
     int numUniqueEmails(vector<string>& emails) {
-        set<string> addresses;
-        for (const string& address: emails) {
-            size_t atIndex = address.find('@');
-            string local = address.substr(0, atIndex);
-            string domain = address.substr(atIndex + 1);
-
-            size_t plusIndex = local.find('+');
-            if (plusIndex != string::npos) {
-                local = local.substr(0, plusIndex);
-            }
-
+        unordered_set<string> s;
+        for (const string& email : emails) {
             size_t pos = 0;
-            while (pos < local.size()) {
-                pos = local.find('.', pos);
-                if (pos != string::npos) {
-                    local.erase(pos, 1);
-                }
-            }
 
-            addresses.emplace(local + "@" + domain);
+            string local;
+            for (bool end = false; !end;) {
+                switch (email[pos]) {
+                    case '+':
+                        pos = email.find_first_of('@', pos);
+                    case '@':
+                        end = true;
+                        break;
+                    case '.':
+                        break;
+                    default:
+                        local.push_back(email[pos]);
+                }
+                ++pos;
+
+            }
+            string domain = email.substr(pos);
+
+            s.insert(local + "@" + domain);
         }
 
-        return addresses.size();
+        return s.size();
     }
 };
