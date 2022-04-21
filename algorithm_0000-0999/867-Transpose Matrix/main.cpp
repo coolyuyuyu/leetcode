@@ -1,31 +1,29 @@
 class Solution {
 public:
-    vector<vector<int>> transpose(vector<vector<int>>& A) {
-        size_t rowCnt = A.size(), colCnt = A.front().size(); 
-        auto const minmax = std::minmax(rowCnt, colCnt);
+    vector<vector<int>> transpose(vector<vector<int>>& matrix) {
+        size_t m = matrix.size(), n = matrix.empty() ? 0 : matrix.front().size();
 
-        if (rowCnt < colCnt) {
-            for (size_t i = rowCnt; i < colCnt; ++i) {
-                A.push_back(vector<int>(rowCnt));
+        if (m < n) {
+            matrix.resize(n, vector<int>(m));
+        }
+        else if (n < m) {
+            for (size_t i = 0; i < n; ++i) {
+                matrix[i].resize(m);
             }
         }
-        else if (rowCnt > colCnt) {
-            for (size_t i = 0; i < colCnt; ++i) {
-                A[i].resize(rowCnt);
-            }
-        }
-        
+
+        const auto minmax = std::minmax(m, n);
         for (size_t i = 0; i < minmax.first; ++i) {
             for (size_t j = i + 1; j < minmax.second; ++j) {
-                swap(A[i][j], A[j][i]);
+                std::swap(matrix[i][j], matrix[j][i]);
             }
         }
 
-        A.resize(colCnt);
-        for (size_t i = 0; i < colCnt; ++i) {
-            A[i].resize(rowCnt);
+        matrix.resize(n);
+        for (auto& row : matrix) {
+            row.resize(m);
         }
 
-        return A;
+        return matrix;
     }
 };
