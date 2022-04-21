@@ -1,33 +1,19 @@
 class Solution {
 public:
     int surfaceArea(vector<vector<int>>& grid) {
+        size_t m = grid.size(), n = grid.empty() ? 0 : grid.front().size();
+
         int area = 0;
-        for (size_t i = 0; i < grid.size(); ++i) {
-            const vector<int>& row = grid[i];
-            if (i + 1 < grid.size()) {
-                const vector<int>& nxtRow = grid[i + 1];
-                for (size_t j = 0; j < row.size(); ++j) {
-                    if (row[j] <= 0) {
-                        continue;
-                    }
-
-                    area += (row[j] * 4 + 2);
-                    if (j + 1 < row.size()) {
-                        area -= (min(row[j], row[j + 1]) * 2);
-                    }
-                    area -= (min(row[j], nxtRow[j]) * 2);
+        for (size_t r = 0; r < m; ++r) {
+            for (size_t c = 0; c < n; ++c) {
+                if (grid[r][c]) {
+                    area += (4 * (grid[r][c]) + 2);
                 }
-            }
-            else {
-                for (size_t j = 0; j < row.size(); ++j) {
-                    if (row[j] <= 0) {
-                        continue;
-                    }
-
-                    area += (row[j] * 4 + 2);
-                    if (j + 1 < row.size()) {
-                        area -= (min(row[j], row[j + 1]) * 2);
-                    }
+                if (0 < r) {
+                    area -= (2 * std::min(grid[r][c], grid[r - 1][c]));
+                }
+                if (0 < c) {
+                    area -= (2 * std::min(grid[r][c], grid[r][c - 1]));
                 }
             }
         }
