@@ -8,7 +8,7 @@ public:
     }
 
     // Time: O(N)
-    vector<int> swapInPlace(vector<int>& nums) {
+    vector<int> linearSwap(vector<int>& nums) {
         assert(!nums.empty());
 
         for (size_t i = 0, j = nums.size() - 1; i < j; ++i) {
@@ -27,6 +27,6 @@ public:
 
     vector<int> sortArrayByParity(vector<int>& nums) {
         //return sortByLastBit(nums);
-        return swapInPlace(nums);
+        return linearSwap(nums);
     }
 };
