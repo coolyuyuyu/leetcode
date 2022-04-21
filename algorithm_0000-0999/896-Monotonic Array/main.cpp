@@ -1,27 +1,34 @@
 class Solution {
 public:
-    bool isMonotonic(vector<int>& A) {
-        enum Type {INC, DESC, EQL};
+    bool isMonotonic(vector<int>& nums) {
+        enum class Order {
+            increasing,
+            decreasing,
+            none,
+        };
 
-        Type a = EQL;
-        for (size_t i = 0; i + 1 < A.size(); ++i) {
-            Type b;
-            if (A[i] < A[i + 1]) {
-                b = INC;
+        Order order = Order::none;
+        for (size_t i = 1; i < nums.size(); ++i) {
+            if (nums[i - 1] < nums[i]) {
+                switch (order) {
+                    case Order::increasing:
+                        break;
+                    case Order::decreasing:
+                        return false;
+                    case Order::none:
+                        order = Order::increasing;
+                        break;
+                }
             }
-            else if (A[i] == A[i + 1]) {
-                b = EQL;
-            }
-            else {
-                b = DESC;
-            }
-
-            if (a == EQL) {
-                a = b;
-            }
-            else {
-                if (b != EQL && b != a) {
-                    return false;
+            else if (nums[i] < nums[i - 1]) {
+                switch (order) {
+                    case Order::increasing:
+                        return false;
+                    case Order::decreasing:
+                        break;
+                    case Order::none:
+                        order = Order::decreasing;
+                        break;
                 }
             }
         }
