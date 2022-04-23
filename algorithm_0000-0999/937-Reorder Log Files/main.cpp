@@ -1,46 +1,60 @@
 class Solution {
 public:
+    // stable sort
+    vector<string> reorderLogFiles_StableSort(vector<string>& logs) {
+        auto comp = [](const string& str1, const string& str2) {
+            size_t index1 = str1.find(' ');
+            if (isalpha(str1[index1 + 1])) {
+                size_t index2 = str2.find(' ');
+                if (isalpha(str2[index2 + 1])) {
+                    int v = str1.compare(index1 + 1, string::npos, str2, index2 + 1, string::npos);
+                    if (v == 0) {
+                        return str1.compare(0, index1, str2, 0, index2) < 0;
+                    }
+                    else {
+                        return v < 0;
+                    }
+                }
+                else {
+                    return true;
+                }
+            }
+            else {
+                return false;
+            }
+        };
+        std::stable_sort(logs.begin(), logs.end(), comp);
 
-    static bool compLog(const string& log1, const string& log2) {
+        return logs;
+    }
 
-        size_t index1 = log1.find(' ');
-        size_t index2 = log2.find(' ');
-
-        string id1 = log1.substr(index1);
-        string id2 = log2.substr(index2);
-
-        string left1 = log1.substr(index1 + 1);
-        string left2 = log2.substr(index2 + 1);
-        if (left1 != left2) {
-            return left1 < left2;
+    // move all digit to right half, unstable sort the left half
+    vector<string> reorderLogFiles_MoveAndSort(vector<string>& logs) {
+        size_t boundary = logs.size();
+        for (size_t i = logs.size(); 0 < i--;) {
+            if (isdigit(logs[i][logs[i].find(' ') + 1])) {
+                std::swap(logs[i], logs[--boundary]);
+            }
         }
-        else {
-            return id1 < id2;
-        }
+
+        auto comp = [](const string& str1, const string& str2) {
+            size_t index1 = str1.find(' ');
+            size_t index2 = str2.find(' ');
+            int v = str1.compare(index1 + 1, string::npos, str2, index2 + 1, string::npos);
+            if (v == 0) {
+                return str1.compare(0, index1, str2, 0, index2) < 0;
+            }
+            else {
+                return v < 0;
+            }
+        };
+        std::sort(logs.begin(), logs.begin() + boundary, comp);
+
+        return logs;
     }
 
     vector<string> reorderLogFiles(vector<string>& logs) {
-        vector<string> digitLogs, letterLogs;
-        for (const string& log : logs) {
-            if (log[log.find(' ') + 1] < 'a') {
-                digitLogs.push_back(log);
-            }
-            else {
-                letterLogs.push_back(log);
-            }
-        }
-
-        sort(letterLogs.begin(), letterLogs.end(), compLog);
-
-        vector<string> ans;
-        ans.reserve(logs.size());
-        for (const string& log : letterLogs) {
-            ans.push_back(log);
-        }
-        for (const string& log : digitLogs) {
-            ans.push_back(log);
-        }
-
-        return ans;
+        //return reorderLogFiles_StableSort(logs);
+        return reorderLogFiles_MoveAndSort(logs);
     }
 };
