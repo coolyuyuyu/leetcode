@@ -1,26 +1,20 @@
 class Solution {
 public:
     bool isAlienSorted(vector<string>& words, string order) {
-        vector<unsigned char> indexes(26);
-        for (unsigned char i = 0; i < 26; ++i) {
-            indexes[order[i] - 'a'] = i;
+        array<int, 26> weights;
+        for (size_t i = 0; i < order.size(); ++i) {
+            weights[order[i] - 'a'] = i;
         }
 
-        auto comp = [&](const string& lft, const string& rht) {
-            for (auto itrLft = lft.cbegin(), itrRht = rht.cbegin(); itrLft != lft.cend() && itrRht != rht.cend(); ++itrLft, ++itrRht) {
-                unsigned char indexLft = indexes[*itrLft - 'a'];
-                unsigned char indexRht = indexes[*itrRht - 'a'];
-                if (indexLft < indexRht) {
-                    return true;
-                }
-                else if (indexRht < indexLft){
-                    return false;
+        auto comp = [&](const string& str1, const string str2) {
+            for (size_t i = 0; i < str1.size() && i < str2.size(); ++i) {
+                if (str1[i] != str2[i]) {
+                    return weights[str1[i]- 'a'] < weights[str2[i] - 'a'];
                 }
             }
 
-            return lft.size() < rht.size();
+            return str1.size() < str2.size();
         };
-
-        return is_sorted(words.begin(), words.end(), comp);
+        return std::is_sorted(words.begin(), words.end(), comp);
     }
 };
