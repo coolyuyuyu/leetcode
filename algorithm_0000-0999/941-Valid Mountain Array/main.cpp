@@ -1,27 +1,22 @@
 class Solution {
 public:
-    bool validMountainArray(vector<int>& A) {
-        if (A.size() < 3) {
-            return false;
-        }
-
-        size_t i = 0;
-        for (; i < A.size(); ++i) {
-            if (i + 1 >= A.size() || A[i] >= A[i + 1]) {
+    bool validMountainArray(vector<int>& arr) {
+        size_t top = 0;
+        for (; (top + 1) < arr.size(); ++top) {
+            if (arr[top + 1] <= arr[top]) {
                 break;
             }
         }
-
-        if (i == 0 || i + 1 == A.size()) {
+        if (top == 0 || (top + 1) == arr.size()) {
             return false;
         }
 
-        for (; i < A.size(); ++i) {
-            if (i + 1 >= A.size() || A[i] <= A[i + 1]) {
-                break;
+        for (size_t i = top + 1; i < arr.size(); ++i) {
+            if (arr[i - 1] <= arr[i]) {
+                return false;
             }
         }
 
-        return (i + 1 == A.size());
+        return true;
     }
 };
