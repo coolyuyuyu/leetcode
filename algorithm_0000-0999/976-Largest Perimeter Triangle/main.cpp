@@ -1,11 +1,13 @@
 class Solution {
 public:
-    int largestPerimeter(vector<int>& A) {
-        sort(A.begin(), A.end());
+    int largestPerimeter(vector<int>& nums) {
+        std::sort(nums.begin(), nums.end());
 
-        for (size_t i = A.size(); 2 < i--;) {
-            if (A[i] < A[i - 2] + A[i - 1]) {
-                return A[i - 2] + A[i - 1] + A[i];
+        assert(3 <= nums.size());
+        for (size_t i = nums.size(); 2 < i--;) {
+            if (nums[i] < (nums[i - 2] + nums[i - 1])) {
+                cout << i << endl;
+                return (nums[i - 2] + nums[i - 1] + nums[i]);
             }
         }
 
