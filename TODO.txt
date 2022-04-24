@@ -61,4 +61,5 @@ Array
         661. Image Smoother
         705. Design HashSet: study GCC hashset
         706. Design HashMap: study GCC hashmap
+        883. Projection Area of 3D Shapes
 
