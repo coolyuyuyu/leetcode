@@ -1,5 +1,6 @@
 class Solution {
 public:
+    // Time: O(logN)
     int findSpecialInteger(vector<int>& arr) {
         // 25%, 50%, 75%
         for (size_t i = 1; i < 4; ++i) {
