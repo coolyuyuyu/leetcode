@@ -1,32 +1,45 @@
 class Solution {
 public:
-    vector<int> getRow_BruteForce(int rowIndex) {
-        vector<int> row = {1};
-        for (; 0 < rowIndex; --rowIndex) {
-            vector<int> tmpRow;
-            tmpRow.push_back(1);
-            for (size_t i = 1; i < row.size(); ++i) {
-                tmpRow.push_back(row[i - 1] + row[i]);
-            }
-            tmpRow.push_back(1);
-
-            row.swap(tmpRow);
+    vector<int> dp(size_t rowIndex) {
+        if (rowIndex == 0) {
+            return {1};
         }
 
-        return row;
+        vector<int> ret = {1};
+        for (size_t i = 1; i <= rowIndex; ++i) {
+            vector<int> tmp;
+            tmp.resize(i + 1);
+
+            tmp[0] = 1;
+            for (size_t j = 1; j < i; ++j) {
+                tmp[j] = ret[j - 1] + ret[j];
+            }
+            tmp[i] = 1;
+
+            std::swap(ret, tmp);
+        }
+
+        return ret;
     }
 
-    vector<int> getRow_Math(int rowIndex) {
-        vector<int> row = {1};
-        for (int k = 1; k <= rowIndex; ++k) {
-            row.push_back(static_cast<long long int>(row.back()) * (rowIndex - k + 1) / k);
+
+    vector<int> math(size_t rowIndex) {
+        if (rowIndex == 0) {
+            return {1};
         }
 
-        return row;
+        vector<int> ret(rowIndex + 1);
+        ret[0] = 1;
+        for (size_t k = 1; k < rowIndex; ++k) {
+            ret[k] = ret[k - 1] * (rowIndex - k + 1) / k;
+        }
+        ret[rowIndex] = 1;
+
+        return ret;
     }
 
     vector<int> getRow(int rowIndex) {
-        //return getRow_BruteForce(rowIndex);
-        return getRow_Math(rowIndex);
+        //return dp(rowIndex);
+        return math(rowIndex);
     }
 };
