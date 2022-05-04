@@ -1,29 +1,38 @@
 class Solution {
 public:
-    int climbStairs1(int n) {
-        vector<int> dp(n + 1);
-        dp[0] = dp[1] = 1;
-        for (int i = 2; i <= n; ++i) {
-            dp[i] = dp[i - 2] + dp[i - 1];
+    // Time: O(N), Space: O(N)
+    int iterative_dp1(int n) {
+        if (n < 2) {
+            return 1;
         }
 
-        return dp[n];
+        vector<int> cnts(n + 1);
+        cnts[0] = cnts[1] = 1;
+        for (size_t i = 2; i < cnts.size(); ++i) {
+            cnts[i] = cnts[i - 1] + cnts[i - 2];
+        }
+
+        return cnts.back();
     }
 
-    int climbStairs2(int n) {
-        int f1 = 1, f2 = 1;
-        for (int i = 2; i <= n; ++i) {
-            int tmp = f2;
-            f2 = f1 + f2;
-            f1 = tmp;
+    // Time: O(N), Space: O(1)
+    int iterative_dp2(int n) {
+        if (n < 2) {
+            return 1;
         }
 
-        return f2;
+        int x = 1, y = 1;
+        for (size_t i = 2; i <= n; ++i) {
+            int tmp = x + y;
+            y = x;
+            x = tmp;
+        }
+
+        return x;
     }
 
     int climbStairs(int n) {
-        //return climbStairs1(n);
-
-        return climbStairs2(n);
+        //return iterative_dp1(n);
+        return iterative_dp2(n);
     }
 };
