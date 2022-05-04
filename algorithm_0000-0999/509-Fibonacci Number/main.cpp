@@ -1,19 +1,20 @@
 class Solution {
 public:
-    int fib(int N) {
-        if (N == 0) {
+    int fib(int n) {
+        if (n == 0) {
             return 0;
         }
-        else if (N <= 2) {
+        else if (n == 1) {
             return 1;
         }
 
-        int f = 1;
-        for (int i = 3, x = 1; i <= N; ++i) {
-            int tmp = f;
-            f = f + x;
+        int x = 1, y = 0;
+        for (size_t i = 2; i <= n; ++i) {
+            int tmp = x + y;
+            y = x;
             x = tmp;
         }
-        return f;
+
+        return x;
     }
 };
