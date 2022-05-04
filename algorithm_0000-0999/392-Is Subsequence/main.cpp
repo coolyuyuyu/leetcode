@@ -1,63 +1,51 @@
 class Solution {
 public:
-    bool isSubsequence1(const string& s, const string& t) {
-        size_t i = 0, j = 0, m = s.size(), n = t.size();
-        while (i < m && j < n) {
-            if (s[i] != t[j]) {
-                ++j;
-            }
-            else {
-                ++i;
-                ++j;
-            }
+    bool dp(const string& s, const string& t) {
+        if (s.empty()) {
+            return true;
         }
 
-        return m <= i;
-    }
-
-    size_t searchInsert(const vector<size_t>& nums, size_t target) {
-        size_t lo = 0, hi = nums.size();
-        while (lo < hi) {
-            size_t mid = lo + (hi - lo) / 2;
-            if (nums[mid] < target) {
-                lo = mid + 1;
+        for (size_t i = 0, j = 0; i < s.size() && j < t.size();) {
+            if (s[i] == t[j]) {
+                if (s.size() <= ++i) {
+                    return true;
+                }
             }
-            else if (nums[mid] == target) {
-                hi = mid;
-            }
-            else {
-                hi = mid;
-            }
+            ++j;
         }
 
-        return lo;
-    }
-
-    bool findNext(const vector<size_t>& nums, size_t target, size_t& result) {
-        size_t index = searchInsert(nums, target + 1);
-        if (nums.size() <= index) {
-            return false;
-        }
-
-        result = nums[index];
-        return true;
+        return false;
     }
 
     // Preferable when we have a large number of s for a single t
-    bool isSubsequence2(const string& s, const vector<vector<size_t>>& indexArrays) {
-        size_t prevJ = 0;
+    bool bsearch(const string& s, const string& t) {
+        vector<vector<size_t>> indexesArr(26);
+        for (size_t i = 0; i < t.size(); ++i) {
+            indexesArr[t[i] - 'a'].push_back(i);
+        }
+
+        vector<pair<vector<size_t>::const_iterator, vector<size_t>::const_iterator>> ranges(26);
+        for (char c = 'a'; c <= 'z'; ++c) {
+            ranges[c - 'a'] = {indexesArr[c - 'a'].begin(), indexesArr[c - 'a'].end()};
+        }
+
+        size_t preIndex;
         for (size_t i = 0; i < s.size(); ++i) {
-            const vector<size_t>& indexArray = indexArrays[s[i] - 'a'];
+            auto& range = ranges[s[i] - 'a'];
             if (i == 0) {
-                if (indexArray.empty()) {
+                if (range.first == range.second) {
                     return false;
                 }
-                prevJ = indexArray.front();
+                preIndex = *(range.first);
+                ++(range.first);
             }
             else {
-                if (!findNext(indexArray, prevJ, prevJ)) {
+                auto itr = std::upper_bound(range.first, range.second, preIndex);
+                if (itr == range.second) {
                     return false;
                 }
+                preIndex = *itr;
+                range.first = itr + 1;
             }
         }
 
@@ -65,12 +53,7 @@ public:
     }
 
     bool isSubsequence(string s, string t) {
-        //return isSubsequence1(s, t);
-
-        vector<vector<size_t>> indexArrays(26);
-        for (size_t j = 0; j < t.size(); ++j) {
-            indexArrays[t[j] - 'a'].push_back(j);
-        }
-        return isSubsequence2(s, indexArrays);
+        //return dp(s, t);
+        return bsearch(s, t);
     }
 };
