@@ -72,7 +72,56 @@ public:
         return ans;
     }
 
+    int iterative(const vector<vector<int>>& points) {
+        // y = ax + b. <a, b> -> points
+        vector<vector<pair<int, int>>> lines; {
+            map<pair<float, float>, vector<pair<int, int>>> pntsOnLine;
+            for (size_t i = 0; i < points.size(); ++i) {
+                for (size_t j = i + 1; j < points.size(); ++j) {
+                    float a, b; {
+                        if (points[i][0] == points[j][0]) {
+                            a = points[i][0];
+                            b = std::numeric_limits<float>::infinity();
+                        }
+                        else {
+                            a = float(points[j][1] - points[i][1]) / float(points[j][0] - points[i][0]);
+                            b = points[i][1] - a * points[i][0];
+                        }
+                    }
+                    pntsOnLine[{a, b}].emplace_back(points[i][0], points[i][1]);
+                    pntsOnLine[{a, b}].emplace_back(points[j][0], points[j][1]);
+                }
+            }
+
+            for (auto& [slope, pnts] : pntsOnLine) {
+                if (2 < pnts.size()) {
+                    lines.push_back(pnts);
+                }
+            }
+        }
+
+        int ans = ceil(float(points.size()) / 2); // max possible answer
+        for (int i = 1, n = (1 << lines.size()); i < n; ++i) {
+            int lineCnt = __builtin_popcount(i);
+            if (ans <= lineCnt) {
+                continue;
+            }
+
+            set<pair<int, int>> visitedPoints;
+            for (int mask = i, index = 0; 0 < mask; mask >>= 1, ++index) {
+                if (mask & 1) {
+                    visitedPoints.insert(lines[index].begin(), lines[index].end());
+                }
+            }
+
+            ans = min(ans, lineCnt + int(ceil(float(points.size() - visitedPoints.size()) / 2)));
+        }
+
+        return ans;
+    }
+
     int minimumLines(vector<vector<int>>& points) {
-        return recursive(points);
+        //return recursive(points);
+        return iterative(points);
     }
 };
