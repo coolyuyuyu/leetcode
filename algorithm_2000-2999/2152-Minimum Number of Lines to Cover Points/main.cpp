@@ -40,12 +40,24 @@ public:
             ans = std::min(ans, depth);
         }
         else {
-            for (auto& [slope, indexes] : candidates) {
-                for (size_t index : indexes) {
+
+            auto comp = [](const vector<size_t>* pIndexes1, const vector<size_t>* pIndexes2) {
+                return (pIndexes1->size() < pIndexes2->size());
+            };
+            priority_queue<const vector<size_t>*, vector<const vector<size_t>*>, decltype(comp)> pq(comp); // max_heap
+            for (auto itr = candidates.begin(); itr != candidates.end(); ++itr) {
+                pq.push(&(itr->second));
+            }
+
+            while (!pq.empty()) {
+                const vector<size_t>* pIndexes = pq.top();
+                pq.pop();
+
+                for (size_t index : *pIndexes) {
                     used[index] = true;
                 }
                 topDn(points, used, depth + 1, ans);
-                for (size_t index : indexes) {
+                for (size_t index : *pIndexes) {
                     used[index] = false;
                 }
             }
@@ -56,7 +68,7 @@ public:
 
     int minimumLines(vector<vector<int>>& points) {
         vector<bool> used(points.size(), false);
-        int ans = INT_MAX;
+        int ans = ceil(float(points.size()) / 2);
         topDn(points, used, 1, ans);
         return ans;
     }
