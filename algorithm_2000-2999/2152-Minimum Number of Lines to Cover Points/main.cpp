@@ -9,9 +9,6 @@ public:
                 return float(p2[1] - p1[1]) / float(p2[0] - p1[0]);
             }
         };
-        auto compPQ = [](const vector<size_t>* pIndexes1, const vector<size_t>* pIndexes2) -> bool {
-            return (pIndexes1->size() < pIndexes2->size());
-        };
 
         if (depth >= ans) {
             return;
@@ -27,8 +24,6 @@ public:
             return;
         }
 
-        used[src] = true;
-
         unordered_map<float, vector<size_t>> candidates;
         for (size_t i = src + 1; i < points.size(); ++i) {
             if (used[i]) {
@@ -43,26 +38,18 @@ public:
             ans = std::min(ans, depth);
         }
         else {
-            priority_queue<const vector<size_t>*, vector<const vector<size_t>*>, decltype(compPQ)> pq(compPQ); // max_heap
-            for (auto itr = candidates.begin(); itr != candidates.end(); ++itr) {
-                pq.push(&(itr->second));
-            }
-
-            while (!pq.empty()) {
-                const vector<size_t>* pIndexes = pq.top();
-                pq.pop();
-
-                for (size_t index : *pIndexes) {
+            used[src] = true;
+            for (auto& [slope, indexes] : candidates) {
+                for (size_t index : indexes) {
                     used[index] = true;
                 }
                 recursiveHelper(points, used, depth + 1, ans);
-                for (size_t index : *pIndexes) {
+                for (size_t index : indexes) {
                     used[index] = false;
                 }
             }
+            used[src] = false;
         }
-
-        used[src] = false;
     }
 
     int recursive(const vector<vector<int>>& points) {
