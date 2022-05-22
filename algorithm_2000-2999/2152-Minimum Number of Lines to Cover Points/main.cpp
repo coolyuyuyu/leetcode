@@ -1,15 +1,18 @@
 class Solution {
 public:
-    float computeSlope(const vector<int>& p1, const vector<int>& p2) {
-        if (p1[0] == p2[0]) {
-            return std::numeric_limits<float>::infinity();
-        }
-        else {
-            return float(p2[1] - p1[1]) / float(p2[0] - p1[0]);
-        }
-    }
+    void recursiveHelper(const vector<vector<int>>& points, vector<bool>& used, int depth, int& ans) {
+        auto computeSlope = [](const vector<int>& p1, const vector<int>& p2) -> float {
+            if (p1[0] == p2[0]) {
+                return std::numeric_limits<float>::infinity();
+            }
+            else {
+                return float(p2[1] - p1[1]) / float(p2[0] - p1[0]);
+            }
+        };
+        auto compPQ = [](const vector<size_t>* pIndexes1, const vector<size_t>* pIndexes2) -> bool {
+            return (pIndexes1->size() < pIndexes2->size());
+        };
 
-    void topDn(vector<vector<int>>& points, vector<bool>& used, int depth, int& ans) {
         if (depth >= ans) {
             return;
         }
@@ -40,11 +43,7 @@ public:
             ans = std::min(ans, depth);
         }
         else {
-
-            auto comp = [](const vector<size_t>* pIndexes1, const vector<size_t>* pIndexes2) {
-                return (pIndexes1->size() < pIndexes2->size());
-            };
-            priority_queue<const vector<size_t>*, vector<const vector<size_t>*>, decltype(comp)> pq(comp); // max_heap
+            priority_queue<const vector<size_t>*, vector<const vector<size_t>*>, decltype(compPQ)> pq(compPQ); // max_heap
             for (auto itr = candidates.begin(); itr != candidates.end(); ++itr) {
                 pq.push(&(itr->second));
             }
@@ -56,7 +55,7 @@ public:
                 for (size_t index : *pIndexes) {
                     used[index] = true;
                 }
-                topDn(points, used, depth + 1, ans);
+                recursiveHelper(points, used, depth + 1, ans);
                 for (size_t index : *pIndexes) {
                     used[index] = false;
                 }
@@ -66,10 +65,14 @@ public:
         used[src] = false;
     }
 
-    int minimumLines(vector<vector<int>>& points) {
+    int recursive(const vector<vector<int>>& points) {
         vector<bool> used(points.size(), false);
         int ans = ceil(float(points.size()) / 2);
-        topDn(points, used, 1, ans);
+        recursiveHelper(points, used, 1, ans);
         return ans;
+    }
+
+    int minimumLines(vector<vector<int>>& points) {
+        return recursive(points);
     }
 };
