@@ -57,9 +57,16 @@ Graph:
     Dijkstra
 
 Array
-    Easy: 
-        661. Image Smoother
-        705. Design HashSet: study GCC hashset
-        706. Design HashMap: study GCC hashmap
-        883. Projection Area of 3D Shapes
+    Easy:
+        Done:
+            1-1000
+        Remainging:
+            661. Image Smoother
+            705. Design HashSet: study GCC hashset
+            706. Design HashMap: study GCC hashmap
+            883. Projection Area of 3D Shapes
+            929. Unique Email Addresses
+            1408. String Matching in an Array
+
+
 
