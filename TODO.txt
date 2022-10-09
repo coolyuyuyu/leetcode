@@ -58,8 +58,6 @@ Graph:
 
 Array
     Easy:
-        Done:
-            1-1000
         Remainging:
             661. Image Smoother
             705. Design HashSet: study GCC hashset
@@ -67,6 +65,5 @@ Array
             883. Projection Area of 3D Shapes
             929. Unique Email Addresses
             1408. String Matching in an Array
-
-
-
+            1588. Sum of All Odd Length Subarrays
+            1863. Sum of All Subset XOR Totals
