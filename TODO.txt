@@ -64,5 +64,3 @@ Array
             706. Design HashMap: study GCC hashmap
             883. Projection Area of 3D Shapes
             929. Unique Email Addresses
-            1588. Sum of All Odd Length Subarrays
-            1863. Sum of All Subset XOR Totals
