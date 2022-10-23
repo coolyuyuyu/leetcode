@@ -7,9 +7,7 @@ public:
             if (itr != indexes.end()) {
                 return {itr->second, i};
             }
-            else {
-                indexes.emplace(nums[i], i);
-            }
+            indexes.emplace(nums[i], i);
         }
 
         return {-1, -1};
