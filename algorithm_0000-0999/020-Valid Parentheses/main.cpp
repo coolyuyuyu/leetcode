@@ -29,6 +29,7 @@ public:
                     break;
                 default:
                     assert(false);
+                    return false;
             }
         }
 
