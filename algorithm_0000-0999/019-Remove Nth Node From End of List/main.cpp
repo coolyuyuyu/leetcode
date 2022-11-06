@@ -10,13 +10,13 @@
  */
 class Solution {
 public:
-    ListNode* removeNthFromEnd(ListNode* head, int n) {
-        ListNode** ppFast = &head;
+    ListNode* removeNthFromEnd(ListNode* pHead, int n) {
+        ListNode** ppFast = &pHead;
         while (0 < n--) {
             ppFast = &((*ppFast)->next);
         }
 
-        ListNode** ppSlow = &head;
+        ListNode** ppSlow = &pHead;
         while (*ppFast) {
             ppFast = &((*ppFast)->next);
             ppSlow = &((*ppSlow)->next);
@@ -26,6 +26,6 @@ public:
         *ppSlow = pDel->next;
         delete pDel;
 
-        return head;
+        return pHead;
     }
 };
