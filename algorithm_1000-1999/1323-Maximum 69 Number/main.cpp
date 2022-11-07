@@ -1,20 +1,13 @@
 class Solution {
 public:
     int maximum69Number (int num) {
-        int targetPos = -1;
-        for (int tmp = num, pos = 0; tmp; tmp /= 10, ++pos) {
-            if (tmp % 10 == 6) {
-                targetPos = pos;
+        int diff = 0;
+        for (int tmpNum = num, tmpDiff = 3; tmpNum; tmpNum /= 10, tmpDiff *= 10) {
+            if (tmpNum % 10 == 6) {
+                diff = tmpDiff;
             }
         }
-
-        if (0 <= targetPos) {
-            int tmp = 3;
-            while (targetPos--) {
-                tmp *= 10;
-            }
-            num += tmp;
-        }
+        num += diff;
 
         return num;
     }
