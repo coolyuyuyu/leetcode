@@ -10,17 +10,16 @@
  */
 class Solution {
 public:
-    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+    ListNode* mergeTwoLists(ListNode* list1, ListNode* list2) {
         ListNode* pHead = nullptr;
         ListNode** ppCur = &pHead;
-        while (l1 && l2) {
-            ListNode** ppNode = &(l1->val <= l2->val ? l1 : l2);
-            *ppCur = *ppNode;
-            *ppNode = (*ppNode)->next;
-
-            ppCur = &((*ppCur)->next);
+        while (list1 && list2) {
+            ListNode*& pNode = list1->val < list2->val ? list1 : list2;
+            *ppCur = pNode;
+            ppCur = &(pNode->next);
+            pNode = pNode->next;
         }
-        *ppCur = (l1 ? l1 : l2);
+        *ppCur = list1 ? list1 : list2;
 
         return pHead;
     }
