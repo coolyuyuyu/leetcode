@@ -84,23 +84,24 @@ public:
     }
 
     ListNode* mergeKListsByMinHeap(vector<ListNode*>& lists) {
-        auto itrBgn = lists.begin(), itrEnd = lists.end();
-        itrEnd = remove(itrBgn, itrEnd, nullptr);
-        auto comp = [](ListNode* lft, ListNode* rht) { return lft->val > rht->val; };
-        priority_queue<ListNode*, vector<ListNode*>, decltype(comp)> pq(itrBgn, itrEnd, comp);
+        auto comp = [](const ListNode* lft, const ListNode* rht) { return lft->val > rht->val; };
+        priority_queue<ListNode*, vector<ListNode*>, decltype(comp)> pq(comp);
+        for (ListNode* pHead : lists) {
+            if (pHead) {
+                pq.push(pHead);
+            }
+        }
 
         ListNode* pHead = nullptr;
-        ListNode** ppCur = &pHead;
-        while (!pq.empty()) {
+        for (ListNode** ppCur = &pHead; !pq.empty();) {
             ListNode* pNode = pq.top();
             pq.pop();
 
             *ppCur = pNode;
-            ppCur = &((*ppCur)->next);
+            ppCur = &(pNode->next);
 
-            pNode = pNode->next;
-            if (pNode) {
-                pq.push(pNode);
+            if (pNode->next) {
+                pq.push(pNode->next);
             }
         }
 
