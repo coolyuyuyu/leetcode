@@ -1,17 +1,16 @@
 class Solution {
 public:
     void rotate(vector<vector<int>>& matrix) {
-        int n = matrix.size();
-        for (int k = 1; k < n; ++k) {
-            for (int x = 0; x + k < n ; ++x) {
-                int y = x + k;
-                swap(matrix[x][y], matrix[y][x]);
+        size_t n = matrix.size();
+        for (size_t i = 0; i < n; ++i) {
+            for (size_t j = i + 1; j < n; ++j) {
+                std::swap(matrix[i][j], matrix[j][i]);
             }
         }
 
-        for (int x = 0; x < n; ++x) {
-            for (int y = 0; y < n / 2; ++y) {
-                swap(matrix[x][y], matrix[x][n - y - 1]);
+        for (size_t i = 0; i < n; ++i) {
+            for (size_t j = 0; j < (n / 2); ++j) {
+                std::swap(matrix[i][j], matrix[i][n - j - 1]);
             }
         }
     }
