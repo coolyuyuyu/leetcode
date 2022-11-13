@@ -48,9 +48,28 @@ public:
         return missing;
     }
 
+    // Time: O(N), Space: O(1)
+    vector<int> findDisappearedNumbers_CycleSort(vector<int>& nums) {
+        for (size_t i = 0; i < nums.size(); ++i) {
+            while (nums[i] != nums[nums[i] - 1]) {
+                std::swap(nums[i], nums[nums[i] - 1]);
+            }
+        }
+
+        vector<int> missing;
+        for (int i = 0; i < nums.size(); ++i) {
+            if (nums[i] != (i + 1)) {
+                missing.push_back(i + 1);
+            }
+        }
+
+        return missing;
+    }
+
     vector<int> findDisappearedNumbers(vector<int>& nums) {
         //return findDisappearedNumbers_Set(nums);
         //return findDisappearedNumbers_Sort(nums);
-        return findDisappearedNumbers_Linear(nums);
+        //return findDisappearedNumbers_Linear(nums);
+        return findDisappearedNumbers_CycleSort(nums);
     }
 };
