@@ -64,7 +64,5 @@ Array
             706. Design HashMap: study GCC hashmap
 
 
-min swap to sort array, cycle sort
-2471. Minimum Number of Operations to Sort a Binary Tree by Level
-
+0005. Longest Palindromic Substring
 2472. Maximum Number of Non-overlapping Palindrome Substrings
