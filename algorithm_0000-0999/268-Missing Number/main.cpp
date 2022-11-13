@@ -20,25 +20,8 @@ public:
         return target;
     }
 
-    int missingNumber_CycleSort(vector<int>& nums) {
-        for (size_t i = 0; i < nums.size(); ++i) {
-            while (nums[i] < nums.size() && nums[i] != i) {
-                std::swap(nums[i], nums[nums[i]]);
-            }
-        }
-
-        for (int i = 0; i < nums.size(); ++i) {
-            if (nums[i] != i) {
-                return i;
-            }
-        }
-
-        return nums.size();
-    }
-
     int missingNumber(vector<int>& nums) {
         //return missingNumber_Sum(nums);
-        //return missingNumber_Bit(nums);
-        return missingNumber_CycleSort(nums);
+        return missingNumber_Bit(nums);
     }
 };
