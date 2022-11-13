@@ -10,7 +10,7 @@ public:
         reverse(s.begin(), s.end());
 
         auto itr = s.begin();
-        for (auto itrFirst = s.begin(); itrFirst != s.end(); itrFirst != s.end() ? ++itrFirst : itrFirst) {
+        for (auto itrFirst = s.begin(); itrFirst != s.end(); ) {
             itrFirst = std::find_if(itrFirst, s.end(), [](char c) { return !isblank(c); });
             if (itrFirst != s.end()) {
                 auto itrLast = std::find_if(itrFirst, s.end(), [](char c) { return isblank(c); });
@@ -18,15 +18,12 @@ public:
                 if (itr != s.begin()) {
                     *itr++ = ' ';
                 }
-
-                if (itr != itrFirst) {
-                    itr = std::copy(itrFirst, itrLast, itr);
-                }
-                else {
-                    itr += (itrLast - itrFirst);
-                }
+                itr = std::copy(itrFirst, itrLast, itr);
 
                 itrFirst = itrLast;
+                if (itrFirst != s.end()) {
+                    ++itrFirst;
+                }
             }
         }
         s.erase(itr, s.end());
