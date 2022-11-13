@@ -1,42 +1,36 @@
 class Solution {
 public:
-    inline void reverse(string& str, size_t first, size_t last) {
-        while (first + 1 < last) {
-            swap(str[first], str[last - 1]);
-            ++first, --last;
+    void reverse(string::iterator first, string::iterator last) {
+        while (first != last && first != --last) {
+            std::iter_swap(first++, last);
         }
     }
 
-    void reverseWords(string &str) {
-        reverse(str, 0, str.size());
+    string reverseWords(string s) {
+        reverse(s.begin(), s.end());
 
-        size_t nonSpaceStart = 0;
-        for (size_t i = 0; i <= str.size(); ++i) {
-            if (str.size() <= i || isblank(str[i])) {
-                reverse(str, nonSpaceStart, i);
-                nonSpaceStart = i + 1;
+        auto itr = s.begin();
+        for (auto itrFirst = s.begin(); itrFirst != s.end(); itrFirst != s.end() ? ++itrFirst : itrFirst) {
+            itrFirst = std::find_if(itrFirst, s.end(), [](char c) { return !isblank(c); });
+            if (itrFirst != s.end()) {
+                auto itrLast = std::find_if(itrFirst, s.end(), [](char c) { return isblank(c); });
+                reverse(itrFirst, itrLast);
+                if (itr != s.begin()) {
+                    *itr++ = ' ';
+                }
+
+                if (itr != itrFirst) {
+                    itr = std::copy(itrFirst, itrLast, itr);
+                }
+                else {
+                    itr += (itrLast - itrFirst);
+                }
+
+                itrFirst = itrLast;
             }
         }
+        s.erase(itr, s.end());
 
-        size_t toRead = 0;
-        size_t toWrite = 0;
-        while (toRead < str.size()) {
-            while (toRead < str.size() && isblank(str[toRead]))
-                ++toRead;
-
-            while (toRead < str.size() && !isblank(str[toRead])) {
-                str[toWrite] = str[toRead];
-                ++toWrite, ++toRead;
-            }
-
-            if (toWrite < str.size()) {
-                str[toWrite++] = ' ';
-            }
-        }
-
-        str.resize(toWrite);
-        while (!str.empty() && isblank(str.back())) {
-            str.pop_back();
-        }
+        return s;
     }
 };
