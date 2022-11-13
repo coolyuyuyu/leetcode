@@ -1,5 +1,6 @@
 class Solution {
 public:
+    // cycle sort
     int firstMissingPositive(vector<int>& nums) {
         int n = nums.size();
         for (int i = 0; i < n; ++i) {
