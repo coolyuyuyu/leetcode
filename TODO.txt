@@ -67,3 +67,5 @@ Array
 min swap to sort array, cycle sort
 2471. Minimum Number of Operations to Sort a Binary Tree by Level
 2472. Maximum Number of Non-overlapping Palindrome Substrings    
+
+cycle sort: https://blog.techbridge.cc/2020/02/16/leetcode-%E5%88%B7%E9%A1%8C-pattern-cyclic-sort/
