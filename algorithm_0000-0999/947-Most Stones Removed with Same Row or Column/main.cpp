@@ -440,54 +440,43 @@ namespace std {
 
 class Solution {
 public:
-    /*
-    int removeStones1(vector<vector<int>>& stones) {
-        int n = stones.size();
-
-        vector<vector<bool>> adjMtx(n, vector<bool>(n, 0));
-        for (size_t i = 0; i < stones.size(); ++i) {
-            for (size_t j = i + 1; j < stones.size(); ++j) {
+    int removeStones_bfs(vector<vector<int>>& stones) {
+        size_t n = stones.size();
+        vector<vector<bool>> adjMtx(n, vector<bool>(n, false));
+        for (size_t i = 0; i < n; ++i) {
+            for (size_t j = i + 1; j < n; ++j) {
                 if (stones[i][0] == stones[j][0] || stones[i][1] == stones[j][1]) {
-                    adjMtx[i][j] = true;
-                    adjMtx[j][i] = true;
+                    adjMtx[i][j] = adjMtx[j][i] = true;
                 }
             }
         }
 
-        int ans = 0;
-
-        vector<bool> seen(n, false);
-        for (int i = 0; i < n; ++i) {
-            if (seen[i]) {
+        size_t dsSize = 0; // size of disjoint_sets
+        vector<bool> visited(n, false);
+        for (size_t root = 0; root < n; ++root) {
+            if (visited[root]) {
                 continue;
             }
 
-            int componentSize = 0;
+            ++dsSize;
 
-            queue<int> q;
-            q.push(i);
-            while (!q.empty()) {
-                int j = q.front();
-                q.pop();
-                if (seen[j]) {
-                    continue;
-                }
-
-                ++componentSize;
-                seen[j] = true;
-                for (int k = 0; k < n; ++k) {
-                    if (adjMtx[j][k] && !seen[k]) {
-                        q.push(k);
+            queue<size_t> nodes;
+            visited[root] = true;
+            nodes.push(root);
+            while (!nodes.empty()) {
+                size_t i = nodes.front();
+                nodes.pop();
+                for (size_t j = 0; j < n; ++j) {
+                    if (adjMtx[i][j] && !visited[j]) {
+                        visited[j] = true;
+                        nodes.push(j);
                     }
                 }
             }
-
-            ans += (componentSize - 1);
         }
 
-        return ans;
+        return n - dsSize;
     }
-    */
 
     int removeStones_UnionFind(vector<vector<int>>& stones) {
         //DisjointSets<unsigned short> ds;
@@ -500,6 +489,7 @@ public:
     }
 
     int removeStones(vector<vector<int>>& stones) {
+        //return removeStones_bfs(stones);
         return removeStones_UnionFind(stones);
     }
 };
