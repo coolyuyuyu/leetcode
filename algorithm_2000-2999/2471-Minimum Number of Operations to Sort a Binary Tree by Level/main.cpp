@@ -25,7 +25,7 @@ public:
             }
         }
 
-        return cnt;;
+        return cnt;
     }
 
     int minimumOperations(TreeNode* root) {
