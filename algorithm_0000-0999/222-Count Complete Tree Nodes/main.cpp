@@ -11,47 +11,109 @@
  */
 class Solution {
 public:
-    int lftHeight(TreeNode* root) {
-        return root ? (1 + lftHeight(root->left)) : 0;
-    }
-
-    // Time: O((logN)^2)
-    int countNodes_Recursive(TreeNode* root) {
+    // straightforward for binary tree
+    // Time: O(N)
+    int countNodes_recursive(TreeNode* root) {
         if (!root) {
             return 0;
         }
 
-        int lftH = lftHeight(root->left);
-        int rhtH = lftHeight(root->right);
-        assert(lftH == rhtH || lftH == (rhtH + 1));
+        return 1 + countNodes_recursive(root->left) + countNodes_recursive(root->right);
+    }
+
+    // straightforward for binary tree
+    // Time: O(N)
+    int countNodes_iterative(TreeNode* root) {
+        queue<TreeNode*> nodes;
+        if (root) {
+            nodes.push(root);
+        }
+
+        int cnt = 0;
+        while (!nodes.empty()) {
+            ++cnt;
+
+            TreeNode* node = nodes.front();
+            nodes.pop();
+
+            if (node->left) {
+                nodes.push(node->left);
+            }
+            if (node->right) {
+                nodes.push(node->right);
+            }
+        }
+
+        return cnt;
+    }
+
+    int completeHeight(TreeNode* root) {
+        int h = 0;
+        while (root) {
+            ++h;
+            root = root->left;
+        }
+
+        return h;
+    }
+
+    // take advantage of property of complete binary tree
+    // Time: O((logN)^2)
+    int countCompleteTreeNodes_recursive(TreeNode* root) {
+        if (!root) {
+            return 0;
+        }
+
+        int lftH = completeHeight(root->left);
+        int rhtH = completeHeight(root->left);
         if (lftH == rhtH) {
-            return 1 + (1 << lftH) - 1 + countNodes_Recursive(root->right);
+            return 1 + (1 << lftH) - 1 + countCompleteTreeNodes_recursive(root->right);
         }
         else {
-            return 1 +  (1 << rhtH) - 1 + countNodes_Recursive(root->left);
+            return 1 + countCompleteTreeNodes_recursive(root->left) + (1 << rhtH) - 1;
         }
     }
 
+    // take advantage of property of complete binary tree
+    // less number of completeHeight, compared to countCompleteTreeNodes_recursive
     // Time: O((logN)^2)
-    int countNodes_Itertive(TreeNode* root) {
-        int numNodes = 0;
+    int countCompleteTreeNodes_recursive2(TreeNode* root, int h) {
+        if (!root) {
+            return 0;
+        }
 
-        for (int h = lftHeight(root); root; --h) {
-            if ((lftHeight(root->right) + 1) == h) {
-                numNodes += (1 << (h - 1));
+        if ((completeHeight(root->right) + 1) == h) {
+            return (1 << (h - 1)) + countCompleteTreeNodes_recursive2(root->right, h - 1);
+        }
+        else {
+            return (1 << (h - 2)) + countCompleteTreeNodes_recursive2(root->left, h - 1);
+        }
+    }
+
+    // take advantage of property of complete binary tree
+    // Time: O((logN)^2)
+    int countCompleteTreeNodes_iterative(TreeNode* root) {
+        int cnt = 0;
+        for (int h = completeHeight(root); root; h--) {
+            if ((completeHeight(root->right) + 1) == h) {
                 root = root->right;
+                cnt += 1 << (h - 1);
             }
             else {
-                numNodes += (1 << (h - 2));
                 root = root->left;
+                cnt += 1 << (h - 2);
             }
         }
 
-        return numNodes;
+        return cnt;
     }
 
     int countNodes(TreeNode* root) {
-        //return countNodes_Recursive(root);
-        return countNodes_Itertive(root);
+        //return countNodes_recursive(root);
+        //return countNodes_iterative(root);
+
+        //return countCompleteTreeNodes_recursive(root);
+        //return countCompleteTreeNodes_recursive2(root, completeHeight(root));
+        return countCompleteTreeNodes_iterative(root);
     }
 };
