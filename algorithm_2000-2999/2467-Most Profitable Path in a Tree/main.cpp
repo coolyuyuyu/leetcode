@@ -1,70 +1,64 @@
 class Solution {
 public:
-    bool computeArriveTimes(const vector<set<int>>& neighbors, int src, int dst, int depth, vector<bool>& visited, vector<int>& times) {
-        visited[src] = true;
-
+    bool computeArriveTimes(const vector<vector<int>>& graph, int cur, int pre, int dst, int depth, vector<int>& times) {
         bool found = false;
-        if (src == dst) {
-            times[src] = depth;
+        if (cur == dst) {
+            times[cur] = depth;
             found = true;
         }
         else {
-            for (int neighbor : neighbors[src]) {
-                if (!visited[neighbor]) {
-                    found = computeArriveTimes(neighbors, neighbor, dst, depth + 1, visited, times);
-                    if (found) {
-                        times[src] = depth;
-                        break;
-                    }
+            for (int neighbor : graph[cur]) {
+                if (neighbor == pre) {
+                    continue;
+                }
+
+                found = computeArriveTimes(graph, neighbor, cur, dst, depth + 1, times);
+                if (found) {
+                    times[cur] = depth;
+                    break;
                 }
             }
         }
 
-        visited[src] = false;
         return found;
     }
 
-    void computePathIncome(const vector<set<int>>& neighbors, int node, int depth, vector<bool>& visited, vector<int>& times, vector<int>& amount, int income, int& ans) {
-        visited[node] = true;
-
-        if (depth < times[node]) {
-            income += amount[node];
+    void computePathIncome(const vector<vector<int>>& graph, int cur, int pre, int depth, vector<int>& times, vector<int>& amount, int income, int& ans) {
+        if (depth < times[cur]) {
+            income += amount[cur];
         }
-        else if (depth == times[node]) {
-            income += (amount[node] / 2);
+        else if (depth == times[cur]) {
+            income += (amount[cur] / 2);
         }
 
         bool isLeaf = true;
-        for (int neighbor : neighbors[node]) {
-            if (!visited[neighbor]) {
-                isLeaf = false;
-                computePathIncome(neighbors, neighbor, depth + 1, visited, times, amount, income, ans);
+        for (int neighbor : graph[cur]) {
+            if (neighbor == pre) {
+                continue;
             }
+
+            isLeaf = false;
+            computePathIncome(graph, neighbor, cur, depth + 1, times, amount, income, ans);
         }
 
         if (isLeaf && ans < income) {
             ans = income;
         }
-
-        visited[node] = false;
     }
 
     int mostProfitablePath(vector<vector<int>>& edges, int bob, vector<int>& amount) {
-        size_t n = amount.size();
-
-        vector<set<int>> neighbors(n);
+        vector<vector<int>> neighbors(amount.size());
         for (const auto& edge : edges) {
-            neighbors[edge[0]].insert(edge[1]);
-            neighbors[edge[1]].insert(edge[0]);
+            neighbors[edge[0]].push_back(edge[1]);
+            neighbors[edge[1]].push_back(edge[0]);
         }
 
-        vector<bool> visited(n, false);
-
-        vector<int> times(n, INT_MAX);
-        computeArriveTimes(neighbors, bob, 0, 0, visited, times);
+        vector<int> times(amount.size(), INT_MAX);
+        computeArriveTimes(neighbors, bob, -1, 0, 0, times);
 
         int ans = INT_MIN;
-        computePathIncome(neighbors, 0, 0, visited, times, amount, 0, ans);
+        computePathIncome(neighbors, 0, -1, 0, times, amount, 0, ans);
+
         return ans;
     }
 };
