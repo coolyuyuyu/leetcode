@@ -1,6 +1,6 @@
 class Solution {
 public:
-    int dp_top_down(int n, vector<int>& cache) {
+    int dp_topDown(int n, vector<int>& cache) {
         if (cache.size() <= n) {
             cache.resize(n + 1, INT_MAX);
         }
@@ -10,13 +10,13 @@ public:
         }
 
         for (int i = 1; (i * i) <= n; ++i) {
-            cache[n] = std::min(cache[n], dp_top_down(n - i * i, cache) + 1);
+            cache[n] = std::min(cache[n], dp_topDown(n - i * i, cache) + 1);
         }
 
         return cache[n];
     }
 
-    int dp_btm_up(int n) {
+    int dp_btmUp(int n) {
         vector<int> dp(n + 1, INT_MAX);
         dp[0] = 0;
         dp[1] = 1;
@@ -30,8 +30,8 @@ public:
 
     int numSquares(int n) {
         //vector<int> cache = {0, 1};
-        //return dp_top_down(n, cache);
+        //return dp_topDown(n, cache);
 
-        return dp_btm_up(n);
+        return dp_btmUp(n);
     }
 };
