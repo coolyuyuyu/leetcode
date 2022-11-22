@@ -1,8 +1,6 @@
 class Solution {
 public:
-
-    int numSquaresRecv(int n) {
-        static vector<int> cache = {0 , 1};
+    int dp_top_down(int n, vector<int>& cache) {
         if (cache.size() <= n) {
             cache.resize(n + 1, INT_MAX);
         }
@@ -11,35 +9,29 @@ public:
             return cache[n];
         }
 
-        for (int base = 1; base * base <= n; ++base) {
-            cache[n] = min(cache[n], numSquaresRecv(n - base * base) + 1);
+        for (int i = 1; (i * i) <= n; ++i) {
+            cache[n] = std::min(cache[n], dp_top_down(n - i * i, cache) + 1);
         }
 
         return cache[n];
     }
 
-    int numSquaresDp(int n) {
-        static vector<int> cache = {0 , 1};
-
-        int oldSize = cache.size();
-        if (oldSize <= n) {
-            cache.resize(n + 1, INT_MAX);
-        }
-
-        for (int i = oldSize; i <= n; ++i) {
-            for (int base = 1; base * base <= i; ++base) {
-                cache[i] = min(cache[i], cache[i - base * base] + 1);
+    int dp_btm_up(int n) {
+        vector<int> dp(n + 1, INT_MAX);
+        dp[0] = 0;
+        dp[1] = 1;
+        for (int i = 2; i <= n; ++i) {
+            for (int j = 1; (j * j) <= i; ++j) {
+                dp[i] = std::min(dp[i], dp[i - j * j] + 1);
             }
         }
-
-        return cache[n];
+        return dp[n];
     }
 
     int numSquares(int n) {
-        assert(0 < n);
+        //vector<int> cache = {0, 1};
+        //return dp_top_down(n, cache);
 
-        //return numSquaresRecv(n);
-
-        return numSquaresDp(n);
+        return dp_btm_up(n);
     }
 };
