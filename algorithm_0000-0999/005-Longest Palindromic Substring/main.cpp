@@ -11,8 +11,8 @@ public:
             return true;
         };
 
-        for (size_t l = s.size(); 0 < l; --l) {
         for (size_t len = s.size(); 0 < len; --len) {
+            for (size_t pos = 0; (pos + len) <= s.size(); ++pos) {
                 if (checkPalindrome(pos, len)) {
                     return s.substr(pos, len);
                 }
@@ -74,7 +74,7 @@ public:
                 --lft, ++rht;
             }
 
-            int len = rht - lft + 1;
+            size_t len = rht - lft + 1;
             if (ansLen < len) {
                 ansPos = lft;
                 ansLen = len;
