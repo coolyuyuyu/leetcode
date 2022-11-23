@@ -1,51 +1,29 @@
 class Solution {
 public:
     bool isValidSudoku(vector<vector<char>>& board) {
-        vector<int> counts(9, 1);
-
         for (int i = 0; i < 9; ++i) {
-            vector<int> cnts = counts;
+            vector<bool> row(9, false), col(9, false), box(9, false);
             for (int j = 0; j < 9; ++j) {
-                char c = board[i][j];
-                if (c == '.') {
-                    continue;
+                if (board[i][j] != '.') {
+                    if (row[board[i][j] - '0']) {
+                        return false;
+                    }
+                    row[board[i][j] - '0'] = true;
                 }
 
-                --cnts[c - '1'];
-                if (cnts[c - '1'] < 0) {
-                    return false;
-                }
-            }
-        }
-
-        for (int i = 0; i < 9; ++i) {
-            vector<int> cnts = counts;
-            for (int j = 0; j < 9; ++j) {
-                char c = board[j][i];
-                if (c == '.') {
-                    continue;
+                if (board[j][i] != '.') {
+                    if (col[board[j][i] - '0']) {
+                        return false;
+                    }
+                    col[board[j][i] - '0'] = true;
                 }
 
-                --cnts[c - '1'];
-                if (cnts[c - '1'] < 0) {
-                    return false;
-                }
-            }
-        }
-
-        for (int i = 0; i < 9; ++i) {
-            vector<int> cnts = counts;
-            int a = i / 3 * 3;
-            int b = i % 3 * 3;
-            for (int j = 0; j < 9; ++j) {
-                char c = board[a + j / 3][b + j % 3];
-                if (c == '.') {
-                    continue;
-                }
-
-                --cnts[c - '1'];
-                if (cnts[c - '1'] < 0) {
-                    return false;
+                int row = i / 3 * 3 + j / 3, col = i % 3 * 3 + + j % 3;
+                if (board[row][col] != '.') {
+                    if (box[board[row][col] - '0']) {
+                        return false;
+                    }
+                    box[board[row][col] - '0'] = true;
                 }
             }
         }
