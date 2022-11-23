@@ -1,25 +1,15 @@
 class Solution {
 public:
     bool isStrobogrammatic(string num) {
-        static unordered_map<char, char> dict = {{'0', '0'}, {'1', '1'}, {'6', '9'}, {'8', '8'}, {'9', '6'}};
+        assert(!num.empty());
 
-        size_t lft = 0;
-        size_t rht = num.size() - 1;
-        while (lft < rht) {
-            unordered_map<char, char>::const_iterator it = dict.find(num[lft]);
-            if (it == dict.end() || it->second != num[rht]) {
-                return false;
+        string m = "01....9.86";
+        for(size_t i = 0; (i * 2) <= num.size(); ++i) {
+            if (m[num[i] - '0'] != num[num.size() - i - 1]) {
+                    return false;
             }
-
-            ++lft;
-            --rht;
         }
 
-        if (lft == rht) {
-            return num[lft] == '0' || num[lft] == '1' || num[lft] == '8';
-        }
-        else {
-            return true;
-        }
+        return true;
     }
 };
