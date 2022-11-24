@@ -67,3 +67,5 @@ Array
 2472. Maximum Number of Non-overlapping Palindrome Substrings
     0005. Longest Palindromic Substring
     0435. Non-overlapping Intervals
+
+1198. Find Smallest Common Element in All Rows
