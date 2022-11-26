@@ -37,7 +37,7 @@ public:
         int ans = 0;
         for (size_t i = 0; i < n; ++i) {
             size_t lftLen = lft[i] != n ? (i - lft[i]) : i + 1;
-            size_t rhtLen = rht[i] != n ? (rht[i] - i) : n - i;
+            size_t rhtLen = rht[i] - i;
             ans = (ans + arr[i] * lftLen * rhtLen) % 1000000007;
         }
         return ans;
