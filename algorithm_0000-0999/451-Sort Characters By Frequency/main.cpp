@@ -1,76 +1,71 @@
 class Solution {
 public:
-    string frequencySort_SimpleSort(string s) {
-        vector<size_t> counts(128, 0);
+    string stdsort(string& s) {
+        vector<int> cnts(128, 0);
         for (char c : s) {
-            ++counts[c];
+            ++cnts[c];
         }
 
-        auto comp = [&](char c1, char c2) {
-            if (counts[c1] == counts[c2]) {
-                return c1 < c2;
-            }
-            else {
-                return (counts[c1] > counts[c2]);
-            }
+        auto comp = [&cnts](char c1, char c2) {
+            return (cnts[c1] > cnts[c2]) || (cnts[c1] == cnts[c2] && c1 < c2) ;
         };
-        sort(s.begin(), s.end(), comp);
+        std::sort(s.begin(), s.end(), comp);
 
         return s;
     }
 
-    string frequencySort_BucketSort(string s) {
-        vector<size_t> counts(128, 0);
+    string bucketsort(string& s) {
+        vector<int> cnts(128, 0);
         for (char c : s) {
-            ++counts[c];
+            ++cnts[c];
         }
 
-        vector<vector<char>> buckets;
-        for (char c = 0; c < counts.size(); ++c) {
-            if (counts[c] == 0) {
+        vector<string> buckets;
+        for (char c = 0; c < cnts.size(); ++c) {
+            if (buckets.size() <= cnts[c]) {
+                buckets.resize(cnts[c] + 1);
+            }
+            buckets[cnts[c]].push_back(c);
+        }
+
+        s.clear();
+        for (size_t cnt = buckets.size(); 0 < cnt--;) {
+            for (char c : buckets[cnt]) {
+                s.append(cnt, c);
+            }
+        }
+
+        return s;
+    }
+
+    string stdheap(string& s) {
+        vector<int> cnts(128, 0);
+        for (char c : s) {
+            ++cnts[c];
+        }
+
+        auto comp = [&cnts](char c1, char c2) {
+            return (cnts[c1] < cnts[c2]) || (cnts[c1] == cnts[c2] && c1 < c2) ;
+        };
+        priority_queue<char, vector<char>, decltype(comp)> pq(comp);
+        for (char c = 0; c < cnts.size(); ++c) {
+            if (cnts[c] == 0) {
                 continue;
             }
-
-            if (buckets.size() <= counts[c]) {
-                buckets.resize(counts[c] + 1);
-            }
-            buckets[counts[c]].push_back(c);
+            pq.push(c);
         }
 
-        s.clear();
-        for (size_t i = buckets.size(); 0 < i--;) {
-            for (char c : buckets[i]) {
-                s.append(i, c);
-            }
-        }
-        return s;
-    }
-
-    string frequencySort_Heap(string s) {
-        unordered_map<char, size_t> counts;
-        for (char c : s) {
-            ++counts[c];
+        for (auto itr = s.begin(); !pq.empty(); pq.pop()) {
+            char c = pq.top();
+            itr = std::fill_n(itr, cnts[c], c);
         }
 
-        auto comp = [&](const pair<char, size_t>& p1, const pair<char, size_t>& p2) {
-            return (p1.second < p2.second);
-        };
-        priority_queue<pair<char, size_t>, vector<pair<char, size_t>>, decltype(comp)> pq(comp); // max_heap
-        for (const pair<char, size_t>& p : counts) {
-            pq.push(p);
-        }
-
-        s.clear();
-        for (; !pq.empty(); pq.pop()) {
-            const pair<char, size_t>& p = pq.top();
-            s.append(p.second, p.first);
-        }
         return s;
     }
 
     string frequencySort(string s) {
-        //return frequencySort_SimpleSort(s);
-        //return frequencySort_BucketSort(s);
-        return frequencySort_Heap(s);
+        //return stdsort(s);
+        //return bucketsort(s);
+        return stdheap(s);
     }
 };
