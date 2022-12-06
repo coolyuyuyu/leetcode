@@ -1,122 +1,42 @@
 class Solution {
 public:
-    int numDecodingsRecv(const string& s, size_t index) {
-        size_t len = s.size();
-        if (index == len) {
-            return 1;
+    // Time: O(n), Space: O(n)
+    int dp1(const string& s) {
+        size_t n = s.size();
+        vector<int> dp(n, 0); // dp[i]: number of decode ways for string s[0:i+1]
+        dp[0] = (s[0] == '0' ? 0 : 1);
+        for (size_t i = 1; i < n; ++i) {
+            if (s[i] != '0') {
+                dp[i] += dp[i - 1];
+            }
+            if ((s[i - 1] == '2' && s[i] <= '6') || s[i - 1] == '1') {
+                dp[i] += (2 <= i ? dp[i - 2] : 1);
+            }
         }
 
-        if (s[index] == '0') {
-            return 0;
-        }
-        else {
-            int num = numDecodingsRecv(s, index + 1);
-            if (index + 1 < len) {
-                if (s[index] == '1' || (s[index] == '2' && s[index + 1] <= '6')) {
-                    num += numDecodingsRecv(s, index + 2);
-                }
-            }
-            return num;
-        }
+        return dp.back();
     }
 
-    int numDecodingsRecv(const string& s) {
-        if (s.empty()) {
-            return 0;
-        }
-
-        return numDecodingsRecv(s, 0);
-    }
-
-    int numDecodingsMemoRecv(const string& s, size_t index, vector<int>& nums) {
-        if (nums[index] != -1) {
-            return nums[index];
-        }
-
-        size_t len = s.size();
-        if (s[index] == '0') {
-            return nums[index] = 0;
-        }
-        else {
-            int num = numDecodingsMemoRecv(s, index + 1, nums);
-            if (index + 1 < len) {
-                if (s[index] == '1' || (s[index] == '2' && s[index + 1] <= '6')) {
-                    num += numDecodingsMemoRecv(s, index + 2, nums);
-                }
+    // Time: O(n), Space: O(1)
+    int dp2(const string& s) {
+        size_t n = s.size();
+        int x = (s[0] == '0' ? 0 : 1), y, z;
+        for (size_t i = 1; i < n; ++i) {
+            z = y, y = x, x = 0;
+            
+            if (s[i] != '0') {
+                x += y;
             }
-            return nums[index] = num;
-        }
-    }
-
-    int numDecodingsMemoRecv(const string& s) {
-        if (s.empty()) {
-            return 0;
-        }
-
-        vector<int> nums(s.size() + 1, -1);
-        nums.back() = 1;
-        return numDecodingsMemoRecv(s, 0, nums);
-    }
-
-    int numDecodingsMemoIter(const string& s) {
-        if (s.empty()) {
-            return 0;
-        }
-
-        size_t len = s.size();
-        vector<int> nums(len + 1, -1);
-        nums.back() = 1;
-        for (size_t i = s.size(); i > 0; --i) {
-            size_t index = i - 1;
-
-            if (s[index] == '0') {
-                nums[index] = 0;
-            }
-            else {
-                int num = numDecodingsMemoRecv(s, index + 1, nums);
-                if (index + 1 < len) {
-                    if (s[index] == '1' || (s[index] == '2' && s[index + 1] <= '6')) {
-                        num += numDecodingsMemoRecv(s, index + 2, nums);
-                    }
-                }
-                nums[index] = num;
+            if ((s[i - 1] == '2' && s[i] <= '6') || s[i - 1] == '1') {
+                x += (2 <= i ? z : 1);
             }
         }
 
-        return nums[0];
-    }
-
-    int numDecodingsIter(const string& s) {
-        if (s.empty()) {
-            return 0;
-        }
-
-        size_t len = s.size();
-        size_t num1 = 1;
-        size_t num2 = 0;
-        for (size_t i = s.size(); i > 0; --i) {
-            size_t index = i - 1;
-
-            if (s[index] == '0') {
-                num2 = num1;
-                num1 = 0;
-            }
-            else {
-                int tmp = num1;
-                if (index + 1 < len) {
-                    if (s[index] == '1' || (s[index] == '2' && s[index + 1] <= '6')) {
-                        tmp += num2;
-                    }
-                }
-                num2 = num1;
-                num1 = tmp;
-            }
-        }
-
-        return num1;
+        return x;
     }
 
     int numDecodings(string s) {
-        return numDecodingsIter(s);
+        //return dp1(s);
+        return dp2(s);
     }
 };
