@@ -23,7 +23,7 @@ public:
         int x = (s[0] == '0' ? 0 : 1), y, z;
         for (size_t i = 1; i < n; ++i) {
             z = y, y = x, x = 0;
-            
+
             if (s[i] != '0') {
                 x += y;
             }
