@@ -1,36 +1,36 @@
 class Solution {
 public:
-    // Time: O(N^2)
+    // Time: O(n^2)
     int quadratic(const string& s) {
-        size_t maxLen = 0;
-        for (size_t i = 0; i < s.size(); ++i) {
+        size_t ans = 0;
+        for (size_t i = 0; i < s.size() && ans < (s.size() - i); ++i) {
             set<char> chars;
             for (size_t j = i; j < s.size(); ++j) {
                 if (chars.insert(s[j]).second == false) {
                     break;
                 }
             }
-            maxLen = std::max(maxLen, chars.size());
+            ans = std::max(ans, chars.size());
         }
 
-        return maxLen;
+        return ans;
     }
 
-    // Time: O(N^2)
-    int linerar(const string& s) {
-        vector<int> indexes(256, -1);
-        int maxLen = 0;
-        for (int i = 0, start = 0; i < s.size(); ++i) {
-            start = std::max(start, indexes[s[i]] + 1); // no repeating from start to ...
-            indexes[s[i]] = i;
-            maxLen = std::max(maxLen, i - start + 1);
+    // Time: O(n)
+    int linear(const string& s) {
+        vector<int> lastIndexes(128, -1);
+        int ans = 0;
+        for (int lft = 0, rht = 0; rht < s.size(); ++rht) {
+            lft = std::max(lft, lastIndexes[s[rht]] + 1);
+            lastIndexes[s[rht]] = rht;
+            ans = std::max(ans, rht - lft + 1);
         }
 
-        return maxLen;
+        return ans;
     }
 
     int lengthOfLongestSubstring(string s) {
         //return quadratic(s);
-        return linerar(s);
+        return linear(s);
     }
 };
