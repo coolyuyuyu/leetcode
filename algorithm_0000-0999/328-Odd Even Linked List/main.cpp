@@ -11,18 +11,16 @@
 class Solution {
 public:
     ListNode* oddEvenList(ListNode* head) {
-        ListNode* head1 = nullptr;
-        ListNode* head2 = nullptr;
-        ListNode** ppCurPair[2] = {&head1, &head2};
-
-        size_t index = 0;
-        for (ListNode* pCur = head; pCur; pCur = pCur->next, index ^= 1) {
-            *(ppCurPair[index]) = pCur;
-            ppCurPair[index] =  &((*(ppCurPair[index]))->next);
+        ListNode* pHead1 = nullptr;
+        ListNode* pHead2 = nullptr;
+        ListNode** ppCurs[2] = {&pHead1, &pHead2};
+        for (int i = 0; head; i ^= 1, head = head->next) {
+            *(ppCurs[i]) = head;
+            ppCurs[i] = &((*(ppCurs[i]))->next);
         }
-        *(ppCurPair[0]) = head2;
-        *(ppCurPair[1]) = nullptr;
+        *(ppCurs[0]) = pHead2;
+        *(ppCurs[1]) = nullptr;
 
-        return head1;
+        return pHead1;
     }
 };
