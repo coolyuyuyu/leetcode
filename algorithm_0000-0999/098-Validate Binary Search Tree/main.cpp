@@ -11,55 +11,52 @@
  */
 class Solution {
 public:
-    bool isValidBST_Recursive(TreeNode* root, int minVal = numeric_limits<int>::min(), int maxVal = numeric_limits<int>::max()) {
+    bool isValidBST_Recursive(TreeNode* root, TreeNode*& prev) {
         if (!root) {
             return true;
         }
 
-        if (minVal <= root->val && root->val <= maxVal) {
-            if (root->left) {
-                if (root->val == numeric_limits<int>::min() || !isValidBST_Recursive(root->left, minVal, root->val - 1)) {
-                    return false;
-                }
-            }
-
-            if (root->right) {
-                if (root->val == numeric_limits<int>::max() || !isValidBST_Recursive(root->right, root->val + 1, maxVal)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-        else {
+        if (!isValidBST_Recursive(root->left, prev)) {
             return false;
         }
+
+
+        if (prev && root->val <= prev->val) {
+            return false;
+        }
+        prev = root;
+
+        return isValidBST_Recursive(root->right, prev);
+    }
+
+    bool isValidBST_Recursive(TreeNode* root) {
+        TreeNode* prev = nullptr;
+        return isValidBST_Recursive(root, prev);
     }
 
     bool isValidBST_Iterative(TreeNode* root) {
-        int* pPreVal = nullptr;
         stack<pair<TreeNode*, bool>> stk;
         if (root) {
             stk.emplace(root, false);
         }
-        while (!stk.empty()) {
-            TreeNode* node = stk.top().first;
+        for (TreeNode* pre = nullptr; !stk.empty();) {
+            TreeNode* cur = stk.top().first;
             bool visited = stk.top().second;
             stk.pop();
 
             if (visited) {
-                if (pPreVal && node->val <= *pPreVal) {
+                if (pre && cur->val <= pre->val) {
                     return false;
                 }
-                pPreVal = &(node->val);
+                pre = cur;
             }
             else {
-                if (node->right) {
-                    stk.emplace(node->right, false);
+                if (cur->right) {
+                    stk.emplace(cur->right, false);
                 }
-                stk.emplace(node, true);
-                if (node->left) {
-                    stk.emplace(node->left, false);
+                stk.emplace(cur, true);
+                if (cur->left) {
+                    stk.emplace(cur->left, false);
                 }
             }
         }
