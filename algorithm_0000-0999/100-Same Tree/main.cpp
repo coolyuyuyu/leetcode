@@ -11,58 +11,42 @@
  */
 class Solution {
 public:
-    bool isSameTree_Recursive(TreeNode* p, TreeNode* q) {
+    bool recursive(TreeNode* p, TreeNode* q) {
         if (p == q) {
             return true;
         }
         else {
-            return (p && q && p->val == q->val) && isSameTree_Recursive(p->left, q->left) && isSameTree_Recursive(p->right, q->right);
+            return
+                p && q && p->val == q->val &&
+                recursive(p->left, q->left) &&
+                recursive(p->right, q->right);
         }
     }
 
-    bool isSameTree_Iterative(TreeNode* p, TreeNode* q) {
-        if ((p && !q) || (!p && q)) {
-            return false;
-        }
-        assert((p && q) || (!p && !q));
+    bool iterative(TreeNode* p, TreeNode* q) {
+        queue<pair<TreeNode*, TreeNode*>> nodeQ;
 
-        stack<pair<TreeNode*, TreeNode*>> stk;
-        if (p) {
-            stk.emplace(p, q);
-        }
-        while (!stk.empty()) {
-            p = stk.top().first;
-            q = stk.top().second;
-            stk.pop();
+        nodeQ.emplace(p, q);
+        while (!nodeQ.empty()) {
+            p = nodeQ.front().first;
+            q = nodeQ.front().second;
+            nodeQ.pop();
 
-            if (p != q) {
-                if (p->val != q->val) {
-                    return false;
-                }
-                if ((p->right && !q->right) || (!p->right && q->right)) {
-                    return false;
-                }
-                if ((p->left && !q->left) || (!p->left && q->left)) {
-                    return false;
-                }
+            if (!p && !q) {
+                continue;
             }
-
-            assert(p->right && q->right || (!p->right && !q->right));
-            if (p->right) {
-                stk.emplace(p->right, q->right);
+            if ((p && !q) || (!p && q) || (p->val != q->val)) {
+                return false;
             }
-
-            assert(p->left && q->left || (!p->left && !q->left));
-            if (p->left) {
-                stk.emplace(p->left, q->left);
-            }
+            nodeQ.emplace(p->left, q->left);
+            nodeQ.emplace(p->right, q->right);
         }
 
         return true;
     }
 
     bool isSameTree(TreeNode* p, TreeNode* q) {
-        //return isSameTree_Recursive(p, q);
-        return isSameTree_Iterative(p, q);
+        //return recursive(p, q);
+        return iterative(p, q);
     }
 };
