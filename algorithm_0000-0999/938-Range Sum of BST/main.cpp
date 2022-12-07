@@ -11,51 +11,51 @@
  */
 class Solution {
 public:
-    int rangeSumBST_Recursive(TreeNode* root, int low, int high) {
-        assert(low <= high);
+    int recursive(TreeNode* root, int low, int high) {
         if (!root) {
             return 0;
         }
 
+        int ret = 0;
         if (low <= root->val && root->val <= high) {
-            return rangeSumBST_Recursive(root->left, low, root->val) + root->val + rangeSumBST_Recursive(root->right, root->val, high);
+            ret += root->val;
         }
-        else if (high < root->val) {
-            return rangeSumBST_Recursive(root->left, low, high);
+        if (low < root->val) {
+            ret += rangeSumBST(root->left, low, high);
         }
-        else {
-            assert(root->val < low);
-            return rangeSumBST_Recursive(root->right, low, high);
+        if (root->val < high) {
+            ret += rangeSumBST(root->right, low, high);
         }
+        return ret;
     }
 
-    int rangeSumBST_Iterative(TreeNode* root, int low, int high) {
-        stack<TreeNode*> stk({root});
+    int iterative(TreeNode* root, int low, int high) {
+        queue<TreeNode*> q;
+        if (root) {
+            q.emplace(root);
+        }
 
-        int sum = 0;
-        while (!stk.empty()) {
-            TreeNode* node = stk.top();
-            stk.pop();
+        int ret = 0;
+        while (!q.empty()) {
+            root = q.front();
+            q.pop();
 
-            if (low <= node->val && node->val <= high) {
-                sum += node->val;
+            if (low <= root->val && root->val <= high) {
+                ret += root->val;
             }
-
-            if (node->right && !(high < node->val)) {
-                stk.push(node->right);
+            if (low < root->val && root->left) {
+                q.emplace(root->left);
             }
-            if (node->left && !(node->val < low)) {
-                stk.push(node->left);
+            if (root->val < high && root->right) {
+                q.emplace(root->right);
             }
         }
 
-        return sum;
+        return ret;
     }
 
     int rangeSumBST(TreeNode* root, int low, int high) {
-        assert(root && (low <= high));
-
-        //return rangeSumBST_Recursive(root, low, high);
-        return rangeSumBST_Iterative(root, low, high);
+        //return recursive(root, low, high);
+        return iterative(root, low, high);
     }
 };
