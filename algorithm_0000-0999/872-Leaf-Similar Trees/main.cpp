@@ -11,55 +11,55 @@
  */
 class Solution {
 public:
-    void getLeaves_Recursive(TreeNode* root, vector<int>& vals) {
+    void collectLeaf_recursive(TreeNode* root, vector<int>& vals) {
         if (!root) {
             return;
         }
 
-        getLeaves_Recursive(root->left, vals);
+        collectLeaf_recursive(root->left, vals);
         if (!root->left && !root->right) {
             vals.push_back(root->val);
         }
-        getLeaves_Recursive(root->right, vals);
+        collectLeaf_recursive(root->right, vals);
     }
 
-    void getLeaves_Iterative(TreeNode* root, vector<int>& vals) {
+    bool compareAll_recursive(TreeNode* root1, TreeNode* root2) {
+        vector<int> vals1, vals2;
+        collectLeaf_recursive(root1, vals1);
+        collectLeaf_recursive(root2, vals2);
+        return vals1 == vals2;
+    }
+
+    vector<int> collectLeaf_iterative(TreeNode* root) {
         stack<TreeNode*> stk;
         if (root) {
             stk.push(root);
         }
 
+        vector<int> vals;
         while (!stk.empty()) {
-            TreeNode* node = stk.top();
+            root = stk.top();
+            if (root->left == nullptr && root->right == nullptr) {
+                vals.push_back(root->val);
+            }
             stk.pop();
 
-            if (!node->left && !node->right) {
-                vals.push_back(node->val);
+            if (root->right) {
+                stk.push(root->right);
             }
-            else {
-                if (node->right) {
-                    stk.push(node->right);
-                }
-                if (node->left) {
-                    stk.push(node->left);
-                }
+            if (root->left) {
+                stk.push(root->left);
             }
         }
+
+        return vals;
     }
 
-    bool compareLeaves(TreeNode* root1, TreeNode* root2) {
-        vector<int> vals1, vals2;
-
-        //getLeaves_Recursive(root1, vals1);
-        //getLeaves_Recursive(root2, vals2);
-
-        getLeaves_Iterative(root1, vals1);
-        getLeaves_Iterative(root2, vals2);
-
-        return (vals1 == vals2);
+    bool compareAll_iterative(TreeNode* root1, TreeNode* root2) {
+        return collectLeaf_iterative(root1) == collectLeaf_iterative(root2);
     }
 
-    bool compareLeavesInTandem(TreeNode* root1, TreeNode* root2) {
+    bool compare1by1(TreeNode* root1, TreeNode* root2) {
         class LeafIterator {
         public:
             LeafIterator(TreeNode* root) {
@@ -71,7 +71,7 @@ public:
             bool hasNext() {
                 while (!m_stk.empty()) {
                     TreeNode* node = m_stk.top();
-                    if (!node->left && !node->right) {
+                    if (node->left == nullptr && node->right == nullptr) {
                         return true;
                     }
                     m_stk.pop();
@@ -88,20 +88,20 @@ public:
             }
 
             int next() {
-                assert(!m_stk.empty());
-                TreeNode* node = m_stk.top();
-                assert(!node->left && !node->right);
-                m_stk.pop();
+                assert(hasNext());
+                bool b = hasNext();
+                if (!b) {
+                    assert(false);
+                }
 
-                if (node->right) {
-                    m_stk.push(node->right);
-                }
-                if (node->left) {
-                    m_stk.push(node->left);
-                }
+                TreeNode* node = m_stk.top();
+                assert(node->left == nullptr && node->right == nullptr);
+
+                m_stk.pop();
 
                 return node->val;
             }
+
         private:
             stack<TreeNode*> m_stk;
         };
@@ -113,12 +113,12 @@ public:
             }
         }
 
-        return (!itr1.hasNext() && !itr2.hasNext());
+        return !(itr1.hasNext() || itr2.hasNext());
     }
 
     bool leafSimilar(TreeNode* root1, TreeNode* root2) {
-        //return compareLeaves(root1, root2);
-
-        return compareLeavesInTandem(root1, root2);
+        //return compareAll_recursive(root1, root2);
+        //return compareAll_iterative(root1, root2);
+        return compare1by1(root1, root2);
     }
 };
