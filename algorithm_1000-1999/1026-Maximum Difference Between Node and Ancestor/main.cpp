@@ -11,81 +11,51 @@
  */
 class Solution {
 public:
-    int maxAncestorDiff_Recursive(TreeNode* root, pair<int, int>& range) {
+    int recursive(TreeNode* root, int minVal, int maxVal) {
         if (!root) {
-            range = {numeric_limits<int>::max(), numeric_limits<int>::min()};
             return 0;
         }
 
-        pair<int, int> lftRange, rhtRange;
-        int lftDiff = maxAncestorDiff_Recursive(root->left, lftRange);
-        int rhtDiff = maxAncestorDiff_Recursive(root->right, rhtRange);
+        int maxDiff = std::max(abs(root->val - minVal), abs(root->val - maxVal));
+        minVal = std::min(minVal, root->val);
+        maxVal = std::max(maxVal, root->val);
+        int lftMaxDiff = recursive(root->left, minVal, maxVal);
+        int rhtMaxDiff = recursive(root->right, minVal, maxVal);
 
-        if (root->left || root->right) {
-            range = {min(lftRange.first, rhtRange.first), max(lftRange.second, rhtRange.second)};
-        }
-        else {
-            range = {root->val, root->val};
-        }
-        int diff = max(abs(range.first - root->val), abs(range.second - root->val));
-
-        range.first = min(range.first, root->val);
-        range.second = max(range.second, root->val);
-        return max(diff, max(lftDiff, rhtDiff));
+        return std::max({maxDiff, lftMaxDiff, rhtMaxDiff});
     }
 
-    int maxAncestorDiff_Iterative(TreeNode* root) {
-        int maxDiff = 0;
+    int iterative(TreeNode* root) {
+        assert(root);
 
-        unordered_map<TreeNode*, pair<int, int>> m; // <node, <minVal, maxVal>>
+        queue<tuple<TreeNode*, int, int>> q;
+        q.emplace(root, root->val, root->val);
 
-        // postorder traversal
-        stack<pair<TreeNode*, bool>> stk;
-        if (root) {
-            stk.emplace(root, false);
-        }
-        while (!stk.empty()) {
-            TreeNode* node = stk.top().first;
-            bool visited = stk.top().second;
-            stk.pop();
+        int ret = 0;
+        while (!q.empty()) {
+            root = std::get<0>(q.front());
+            int minVal = std::get<1>(q.front());
+            int maxVal = std::get<2>(q.front());
+            q.pop();
 
-            if (visited) {
-                pair<int, int> lftRange = (node->left ? m[node->left] : make_pair(numeric_limits<int>::max(), numeric_limits<int>::min()));
-                pair<int, int> rhtRange = (node->right ? m[node->right] : make_pair(numeric_limits<int>::max(), numeric_limits<int>::min()));
-
-                pair<int, int> range;
-                if (node->left || node->right) {
-                    range = {min(lftRange.first, rhtRange.first), max(lftRange.second, rhtRange.second)};
-                }
-                else {
-                    range = {node->val, node->val};
-                }
-
-                int diff = max(abs(range.first - node->val), abs(range.second - node->val));
-                if (maxDiff < diff) {
-                    maxDiff = diff;
-                }
-
-                m[node] = {min(range.first, node->val), max(range.second, node->val)};
+            ret = std::max({ret, abs(root->val - minVal), abs(root->val - maxVal)});
+            minVal = std::min(minVal, root->val);
+            maxVal = std::max(maxVal, root->val);
+            if (root->left) {
+                q.emplace(root->left, minVal, maxVal);
             }
-            else {
-                stk.emplace(node, true);
-                if (node->right) {
-                    stk.emplace(node->right, false);
-                }
-                if (node->left) {
-                    stk.emplace(node->left, false);
-                }
+            if (root->right) {
+                q.emplace(root->right, minVal, maxVal);
             }
         }
 
-        return maxDiff;
+        return ret;
     }
 
     int maxAncestorDiff(TreeNode* root) {
-        //pair<int, int> range;
-        //return maxAncestorDiff_Recursive(root, range);
+        assert(root);
 
-        return maxAncestorDiff_Iterative(root);
+        //return recursive(root, root->val, root->val);
+        return iterative(root);
     }
 };
