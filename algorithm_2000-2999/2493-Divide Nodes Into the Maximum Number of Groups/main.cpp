@@ -10,7 +10,6 @@ public:
 
         unordered_map<int, int> maxGroupCnts; // <connected component id, max number of group>
         for (int root = 1; root <= n; ++root) {
-
             // bfs
             queue<int> q; // node, depth
             q.emplace(root);
@@ -29,7 +28,7 @@ public:
                     ccId = std::min(ccId, node);
 
                     for (int neighbor: neighbors[node]) {
-                        if (depths[neighbor] == 0) {
+                        if (depths[neighbor] == 0) { // not visited
                             depths[neighbor] = depth + 1;
                             q.emplace(neighbor);
                         }
