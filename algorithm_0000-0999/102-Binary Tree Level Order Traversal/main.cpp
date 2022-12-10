@@ -11,53 +11,53 @@
  */
 class Solution {
 public:
-    void levelOrder_Recursive(TreeNode* root, int depth, vector<vector<int>>& ret) {
+    void recursive(TreeNode* root, int depth, vector<vector<int>>& ans) {
         if (!root) {
             return;
         }
 
-        if (ret.size() <= depth) {
-            ret.resize(depth + 1);
+        if (ans.size() <= depth) {
+            ans.resize(depth + 1);
         }
-
-        ret[depth].push_back(root->val);
-        levelOrder_Recursive(root->left, depth + 1, ret);
-        levelOrder_Recursive(root->right, depth + 1, ret);
+        ans[depth].push_back(root->val);
+        recursive(root->left, depth + 1, ans);
+        recursive(root->right, depth + 1, ans);
     }
 
-    vector<vector<int>> levelOrder_Iterative(TreeNode* root) {
-        vector<vector<int>> ret;
+    vector<vector<int>> recursive(TreeNode* root) {
+        vector<vector<int>> ans;
+        recursive(root, 0, ans);
+        return ans;
+    }
 
+    vector<vector<int>> iterative(TreeNode* root) {
         queue<TreeNode*> q;
         if (root) {
             q.push(root);
         }
+
+        vector<vector<int>> ans;
         while (!q.empty()) {
-            size_t len = q.size();
-            ret.emplace_back(len);
-            for (size_t i = 0; i < len; ++i) {
-                TreeNode* node = q.front();
+            ans.emplace_back();
+            for (size_t i = 0, n = q.size(); i < n; ++i) {
+                root = q.front();
                 q.pop();
 
-                if (node->left) {
-                    q.push(node->left);
+                ans.back().push_back(root->val);
+                if (root->left) {
+                    q.push(root->left);
                 }
-                if (node->right) {
-                    q.push(node->right);
+                if (root->right) {
+                    q.push(root->right);
                 }
-
-                ret.back()[i] = node->val;
             }
         }
 
-        return ret;
+        return ans;
     }
 
     vector<vector<int>> levelOrder(TreeNode* root) {
-        //vector<vector<int>> ret;
-        //levelOrder_Recursive(root, 0, ret);
-        //return ret;
-
-        return levelOrder_Iterative(root);
+        //return recursive(root);
+        return iterative(root);
     }
 };
