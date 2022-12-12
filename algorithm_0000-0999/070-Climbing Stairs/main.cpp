@@ -1,33 +1,23 @@
 class Solution {
 public:
-    // Time: O(N), Space: O(N)
+    // Time: O(n), Space: O(n)
     int iterative_dp1(int n) {
-        if (n < 2) {
-            return 1;
+        vector<int> dp(n + 1);
+        dp[0] = dp[1] = 1;
+        for (int i = 2; i <=n; ++i) {
+            dp[i] = dp[i - 1] + dp[i - 2];
         }
-
-        vector<int> cnts(n + 1);
-        cnts[0] = cnts[1] = 1;
-        for (size_t i = 2; i < cnts.size(); ++i) {
-            cnts[i] = cnts[i - 1] + cnts[i - 2];
-        }
-
-        return cnts.back();
+        return dp[n];
     }
 
-    // Time: O(N), Space: O(1)
+    // Time: O(n), Space: O(1)
     int iterative_dp2(int n) {
-        if (n < 2) {
-            return 1;
-        }
-
         int x = 1, y = 1;
-        for (size_t i = 2; i <= n; ++i) {
+        for (int i = 2; i <=n; ++i) {
             int tmp = x + y;
             y = x;
             x = tmp;
         }
-
         return x;
     }
 
