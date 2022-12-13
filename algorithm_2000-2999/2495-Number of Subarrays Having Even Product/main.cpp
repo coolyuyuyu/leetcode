@@ -25,6 +25,7 @@ public:
         return ret;
     }
 
+    // optimized from f1
     long long f2(vector<int>& nums) {
         long long ret = 0;
         int cntSoFar = 0, cnt = 1;
@@ -43,9 +44,23 @@ public:
         return ret;
     }
 
+    // for each i, check the left-nearest index of even number
+    long long f3(vector<int>& nums) {
+        long long ret = 0;
+        for (int lastEvenIndex = -1, i = 0; i < nums.size(); ++i) {
+            if (nums[i] % 2 == 0) {
+                lastEvenIndex = i;
+            }
+            ret += (lastEvenIndex + 1);
+        }
+
+        return ret;
+    }
+
     long long evenProduct(vector<int>& nums) {
         //return f1(nums);
-        return f2(nums);
+        //return f2(nums);
+        return f3(nums);
     }
 };
 
