@@ -1,19 +1,13 @@
 class Solution {
 public:
     int maxProfit(vector<int>& prices) {
-        int minPrice = INT_MAX, maxGain = 0;
+        int maxProfit = 0;
+        int minPrice = INT_MAX;
         for (int price : prices) {
-            if (price < minPrice) {
-                minPrice = price;
-            }
-
-            int gain = price - minPrice;
-            if (maxGain < gain) {
-                maxGain = gain;
-            }
+            maxProfit = std::max(maxProfit, price - minPrice);
+            minPrice = std::min(minPrice, price);
         }
 
-        return maxGain;
+        return maxProfit;
     }
 };
-
