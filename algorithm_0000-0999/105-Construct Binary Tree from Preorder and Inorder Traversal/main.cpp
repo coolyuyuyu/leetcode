@@ -11,58 +11,59 @@
  */
 class Solution {
 public:
-    TreeNode* buildTree_Recursive(vector<int>& preorder, size_t preBgn, vector<int>& inorder, size_t inBgn, size_t size, map<int, size_t>& m) {
+    TreeNode* recursive(const vector<int>& preorder, size_t preIdx, const vector<int>& inorder, size_t inIdx, size_t size, const unordered_map<int, size_t>& inIndexes) {
         if (size == 0) {
             return nullptr;
         }
 
-        int val = preorder[preBgn];
-        size_t lftSize = m[val] - inBgn;
+        int val = preorder[preIdx];
+        size_t lftSize = inIndexes.at(val) - inIdx;
         size_t rhtSize = size - lftSize - 1;
 
         TreeNode* root = new TreeNode(val);
-        root->left = buildTree_Recursive(preorder, preBgn + 1, inorder, inBgn, lftSize, m);
-        root->right = buildTree_Recursive(preorder, preBgn + 1 + lftSize, inorder, inBgn + lftSize + 1, rhtSize, m);
+        root->left = recursive(preorder, preIdx + 1, inorder, inIdx, lftSize, inIndexes);
+        root->right = recursive(preorder, preIdx + lftSize + 1, inorder, inIdx + lftSize + 1, rhtSize, inIndexes);
         return root;
     }
 
-    TreeNode* buildTree_Iterative(vector<int>& preorder, vector<int>& inorder, map<int, size_t>& m) {
+    TreeNode* iterative(const vector<int>& preorder, const vector<int>& inorder, const unordered_map<int, size_t>& inIndexes) {
         TreeNode* pRoot = nullptr;
+        TreeNode** ppNode = &pRoot;
+        queue<tuple<TreeNode**, size_t, size_t, size_t>> q;
+        q.emplace(ppNode, 0, 0, preorder.size());
 
-        stack<pair<TreeNode**, tuple<size_t, size_t, size_t>>> stk; // <root, <preBgn, inBgn, size>>;
-        if (0 < preorder.size()) {
-            stk.emplace(&pRoot, make_tuple(0, 0, preorder.size()));
-        }
-        while (!stk.empty()) {
-            TreeNode** ppNode = stk.top().first;
-            size_t preBgn = get<0>(stk.top().second);
-            size_t inBgn = get<1>(stk.top().second);
-            size_t size = get<2>(stk.top().second);
-            stk.pop();
+        while (!q.empty()) {
+            ppNode = std::get<0>(q.front());
+            size_t preIdx = std::get<1>(q.front());
+            size_t inIdx = std::get<2>(q.front());
+            size_t size = std::get<3>(q.front());
+            q.pop();
 
-            int val = preorder[preBgn];
-            size_t lftSize = m[val] - inBgn;
+            if (size == 0) {
+                continue;
+            }
+
+            int val = preorder[preIdx];
+            size_t lftSize = inIndexes.at(val) - inIdx;
             size_t rhtSize = size - lftSize - 1;
 
             *ppNode = new TreeNode(val);
-            if (0 < lftSize) {
-                stk.emplace(&((*ppNode)->left), make_tuple(preBgn + 1, inBgn, lftSize));
-            }
-            if (0 < rhtSize) {
-                stk.emplace(&((*ppNode)->right), make_tuple(preBgn + 1 + lftSize, inBgn + lftSize + 1, rhtSize));
-            }
+            q.emplace(&((*ppNode)->left), preIdx + 1, inIdx, lftSize);
+            q.emplace(&((*ppNode)->right), preIdx + lftSize + 1, inIdx + lftSize + 1, rhtSize);
         }
 
         return pRoot;
     }
 
     TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
-        map<int, size_t> m;
-        for (size_t i = 0; i < inorder.size(); ++i) {
-            m[inorder[i]] = i;
+        size_t n = preorder.size();
+
+        unordered_map<int, size_t> inIndexes;
+        for (size_t i = 0; i < n; ++i) {
+            inIndexes[inorder[i]] = i;
         }
 
-        //return buildTree_Recursive(preorder, 0, inorder, 0, preorder.size(), m);
-        return buildTree_Iterative(preorder, inorder, m);
+        //return recursive(preorder, 0, inorder, 0, n, inIndexes);
+        return iterative(preorder, inorder, inIndexes);
     }
 };
