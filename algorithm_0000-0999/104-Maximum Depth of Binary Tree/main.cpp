@@ -11,24 +11,23 @@
  */
 class Solution {
 public:
-    int maxDepth_Recursive(TreeNode* root, int depth = 0) {
-        if(!root) {
-            return depth;
+    int recursive(TreeNode* root) {
+        if (!root) {
+            return 0;
         }
-        else {
-            return max(maxDepth_Recursive(root->left, depth + 1), maxDepth_Recursive(root->right, depth + 1));
-        }
+
+        return 1 + std::max(recursive(root->left), recursive(root->right));
     }
 
-    int maxDepth_Iterative(TreeNode* root) {
-        int depth = 0;
+    int iterative(TreeNode* root) {
         queue<TreeNode*> q;
         if (root) {
             q.push(root);
         }
-        for (; !q.empty(); ++depth) {
-            size_t n = q.size();
-            for (size_t i = 0; i < n; ++i) {
+
+        int d = 0;
+        for (; !q.empty(); ++d) {
+            for (size_t i = 0, n = q.size(); i < n; ++i) {
                 root = q.front();
                 q.pop();
 
@@ -41,11 +40,15 @@ public:
             }
         }
 
-        return depth;
+        if (!root) {
+            return 0;
+        }
+
+        return d;
     }
 
     int maxDepth(TreeNode* root) {
-        //return maxDepth_Recursive(root);
-        return maxDepth_Iterative(root);
+        //return recursive(root);
+        return iterative(root);
     }
 };
