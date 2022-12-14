@@ -34,9 +34,28 @@ public:
         return curMax;
     }
 
+    int rob3(vector<int>& nums) {
+        int a = 0; // rub current house. max profit.
+        int b = 0; // not run current house. max profit.
+        for (int num : nums) {
+            int tmpA = std::max(a, b + num);
+            int tmpB = std::max(a, b);
+            a = tmpA;
+            b = tmpB;
+        }
+
+        return std::max(a, b);
+    }
+
     int rob(vector<int>& nums) {
         //return rob1(nums);
-
-        return rob2(nums);
+        //return rob2(nums);
+        return rob3(nums);
     }
 };
+
+/*
+            1   2   3   1
+rub         1   2   4   4
+not rub     0   1   2   
+*/
