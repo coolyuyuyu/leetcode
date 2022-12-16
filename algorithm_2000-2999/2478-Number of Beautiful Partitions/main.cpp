@@ -1,69 +1,67 @@
 class Solution {
 public:
-    inline bool checkPrime(char c) {
-        static array<bool, 10> a = {false, false, true, true, false, true, false, true, false, false};
-        return a[c - '0'];
-    };
+    long long M = 1e9 + 7;
 
-    // TLE
-    int btmup(const string& s, int k, int minLen) {
-        size_t n = s.size();
+    bool checkPrime(char c) {
+        return c=='2' || c=='3' || c=='5' || c=='7';
+    }
 
-        vector<vector<int>> dp(k + 1, vector<int>(n, 0));
-        for (size_t j = 0; j < n; ++j) {
-            dp[1][j] = checkPrime(s[0]) && !checkPrime(s[j]) ? 1 : 0;
-        }
-
-        for (size_t i = 2; i <= k; ++i) {
-            for (size_t end = (i * minLen) - 1; end < n; ++end) {
-                if (checkPrime(s[end])) {
+    // Time: O(n * numPart * n)
+    int dp1(string s, int numParts, int minLength) {
+        int n = s.size();
+        s = "#" + s;
+        vector<vector<long long>> dp(n+1, vector<long long>(numParts+1, 0));
+        dp[0][0] = 1;
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= numParts; ++j) {
+                if (checkPrime(s[i])) {
                     continue;
                 }
 
-                for (size_t bgn = (i - 1) * minLen; (bgn + minLen - 1) <= end; ++bgn) {
-                    if (checkPrime(s[bgn]) && !checkPrime(s[bgn-1])) {
-                        dp[i][end] = (dp[i][end] + dp[i - 1][bgn - 1]) % 1000000007;
+                for (int k = j; k <= i-minLength+1; ++k) {
+                    if (checkPrime(s[k])) {
+                        dp[i][j] = (dp[i][j] + dp[k-1][j-1]) % M;
                     }
                 }
             }
         }
 
-        return dp[k][n - 1];
+        return dp[n][numParts];
     }
 
-    // AC
-    int topdn(const string& s, int minLen, int i, int j, vector<vector<int>>& cache) {
-        if (0 <= cache[i][j]) {
-            return cache[i][j];
-        }
+    // Time: O(n * numPart)
+    int dp2(string s, int numParts, int minLength) {
+        int n = s.size();
+        s = "#" + s;
+        vector<vector<long long>> dp(n+1, vector<long long>(numParts+1, 0));
+        dp[0][0] = 1;
+        for (int j = 1; j <= numParts; ++j) {
+            long long sum = 0;
+            for (int i = minLength*j; i <= n; ++i) {
+                if (!checkPrime(s[i-minLength]) && checkPrime(s[i-minLength+1])) {
+                    sum = (sum + dp[i-minLength][j-1]) % M;
+                }
 
-        int cnt = 0;
-        if (!checkPrime(s[0])) {
-            // first substring is not beautiful
-        }
-        else if (checkPrime(s[j])) {
-            // last substring is not beautiful
-        }
-        else if (i == 1) {
-            cnt = 1;
-        }
-        else {
-            for (size_t bgn = (i - 1) * minLen; (bgn + minLen - 1) <= j; ++bgn) {
-                if (checkPrime(s[bgn]) && !checkPrime(s[bgn-1])) {
-                    cnt = (cnt + topdn(s, minLen, i - 1, bgn - 1, cache)) % 1000000007;
+                if (!checkPrime(s[i])) {
+                    dp[i][j] = sum;
                 }
             }
         }
 
-        return cache[i][j] = cnt;
+        return dp[n][numParts];
     }
 
-    int beautifulPartitions(string s, int k, int minLength) {
-        // dp[i][j]: i non-intersecting substrings using s[0:j];
-
-        // return btmup(s, k, minLength);
-
-        vector<vector<int>> cache(k + 1, vector<int>(s.size(), -1));
-        return topdn(s, minLength, k, s.size() - 1, cache);
+    int beautifulPartitions(string s, int numParts, int minLength) {
+        //return dp1(s, numParts, minLength);
+        return dp2(s, numParts, minLength);
     }
 };
+
+/*
+dp[i][j]: number of beautiful j non-intersecting substrings partitions of s[0:i]
+
+X X X X [X X X]
+         k   i
+for k = 0 to i-minLength+1
+    dp[i][j] += dp[k-1][j-1]
+*/
