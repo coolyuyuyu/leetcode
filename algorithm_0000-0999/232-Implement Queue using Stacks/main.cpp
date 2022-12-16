@@ -1,16 +1,13 @@
 class MyQueue {
 public:
-    /** Initialize your data structure here. */
     MyQueue() {
     }
 
-    /** Push element x to the back of queue. */
     // Time: O(1)
     void push(int x) {
         m_stkI.push(x);
     }
 
-    /** Removes the element from in front of queue and returns that element. */
     // Time: Amortized O(1)
     int pop() {
         if (m_stkO.empty()) {
@@ -19,12 +16,12 @@ public:
                 m_stkI.pop();
             }
         }
-        int val = m_stkO.top();
+
+        int ret = m_stkO.top();
         m_stkO.pop();
-        return val;
+        return ret;
     }
 
-    /** Get the front element. */
     // Time: Amortized O(1)
     int peek() {
         if (m_stkO.empty()) {
@@ -33,10 +30,10 @@ public:
                 m_stkI.pop();
             }
         }
+
         return m_stkO.top();
     }
 
-    /** Returns whether the queue is empty. */
     // Time: O(1)
     bool empty() {
         return m_stkI.empty() && m_stkO.empty();
