@@ -1,26 +1,23 @@
 class Solution {
 public:
     int evalRPN(vector<string>& tokens) {
-        unordered_map<string, function<int(int, int)>> operators = {
-            {"+", plus<int>()},
-            {"-", minus<int>()},
-            {"*", multiplies<int>()},
-            {"/", divides<int>()},
+        unordered_map<string, function<long long(long long, long long)>> operators = {
+            {"+", std::plus<long long>()},
+            {"-", std::minus<long long>()},
+            {"*", std::multiplies<long long>()},
+            {"/", std::divides<long long>()},
         };
 
-        stack<int> stk;
-        for (const string& token : tokens) {
+        stack<long long> stk;
+        for (const auto& token : tokens) {
             auto itr = operators.find(token);
             if (itr != operators.end()) {
-                int v2 = stk.top();
-                stk.pop();
-                int v1 = stk.top();
-                stk.pop();
-
-                stk.push(itr->second(v1, v2));
+                int y = stk.top(); stk.pop();
+                int x = stk.top(); stk.pop();
+                stk.push(itr->second(x, y));
             }
             else {
-                stk.push(stoi(token));
+                stk.push(std::stoi(token));
             }
         }
 
