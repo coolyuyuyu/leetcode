@@ -1,44 +1,84 @@
-/**
- * Definition for undirected graph.
- * struct UndirectedGraphNode {
- *     int label;
- *     vector<UndirectedGraphNode *> neighbors;
- *     UndirectedGraphNode(int x) : label(x) {};
- * };
- */
+/*
+// Definition for a Node.
+class Node {
+public:
+    int val;
+    vector<Node*> neighbors;
+    Node() {
+        val = 0;
+        neighbors = vector<Node*>();
+    }
+    Node(int _val) {
+        val = _val;
+        neighbors = vector<Node*>();
+    }
+    Node(int _val, vector<Node*> _neighbors) {
+        val = _val;
+        neighbors = _neighbors;
+    }
+};
+*/
+
 class Solution {
 public:
-    UndirectedGraphNode *cloneGraph(UndirectedGraphNode *node) {
-        UndirectedGraphNode* copy = NULL;
-
-        unordered_map<UndirectedGraphNode*, UndirectedGraphNode*> nodeMap;
-        queue<UndirectedGraphNode*> toVisit;
-        if (node) {
-            copy = new UndirectedGraphNode(node->label);
-            copy->neighbors.reserve(node->neighbors.size());
-
-            nodeMap[node] = copy;
-            toVisit.push(node);
+    Node* recursive(Node* pNode, unordered_map<Node*, Node*>& cache) {
+        if (!pNode) {
+            return nullptr;
+        }
+        if (cache.find(pNode) != cache.end()) {
+            return cache[pNode];
         }
 
-        while (!toVisit.empty()) {
-            UndirectedGraphNode* nodeA = toVisit.front();
-            toVisit.pop();
+        Node* pCopy = new Node(pNode->val);
+        cache[pNode] = pCopy;
+        for (auto& neighbor : pNode->neighbors) {
+            pCopy->neighbors.push_back(recursive(neighbor, cache));
+        }
+        return pCopy;
+    }
 
-            for (UndirectedGraphNode* nodeB : nodeA->neighbors) {
-                pair<unordered_map<UndirectedGraphNode*, UndirectedGraphNode*>::iterator, bool> p = nodeMap.insert(pair<UndirectedGraphNode*, UndirectedGraphNode*>(nodeB, NULL));
-                if (p.second) { // not exist
-                    UndirectedGraphNode* nodeNew = new UndirectedGraphNode(nodeB->label);
-                    nodeNew->neighbors.reserve(nodeB->neighbors.size());
+    Node* recursive(Node* pNode) {
+        unordered_map<Node*, Node*> cache;
+        return recursive(pNode, cache);
+    }
 
-                    p.first->second = nodeNew;
-                    toVisit.push(nodeB);
+    Node* iterative(Node* pNode) {
+        unordered_map<Node*, Node*> cache;
+
+        Node* pRet = nullptr;
+        queue<Node*> q;
+        if (pNode) {
+            pRet = new Node(pNode->val);
+            cache[pNode] = pRet;
+            q.push(pNode);
+        }
+
+        while (!q.empty()) {
+            pNode = q.front();
+            q.pop();
+
+            Node* pNodeCopy = cache[pNode];
+            for (auto neighbor : pNode->neighbors) {
+                Node* pNeighborCopy;
+                auto itr = cache.find(neighbor);
+                if (itr == cache.end()) { // not found
+                    pNeighborCopy = new Node(neighbor->val);
+                    cache[neighbor] = pNeighborCopy;
+                    q.push(neighbor);
+                }
+                else {
+                    pNeighborCopy = cache[neighbor];
                 }
 
-                nodeMap[nodeA]->neighbors.push_back(nodeMap[nodeB]);
+                pNodeCopy->neighbors.push_back(pNeighborCopy);
             }
         }
 
-        return copy;
+        return pRet;
+    }
+
+    Node* cloneGraph(Node* node) {
+        //return recursive(node);
+        return iterative(node);
     }
 };
