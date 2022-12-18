@@ -1,30 +1,28 @@
 class Solution {
 public:
     // slow version
-    /*
-    int countPrimes(int n) {
-        if (n < 2) {
+    int f1(int n) {
+        if (n < 3) {
             return 0;
         }
-        
+
+        int ret = 0;
+
         vector<bool> isPrimes(n, true);
-        isPrimes[0] = isPrimes[1] = false;
-        
-        int upperLimit = sqrt(n-1);
-        for (int i = 2; i <= upperLimit; ++i) {
+        for (int i = 2; i < n; ++i) {
             if (isPrimes[i]) {
-                for (int j = i * i; j < n; j += i) {
-                    isPrimes[j] = false;
+                ++ret;
+                for (int num = i * 2; num < n; num += i) {
+                    isPrimes[num] = false;
                 }
             }
         }
-        
-        return count(isPrimes.begin(), isPrimes.end(), true);
+
+        return ret;
     }
-    */
-    
+
     // fast version
-    int countPrimes(int n) {
+    int f2(int n) {
         if (n < 3) {
             return 0;
         }
@@ -46,5 +44,10 @@ public:
         }
 
         return primeCount;
+    }
+
+    int countPrimes(int n) {
+        //return f1(n);
+        return f2(n);
     }
 };

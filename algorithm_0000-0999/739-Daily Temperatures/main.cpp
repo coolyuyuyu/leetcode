@@ -1,17 +1,17 @@
 class Solution {
 public:
-    vector<int> dailyTemperatures(vector<int>& T) {
-        vector<int> days(T.size());
+    vector<int> dailyTemperatures(vector<int>& temperatures) {
+        vector<int> ret(temperatures.size(), 0);
 
-        stack<pair<int, size_t>> stk; // temperature, index
-        for (size_t i = 0; i < T.size(); ++i) {
-            while (!stk.empty() && stk.top().first < T[i]) {
-                days[stk.top().second] = i - stk.top().second;
+        stack<pair<int, int>> stk; // <temperature, index>
+        for (int i = 0; i < temperatures.size(); ++i) {
+            while (!stk.empty() && stk.top().first < temperatures[i]) {
+                ret[stk.top().second] = i - stk.top().second;
                 stk.pop();
             }
-            stk.emplace(T[i], i);
+            stk.emplace(temperatures[i], i);
         }
 
-        return days;
+        return ret;
     }
 };
