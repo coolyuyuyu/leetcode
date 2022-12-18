@@ -123,7 +123,7 @@ public:
             }
         }
 
-        return breakable[n-1];
+        return breakable[n - 1];
     }
 
     bool wordBreak(string s, vector<string>& wordDict) {
