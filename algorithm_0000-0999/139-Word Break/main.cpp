@@ -109,10 +109,28 @@ public:
         return trie_memo(buildTrie(words), s, 0, cache);
     }
 
+    bool dp(const vector<string>& words, const string& s) {
+        int n = s.size();
+        vector<bool> breakable(n, false); // breakable[i]: s[0:i] is breakable by words
+        for (int i = 0; i < n; ++i) {
+            for (const string& word : words) {
+                if (word.size() <= (i + 1) &&
+                    ((i + 1 - word.size()) == 0 || breakable[i - word.size()]) &&
+                    s.compare(i + 1 - word.size(), word.size(), word) == 0) {
+                    breakable[i] = true;
+                    break;
+                }
+            }
+        }
+
+        return breakable[n-1];
+    }
+
     bool wordBreak(string s, vector<string>& wordDict) {
         //return dfs(wordDict, s);
         //return dfs_memo(wordDict, s);
         //return trie(wordDict, s);
-        return trie_memo(wordDict, s);
+        //return trie_memo(wordDict, s);
+        return dp(wordDict, s);
     }
 };
