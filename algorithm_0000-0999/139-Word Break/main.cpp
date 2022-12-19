@@ -123,7 +123,7 @@ public:
             }
         }
 
-        return dp[n-1];
+        return dp[n - 1];
     }
 
     bool backward_dp(const vector<string>& words, const string& s) {
