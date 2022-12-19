@@ -109,28 +109,48 @@ public:
         return trie_memo(buildTrie(words), s, 0, cache);
     }
 
-    bool dp(const vector<string>& words, const string& s) {
+    bool foreward_dp(const vector<string>& words, const string& s) {
         int n = s.size();
-        vector<bool> breakable(n, false); // breakable[i]: s[0:i] is breakable by words
+        vector<bool> dp(n, false); // dp[i]: s[0:i] is breakable by words
         for (int i = 0; i < n; ++i) {
             for (const string& word : words) {
                 if (word.size() <= (i + 1) &&
-                    ((i + 1 - word.size()) == 0 || breakable[i - word.size()]) &&
+                    ((i + 1 - word.size()) == 0 || dp[i - word.size()]) &&
                     s.compare(i + 1 - word.size(), word.size(), word) == 0) {
-                    breakable[i] = true;
+                    dp[i] = true;
                     break;
                 }
             }
         }
 
-        return breakable[n - 1];
+        return dp[n-1];
+    }
+
+    bool backward_dp(const vector<string>& words, const string& s) {
+        int n = s.size();
+        vector<bool> dp(n, false); // dp[i]: s[i:] is breakable by words
+        for (int i = n; 0 < i--;) {
+            for (const string& word : words) {
+                if (word.size() <= (n - i) &&
+                    ((i + word.size()) == n || dp[i + word.size()]) &&
+                    s.compare(i, word.size(), word) == 0) {
+                    dp[i] = true;
+                    break;
+                }
+            }
+        }
+
+        return dp[0];
     }
 
     bool wordBreak(string s, vector<string>& wordDict) {
         //return dfs(wordDict, s);
         //return dfs_memo(wordDict, s);
+
         //return trie(wordDict, s);
-        //return trie_memo(wordDict, s);
-        return dp(wordDict, s);
+        return trie_memo(wordDict, s);
+
+        //return foreward_dp(wordDict, s);
+        //return backward_dp(wordDict, s);
     }
 };
