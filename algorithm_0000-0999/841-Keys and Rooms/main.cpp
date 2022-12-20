@@ -2,22 +2,19 @@ class Solution {
 public:
     bool canVisitAllRooms(vector<vector<int>>& rooms) {
         size_t n = rooms.size();
-
-        queue<int> keys;
-        keys.emplace(0);
-        vector<bool> locked(n, false);
-        while (!keys.empty()) {
+        vector<bool> visited(n, false);
+        for (queue<int> keys({0}); !keys.empty();) {
             int door = keys.front();
             keys.pop();
-
-            if (locked[door]) {
+            if (visited[door]) {
                 continue;
             }
 
-            locked[door] = true;
+            visited[door] = true;
             --n;
+
             for (int key : rooms[door]) {
-                keys.emplace(key);
+                keys.push(key);
             }
         }
 
