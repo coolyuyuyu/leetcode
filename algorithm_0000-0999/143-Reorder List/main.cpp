@@ -11,17 +11,17 @@
 class Solution {
 public:
     ListNode* splitList(ListNode* head) {
-        ListNode** ppRht = &head;
-        for (ListNode* pNode = head; pNode;) {
-            pNode = pNode->next;
-            ppRht = &((*ppRht)->next);
-            if (pNode) {
-                pNode = pNode->next;
+        ListNode** ppSlow = &head;
+        for (ListNode* pFast = head; pFast;) {
+            pFast = pFast->next;
+            if (pFast) {
+                pFast = pFast->next;
             }
+            ppSlow = &((*ppSlow)->next);
         }
 
-        ListNode* pRet = *ppRht;
-        *ppRht = nullptr;
+        ListNode* pRet = *ppSlow;
+        *ppSlow = nullptr;
         return pRet;
     }
 
@@ -31,7 +31,7 @@ public:
         }
 
         ListNode** ppHead = &head;
-        for (ListNode* pNode = *ppHead; pNode->next;) {
+        for (ListNode* pNode = head; pNode->next;) {
             ListNode* pTmp = pNode->next;
             pNode->next = pTmp->next;
             pTmp->next = *ppHead;
@@ -43,7 +43,7 @@ public:
 
     void reorderList(ListNode* head) {
         for (ListNode *l1 = head, *l2 = reverseList(splitList(head)); l2;) {
-            ListNode* tmp = l2;
+            ListNode *tmp = l2;
             l2 = l2->next;
             tmp->next = l1->next;
             l1->next = tmp;
