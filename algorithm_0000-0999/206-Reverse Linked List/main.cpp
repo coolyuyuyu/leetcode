@@ -29,13 +29,14 @@ public:
         }
 
         ListNode** ppHead = &head;
-        ListNode* pNode = *ppHead;
-        while (pNode->next) {
+        for (ListNode* pNode = *ppHead; pNode->next;) {
             ListNode* pTmp = pNode->next;
             pNode->next = pTmp->next;
             pTmp->next = *ppHead;
             *ppHead = pTmp;
+
         }
+
         return head;
     }
 
