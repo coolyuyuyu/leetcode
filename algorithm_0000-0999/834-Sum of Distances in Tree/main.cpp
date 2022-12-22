@@ -1,129 +1,45 @@
 class Solution {
 public:
-    int dfs1(vector<vector<int>>& graph, int root, vector<int>& counts, unordered_set<int>& seen) {
-        seen.emplace(root);
+    void dfs1(const vector<vector<int>>& neighbors, int node, int parent, int depth, vector<int>& cnts, int& sumDists) {
+        sumDists += depth;
 
-        int distance = 0;
-        for (int child : graph[root]) {
-            if (seen.find(child) == seen.end()) {
-                distance += dfs1(graph, child, counts, seen);
-                counts[root] += counts[child];
-                distance += counts[child];
+        cnts[node] = 1;
+        for (int neighbor : neighbors[node]) {
+            if (neighbor == parent) {
+                continue;
             }
-        }
-        counts[root] += 1;
-
-        return distance;
-    }
-
-    void dfs2(vector<vector<int>>& graph, int node, vector<int>& counts, int parentDistance, vector<int>& distances, unordered_set<int>& seen) {
-        if (seen.emplace(node).second) {
-            distances[node] = parentDistance - counts[node] + (graph.size() - counts[node]);
-            for (int child : graph[node]) {
-                dfs2(graph, child, counts, distances[node], distances, seen);
-            }
+            dfs1(neighbors, neighbor, node, depth + 1, cnts, sumDists);
+            cnts[node] += cnts[neighbor];
         }
     }
 
-    vector<int> sumOfDistancesInTreeRecv(int N, vector<vector<int>>& edges) {
-        vector<vector<int>> graph(N);
-        for (vector<int>& edge : edges) {
-            graph[edge[0]].emplace_back(edge[1]);
-            graph[edge[1]].emplace_back(edge[0]);
+    void dfs2(const vector<vector<int>>& neighbors, int node, int parent, const vector<int>& cnts, vector<int>& coverages) {
+        if (parent != -1) {
+            coverages[node] = coverages[parent] + (neighbors.size() - cnts[node]) - (cnts[node]);
         }
 
-        int root = 0;
-        vector<int> counts(N, 0);
-        unordered_set<int> seen;
-        vector<int> distances(N);
-        distances[root] = dfs1(graph, root, counts, seen);
-
-        seen.clear();
-        dfs2(graph, root, counts, distances[root] + N, distances, seen);
-        return distances;
+        for (int neighbor : neighbors[node]) {
+            if (neighbor == parent) {
+                continue;
+            }
+            dfs2(neighbors, neighbor, node, cnts, coverages);
+        }
     }
 
-    vector<int> sumOfDistancesInTreeIter(int N, vector<vector<int>>& edges) {
-        int root = 0;
-        vector<vector<int>> tree(N);
-        vector<int> parents(N); {
-            vector<unordered_set<int>> graph(N);
-            for (vector<int>& edge : edges) {
-                graph[edge[0]].emplace(edge[1]);
-                graph[edge[1]].emplace(edge[0]);
-            }
-
-            queue<int> nodes;
-            nodes.emplace(root);
-            while (!nodes.empty()) {
-                size_t n = nodes.size();
-                for (size_t i = 0; i < n; ++i) {
-                    int node = nodes.front();
-                    nodes.pop();
-
-                    for (int child : graph[node]) {
-                        graph[child].erase(node);
-                        nodes.emplace(child);
-
-                        parents[child] = node;
-                    }
-                }
-            }
-            for (int node = 0; node < N; ++node) {
-                tree[node] = vector(graph[node].begin(), graph[node].end());
-            }
-
-            parents[root] = -1;
+    vector<int> sumOfDistancesInTree(int n, vector<vector<int>>& edges) {
+        vector<vector<int>> neighbors(n);
+        for (const auto& edge : edges) {
+            neighbors[edge[0]].push_back(edge[1]);
+            neighbors[edge[1]].push_back(edge[0]);
         }
+        vector<int> cnts(n);
+        vector<int> ret(n, 0);
 
-        vector<int> counts(N, 0);
-        int distance = 0; {
-            queue<int> leaves; {
-                for (int node = 0; node < N; ++node) {
-                    if (tree[node].empty()) {
-                        leaves.emplace(node);
-                    }
-                }
-            }
-            vector<int> childCounts(N); {
-                for (int node = 0; node < N; ++node) {
-                    childCounts[node] = tree[node].size();
-                }
-            }
-            while (!leaves.empty()) {
-                int leave = leaves.front();
-                leaves.pop();
-
-                int parent = parents[leave];
-                if (0 <= parent) {
-                    counts[parent] += (counts[leave] + 1);
-                    if (--childCounts[parent] == 0) {
-                        leaves.emplace(parent);
-                    }
-                }
-                distance += counts[leave];
-                counts[leave] += 1;
-            }
-        }
-
-        vector<int> distances(N); distances[root] = distance; {
-            queue<int> nodes;
-            nodes.emplace(root);
-            while (!nodes.empty()) {
-                int node = nodes.front();
-                nodes.pop();
-                for (int child : tree[node]) {
-                    distances[child] = distances[node] - counts[child] + (N - counts[child]);
-                    nodes.emplace(child);
-                }
-            }
-        }
-        return distances;
-    }
-
-    vector<int> sumOfDistancesInTree(int N, vector<vector<int>>& edges) {
-        //return sumOfDistancesInTreeRecv(N, edges);
-
-        return sumOfDistancesInTreeIter(N, edges);
+        int src = 0;
+        dfs1(neighbors, src, -1, 0, cnts, ret[src]);
+        dfs2(neighbors, src, -1, cnts, ret);
+        return ret;
     }
 };
+
+// sumDist(child) = sumDist(parent) + (N - cnts(child)) - (cnts(child))
