@@ -21,8 +21,6 @@ public:
         return n;
     }
 
-
-
     uint32_t reverseBits(uint32_t n) {
         //return linear_scan(n);
         return lftrht_swap(n);
