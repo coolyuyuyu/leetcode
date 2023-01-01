@@ -1,28 +1,32 @@
 class Solution {
 public:
-    bool wordPattern(string pattern, string str) {
-        unordered_set<string> used;
-        unordered_map<char, string> table;
-        istringstream issStr(str);
-        size_t i = 0;
-        for (; i < pattern.size() && !issStr.eof(); ++i) {
-            char p = pattern[i];
-            string s;
-            issStr >> s;
-            pair<unordered_map<char, std::string>::const_iterator, bool> resultTable = table.emplace(p, s);
-            pair<unordered_set<string>::const_iterator, bool> resultUsed = used.emplace(s);
-            if (resultTable.second) {
-                if (!resultUsed.second) {
+    bool wordPattern(string pattern, string s) {
+        map<char, string> strMap;
+        unordered_set<string> strTbl;
+
+        size_t i = 0, j = 0;
+        for (string token; i < pattern.size() && j <= s.size(); ++j) {
+            if (j == s.size() || s[j] == ' ') {
+                if (strMap[pattern[i]].empty()) {
+                    strMap[pattern[i]] = token;
+                    if (strTbl.insert(token).second == false) {
+                        return false;
+                    }
+                }
+                else if (strMap[pattern[i]] != token) {
                     return false;
                 }
+
+                ++i;
+                token.clear();
             }
             else {
-                if (resultTable.first->second != s) {
-                    return false;
-                }
+                token += s[j];
             }
         }
 
-        return i == pattern.size() && issStr.eof();
+
+
+        return pattern.size() <= i  && s.size() <= j;
     }
 };
