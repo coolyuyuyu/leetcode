@@ -1,516 +1,77 @@
-#ifndef __DISJOINT_SETS_HPP__493A883A_6A4F_4328_8CB1_58CB15279742
-#define __DISJOINT_SETS_HPP__493A883A_6A4F_4328_8CB1_58CB15279742
-
-#include <algorithm>
-#include <cassert>
-#include <initializer_list>
-#include <iterator>
-#include <limits>
-#include <map>
-#include <set>
-#include <type_traits>
-#include <utility>
-#include <vector>
-
-template <typename Map>
-struct FindNoCompress {
-    bool operator()(Map& map, typename Map::key_type elem, typename Map::key_type& root) const {
-        typename Map::const_iterator itr = map.find(elem);
-        if (itr == map.cend()) {
-            return false;
-        }
-        else {
-            root = elem;
-            while (itr->second != root) {
-                root = itr->second;
-                itr = map.find(root);
-            }
-
-            return true;
-        }
-    }
-};
-
-template <typename Map>
-struct FindFullCompress {
-    bool operator()(Map& map, typename Map::key_type elem, typename Map::key_type& root) const {
-        typename Map::const_iterator itr = map.find(elem);
-        if (itr == map.cend()) {
-            return false;
-        }
-        else {
-            root = itr->second;
-            if (root == elem) {
-                return true;
-            }
-
-            std::vector<typename Map::key_type> candidates;
-            while (true) {
-                itr = map.find(root);
-                assert(itr != map.cend());
-
-                if (itr->second == root) {
-                    break;
-                }
-
-                candidates.push_back(elem);
-                elem = root;
-                root = itr->second;
-            }
-
-            for (typename Map::key_type candidate : candidates) {
-                map[candidate] = root;
-            }
-
-            return true;
-        }
-    }
-};
-
-template<typename Sequence, typename = typename std::enable_if<std::is_unsigned<typename Sequence::value_type>::value>::type>
-class SequenceWrapper {
-public:
-    typedef typename Sequence::value_type value_type;
-    typedef value_type key_type;
-    typedef value_type mapped_type;
-
-    class Iterator {
-    public:
-        using iterator_category = std::forward_iterator_tag;
-        using value_type = std::pair<const SequenceWrapper::value_type, SequenceWrapper::value_type&>;
-        using pointer = value_type*;
-        using const_pointer = const value_type*;
-        using reference = value_type&;
-        using const_reference = const value_type&;
-
-        Iterator() = default;
-        Iterator(const Iterator&) = default;
-        Iterator(Iterator&&) = default;
-
-        explicit Iterator(SequenceWrapper& wrapper, SequenceWrapper::value_type index)
-            : m_pWrapper(&wrapper)
-            , m_val(index, (static_cast<SequenceWrapper::value_type>(m_pWrapper->m_seq.size()) <= index ? m_pWrapper->m_extraVal : m_pWrapper->m_seq[index])) {
-        }
-
-        reference operator*() { return m_val; }
-        const_reference operator*() const { return m_val; }
-
-        pointer operator->() { return &m_val; }
-        const_pointer operator->() const { return &m_val; }
-
-        Iterator& operator++() {
-            Sequence& seq = m_pWrapper->m_seq;
-            SequenceWrapper::value_type index(m_val.first);
-            SequenceWrapper::value_type size(seq.size());
-            if (size <= index) {
-                return *this;
-            }
-            else {
-                ++index;
-                while (index < size && seq[index] == m_pWrapper->m_extraVal) {
-                    ++index;
-                }
-
-                m_val.~value_type();
-                new (&m_val) value_type(index, (size <= index ? m_pWrapper->m_extraVal : seq[index]));
-            }
-
-            return *this;
-        }
-
-        Iterator operator++(int) {
-            Iterator tmp(*this);
-            ++(*this);
-            return tmp;
-        }
-
-        Iterator& operator=(const Iterator& rhs) {
-            m_pWrapper = rhs.m_pWrapper;
-            m_val.~value_type();
-            new (&m_val) value_type(rhs.m_val);
-
-            return *this;
-        }
-
-        const Iterator& operator=(const Iterator& rhs) const {
-            return const_cast<Iterator*>(this)->operator=(rhs);
-        };
-
-        bool operator==(const Iterator& rhs) const {
-            return (m_pWrapper == rhs.m_pWrapper && m_val.first == rhs.m_val.first);
-        }
-
-        bool operator!=(const Iterator& rhs) const {
-            return !(*this == rhs);
-        }
-
-    private:
-        SequenceWrapper<Sequence>* m_pWrapper;
-        value_type m_val;
-    };
-
-    typedef Iterator iterator;
-    typedef const iterator const_iterator;
-
-    SequenceWrapper()
-        : m_seq()
-        , m_extraVal(std::numeric_limits<value_type>::max()) {
-    }
-
-    SequenceWrapper(const SequenceWrapper&) = default;
-    SequenceWrapper(SequenceWrapper&&) = default;
-
-    value_type& operator[](value_type i) {
-        if (static_cast<value_type>(m_seq.size()) <= i) {
-            m_seq.resize(i + 1, m_extraVal);
-        }
-        return m_seq[i];
-    }
-
-    const value_type& operator[](value_type i) const {
-        return const_cast<SequenceWrapper*>(this)->operator[](i);
-    }
-
-    void clear() {
-        m_seq.clear();
-    }
-
-    iterator find(value_type i) {
-        if (static_cast<value_type>(m_seq.size()) <= i || m_seq[i] == m_extraVal) {
-            return end();
-        }
-        return iterator(*this, i);
-    }
-
-    const_iterator find(value_type i) const {
-        return const_cast<SequenceWrapper*>(this)->find(i);
-    }
-
-    iterator begin() noexcept {
-        for (value_type i = 0, size = static_cast<value_type>(m_seq.size()); i < size; ++i) {
-            if (m_seq[i] != m_extraVal) {
-                return iterator(*this, i);
-            }
-        }
-        return end();
-    }
-
-    const_iterator begin() const noexcept {
-        return const_cast<SequenceWrapper*>(this)->begin();
-    }
-
-    iterator end() noexcept {
-        return iterator(*this, static_cast<value_type>(m_seq.size()));
-    }
-
-    const_iterator end() const noexcept {
-        return const_cast<SequenceWrapper*>(this)->end();
-    }
-
-    const_iterator cbegin() const noexcept {
-        return begin();
-    }
-
-    const_iterator cend() const noexcept {
-        return end();
-    }
-
-protected:
-    Sequence m_seq;
-    value_type m_extraVal;
-};
-
-template<typename T, typename Map = std::map<T, T>, typename Find = FindFullCompress<Map>>
 class DisjointSets {
 public:
-    typedef T value_type;
-    typedef Map map_type;
-
-    template<typename T1, typename Map1, typename Find1>
-    bool operator==(const DisjointSets<T1, Map1, Find1>& rhs) const {
-        return (size() == rhs.size() && sets<std::set>() == rhs.template sets<std::set>());
-    }
-
-    template<typename T1, typename Map1, typename Find1>
-    bool operator!=(const DisjointSets<T1, Map1, Find1>& rhs) const {
-        return !(*this == rhs);
-    }
-
-    static_assert(std::is_same<T, typename Map::key_type>::value, "value_type must be the same as the underlying container key_type");
-    static_assert(std::is_same<T, typename Map::mapped_type>::value, "value_type must be the same as the underlying container mapped_type");
-
-    DisjointSets(const Find& find = Find())
-        : m_map()
-        , m_find(find)
+    DisjointSets(int rowCnt, int colCnt)
+        : m_rowCnt(rowCnt)
+        , m_colCnt(colCnt)
+        , m_roots(rowCnt * colCnt, kInvalidId)
         , m_size(0) {
-    }
-
-    DisjointSets(const DisjointSets&) = default;
-    DisjointSets(DisjointSets&&) = default;
-
-    template<typename InputIterator>
-    explicit DisjointSets(InputIterator first, InputIterator last, const Find& find = Find())
-        : m_map()
-        , m_find(find)
-        , m_size(0) {
-        for (InputIterator itr = first; itr != last; ++itr) {
-            merge(itr->first, itr->second);
-        }
-    }
-
-    explicit DisjointSets(std::initializer_list<std::pair<const T, T>> l, const Find& find = Find())
-        : m_map()
-        , m_find(find)
-        , m_size(0) {
-        for (const std::pair<const T, T>& p : l) {
-            merge(p.first, p.second);
-        }
-    }
-
-    void clear() {
-        m_map.clear();
-        m_size = 0;
-    }
-
-    void swap(DisjointSets& rhs) noexcept {
-        std::swap(m_map, rhs.m_map);
-        std::swap(m_find, rhs.m_find);
-        std::swap(m_size, rhs.m_size);
-    }
-
-    bool make_set(T elem) {
-        T root;
-        if (m_find(m_map, elem, root)) {
-            return false;
-        }
-        else {
-            ++m_size;
-            m_map[elem] = elem;
-            return true;
-        }
-    }
-
-    bool merge(T elem1, T elem2) {
-        assert(elem1 != elem2);
-
-        T root1;
-        bool found1 = m_find(m_map, elem1, root1);
-        T root2;
-        bool found2 = m_find(m_map, elem2, root2);
-
-        if (found1) {
-            if (found2) {
-                if (root1 == root2) {
-                    return false;
-                }
-                else {
-                    --m_size;
-                    m_map[root2] = root1;
-                }
-            }
-            else {
-                m_map[elem2] = root1;
-            }
-        }
-        else {
-            if (found2) {
-                m_map[elem1] = root2;
-            }
-            else {
-                ++m_size;
-                m_map[elem1] = m_map[elem2] = elem1;
-            }
-        }
-
-        return true;
-    }
-
-    bool connected(T elem1, T elem2) const {
-        T root1, root2;
-        return (m_find(m_map, elem1, root1) && m_find(m_map, elem2, root2) && root1 == root2);
-    }
-
-    T root(T elem) const {
-        T r;
-        bool found = m_find(m_map, elem, r);
-        assert(found);
-
-        return r;
-    }
-
-    bool contain(T elem) const {
-        T root;
-        return (m_find(m_map, elem, root));
     }
 
     size_t size() const {
         return m_size;
     }
 
-    size_t cardinality(T elem) const {
-        T root;
-        if (!m_find(m_map, elem, root)) {
-            return 0;
+    void connect(int r1, int c1, int r2, int c2) {
+        size_t elem1 = encode(r1, c1), elem2 = encode(r2, c2);
+        if (m_roots[elem1] == kInvalidId) {
+            m_roots[elem1] = elem1;
+            ++m_size;
+        }
+        if (m_roots[elem2] == kInvalidId) {
+            m_roots[elem2] = elem2;
+            ++m_size;
         }
 
-        size_t c = 0;
-        for (const pair<T, T>& p : m_map) {
-            T rootTmp;
-            m_find(m_map, p.first, rootTmp);
-            if (rootTmp == root) {
-                ++c;
-            }
+        size_t root1 = root(elem1), root2 = root(elem2);
+        if (root1 != root2) {
+            m_roots[root1] = root2;
+            --m_size;
         }
-
-        return c;
     }
 
-    bool sigleton(T elem) const {
-        T root;
-        if (!m_find(m_map, elem, root)) {
-            return false;
+private:
+    size_t root(size_t elem) const {
+        if (m_roots[elem] != elem) {
+            m_roots[elem] = root(m_roots[elem]);
         }
 
-        size_t count = 0;
-        for (const pair<T, T>& p : m_map) {
-            T rootTmp;
-            m_find(m_map, p.first, rootTmp);
-            if (rootTmp == root) {
-                if (1 < ++count) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
+        return m_roots[elem];
     }
 
-    template<template<typename, typename...> class Container = std::vector, typename... Args>
-    Container<T, Args...> set(T elem) const {
-        Container<T, Args...> ret;
-
-        T root;
-        if (!m_find(m_map, elem, root)) {
-            return ret;
-        }
-
-        for (const auto& p : m_map) {
-            T rootTmp;
-            m_find(m_map, p.first, rootTmp);
-            if (rootTmp == root) {
-                ret.insert(ret.end(), p.first);
-            }
-        }
-
-        return ret;
+    size_t encode(size_t r, size_t c) {
+        return r * m_colCnt + c;
     }
 
-    template<template<typename, typename...> class Container = std::vector, typename... Args>
-    Container<Container<T, Args...>, Args...> sets() const {
-        std::map<T, Container<T, Args...>> ss;
-        for (const auto& p : m_map) {
-            T root;
-            m_find(m_map, p.first, root);
+    size_t m_rowCnt;
+    size_t m_colCnt;
 
-            ss[root].insert(ss[root].end(), p.first);
-        }
-
-        Container<Container<T, Args...>, Args...> ret;
-        for (std::pair<const T, Container<T, Args...>>& p : ss) {
-            ret.insert(ret.end(), std::move(p.second));
-        }
-
-        return ret;
-    }
-
-protected:
-    mutable Map m_map;
-    Find m_find;
+    static size_t kInvalidId;
+    mutable vector<size_t> m_roots;
     size_t m_size;
 };
 
-namespace std {
-    template<typename T, typename Map, typename Find>
-    inline void swap(DisjointSets<T, Map, Find>& x, DisjointSets<T, Map, Find>& y) noexcept(noexcept(x.swap(y))) {
-        x.swap(y);
-    }
-}
-
-#endif
+size_t DisjointSets::kInvalidId = std::numeric_limits<size_t>::max();
 
 class Solution {
 public:
-    /*
-    void fillWater(int row, int col, vector<vector<char>>& grid) {
-        if (grid[row][col] == '0') {
-            return;
-        }
+    int union_find(const vector<vector<char>>& grid) {
+        static vector<vector<int>> dirs = {{0, 1}, {1, 0}};
 
-        grid[row][col] = '0';
-
-        //ltf
-        if (0 < col) {
-            fillWater(row, col - 1, grid);
-        }
-
-        //top
-        if (0 < row) {
-            fillWater(row - 1, col, grid);
-        }
-
-        //rht
-        if (col + 1 < grid.front().size()) {
-            fillWater(row, col + 1, grid);
-        }
-
-        //btm
-        if (row + 1 < grid.size()) {
-            fillWater(row + 1, col, grid);
-        }
-
-    }
-
-    int numIslandsRecv(vector<vector<char>>& grid) {
-        int ans = 0;
-
-        size_t rowCnt = grid.size();
-        size_t colCnt = grid.empty() ? 0 : grid.front().size();
-        for (size_t row = 0; row < rowCnt; ++row) {
-            for (size_t col = 0; col < colCnt; ++col) {
-                if (grid[row][col] == '1') {
-                    ++ans;
-                    fillWater(row, col, grid);
-                }
-            }
-        }
-
-        return ans;
-    }
-    */
-
-    int numIslands_UnionFind(vector<vector<char>>& grid) {
-        unsigned rowCnt = grid.size();
-        unsigned colCnt = grid.front().size();
-
-        auto getId = [&rowCnt, &colCnt](unsigned row, unsigned col) {
-            return (row * colCnt + col);
-        };
-
-        DisjointSets<unsigned, SequenceWrapper<vector<unsigned>>> ds;
-        for (unsigned row = 0; row < rowCnt; ++row) {
-            for (unsigned col = 0; col < colCnt; ++col) {
-                if (grid[row][col] == '0') {
+        int m = grid.size(), n = grid[0].size();
+        DisjointSets ds(m, n);
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                if (grid[r][c] == '0') {
                     continue;
                 }
+                ds.connect(r, c, r, c);
 
-                unsigned id = getId(row, col);
-                ds.make_set(id);
-
-                if (0 < col && grid[row][col - 1] == '1') { // lft
-                    ds.merge(id, getId(row, col - 1));
-                }
-                if (0 < row && grid[row - 1][col] == '1') { // top
-                    ds.merge(id, getId(row - 1, col));
+                static vector<vector<int>> dirs = {{0, 1}, {1, 0}};
+                for (const auto& dir : dirs) {
+                    int nr = r + dir[0], nc = c + dir[1];
+                    if (0 <= nr && nr < m && 0 <= nc && nc < n && grid[nr][nc] == '1') {
+                        ds.connect(r, c, nr, nc);
+                    }
                 }
             }
         }
@@ -518,7 +79,44 @@ public:
         return ds.size();
     }
 
+    int bfs(vector<vector<char>>& grid) {
+        int m = grid.size(), n = grid[0].size();
+
+        int ret = 0;
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                if (grid[r][c] == '0') {
+                    continue;
+                }
+
+                grid[r][c] = '0';
+
+                queue<array<int, 2>> q;
+                q.push({r, c});
+
+                while (!q.empty()) {
+                    int x = q.front()[0], y = q.front()[1];
+                    q.pop();
+
+                    static vector<vector<int>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
+                    for (const auto& dir : dirs) {
+                        int nx = x + dir[0], ny = y + dir[1];
+                        if (0 <= nx && nx < m && 0 <= ny && ny < n && grid[nx][ny] == '1') {
+                            grid[nx][ny] = '0';
+                            q.push({nx, ny});
+                        }
+                    }
+                }
+
+                ++ret;
+            }
+        }
+
+        return ret;
+    }
+
     int numIslands(vector<vector<char>>& grid) {
-        return numIslands_UnionFind(grid);
+        //return union_find(grid);
+        return bfs(grid);
     }
 };
