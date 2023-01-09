@@ -11,27 +11,34 @@
  */
 class Solution {
 public:
-    void preorderTraversal_Recursive(TreeNode* root, vector<int>& vals) {
+    void recursive(TreeNode* root, vector<int>& nums) {
         if (!root) {
             return;
         }
 
-        vals.push_back(root->val);
-        preorderTraversal_Recursive(root->left, vals);
-        preorderTraversal_Recursive(root->right, vals);
+        nums.push_back(root->val);
+        recursive(root->left, nums);
+        recursive(root->right, nums);
     }
 
-    void preorderTraversal_Iterative1(TreeNode* root, vector<int>& vals) {
+    vector<int> recursive(TreeNode* root) {
+        vector<int> nums;
+        recursive(root, nums);
+        return nums;
+    }
+
+    vector<int> iterative(TreeNode* root) {
+        vector<int> nums;
+        
         stack<TreeNode*> stk;
         if (root) {
             stk.push(root);
         }
-
         while (!stk.empty()) {
             root = stk.top();
             stk.pop();
 
-            vals.push_back(root->val);
+            nums.push_back(root->val);
 
             if (root->right) {
                 stk.push(root->right);
@@ -40,40 +47,12 @@ public:
                 stk.push(root->left);
             }
         }
-    }
 
-    void preorderTraversal_Iterative2(TreeNode* root, vector<int>& vals) {
-        stack<pair<TreeNode*, bool>> stk;
-        if (root) {
-            stk.emplace(root, true);
-        }
-
-        while (!stk.empty()) {
-            TreeNode* node = stk.top().first;
-            bool visited = stk.top().second;
-            stk.pop();
-
-            if (visited) {
-                vals.push_back(node->val);
-
-                stk.emplace(node, false);
-                if (node->right) {
-                    stk.emplace(node->right, true);
-                }
-                if (node->left) {
-                    stk.emplace(node->left, true);
-                }
-            }
-        }
+        return nums;
     }
 
     vector<int> preorderTraversal(TreeNode* root) {
-        vector<int> vals;
-
-        //preorderTraversal_Recursive(root, vals);
-        //preorderTraversal_Iterative1(root, vals);
-        preorderTraversal_Iterative2(root, vals);
-
-        return vals;
+        //return recursive(root);
+        return iterative(root);
     }
 };
