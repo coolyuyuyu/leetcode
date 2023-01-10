@@ -15,31 +15,26 @@ public:
         if (p == q) {
             return true;
         }
-        else {
-            return
-                p && q && p->val == q->val &&
-                recursive(p->left, q->left) &&
-                recursive(p->right, q->right);
-        }
+        return
+            p && q && p->val == q->val &&
+            recursive(p->left, q->left) &&
+            recursive(p->right, q->right);
     }
 
     bool iterative(TreeNode* p, TreeNode* q) {
-        queue<pair<TreeNode*, TreeNode*>> nodeQ;
+        for (stack<pair<TreeNode*, TreeNode*>> stk({{p, q}}); !stk.empty();) {
+            auto [p, q] = stk.top();
+            stk.pop();
 
-        nodeQ.emplace(p, q);
-        while (!nodeQ.empty()) {
-            p = nodeQ.front().first;
-            q = nodeQ.front().second;
-            nodeQ.pop();
-
-            if (!p && !q) {
+            if (p == q) {
                 continue;
             }
-            if ((p && !q) || (!p && q) || (p->val != q->val)) {
+            if (!p || !q || p->val != q->val) {
                 return false;
             }
-            nodeQ.emplace(p->left, q->left);
-            nodeQ.emplace(p->right, q->right);
+
+            stk.emplace(p->left, q->left);
+            stk.emplace(p->right, q->right);
         }
 
         return true;
