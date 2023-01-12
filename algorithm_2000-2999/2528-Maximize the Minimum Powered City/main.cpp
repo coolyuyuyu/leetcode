@@ -1,54 +1,39 @@
 class Solution {
-public:
     typedef long long LL;
 
-    long long maxPower(vector<int>& stations, int r, int k) {
-        int n = stations.size();
+public:
+    bool isOk(vector<int> stations, LL targetPower, LL r, LL k) {
+        LL n = stations.size();
 
-        vector<LL> ss(stations.begin(), stations.end());
-        std::partial_sum(ss.begin(), ss.end(), ss.begin());
-
-        vector<LL> powers(n, 0);
-        for (int i = 0; i < n; ++i) {
+        LL power = std::accumulate(stations.begin(), stations.begin() + r, 0LL);
+        for (LL i = 0; i < n; ++i) {
             if ((i + r) < n) {
-                powers[i] += ss[i + r];
-            }
-            else {
-                powers[i] += ss.back();
+                power += stations[i + r];
             }
 
-            if (0 <= (i - r - 1)) {
-                powers[i] -= ss[i - r - 1];
+            if (power < targetPower) {
+                LL diff = targetPower - power;
+                if ((k -= diff) < 0) {
+                    return false;
+                }
+
+                stations[std::min(i + r, n - 1)] += diff;
+                power = targetPower;
+            }
+
+            if (0 <= (i - r)) {
+                power -= stations[i - r];
             }
         }
 
-        LL windowSize = 2 * r + 1;
-        auto isOk = [&powers, &windowSize, &n, &k](LL target) -> bool {
-            vector<LL> diffs(n, 0);
-            LL count = 0;
-            LL curSum = 0;
-            for (int i = 0; i < n; ++i) {
-                curSum += diffs[i];
-                LL power = powers[i] + curSum;
-                if (power < target) {
-                    count += (target - power);
-                    curSum += (target - power);
-                    if (count > k) {
-                        return false;
-                    }
-                    if ((i + windowSize) < n) {
-                        diffs[i + windowSize] -= (target - power);
-                    }
-                }
-            }
+        return true;
+    }
 
-            return true;
-        };
-
-        LL lft = *std::min_element(powers.begin(), powers.end()), rht = 1e10 + 1e9;
+    long long maxPower(vector<int>& stations, int r, int k) {
+        LL lft = *std::min_element(stations.begin(), stations.end()), rht = 1e10 + 1e9;
         while (lft < rht) {
             LL mid = rht - (rht - lft) / 2;
-            if (isOk(mid)) {
+            if (isOk(stations, mid, r, k)) {
                 lft = mid;
             }
             else {
