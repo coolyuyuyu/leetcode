@@ -1,67 +1,57 @@
 class Trie {
 public:
-    /** Initialize your data structure here. */
-    Trie()
-        : m_root(new TrieNode(false)) {
+    Trie() 
+        : m_root(new Node) {
     }
-
-    /** Inserts a word into the trie. */
+    
     void insert(string word) {
-        TrieNode** ppNode = &m_root;
+        Node** ppNode = &m_root;
         for (char c : word) {
             ppNode = &((*ppNode)->childs[c - 'a']);
             if (*ppNode == nullptr) {
-                *ppNode = new TrieNode(false);
+                *ppNode = new Node;
             }
         }
-
         (*ppNode)->end = true;
     }
-
-    /** Returns if the word is in the trie. */
+    
     bool search(string word) {
-        TrieNode** ppNode = &m_root;
-        for (char c : word) {
-            ppNode = &((*ppNode)->childs[c - 'a']);
-            if (*ppNode == nullptr) {
-                return false;
-            }
+        Node* node = m_root;
+        for (size_t i = 0; i < word.size() && node; ++i) {
+            node = node->childs[word[i] - 'a'];
         }
 
-        return (*ppNode)->end;
+        return node && node->end;
     }
-
-    /** Returns if there is any word in the trie that starts with the given prefix. */
+    
     bool startsWith(string prefix) {
-        TrieNode** ppNode = &m_root;
-        for (char c : prefix) {
-            ppNode = &((*ppNode)->childs[c - 'a']);
-            if (*ppNode == nullptr) {
-                return false;
-            }
+        Node* node = m_root;
+        for (size_t i = 0; i < prefix.size() && node; ++i) {
+            node = node->childs[prefix[i] - 'a'];
         }
 
-        return true;
+        return node;
     }
 
 private:
-    class TrieNode {
+    class Node {
     public:
-        TrieNode(bool end_)
-            : end(end_)
-            , childs(26, nullptr) {
+        Node() {
+            std::fill(childs.begin(), childs.end(), nullptr);
+            end = false;
         }
+
+        array<Node*, 26> childs;
         bool end;
-        vector<TrieNode*> childs;
     };
 
-    TrieNode* m_root;
+    Node* m_root;
 };
 
 /**
  * Your Trie object will be instantiated and called as such:
- * Trie obj = new Trie();
- * obj.insert(word);
- * bool param_2 = obj.search(word);
- * bool param_3 = obj.startsWith(prefix);
+ * Trie* obj = new Trie();
+ * obj->insert(word);
+ * bool param_2 = obj->search(word);
+ * bool param_3 = obj->startsWith(prefix);
  */
