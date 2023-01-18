@@ -65,7 +65,49 @@ public:
         return ret + vals.size();
     }
 
+    map<int, int> dfs(const vector<vector<int>>& adjLists, int node, int parent, const vector<int>& vals, int& numPaths) {
+        map<int, int> nodeFreqs;
+        ++nodeFreqs[vals[node]];
+
+        for (int child : adjLists[node]) {
+            if (child == parent) {
+                continue;
+            }
+
+            map<int, int> childFreqs = dfs(adjLists, child, node, vals, numPaths);
+            childFreqs.erase(childFreqs.begin(), childFreqs.lower_bound(vals[node]));
+            if (nodeFreqs.size() < childFreqs.size()) {
+                std::swap(nodeFreqs, childFreqs);
+            }
+
+            for (const auto& [val, freq] : childFreqs) {
+                if (nodeFreqs.find(val) != nodeFreqs.end()) {
+                    numPaths += (nodeFreqs[val] * freq);
+                }
+            }
+
+            for (const auto& [val, freq] : childFreqs) {
+                nodeFreqs[val] += freq;
+            }
+        }
+
+        return nodeFreqs;
+    }
+
+    int dfs(const vector<int>& vals, const vector<vector<int>>& edges) {
+        vector<vector<int>> adjLists(vals.size());
+        for (const auto& edge : edges) {
+            adjLists[edge[0]].push_back(edge[1]);
+            adjLists[edge[1]].push_back(edge[0]);
+        }
+
+        int numPaths = 0;
+        dfs(adjLists, 0, -1, vals, numPaths);
+        return numPaths + vals.size();
+    }
+
     int numberOfGoodPaths(vector<int>& vals, vector<vector<int>>& edges) {
-        return union_find(vals, edges);
+        //return union_find(vals, edges);
+        return dfs(vals, edges);
     }
 };
