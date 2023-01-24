@@ -1,37 +1,68 @@
 class Solution {
 public:
-    long long dfs(const vector<vector<int>>& graph, int node, int parent, const vector<int>& price, map<pair<int, int>, long long>& cache) {
-        auto itr = cache.find({node, parent});
-        if (itr != cache.end()) {
-            return itr->second;
+    long long maxOutput(int n, vector<vector<int>>& edges, vector<int>& price) {
+        vector<vector<int>> nexts(n);
+        for (const auto& edge : edges) {
+            nexts[edge[0]].push_back(edge[1]);
+            nexts[edge[1]].push_back(edge[0]);
         }
 
-        long long childSum = 0;
-        for (int child : graph[node]) {
-            if (child == parent) {
+        vector<int> sum1(n, 0); // sum1[i]: the sum of prices from i to its non-leaf
+        vector<int> sum2(n, 0); // sum2[i]: the sum of prices from i to its leaf
+
+        int ans = 0;
+        dfs1(nexts, 0, -1, price, sum1, sum2);
+        dfs2(nexts, 0, -1, price, sum1, sum2, ans);
+        return ans;
+    }
+
+    void dfs1(const vector<vector<int>>& nexts, int cur, int pre, const vector<int>& price, vector<int>& sum1, vector<int>& sum2) {
+        if (nexts[cur].size() == 1 && nexts[cur][0] == pre) { // leaf
+            sum1[cur] = 0;
+            sum2[cur] = price[cur];
+            return;
+        }
+
+        for (int next : nexts[cur]) {
+            if (next == pre) {
                 continue;
             }
 
-            childSum = std::max(childSum, dfs(graph, child, node, price, cache));
+            dfs1(nexts, next, cur, price, sum1, sum2);
+            sum1[cur] = std::max(sum1[cur], sum1[next] + price[cur]);
+            sum2[cur] = std::max(sum2[cur], sum2[next] + price[cur]);
         }
-
-        return cache[{node, parent}] = price[node] + childSum;
     }
 
-    long long maxOutput(int n, vector<vector<int>>& edges, vector<int>& price) {
-        vector<vector<int>> graph(n);
-        for (const auto& edge : edges) {
-            graph[edge[0]].push_back(edge[1]);
-            graph[edge[1]].push_back(edge[0]);
+    void dfs2(const vector<vector<int>>& nexts, int cur, int pre, const vector<int>& price, const vector<int>& sum1, const vector<int>& sum2, int& ans) {
+        if (cur != 0) {
+            ans = std::max(ans, sum2[cur]);
         }
 
-        long long maxCost = 0;
-        map<pair<int, int>, long long> cache;
-        for (int root = 0; root < n; ++root) {
-            long long maxPath = dfs(graph, root, -1, price, cache);
-            maxCost = std::max(maxCost, maxPath - price[root]);
-        }
+        vector<pair<int, int>> arr1; // arr1[i]: <sum1[node], node>
+        vector<pair<int, int>> arr2; // arr2[i]: <sum2[node], node>
+        for (int next : nexts[cur]) {
+            if (next == pre) {
+                continue;
+            }
 
-        return maxCost;
+            dfs2(nexts, next, cur, price, sum1, sum2, ans);
+            arr1.emplace_back(sum1[next], next);
+            arr2.emplace_back(sum2[next], next);
+        }
+        sort(arr1.rbegin(), arr1.rend());
+        sort(arr2.rbegin(), arr2.rend());
+
+        if (2 <= arr1.size()) {
+            if (arr1[0].second != arr2[0].second) {
+                ans = std::max(ans, arr1[0].first + arr2[0].first + price[cur]);
+            }
+            else {
+                ans = std::max({ans, arr1[0].first + arr2[1].first + price[cur], arr1[1].first + arr2[0].first + price[cur]});
+            }
+        }
+        else if (1 == arr1.size()) {
+            ans = std::max(ans, sum1[cur]);
+        }
     }
 };
