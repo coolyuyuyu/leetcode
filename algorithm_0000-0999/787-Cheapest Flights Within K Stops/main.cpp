@@ -1,37 +1,94 @@
 class Solution {
 public:
-    int findCheapestPrice_DijkstraWithHeap(int n, const vector<vector<int>>& flights, int src, int dst, int k) {
-        // graph
-        vector<vector<pair<int, int>>> graph(n);
-        for (const vector<int>& flight : flights) {
-            graph[flight[0]].emplace_back(flight[1], flight[2]);
+    // Time: O(N + E * K)
+    int bfs(int n, const vector<vector<int>>& flights, int src, int dst, int k) {
+        vector<vector<pair<int, int>>> nexts(n);
+        for (const auto& flight : flights) {
+            nexts[flight[0]].emplace_back(flight[1], flight[2]);
         }
 
-        // tuple<int, int, int>: <distance, node, depth>>
-        priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, greater<tuple<int, int, int>>> pq; // min_heap
+        vector<int> dists(n, INT_MAX);
+        dists[src] = 0;
 
-        // initialize with src
-        pq.emplace(0, src, 0);
+        queue<pair<int, int>> q; // <node, dist>: the distance from src to node
+        q.emplace(src, 0);
+        for (int numStops = 0; numStops <= k && !q.empty(); ++numStops) {
+            for (int n = q.size(); 0 < n--;) {
+                auto [node, dist] = q.front();
+                q.pop();
 
-        // Dijkstra
+                for (auto [next, cost] : nexts[node]) {
+                    if (dists[next] <= (dist + cost)) {
+                        continue;
+                    }
+                    dists[next] = dist + cost;
+
+                    q.emplace(next, dist + cost);
+                }
+            }
+        }
+
+        return dists[dst] == INT_MAX ? -1 : dists[dst];
+    }
+
+    // Time: O(E * min(N, K))
+    int bellmanford(int n, const vector<vector<int>>& flights, int src, int dst, int k) {
+        vector<int> dists(n, INT_MAX);
+        dists[src] = 0;
+        for (int repetitions = std::min(n - 1, k + 1); 0 < repetitions--;) {
+            vector<int> tmps(dists);
+            bool modified = false;
+            for (const auto& edge : flights) {
+                int from = edge[0], to = edge[1], cost = edge[2];
+                if (tmps[from] == INT_MAX) {
+                    continue;
+                }
+
+                if ((tmps[from] + cost) < dists[to]) {
+                    modified = true;
+                    dists[to] = tmps[from] + cost;
+                }
+            }
+            if (!modified) {
+                break;
+            }
+        }
+
+        return dists[dst] == INT_MAX ? -1 : dists[dst];
+    }
+
+    // Time: O(N + E * K * log(E * K))
+    int dijkstra(int n, const vector<vector<int>>& flights, int src, int dst, int k) {
+        vector<vector<pair<int, int>>> nexts(n);
+        for (const auto& flight : flights) {
+            nexts[flight[0]].emplace_back(flight[1], flight[2]);
+        }
+
+        vector<int> depths(n, INT_MAX);
+
+        auto comp = [](const tuple<int, int, int>& t1, const tuple<int, int, int>& t2) {
+            return std::get<1>(t1) > std::get<1>(t2);
+        };
+        priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, decltype(comp)> pq(comp); // <node, dist, depth>: the distance from src to node with depth
+        pq.emplace(src, 0, 0);
         while (!pq.empty()) {
-            int node = get<1>(pq.top());
-            int distance = get<0>(pq.top());
-            int depth = get<2>(pq.top());
+            auto [node, dist, depth] = pq.top();
             pq.pop();
 
             if ((k + 1) < depth) {
                 continue;
             }
+            if (depths[node] <= depth) {
+                continue;
+            }
+            depths[node] = depth;
 
             if (node == dst) {
-                return distance;
+                return dist;
             }
 
-            for (pair<int, int>& edge : graph[node]) {
-                int neighbor = edge.first;
-                int cost = edge.second;
-                pq.emplace(distance + cost, neighbor, depth + 1);
+            for (auto [next, cost] : nexts[node]) {
+                pq.emplace(next, dist + cost, depth + 1);
             }
         }
 
@@ -39,6 +96,8 @@ public:
     }
 
     int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int k) {
-        return findCheapestPrice_DijkstraWithHeap(n, flights, src, dst, k);
+        //return bfs(n, flights, src, dst, k);
+        return bellmanford(n, flights, src, dst, k);
+        //return dijkstra(n, flights, src, dst, k);
     }
 };
