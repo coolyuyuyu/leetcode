@@ -1,129 +1,241 @@
 class Solution {
 public:
-    vector<string> findAllConcatenatedWordsInADict(vector<string>& words) {
-        Trie trie;
-        for (const string& word : words) {
-            if (word.empty()) {
-                continue;
-            }
-            trie.addWord(word);
+    // --- dfs ---
+    bool dfs(const unordered_set<string>& words, const string& s, size_t start) {
+        if (s.size() <= start) {
+            return true;
         }
 
-        vector<string> results;
-        for (const string& word : words) {
-            if (word.empty()) {
-                continue;
+        for (size_t end = start + 1; (end - start) < s.size(); ++end) {
+            if (words.find(s.substr(start, end - start)) != words.end() && dfs(words, s, end)) {
+                return true;
             }
-
-            trie.removeWord(word);
-            if (trie.checkBreakable(word)) {
-                results.emplace_back(word);
-            }
-            trie.addWord(word);
         }
-        return results;
+
+        return false;
     }
 
-private:
-    class Trie {
+    vector<string> dfs(const vector<string>& words) {
+        unordered_set<string> dict(words.begin(), words.end());
+
+        vector<string> ret;
+        for (const string& word : words) {
+            if (dfs(dict, word, 0)) {
+                ret.push_back(word);
+            }
+        }
+
+        return ret;
+    }
+
+    // --- dfs + memo ---
+    bool dfs_memo(const unordered_set<string>& words, const string& s, size_t start, vector<bool>& cache) {
+        if (s.size() <= start) {
+            return true;
+        }
+        if (!cache[start]) {
+            return false;
+        }
+
+        for (size_t end = start + 1; (end - start) < s.size(); ++end) {
+            if (words.find(s.substr(start, end - start)) != words.end() && dfs_memo(words, s, end, cache)) {
+                return true;
+            }
+        }
+
+        return cache[start] = false;
+    }
+
+    vector<string> dfs_memo(const vector<string>& words) {
+        unordered_set<string> dict(words.begin(), words.end());
+
+        vector<string> ret;
+        for (const string& word : words) {
+            vector<bool> cache(word.size(), true);
+            if (dfs_memo(dict, word, 0, cache)) {
+                ret.push_back(word);
+            }
+        }
+
+        return ret;
+    }
+
+    // --- trie ---
+    class TrieNode {
     public:
-        Trie()
-            : m_pRoot(new TrieNode()) {
+        TrieNode()
+            : end(false) {
+            childs.fill(nullptr);
         }
 
-        ~Trie() {
-            destruct(m_pRoot);
-        }
+        bool end;
+        array<TrieNode*, 26> childs;
+    };
 
-        void addWord(const string& word) {
-            assert(!word.empty());
-
-            TrieNode** ppNode = &m_pRoot;
-            for (char c : word) {
-                ppNode = &((*ppNode)->childs[c - 'a']);
-                if (*ppNode == nullptr) {
-                    *ppNode = new TrieNode();
-                }
+    TrieNode* addWord(TrieNode* root, const string& word) {
+        TrieNode** ppNode = &root;
+        for (char c : word) {
+            ppNode = &((*ppNode)->childs[c - 'a']);
+            if (*ppNode == nullptr) {
+                *ppNode = new TrieNode();
             }
+        }
+        (*ppNode)->end = true;
 
-            (*ppNode)->end = true;
+        return *ppNode;
+    }
+
+    bool search(TrieNode* root, const string& s, size_t start) {
+        if (s.size() <= start) {
+            return true;
         }
 
-        void removeWord(const string& word) {
-            TrieNode* pNode = m_pRoot;
-            for (char c : word) {
-                pNode = pNode->childs[c - 'a'];
-                if (!pNode) {
-                    return;
-                }
+        TrieNode* node = root;
+        for (size_t i = start; i < s.size() && node; ++i) {
+            node = node->childs[s[i] - 'a'];
+            if (node && node->end && search(root, s, i + 1)) {
+                return true;
             }
-
-            pNode->end = false;
         }
 
-        bool checkBreakable(const string& word) {
-            assert(!word.empty());
+        return false;
+    }
 
-            bool dones[word.size()];
-            memset(dones, false, sizeof(bool) * word.size());
-            bool breakables[word.size()];
-            memset(breakables, 0, sizeof(bool) * word.size());
+    vector<string> trie(const vector<string>& words) {
+        size_t n = words.size();
 
-            return checkBreakable(word, 0, dones, breakables);
+        TrieNode* root = new TrieNode();
+        vector<TrieNode*> nodes(n);
+        for (size_t i = 0; i < n; ++i) {
+            nodes[i] = addWord(root, words[i]);
         }
 
-    private:
-        class TrieNode {
-        public:
-            static const size_t CHILD_COUNT = 26;
-            TrieNode* childs[CHILD_COUNT] = {nullptr};
-            bool end = false;
-        };
-
-        void destruct(TrieNode* pRoot) {
-            if (!pRoot) {
-                return;
+        vector<string> ret;
+        for (size_t i = 0; i < n; ++i) {
+            nodes[i]->end = false;
+            if (search(root, words[i], 0)) {
+                ret.push_back(words[i]);
             }
-
-            for (size_t i = 0; i < TrieNode::CHILD_COUNT; ++i) {
-                destruct(pRoot->childs[i]);
-            }
-            delete pRoot;
+            nodes[i]->end = true;
         }
 
-        bool checkBreakable(const string& word, size_t index, bool dones[], bool breakables[]) {
-            assert(index < word.size());
+        return ret;
+    }
 
-            if (dones[index]) {
-                return breakables[index];
+    // --- trie + memo ---
+    bool search(TrieNode* root, const string& s, size_t start, vector<bool>& cache) {
+        if (s.size() <= start) {
+            return true;
+        }
+        if (!cache[start]) {
+            return false;
+        }
+
+        TrieNode* node = root;
+        for (size_t i = start; i < s.size() && node; ++i) {
+            node = node->childs[s[i] - 'a'];
+            if (node && node->end && search(root, s, i + 1, cache)) {
+                return true;
             }
+        }
 
-            bool breakable = false;
-            TrieNode* pNode = m_pRoot;
-            for (size_t i = index; i < word.size() && !breakable; ++i) {
-                char c = word[i];
-                pNode = pNode->childs[c - 'a'];
-                if (!pNode) {
+        return cache[start] = false;
+    }
+
+    vector<string> trie_memo(const vector<string>& words) {
+        size_t n = words.size();
+
+        TrieNode* root = new TrieNode();
+        vector<TrieNode*> nodes(n);
+        for (size_t i = 0; i < n; ++i) {
+            nodes[i] = addWord(root, words[i]);
+        }
+
+        vector<string> ret;
+        for (size_t i = 0; i < n; ++i) {
+            nodes[i]->end = false;
+            vector<bool> cache(words[i].size(), true);
+            if (search(root, words[i], 0)) {
+                ret.push_back(words[i]);
+            }
+            nodes[i]->end = true;
+        }
+
+        return ret;
+    }
+
+    // --- dp foreward ---
+    bool dp_foreward(const unordered_set<string>& words, const string& s) {
+        size_t n = s.size();
+        vector<bool> dp(n, false); // dp[i]: s[0:i] is breakable or not by words
+
+        for (size_t rht = 0; rht < n; ++rht) {
+            for (size_t lft = rht + 1, lftMost = ((rht + 1) == n ? 1 : 0); lftMost < lft--;) {
+                if ((lft == 0 || dp[lft - 1]) &&
+                    words.find(s.substr(lft, rht - lft + 1)) != words.end()) {
+                    dp[rht] = true;
                     break;
                 }
-
-                if (pNode->end) {
-                    if (i + 1 < word.size()) {
-                        breakable = checkBreakable(word, i + 1, dones, breakables);
-                    }
-                    else {
-                        breakable = true;
-                    }
-                }
-
             }
-
-            dones[index] = true;
-            breakables[index] = breakable;
-
-            return breakable;
         }
 
-        TrieNode* m_pRoot;
-    };
+        return dp[n - 1];
+    }
+
+    vector<string> dp_foreward(const vector<string>& words) {
+        unordered_set<string> dict(words.begin(), words.end());
+
+        vector<string> ret;
+        for (const string& word : words) {
+            if (dp_foreward(dict, word)) {
+                ret.push_back(word);
+            }
+        }
+
+        return ret;
+    }
+
+    // --- dp backward ---
+    bool dp_backward(const unordered_set<string>& words, const string& s) {
+        size_t n = s.size();
+        vector<bool> dp(n, false); // dp[i]: s[i:] is breakable or not by words
+
+        for (size_t rht = n; 0 < rht--;) {
+            if (rht == (n - 1) || dp[rht + 1]) {
+                for (size_t lft = rht + 1, lftMost = ((rht + 1) == n ? 1 : 0); lftMost < lft--;) {
+                    if (!dp[lft] &&
+                        ((rht + 1) == n || dp[rht + 1]) &&
+                        words.find(s.substr(lft, rht - lft + 1)) != words.end()) {
+                        dp[lft] = true;
+                    }
+                }
+            }
+        }
+
+        return dp[0];
+    }
+
+    vector<string> dp_backward(const vector<string>& words) {
+        unordered_set<string> dict(words.begin(), words.end());
+
+        vector<string> ret;
+        for (const string& word : words) {
+            if (dp_backward(dict, word)) {
+                ret.push_back(word);
+            }
+        }
+
+        return ret;
+    }
+
+    vector<string> findAllConcatenatedWordsInADict(vector<string>& words) {
+        //return dfs(words);
+        //return dfs_memo(words);
+
+        //return trie(words);
+        //return trie_memo(words);
+
+        //return dp_foreward(words);
+        return dp_backward(words);
+    }
 };
