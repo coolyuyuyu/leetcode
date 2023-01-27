@@ -6,8 +6,8 @@ public:
             return true;
         }
 
-        for (size_t end = start + 1; (end - start) < s.size(); ++end) {
-            if (words.find(s.substr(start, end - start)) != words.end() && dfs(words, s, end)) {
+        for (size_t i = start; i < s.size(); ++i) {
+            if (words.find(s.substr(start, i - start + 1)) != words.end() && dfs(words, s, i + 1)) {
                 return true;
             }
         }
@@ -15,14 +15,17 @@ public:
         return false;
     }
 
-    vector<string> dfs(const vector<string>& words) {
-        unordered_set<string> dict(words.begin(), words.end());
+    vector<string> dfs(vector<string>& words) {
+        std::sort(words.begin(), words.end(), [](const string& s1, const string& s2) { return s1.size() < s2.size(); });
+
+        unordered_set<string> dict;
 
         vector<string> ret;
         for (const string& word : words) {
             if (dfs(dict, word, 0)) {
                 ret.push_back(word);
             }
+            dict.insert(word);
         }
 
         return ret;
@@ -37,8 +40,8 @@ public:
             return false;
         }
 
-        for (size_t end = start + 1; (end - start) < s.size(); ++end) {
-            if (words.find(s.substr(start, end - start)) != words.end() && dfs_memo(words, s, end, cache)) {
+        for (size_t i = start; i < s.size(); ++i) {
+            if (words.find(s.substr(start, i - start + 1)) != words.end() && dfs_memo(words, s, i + 1, cache)) {
                 return true;
             }
         }
@@ -46,8 +49,10 @@ public:
         return cache[start] = false;
     }
 
-    vector<string> dfs_memo(const vector<string>& words) {
-        unordered_set<string> dict(words.begin(), words.end());
+    vector<string> dfs_memo(vector<string>& words) {
+        std::sort(words.begin(), words.end(), [](const string& s1, const string& s2) { return s1.size() < s2.size(); });
+
+        unordered_set<string> dict;
 
         vector<string> ret;
         for (const string& word : words) {
@@ -55,6 +60,7 @@ public:
             if (dfs_memo(dict, word, 0, cache)) {
                 ret.push_back(word);
             }
+            dict.insert(word);
         }
 
         return ret;
@@ -85,12 +91,12 @@ public:
         return *ppNode;
     }
 
-    bool search(TrieNode* root, const string& s, size_t start) {
+    bool search(const TrieNode* root, const string& s, size_t start) {
         if (s.size() <= start) {
             return true;
         }
 
-        TrieNode* node = root;
+        const TrieNode* node = root;
         for (size_t i = start; i < s.size() && node; ++i) {
             node = node->childs[s[i] - 'a'];
             if (node && node->end && search(root, s, i + 1)) {
@@ -101,29 +107,24 @@ public:
         return false;
     }
 
-    vector<string> trie(const vector<string>& words) {
-        size_t n = words.size();
+    vector<string> trie(vector<string>& words) {
+        std::sort(words.begin(), words.end(), [](const string& s1, const string& s2) { return s1.size() < s2.size(); });
 
         TrieNode* root = new TrieNode();
-        vector<TrieNode*> nodes(n);
-        for (size_t i = 0; i < n; ++i) {
-            nodes[i] = addWord(root, words[i]);
-        }
 
         vector<string> ret;
-        for (size_t i = 0; i < n; ++i) {
-            nodes[i]->end = false;
-            if (search(root, words[i], 0)) {
-                ret.push_back(words[i]);
+        for (const string& word : words) {
+            if (search(root, word, 0)) {
+                ret.push_back(word);
             }
-            nodes[i]->end = true;
+            addWord(root, word);
         }
 
         return ret;
     }
 
     // --- trie + memo ---
-    bool search(TrieNode* root, const string& s, size_t start, vector<bool>& cache) {
+    bool search(const TrieNode* root, const string& s, size_t start, vector<bool>& cache) {
         if (s.size() <= start) {
             return true;
         }
@@ -131,7 +132,7 @@ public:
             return false;
         }
 
-        TrieNode* node = root;
+        const TrieNode* node = root;
         for (size_t i = start; i < s.size() && node; ++i) {
             node = node->childs[s[i] - 'a'];
             if (node && node->end && search(root, s, i + 1, cache)) {
@@ -142,23 +143,18 @@ public:
         return cache[start] = false;
     }
 
-    vector<string> trie_memo(const vector<string>& words) {
-        size_t n = words.size();
+    vector<string> trie_memo(vector<string>& words) {
+        std::sort(words.begin(), words.end(), [](const string& s1, const string& s2) { return s1.size() < s2.size(); });
 
         TrieNode* root = new TrieNode();
-        vector<TrieNode*> nodes(n);
-        for (size_t i = 0; i < n; ++i) {
-            nodes[i] = addWord(root, words[i]);
-        }
 
         vector<string> ret;
-        for (size_t i = 0; i < n; ++i) {
-            nodes[i]->end = false;
-            vector<bool> cache(words[i].size(), true);
-            if (search(root, words[i], 0)) {
-                ret.push_back(words[i]);
+        for (const string& word : words) {
+            vector<bool> cache(word.size(), true);
+            if (search(root, word, 0, cache)) {
+                ret.push_back(word);
             }
-            nodes[i]->end = true;
+            addWord(root, word);
         }
 
         return ret;
@@ -169,11 +165,11 @@ public:
         size_t n = s.size();
         vector<bool> dp(n, false); // dp[i]: s[0:i] is breakable or not by words
 
-        for (size_t rht = 0; rht < n; ++rht) {
-            for (size_t lft = rht + 1, lftMost = ((rht + 1) == n ? 1 : 0); lftMost < lft--;) {
-                if ((lft == 0 || dp[lft - 1]) &&
-                    words.find(s.substr(lft, rht - lft + 1)) != words.end()) {
-                    dp[rht] = true;
+        for (size_t i = 0; i < n; ++i) {
+            for (size_t j = i + 1; 0 < j--;) {
+                if ((j == 0 || dp[j - 1]) &&
+                    words.find(s.substr(j, i - j + 1)) != words.end()) {
+                    dp[i] = true;
                     break;
                 }
             }
@@ -182,14 +178,17 @@ public:
         return dp[n - 1];
     }
 
-    vector<string> dp_foreward(const vector<string>& words) {
-        unordered_set<string> dict(words.begin(), words.end());
+    vector<string> dp_foreward(vector<string>& words) {
+        std::sort(words.begin(), words.end(), [](const string& s1, const string& s2) { return s1.size() < s2.size(); });
+
+        unordered_set<string> dict;
 
         vector<string> ret;
         for (const string& word : words) {
             if (dp_foreward(dict, word)) {
                 ret.push_back(word);
             }
+            dict.insert(word);
         }
 
         return ret;
@@ -200,11 +199,11 @@ public:
         size_t n = s.size();
         vector<bool> dp(n, false); // dp[i]: s[i:] is breakable or not by words
 
-        for (size_t lft = n; 0 < lft--;) {
-            for (size_t rht = lft, rhtMost = (lft == 0 ? n - 1 : n); rht < rhtMost; ++rht) {
-                if (((rht + 1) == n || dp[rht + 1]) &&
-                    words.find(s.substr(lft, rht - lft + 1)) != words.end()) {
-                    dp[lft] = true;
+        for (size_t i = n; 0 < i--;) {
+            for (size_t j = i; j < n; ++j) {
+                if (((j + 1) == n || dp[j + 1]) &&
+                    words.find(s.substr(i, j - i + 1)) != words.end()) {
+                    dp[i] = true;
                     break;
                 }
             }
@@ -213,14 +212,17 @@ public:
         return dp[0];
     }
 
-    vector<string> dp_backward(const vector<string>& words) {
-        unordered_set<string> dict(words.begin(), words.end());
+    vector<string> dp_backward(vector<string>& words) {
+        std::sort(words.begin(), words.end(), [](const string& s1, const string& s2) { return s1.size() < s2.size(); });
+
+        unordered_set<string> dict;
 
         vector<string> ret;
         for (const string& word : words) {
             if (dp_backward(dict, word)) {
                 ret.push_back(word);
             }
+            dict.insert(word);
         }
 
         return ret;
