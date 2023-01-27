@@ -200,14 +200,12 @@ public:
         size_t n = s.size();
         vector<bool> dp(n, false); // dp[i]: s[i:] is breakable or not by words
 
-        for (size_t rht = n; 0 < rht--;) {
-            if (rht == (n - 1) || dp[rht + 1]) {
-                for (size_t lft = rht + 1, lftMost = ((rht + 1) == n ? 1 : 0); lftMost < lft--;) {
-                    if (!dp[lft] &&
-                        ((rht + 1) == n || dp[rht + 1]) &&
-                        words.find(s.substr(lft, rht - lft + 1)) != words.end()) {
-                        dp[lft] = true;
-                    }
+        for (size_t lft = n; 0 < lft--;) {
+            for (size_t rht = lft, rhtMost = (lft == 0 ? n - 1 : n); rht < rhtMost; ++rht) {
+                if (((rht + 1) == n || dp[rht + 1]) &&
+                    words.find(s.substr(lft, rht - lft + 1)) != words.end()) {
+                    dp[lft] = true;
+                    break;
                 }
             }
         }
