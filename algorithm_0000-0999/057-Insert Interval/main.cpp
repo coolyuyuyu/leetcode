@@ -48,7 +48,6 @@ public:
             intervals.insert(bgn, newInterval);
         }
         else {
-            
             bgn->at(0) = std::min(bgn->at(0), newInterval[0]);
             bgn->at(1) = std::max(std::prev(end)->at(1), newInterval[1]);
             intervals.erase(bgn + 1, end);
