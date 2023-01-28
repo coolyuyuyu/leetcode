@@ -1,7 +1,5 @@
 class Solution {
 public:
-    vector<array<int, 2>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
-
     class TrieNode {
     public:
         TrieNode()
@@ -43,6 +41,8 @@ public:
         return root;
     }
 
+    vector<array<int, 2>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
+
     void dfs(vector<vector<char>>& board, int r, int c, TrieNode* root, TrieNode* node, string& word, vector<string>& words) {
         char ch = board[r][c];
         if (ch == '\0' || node->childs[ch - 'a'] == nullptr || node->childs[ch - 'a']->count == 0) {
@@ -58,9 +58,9 @@ public:
             removeWord(root, word);
         }
 
-        for (int i = 0; i < dirs.size(); ++i) {
-            int x = r + dirs[i][0];
-            int y = c + dirs[i][1];
+        for (const auto& dir : dirs) {
+            int x = r + dir[0];
+            int y = c + dir[1];
             if (x < 0 || board.size() <= x || y < 0 || board[0].size() <= y) {
                 continue;
             }
