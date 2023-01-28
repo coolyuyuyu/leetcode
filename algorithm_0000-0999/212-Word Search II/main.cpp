@@ -1,92 +1,88 @@
 class Solution {
 public:
+    vector<array<int, 2>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
+
+    class TrieNode {
+    public:
+        TrieNode()
+            : end(false)
+            , count(0) {
+            childs.fill(nullptr);
+        }
+
+        bool end;
+        unsigned count;
+        array<TrieNode*, 26> childs;
+    };
+
+    void addWord(TrieNode* root, const string& word) {
+        for (char c : word) {
+            if (root->childs[c - 'a'] == nullptr) {
+                root->childs[c - 'a'] = new TrieNode();
+            }
+            root = root->childs[c - 'a'];
+            root->count += 1;
+        }
+        root->end = true;
+    }
+
+    void removeWord(TrieNode* root, const string& word) {
+        for (char c : word) {
+            root = root->childs[c - 'a'];
+            root->count -= 1;
+        }
+        root->end = false;
+    }
+
+    TrieNode* buildTrie(const vector<string>& words) {
+        TrieNode* root = new TrieNode();
+        for (const string& word : words) {
+            addWord(root, word);
+        }
+
+        return root;
+    }
+
+    void dfs(vector<vector<char>>& board, int r, int c, TrieNode* root, TrieNode* node, string& word, vector<string>& words) {
+        char ch = board[r][c];
+        if (ch == '\0' || node->childs[ch - 'a'] == nullptr || node->childs[ch - 'a']->count == 0) {
+            return;
+        }
+        node = node->childs[ch - 'a'];
+
+        board[r][c] = '\0';
+        word.push_back(ch);
+
+        if (node->end) {
+            words.push_back(word);
+            removeWord(root, word);
+        }
+
+        for (int i = 0; i < dirs.size(); ++i) {
+            int x = r + dirs[i][0];
+            int y = c + dirs[i][1];
+            if (x < 0 || board.size() <= x || y < 0 || board[0].size() <= y) {
+                continue;
+            }
+
+            dfs(board, x, y, root, node, word, words);
+        }
+
+        word.pop_back();
+        board[r][c] = ch;
+    }
+
     vector<string> findWords(vector<vector<char>>& board, vector<string>& words) {
-        TrieNode* pRoot = buildTrie(words);
+        TrieNode* root = buildTrie(words);
 
         string result;
         vector<string> results;
-
-        size_t rowCnt = board.size();
-        size_t colCnt = board.empty() ? 0 : board.front().size();
-        for (size_t row = 0; row < rowCnt; ++row) {
-            for (size_t col = 0; col < colCnt; ++col) {
-                findWords(board, row, col, pRoot, result, results);
+        for (int r = 0; r < board.size(); ++r) {
+            for (int c = 0; c < board[0].size(); ++c) {
+                dfs(board, r, c, root, root, result, results);
             }
         }
 
         return results;
-    }
-private:
-    class TrieNode {
-    public:
-        TrieNode()
-            : childs(26, nullptr)
-            , end(false) {
-        }
-
-        vector<TrieNode*> childs;
-        bool end;
-    };
-
-    TrieNode* buildTrie(const vector<string>& words) {
-        TrieNode* pRoot = new TrieNode();
-        for (const string& word : words) {
-            insert(pRoot, word);
-        }
-
-        return pRoot;
-    }
-
-    void insert(TrieNode* pRoot, const string& word) {
-        TrieNode** ppNode = &pRoot;
-        for (char c : word) {
-            ppNode = &((*ppNode)->childs[c - 'a']);
-            if (*ppNode == nullptr) {
-                *ppNode = new TrieNode();
-            }
-        }
-
-        (*ppNode)->end = true;
-    }
-
-    void findWords(vector<vector<char>>& board, size_t row, size_t col, TrieNode* pRoot, string& result, vector<string>& results) {
-        assert(pRoot);
-
-        pRoot = pRoot->childs[board[row][col] - 'a'];
-        if (pRoot) {
-            char tmp = board[row][col];
-            result.push_back(board[row][col]);
-            board[row][col] = NULL;
-
-            if (pRoot->end) {
-                results.push_back(result);
-                pRoot->end = false;
-            }
-
-            // left
-            if (0 < col && board[row][col - 1] != NULL) {
-                findWords(board, row, col - 1, pRoot, result, results);
-            }
-
-            // upper
-            if (0 < row && board[row - 1][col] != NULL) {
-                findWords(board, row - 1, col, pRoot, result, results);
-            }
-
-            // right
-            size_t colCnt = board.empty() ? 0 : board.front().size();
-            if (col + 1 < colCnt && board[row][col + 1] != NULL) {
-                findWords(board, row, col + 1, pRoot, result, results);
-            }
-
-            // lower
-            size_t rowCnt = board.size();
-            if (row + 1 < rowCnt && board[row + 1][col] != NULL) {
-                findWords(board, row + 1, col, pRoot, result, results);
-            }
-
-            board[row][col] = tmp;
-            result.pop_back();
-        }
     }
 };
