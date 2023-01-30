@@ -26,18 +26,15 @@ public:
             return 1;
         }
 
-        vector<int> nums(n + 1);
-        nums[0] = 0;
-        nums[1] = nums[2] = 1;
-        int x = 1, y = 1, z = 0;
-        for (size_t i = 3; i <= n; ++i) {
+        int x = 0, y = 1, z = 1;
+        for (int i = 3; i <= n; ++i) {
             int tmp = x + y + z;
-            z = y;
-            y = x;
-            x = tmp;
+            x = y;
+            y = z;
+            z = tmp;
         }
 
-        return x;
+        return z;
     }
 
     int tribonacci(int n) {
