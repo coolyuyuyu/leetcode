@@ -1,70 +1,55 @@
 class LRUCache {
 public:
-    LRUCache(size_t capacity)
+    LRUCache(int capacity)
         : m_capacity(capacity)
-        , m_size(0)
-        , m_nodes(new CacheNode[m_capacity])
-        , m_pHead(new CacheNode())
-        , m_pTail(new CacheNode()) {
-        m_pHead->pNext = m_pTail;
-        m_pTail->pPrev = m_pHead;
+        , m_nodes(new Node[m_capacity]) {
     }
 
-    ~LRUCache() {
+    virtual ~LRUCache() {
         delete[] m_nodes;
-        delete m_pHead;
-        delete m_pTail;
     }
 
-    int get(int key) const {
-        CacheNode* pNode = nullptr; {
-            auto itr = m_hash.find(key);
-            if (itr != m_hash.end()) {
-                pNode = itr->second;
-            }
-        }
-        if (pNode) {
-            const_cast<LRUCache*>(this)->detach(pNode);
-            const_cast<LRUCache*>(this)->attach(pNode);
-            return pNode->val;
-        }
-        else {
+    int get(int key) {
+        if (m_key2itr.find(key) == m_key2itr.end()) {
             return -1;
         }
+
+        Node* node = *(m_key2itr[key]);
+
+        m_list.erase(m_key2itr[key]);
+        m_list.push_back(node);
+
+        m_key2itr[key] = std::prev(m_list.end());
+
+        return node->val;
     }
 
-    void put(int key, int val) {
-        if (m_capacity == 0) {
+    void put(int key, int value) {
+        if (capacity() == 0) {
             return;
         }
 
-        CacheNode* pNode = nullptr; {
-            auto itr = m_hash.find(key);
-            if (itr != m_hash.end()) {
-                pNode = itr->second;
-            }
+        if (get(key) != -1) {
+            (*(m_key2itr[key]))->val = value;
+            return;
         }
-        if (pNode) {
-            pNode->val = val;
-            detach(pNode);
+
+        Node* node;
+        if (capacity() <= size()) {
+            node = m_list.front();
+            m_list.pop_front();
+
+            m_key2itr.erase(node->key);
         }
         else {
-            if (m_size < m_capacity) {
-                pNode = m_nodes + m_size;
-                ++m_size;
-            }
-            else {
-                pNode = m_pTail->pPrev;
-                m_hash.erase(pNode->key);
-                detach(pNode);
-            }
-
-            pNode->key = key;
-            pNode->val = val;
-
-            m_hash[key] = pNode;
+            node = &(m_nodes[size()]);
         }
-        attach(pNode);
+
+        node->key = key;
+        node->val = value;
+
+        m_list.push_back(node);
+        m_key2itr[key] = std::prev(m_list.end());
     }
 
     size_t capacity() const {
@@ -72,49 +57,26 @@ public:
     }
 
     size_t size() const {
-        return m_size;
+        return m_key2itr.size();
     }
 
 private:
-    class CacheNode {
+    class Node {
     public:
-        CacheNode()
-            : pNext(nullptr)
-            , pPrev(nullptr) {
-        }
-
         int key;
         int val;
-
-        CacheNode* pNext;
-        CacheNode* pPrev;
     };
 
-    void attach(CacheNode* pNode) {
-        m_pHead->pNext->pPrev = pNode;
-        pNode->pNext = m_pHead->pNext;
-        m_pHead->pNext = pNode;
-        pNode->pPrev = m_pHead;
-    }
-
-    void detach(CacheNode* pNode) {
-        assert(pNode && pNode->pNext && pNode->pPrev);
-        pNode->pNext->pPrev = pNode->pPrev;
-        pNode->pPrev->pNext = pNode->pNext;
-    }
-
     size_t m_capacity;
-    size_t m_size;
+    Node* m_nodes;
 
-    CacheNode* m_nodes;
-    unordered_map<int, CacheNode*> m_hash;
-    CacheNode* m_pHead;
-    CacheNode* m_pTail;
+    list<Node*> m_list;
+    unordered_map<int, list<Node*>::iterator> m_key2itr;
 };
 
 /**
  * Your LRUCache object will be instantiated and called as such:
- * LRUCache obj = new LRUCache(capacity);
- * int param_1 = obj.get(key);
- * obj.put(key,value);
+ * LRUCache* obj = new LRUCache(capacity);
+ * int param_1 = obj->get(key);
+ * obj->put(key,value);
  */
