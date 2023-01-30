@@ -11,79 +11,59 @@
  */
 class Solution {
 public:
-    bool isIdentical_Recursive(TreeNode* s, TreeNode* t) {
-        return (s == t) || (s && t && s->val == t->val && isIdentical_Recursive(s->left, t->left) && isIdentical_Recursive(s->right, t->right));
-    };
-
-    bool isSubtree_Recursive(TreeNode* s, TreeNode* t) {
-        if (isIdentical_Recursive(s, t)) {
-            return true;
-        }
-        else {
-            if (s) {
-                return (isSubtree_Recursive(s->left, t) || isSubtree_Recursive(s->right, t));
-            }
-            else {
-                assert(!s && t);
-                return false;
-            }
-        }
+    bool isSame_recv(TreeNode* root1, TreeNode* root2) {
+        return (root1 == root2) || (root1 && root2 && root1->val == root2->val && isSame_recv(root1->left, root2->left) && isSame_recv(root1->right, root2->right));
     }
 
-    bool isIdentical_Iterative(TreeNode* s, TreeNode* t) {
-        queue<pair<TreeNode*, TreeNode*>> q({{s, t}});
-        while (!q.empty()) {
-            s = q.front().first;
-            t = q.front().second;
-            q.pop();
+    // Time: O(MN)
+    bool dfs_recv(TreeNode* root, TreeNode* subRoot) {
+        return isSame_recv(root, subRoot) || (root && (dfs_recv(root->left, subRoot) || dfs_recv(root->right, subRoot)));
+    }
 
-            if (s != t) {
-                if (s && t) {
-                    if (s->val != t->val) {
-                        return false;
-                    }
-                    q.emplace(s->left, t->left);
-                    q.emplace(s->right, t->right);
-                }
-                else if ((s && !t) || (!s && t)) {
-                    return false;
-                }
+    bool isSame_iter(TreeNode* root1, TreeNode* root2) {
+        stack<pair<TreeNode*, TreeNode*>> stk({{root1, root2}});
+        while (!stk.empty()) {
+            auto [root1, root2] = stk.top();
+            stk.pop();
+
+            if (root1 == root2) {
+                continue;
             }
+            if (!root1 || !root2 || root1->val != root2->val) {
+                return false;
+            }
+
+            stk.emplace(root1->left, root2->left);
+            stk.emplace(root1->right, root2->right);
         }
 
         return true;
     }
 
-    bool isSubtree_Iterative(TreeNode* s, TreeNode* t) {
-        if (isIdentical_Iterative(s, t)) {
-            return true;
-        }
-
-        stack<TreeNode*> stk;
-        if (s) {
-            stk.push(s);
-        }
+    // Time: O(MN)
+    bool dfs_iter(TreeNode* root, TreeNode* subRoot) {
+        stack<TreeNode*> stk({root});
         while (!stk.empty()) {
-            s = stk.top();
+            auto root = stk.top();
             stk.pop();
 
-            if (isIdentical_Iterative(s, t)) {
+            if (isSame_iter(root, subRoot)) {
                 return true;
             }
 
-            if (s->right) {
-                stk.push(s->right);
+            if (root->left) {
+                stk.push(root->left);
             }
-            if (s->left) {
-                stk.push(s->left);
+            if (root->right) {
+                stk.push(root->right);
             }
         }
 
         return false;
     }
 
-    bool isSubtree(TreeNode* s, TreeNode* t) {
-        //return isSubtree_Recursive(s, t);
-        return isSubtree_Iterative(s, t);
+    bool isSubtree(TreeNode* root, TreeNode* subRoot) {
+        return dfs_recv(root, subRoot);
+        //return dfs_iter(root, subRoot);
     }
 };
