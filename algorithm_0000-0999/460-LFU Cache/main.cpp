@@ -1,94 +1,68 @@
 class LFUCache {
 public:
-    LFUCache(size_t capacity)
+    LFUCache(int capacity)
         : m_capacity(capacity)
-        , m_size(0)
-        , m_minFrequency(0)
-        , m_nodes(new CacheNode[m_capacity]) {
+        , m_nodes(new Node[m_capacity])
+        , m_minFreq(0) {
     }
 
-    ~LFUCache() {
+    virtual ~LFUCache() {
         delete[] m_nodes;
     }
 
-    int get(int key) const {
-        auto nodeItr = m_nodeHash.find(key);
-        if (nodeItr == m_nodeHash.end()) {
+    int get(int key) {
+        if (m_key2itr.find(key) == m_key2itr.end()) {
             return -1;
         }
 
-        CacheNode* pNode = nodeItr->second;
-        pNode->detach();
+        Node* node = *(m_key2itr[key]);
 
-        auto dllistItr = m_dllistHash.find(pNode->frequency);
-        assert(dllistItr != m_dllistHash.end());
-        if (dllistItr->second.empty()) {
-            m_dllistHash.erase(dllistItr);
+        m_freq2list[node->freq].erase(m_key2itr[key]);
+        if (m_freq2list[node->freq].empty()) {
+            m_freq2list.erase(node->freq);
 
-            if (pNode->frequency == m_minFrequency) {
-                m_minFrequency += 1;
+            if (node->freq == m_minFreq) {
+                ++m_minFreq;
             }
         }
+        m_freq2list[++(node->freq)].push_back(node);
 
-        ++pNode->frequency;
-        m_dllistHash[pNode->frequency].pushFront(pNode);
+        m_key2itr[key] = std::prev(m_freq2list[node->freq].end());
 
-        return pNode->val;
+        return node->val;
     }
 
     void put(int key, int value) {
-        if (m_capacity == 0) {
+        if (capacity() == 0) {
             return;
         }
 
-        auto nodeItr = m_nodeHash.find(key);
-        if (nodeItr == m_nodeHash.end()) {
-            CacheNode* pNode = nullptr;
-            if (m_size < m_capacity) {
-                pNode = m_nodes + m_size;
-                ++m_size;
-            }
-            else {
-                DoublyLinkedList& dllist = m_dllistHash[m_minFrequency];
-                assert(!dllist.empty());
+        if (get(key) != -1) {
+            (*(m_key2itr[key]))->val = value;
+            return;
+        }
 
-                pNode = dllist.back();
-                dllist.popBack();
-
-                m_nodeHash.erase(pNode->key);
-                if (dllist.empty()) {
-                    m_dllistHash.erase(m_minFrequency);
-                }
+        Node* node;
+        if (capacity() <= size()) {
+            node = m_freq2list[m_minFreq].front();
+            m_freq2list[m_minFreq].pop_front();
+            if (m_freq2list[m_minFreq].empty()) {
+                m_freq2list.erase(m_minFreq);
             }
 
-            pNode->key = key;
-            pNode->val = value;
-            pNode->frequency = 0;
-
-            m_nodeHash[key] = pNode;
-            m_dllistHash[pNode->frequency].pushFront(pNode);
-
-            m_minFrequency = 0;
+            m_key2itr.erase(node->key);
         }
         else {
-            CacheNode* pNode = nodeItr->second;
-            pNode->detach();
-
-            auto dllistItr = m_dllistHash.find(pNode->frequency);
-            assert(dllistItr != m_dllistHash.end());
-            if (dllistItr->second.empty()) {
-                m_dllistHash.erase(pNode->frequency);
-
-                if (pNode->frequency == m_minFrequency) {
-                    m_minFrequency += 1;
-                }
-            }
-
-            pNode->val = value;
-            pNode->frequency += 1;
-
-            m_dllistHash[pNode->frequency].pushFront(pNode);
+            node = &(m_nodes[size()]);
         }
+
+        node->key = key;
+        node->val = value;
+        node->freq = 0;
+
+        m_minFreq = 0;
+        m_freq2list[m_minFreq].push_back(node);
+        m_key2itr[key] = std::prev(m_freq2list[m_minFreq].end());
     }
 
     size_t capacity() const {
@@ -96,85 +70,28 @@ public:
     }
 
     size_t size() const {
-        return m_size;
+        return m_key2itr.size();
     }
 
 private:
-    class CacheNode {
+    class Node {
     public:
-        CacheNode()
-            : pNext(nullptr)
-            , pPrev(nullptr) {
-        }
-
-        void detach() {
-            assert(pNext && pPrev);
-            pNext->pPrev = pPrev;
-            pPrev->pNext = pNext;
-            pNext = pPrev = nullptr;
-        }
-
         int key;
         int val;
-        int frequency;
-
-        CacheNode* pNext;
-        CacheNode* pPrev;
-    };
-
-    class DoublyLinkedList {
-    public:
-        DoublyLinkedList()
-            : pHead(new CacheNode())
-            , pTail(new CacheNode()) {
-            pHead->pNext = pTail;
-            pTail->pPrev = pHead;
-        }
-
-        ~DoublyLinkedList() {
-            delete pHead;
-            delete pTail;
-        }
-
-        bool empty() const {
-            return pHead->pNext == pTail;
-        }
-
-        void pushFront(CacheNode* pNode) {
-            pNode->pNext = pHead->pNext;
-            pNode->pNext->pPrev = pNode;
-            pHead->pNext = pNode;
-            pNode->pPrev = pHead;
-        }
-
-        void popBack() {
-            assert(!empty());
-            pTail->pPrev = pTail->pPrev->pPrev;
-            pTail->pPrev->pNext = pTail;
-        }
-
-        CacheNode* back() const {
-            assert(!empty());
-            return pTail->pPrev;
-        }
-
-        CacheNode* pHead;
-        CacheNode* pTail;
+        int freq;
     };
 
     size_t m_capacity;
-    size_t m_size;
+    Node* m_nodes;
 
-    mutable size_t m_minFrequency;
-
-    CacheNode* m_nodes;
-    unordered_map<int, CacheNode*> m_nodeHash; // <key, node>
-    mutable unordered_map<int, DoublyLinkedList> m_dllistHash; // <frequency, doubly linked list>
+    size_t m_minFreq;
+    unordered_map<int, list<Node*>> m_freq2list;
+    unordered_map<int, list<Node*>::iterator> m_key2itr;
 };
 
 /**
  * Your LFUCache object will be instantiated and called as such:
- * LFUCache obj = new LFUCache(capacity);
- * int param_1 = obj.get(key);
- * obj.put(key,value);
+ * LFUCache* obj = new LFUCache(capacity);
+ * int param_1 = obj->get(key);
+ * obj->put(key,value);
  */
