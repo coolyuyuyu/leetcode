@@ -1,20 +1,25 @@
 class Solution {
 public:
     bool isAlienSorted(vector<string>& words, string order) {
-        array<int, 26> weights;
-        for (size_t i = 0; i < order.size(); ++i) {
+        array<unsigned, 26> weights;
+        for (int i = 0; i < 26; ++i) {
             weights[order[i] - 'a'] = i;
         }
 
-        auto comp = [&](const string& str1, const string str2) {
-            for (size_t i = 0; i < str1.size() && i < str2.size(); ++i) {
-                if (str1[i] != str2[i]) {
-                    return weights[str1[i]- 'a'] < weights[str2[i] - 'a'];
+        auto comp = [&](const string& s1, const string& s2) {
+            auto itr1 = s1.begin(), itr2 = s2.begin();
+            for (; itr1 != s1.end(); ++itr1, ++itr2) {
+                if (itr2 == s2.end() || weights[*itr2 - 'a'] < weights[*itr1 - 'a']) {
+                    return false;
+                }
+                else if (weights[*itr1 - 'a'] < weights[*itr2 - 'a']) {
+                    return true;
                 }
             }
 
-            return str1.size() < str2.size();
+            return itr2 != s2.end();
         };
+
         return std::is_sorted(words.begin(), words.end(), comp);
     }
 };
