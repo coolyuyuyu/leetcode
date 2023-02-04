@@ -11,51 +11,110 @@
  */
 class Solution {
 public:
-    bool isSame_recv(TreeNode* root1, TreeNode* root2) {
-        return (root1 == root2) || (root1 && root2 && root1->val == root2->val && isSame_recv(root1->left, root2->left) && isSame_recv(root1->right, root2->right));
+    bool isSame_dfsRecv(TreeNode* p, TreeNode* q) {
+        if (!p || !q) {
+            return p == q;
+        }
+        return p->val == q->val && isSame_dfsRecv(p->left, q->left) && isSame_dfsRecv(p->right, q->right);
     }
 
     // Time: O(MN)
-    bool dfs_recv(TreeNode* root, TreeNode* subRoot) {
-        return isSame_recv(root, subRoot) || (root && (dfs_recv(root->left, subRoot) || dfs_recv(root->right, subRoot)));
+    bool isSubtree_dfsRecv(TreeNode* p, TreeNode* q) {
+        if (!p || !q) {
+            return p == q;
+        }
+        return isSame_dfsRecv(p, q) || isSubtree_dfsRecv(p->left, q) || isSubtree_dfsRecv(p->right, q);
     }
 
-    bool isSame_iter(TreeNode* root1, TreeNode* root2) {
-        stack<pair<TreeNode*, TreeNode*>> stk({{root1, root2}});
+    bool isSame_dfsIter(TreeNode* p, TreeNode* q) {
+        assert(p && q);
+
+        stack<pair<TreeNode*, TreeNode*>> stk({{p, q}});
         while (!stk.empty()) {
-            auto [root1, root2] = stk.top();
+            auto [p, q] = stk.top();
             stk.pop();
 
-            if (root1 == root2) {
+            if (!p && !q) {
                 continue;
             }
-            if (!root1 || !root2 || root1->val != root2->val) {
+            if (p && !q || !p && q || p->val != q->val) {
                 return false;
             }
 
-            stk.emplace(root1->left, root2->left);
-            stk.emplace(root1->right, root2->right);
+            stk.emplace(p->right, q->right);
+            stk.emplace(p->left, q->left);
         }
 
         return true;
     }
 
     // Time: O(MN)
-    bool dfs_iter(TreeNode* root, TreeNode* subRoot) {
-        stack<TreeNode*> stk({root});
+    bool isSubtree_dfsIter(TreeNode* p, TreeNode* q) {
+        assert(p && q);
+
+        stack<TreeNode*> stk({p});
         while (!stk.empty()) {
-            auto root = stk.top();
+            p = stk.top();
             stk.pop();
 
-            if (isSame_iter(root, subRoot)) {
+            if (!p) {
+                continue;
+            }
+            if (isSame_dfsIter(p, q)) {
                 return true;
             }
 
-            if (root->left) {
-                stk.push(root->left);
+            stk.push(p->right);
+            stk.push(p->left);
+        }
+
+        return false;
+    }
+
+    void serialize(TreeNode* p, vector<int>& vals) {
+        if (!p) {
+            vals.push_back(INT_MAX);
+        }
+        else {
+            vals.push_back(p->val);
+            serialize(p->left, vals);
+            serialize(p->right, vals);
+        }
+    }
+
+    // Time: O(M+N)
+    bool isSubtree_kmp(TreeNode* p, TreeNode* q) {
+        vector<int> s; serialize(p, s);
+        vector<int> t; serialize(q, t);
+
+        if (s.size() < t.size()) {
+            return false;
+        }
+
+        // suffix[i]: the longest length k such that t[0:k-1] == t[i-k+1:i]
+        vector<size_t> suffix(t.size());
+        suffix[0] = 0;
+        for (size_t i = 1; i < t.size(); ++i) {
+            size_t j = suffix[i - 1];
+            while (0 < j && t[j] != t[i]) {
+                j = suffix[j - 1];
             }
-            if (root->right) {
-                stk.push(root->right);
+            suffix[i] = j + (t[j] == t[i] ? 1 : 0);
+        }
+
+        // dp[i]: the longest length k such that t[0:k-1] == s[i-k+1:i]
+        size_t dp = (t[0] == s[0] ? 1 : 0);
+        if (dp == 1 && t.size() == 1) {
+            return true;
+        }
+        for (size_t i = 1; i < s.size(); ++i) {
+            size_t j = dp;
+            while (0 < j && t[j] != s[i]) {
+                j = suffix[j - 1];
+            }
+            dp = j + (t[j] == s[i] ? 1 : 0);
+            if (dp == t.size()) {
+                return true;
             }
         }
 
@@ -63,7 +122,8 @@ public:
     }
 
     bool isSubtree(TreeNode* root, TreeNode* subRoot) {
-        return dfs_recv(root, subRoot);
-        //return dfs_iter(root, subRoot);
+        //return isSubtree_dfsRecv(root, subRoot);
+        //return isSubtree_dfsIter(root, subRoot);
+        return isSubtree_kmp(root, subRoot);
     }
 };
