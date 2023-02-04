@@ -7,8 +7,8 @@ public:
         }
 
         size_t x = cnts.size();
-        for (size_t rht = 0; rht < s2.size(); ++rht) {
-            if (--cnts[s2[rht]] == 0) {
+        for (size_t i = 0; i < s2.size(); ++i) {
+            if (--cnts[s2[i]] == 0) {
                 --x;
             }
 
@@ -16,12 +16,10 @@ public:
                 return true;
             }
 
-            if (rht + 1 < s1.size()) {
-                continue;
-            }
-            size_t lft = rht + 1 - s1.size();
-            if (cnts[s2[lft]]++ == 0) {
-                ++x;
+            if (s1.size() <= (i + 1)) {
+                if (cnts[s2[i + 1 - s1.size()]]++ == 0) {
+                    ++x;
+                }
             }
         }
 
