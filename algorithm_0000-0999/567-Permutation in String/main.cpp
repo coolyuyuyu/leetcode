@@ -1,32 +1,27 @@
 class Solution {
 public:
     bool checkInclusion(string s1, string s2) {
-        assert(!s1.empty() && !s2.empty());
-
-        size_t m = s1.size();
-        size_t n = s2.size();
-        if (n < m) {
-            return false;
+        unordered_map<char, int> cnts;
+        for (auto c : s1) {
+            ++cnts[c];
         }
 
-        vector<int> cnt(26, 0);
-        for (char c : s1) {
-            ++cnt[c - 'a'];
-        }
+        size_t x = cnts.size();
+        for (size_t rht = 0; rht < s2.size(); ++rht) {
+            if (--cnts[s2[rht]] == 0) {
+                --x;
+            }
 
-        vector<int> cur(26, 0);
-        for (size_t i = 0; i < m; ++i) {
-            ++cur[s2[i] - 'a'];
-        }
-        if (cur == cnt) {
-            return true;
-        }
-
-        for (size_t i = m; i < n; ++i) {
-            ++cur[s2[i] - 'a'];
-            --cur[s2[i - m] - 'a'];
-            if (cur == cnt) {
+            if (x == 0) {
                 return true;
+            }
+
+            if (rht + 1 < s1.size()) {
+                continue;
+            }
+            size_t lft = rht + 1 - s1.size();
+            if (cnts[s2[lft]]++ == 0) {
+                ++x;
             }
         }
 
