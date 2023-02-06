@@ -1,33 +1,32 @@
 class Solution {
 public:
-    vector<int> shuffle_NaiveBruteForce(vector<int>& nums, int n) {
-        vector<int> ans(2 * n);
+    // Time: O(n), Space(n)
+    vector<int> f1(const vector<int>& nums, int n) {
+        vector<int> ret(2 * n);
         for (int i = 0; i < n; ++i) {
-            ans[2 * i + 0] = nums[i];
-            ans[2 * i + 1] = nums[n + i];
+            ret[2 * i] = nums[i];
+            ret[2 * i + 1] = nums[i + n];
         }
 
-        return ans;
+        return ret;
     }
 
-    vector<int> shuffle_OptimizedBruteForce(vector<int>& nums, int n) {
+    // Time: O(n), Space(1)
+    vector<int> f2(vector<int>& nums, int n) {
         for (int i = 0; i < n; ++i) {
-            nums[i] += nums[n + i] * 10000;
+            nums[i] += (nums[i + n] * 10000);
         }
 
-        for (int i = n - 1; 0 <= i ; --i) {
+        for (int i = n; 0 < i--;) {
             nums[2 * i + 1] = nums[i] / 10000;
-            nums[2 * i + 0] = nums[i] % 10000;
+            nums[2 * i] = nums[i] % 10000;
         }
 
         return nums;
     }
 
     vector<int> shuffle(vector<int>& nums, int n) {
-        // Time: O(N), Space: O(N)
-        // return shuffle_NaiveBruteForce(nums, n);
-
-        // Time: O(N), Space: O(1)
-        return shuffle_OptimizedBruteForce(nums, n);
+        //return f1(nums, n);
+        return f2(nums, n);
     }
 };
