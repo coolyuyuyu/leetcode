@@ -52,9 +52,10 @@ public:
     bool canChoose(vector<vector<int>>& groups, vector<int>& nums) {
         int pos = 0;
         for (const vector<int>& group : groups) {
+
             //pos = find_bruteforce(nums, pos, group);
             pos = find_kmp(nums, pos, group);
-            cout << pos << endl;
+
             if (pos == -1) {
                 return false;
             }
