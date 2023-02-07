@@ -11,40 +11,38 @@
  */
 class Solution {
 public:
-    void invertTree_Recursive(TreeNode* root) {
-        if (root) {
-            swap(root->left, root->right);
-            invertTree_Recursive(root->left);
-            invertTree_Recursive(root->right);
+    TreeNode* dfs_recv(TreeNode* root) {
+        if (!root) {
+            return root;
         }
+
+        std::swap(root->left, root->right);
+        root->left = dfs_recv(root->left);
+        root->right = dfs_recv(root->right);
+
+        return root;
     }
 
-    void invertTree_Iterative(TreeNode* root) {
-        queue<TreeNode*> q;
-        if (root) {
-            q.push(root);
-        }
-        while (!q.empty()) {
-            for (size_t i = q.size(); 0 < i; --i) {
-                root = q.front();
-                q.pop();
+    TreeNode* dfs_iter(TreeNode* root) {
+        stack<TreeNode*> stk({root});
+        while (!stk.empty()) {
+            TreeNode* node = stk.top();
+            stk.pop();
 
-                swap(root->left, root->right);
-
-                if (root->left) {
-                    q.push(root->left);
-                }
-                if (root->right) {
-                    q.push(root->right);
-                }
+            if (!node) {
+                continue;
             }
+
+            std::swap(node->left, node->right);
+            stk.push(node->right);
+            stk.push(node->left);
         }
+
+        return root;
     }
 
     TreeNode* invertTree(TreeNode* root) {
-        //invertTree_Recursive(root);
-        invertTree_Iterative(root);
-
-        return root;
+        //return dfs_recv(root);
+        return dfs_iter(root);
     }
 };
