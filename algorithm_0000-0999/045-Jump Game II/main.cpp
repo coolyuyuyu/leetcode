@@ -1,41 +1,58 @@
 class Solution {
 public:
-    // TLE
-    int jumpV1(const vector<int>& nums) {
-        if (nums.size() <= 1) {
-            return 0;
-        }
+    // Time: O(n^2), Space: O(n)
+    int dp(const vector<int>& nums) {
+        int n = nums.size();
 
-        vector<int> dp(nums.size(), INT_MAX);
+        // dp[i]: the minimum number of jumps to reach nums[i]
+        vector<int> dp(n, INT_MAX);
         dp[0] = 0;
-        for (size_t i = 0; i < nums.size(); ++i) {
-            int num = dp[i];
-            for (size_t j = 1; j <= nums[i] && i + j < nums.size(); ++j) {
-                dp[i + j] = min(dp[i + j], dp[i] + 1);
+        for (int i = 0; i < n; ++i) {
+            for (int j = i + 1; j < std::min((i + nums[i] + 1), n); ++j) {
+                dp[j] = std::min(dp[j], dp[i] + 1);
             }
         }
 
-        return dp.back();
+        return dp[n - 1];
     }
 
-    int jumpV2(const vector<int>& nums) {
-        int curEnd = 0, curFarest = 0, count = 0;
-        for (int i = 0; i + 1 < nums.size(); ++i) {
-            curFarest = max(curFarest, i + nums[i]);
-            if (curEnd <= i) {
-                ++count;
-                curEnd = curFarest;
+    // Time: O(n), Space: O(1)
+    int greedy(const vector<int>& nums) {
+        int n = nums.size();
+
+        int ret = 0;
+        for (int end = 0, far = 0, i = 0; (i + 1) < n; ++i) {
+            far = std::max(far, i + nums[i]);
+            if (end <= i) {
+                ++ret;
+                end = far;
             }
         }
 
-        return count;
+        return ret;
+    }
+
+    // Time: O(n), Space: O(1)
+    int slide_window(const vector<int>& nums) {
+        int n = nums.size();
+
+        int ret = 0;
+        for (int lft = 0, rht = 0; (rht + 1) < n;) {
+            ++ret;
+
+            int far = 0;
+            for (int cur = lft; cur <= rht; ++cur) {
+                far = std::max(far, cur + nums[cur]);
+            }
+            lft = rht + 1, rht = far;
+        }
+
+        return ret;
     }
 
     int jump(vector<int>& nums) {
-        assert(!nums.empty());
-
-        //return jumpV1(nums);
-
-        return jumpV2(nums);
+        //return dp(nums);
+        //return greedy(nums);
+        return slide_window(nums);
     }
 };
