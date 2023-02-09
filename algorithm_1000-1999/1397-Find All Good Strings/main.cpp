@@ -41,7 +41,7 @@ public:
     int countGoodStrings(const string& s, const string& evil, const vector<int>& lcp) {
         int n = s.size();
         int m = evil.size();
-        
+
         memset(dp, 0, sizeof(dp));
         dp[0][0][1] = 1;
         for (int i = 0; i < n; ++i) {
@@ -98,7 +98,7 @@ public:
 
 // DIGIT DP
 //
-// dp[i][j][eq] for length N and string S and evil:
-// => the number of good strings such that each good string T of length i and T[i-j+1:i] == evil[0:j-1] and eq(T[0:i-1], S[0:i-1])
+// dp[i][j][eq] for length N and string S and EVIL:
+// => the number of good strings such that each good string T of length i and T[i-j+1:i] == EVIL[0:j-1] and eq(T, S[0:i-1])
 //
 // KMP to tranfer dp state
