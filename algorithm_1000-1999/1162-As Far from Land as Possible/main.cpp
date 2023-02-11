@@ -40,7 +40,45 @@ public:
         return (dist == 0 ? -1 : dist);
     }
 
+
+    int dp(const vector<vector<int>>& grid) {
+        size_t n = grid.size();
+
+        int DIST_MAX = n + n - 1;
+        vector<vector<int>> dp(n, vector<int>(n, DIST_MAX));
+        for (int r = 0; r < n; ++r) {
+            for (int c = 0; c < n; ++c) {
+                if (grid[r][c] == 1) {
+                    dp[r][c] = 0;
+                }
+                else {
+                    dp[r][c] = std::min({
+                        dp[r][c],
+                        0 < r ? (dp[r - 1][c] + 1) : DIST_MAX,
+                        0 < c ? (dp[r][c - 1] + 1) : DIST_MAX,
+                    });
+                }
+            }
+        }
+
+        int dist = 0;
+        for (int r = n; 0 < r--;) {
+            for (int c = n; 0 < c--;) {
+                dp[r][c] = std::min({
+                        dp[r][c],
+                        (r + 1) < n ? (dp[r + 1][c] + 1) : DIST_MAX,
+                        (c + 1) < n ? (dp[r][c + 1] + 1) : DIST_MAX,
+                });
+
+                dist = std::max(dist, dp[r][c]);
+            } 
+        }
+
+        return (dist == DIST_MAX || dist == 0) ? -1 : dist;
+    }
+
     int maxDistance(vector<vector<int>>& grid) {
-        return bfs(grid);
+        //return bfs(grid);
+        return dp(grid);
     }
 };
