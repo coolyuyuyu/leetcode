@@ -12,7 +12,7 @@ public:
             }
         }
 
-        vector<array<int, 2>> dirs = { {0, -1}, {-1, 0}, {0, 1}, {1, 0} };
+        vector<array<int, 2>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
 
         int dist = -1;
         while (!lands.empty()) {
