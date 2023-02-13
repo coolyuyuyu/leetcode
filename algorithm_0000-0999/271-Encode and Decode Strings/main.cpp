@@ -2,50 +2,72 @@ class Codec {
 public:
     // Encodes a list of strings to a single string.
     string encode(vector<string>& strs) {
-        string s;
-        encodeLen(s, strs.size());
-
-        for (const string& str : strs) {
-            encodeLen(s, str.size());
-            s += str;
+        string out;
+        encode(strs.size(), out);
+    
+        for (auto& str : strs) {
+            encode(str, out);
         }
 
-        return s;
+        return out;
+    }
+
+    void encode(size_t val, string& out) {
+        do {
+            unsigned char v = static_cast<unsigned char>(val) & MASK;
+            if (MASK < val) {
+                v |= CARRY;
+            }
+            out += v;
+        } while (val >>= SHIFT);
+    }
+
+    void encode(const string& str, string& out) {
+        encode(str.size(), out);
+        out += str;
     }
 
     // Decodes a single string to a list of strings.
     vector<string> decode(string s) {
-        auto itr = s.cbegin();
+        string::const_iterator itr = s.begin();
 
-        vector<string> strs(decodeLen(itr));
-        for (string& str : strs) {
-            size_t size = decodeLen(itr);
-            str.assign(itr, itr + size);
-            itr += size;
+        size_t len;
+        decode(itr, len);
+
+        vector<string> ret(len);
+        for (string& str : ret) {
+            decode(itr, str);
         }
-        return strs;
+
+        return ret;
+    }
+
+    void decode(string::const_iterator& itr, size_t& val) {
+        val = 0;
+
+        int shiftCnt = 0;
+        size_t c;
+        do { 
+            c = *itr++;
+            val |= (c & MASK) << shiftCnt;
+            shiftCnt += SHIFT;
+        } while (c & CARRY);
+    }
+
+    void decode(string::const_iterator& itr, string& str) {
+        size_t len;
+        decode(itr, len);
+
+        str.resize(len, '\0');
+
+        std::copy(itr, itr + len, str.begin());
+        itr += len;
     }
 
 private:
-    void encodeLen(string& s, size_t n) {
-        while (n > 127) {
-            s.push_back(n & 255);
-            n >>= 7;
-        }
-        s.push_back(n);
-    }
-
-    size_t decodeLen(string::const_iterator& itr) {
-        size_t size = 0, base = 1;
-        unsigned char c;
-        do {
-            c = *(itr++);
-            size += ((c & 127) * base);
-            base *= 128;
-        } while (c & 128);
-
-        return size;
-    }
+    static constexpr unsigned char MASK =  0b01111111;
+    static constexpr unsigned char CARRY = 0b10000000;
+    static constexpr int SHIFT = 7;
 };
 
 // Your Codec object will be instantiated and called as such:
