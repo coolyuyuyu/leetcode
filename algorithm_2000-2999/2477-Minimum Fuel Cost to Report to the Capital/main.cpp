@@ -1,87 +1,30 @@
-/**
- * Definition for a binary tree node.
- * struct TreeNode {
- *     int val;
- *     TreeNode *left;
- *     TreeNode *right;
- *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
- *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
- *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
- * };
- */
 class Solution {
 public:
-    // Time: O(logn * q), Space: O(1), TLE (worst case for skewed tree)
-    vector<vector<int>> searchTree(TreeNode* root, vector<int>& queries) {
-        vector<vector<int>> ans;
-        for (int query : queries) {
-            vector<int> range = {-1, -1};
-            for (const TreeNode* node = root; node;) {
-                if (node->val == query) {
-                    range = {node->val, node->val};
-                    break;
-                }
-                else if (node->val < query) {
-                    range[0] = node->val;
-                    node = node->right;
-                }
-                else {
-                    range[1] = node->val;
-                    node = node->left;
-                }
+    int countChilds(const vector<vector<int>>& nexts, int node, int parent, int seats, long long & ans) {
+        int totalChildCnt = 0;
+        for (int child : nexts[node]) {
+            if (child == parent) {
+                continue;
             }
-            ans.push_back(range);
+
+            int childCnt = countChilds(nexts, child, node, seats, ans) + 1;
+            ans += (childCnt / seats) + (childCnt % seats ? 1 : 0);
+            totalChildCnt += childCnt;
         }
 
-        return ans;
+        return totalChildCnt;
     }
 
-    // Time: O(logn * q), Space: O(n)
-    vector<vector<int>> searchSortedSequence(TreeNode* root, vector<int>& queries) {
-        vector<int> nums; {
-            stack<TreeNode*> stk;
-            for (TreeNode* node = root; node || !stk.empty();) {
-                if (node) {
-                    stk.push(node);
-                    node = node->left;
-                }
-                else {
-                    node = stk.top();
-                    stk.pop();
-
-                    nums.push_back(node->val);
-
-                    node = node->right;
-                }
-            }
+    long long minimumFuelCost(vector<vector<int>>& roads, int seats) {
+        int n = roads.size() + 1;
+        vector<vector<int>> nexts(n);
+        for (const auto& road : roads) {
+            nexts[road[0]].push_back(road[1]);
+            nexts[road[1]].push_back(road[0]);
         }
 
-        vector<vector<int>> ans;
-        for (int query : queries) {
-            vector<int> range = {-1, -1};
-            auto itr = std::lower_bound(nums.begin(), nums.end(), query);
-            if (itr == nums.end()) {
-                range[0] = *(itr - 1) ;
-            }
-            else {
-                range[1] = *itr;
-                if (*itr == query) {
-                    range[0] = *itr;
-                }
-                else {
-                    if (itr != nums.begin()) {
-                        range[0] = *(itr - 1) ;
-                    }
-                }
-            }
-            ans.push_back(range);
-        }
-
+        long long ans = 0;
+        countChilds(nexts, 0, -1, seats, ans);
         return ans;
-    }
-
-    vector<vector<int>> closestNodes(TreeNode* root, vector<int>& queries) {
-        //return searchTree(root, queries);
-        return searchSortedSequence(root, queries);
     }
 };
