@@ -2,9 +2,7 @@ class Codec {
 public:
     // Encodes a list of strings to a single string.
     string encode(vector<string>& strs) {
-        string out;
-        encode(strs.size(), out);
-    
+        string out;    
         for (auto& str : strs) {
             encode(str, out);
         }
@@ -29,14 +27,11 @@ public:
 
     // Decodes a single string to a list of strings.
     vector<string> decode(string s) {
-        string::const_iterator itr = s.begin();
-
-        size_t len;
-        decode(itr, len);
-
-        vector<string> ret(len);
-        for (string& str : ret) {
-            decode(itr, str);
+        vector<string> ret;
+        string tmp;
+        for (string::const_iterator itr = s.begin(); itr != s.end();) {
+            decode(itr, tmp);
+            ret.push_back(std::move(tmp));
         }
 
         return ret;
