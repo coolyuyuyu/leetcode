@@ -1,77 +1,88 @@
 class Solution {
 public:
-    enum State {NONE, TEMPORARY, VISITED};
-
-    bool canFinishDfsHelper(int i, const vector<vector<int>>& adjLists, vector<State>& states) {
-        switch (states[i]) {
-        case VISITED:
-            return true;
-        case TEMPORARY:
-            return false;
+    // Kahn's algorithm
+    // Time: O(V + E)
+    bool bfs(int numCourses, const vector<vector<int>>& prerequisites) {
+        vector<int> inDegrees(numCourses);
+        vector<vector<int>> nexts(numCourses);
+        for (const auto& prerequisite : prerequisites) {
+            nexts[prerequisite[0]].push_back(prerequisite[1]);
+            ++inDegrees[prerequisite[1]];
         }
 
-        states[i] = TEMPORARY;
-        for (int j : adjLists[i]) {
-            if (!canFinishDfsHelper(j, adjLists, states)) {
+        queue<int> q;
+        for (int course = 0; course < numCourses; ++course) {
+            if (inDegrees[course] == 0) {
+                q.push(course);
+            }
+        }
+        while (!q.empty()) {
+            int course = q.front();
+            q.pop();
+
+            --numCourses;
+
+            for (int next : nexts[course]) {
+                if (--inDegrees[next] == 0) {
+                    q.push(next);
+                }
+            }
+        }
+
+        return numCourses == 0;
+    }
+
+    // ---
+
+    enum class State {
+        kNone,
+        kProcessed,
+        kVisited,
+    };
+
+    bool checkCycle(const vector<vector<int>>& nexts, int node, vector<State>& states) {
+        if (states[node] == State::kVisited) {
+            return false;
+        }
+        if (states[node] == State::kProcessed) {
+            return true;
+        }
+
+        states[node] = State::kProcessed;
+        for (int next : nexts[node]) {
+            if (checkCycle(nexts, next, states)) {
+                return true;
+            }
+        }
+        states[node] = State::kVisited;
+
+        return false;
+    }
+
+    // cycle detection
+    // Time: O(V + E)
+    bool dfs(int numCourses, const vector<vector<int>>& prerequisites) {
+        vector<vector<int>> nexts(numCourses);
+        for (const auto& prerequisite : prerequisites) {
+            nexts[prerequisite[0]].push_back(prerequisite[1]);
+        }
+
+        vector<State> states(numCourses, State::kNone);
+        for (int i = 0; i < numCourses; ++i) {
+            if (checkCycle(nexts, i, states)) {
                 return false;
             }
         }
-        states[i] = VISITED;
 
         return true;
     }
 
-    // Dfs algorithm
-    bool canFinishDfs(int numCourses, const vector<pair<int, int>>& prerequisites) {
-        vector<vector<int>> adjLists(numCourses);
-        for (const pair<int, int>& prerequisite : prerequisites) {
-            adjLists[prerequisite.second].push_back(prerequisite.first);
-        }
-
-        vector<State> states(numCourses, NONE);
-        for (size_t i = 0; i < numCourses; ++i) {
-            if (states[i] == NONE) {
-                if (!canFinishDfsHelper(i, adjLists, states)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    // Kahn algorithm
-    bool canFinishKahn(int numCourses, vector<pair<int, int>>& prerequisites) {
-        vector<vector<int>> adjLists(numCourses);
-        vector<size_t> inDegrees(numCourses, 0);
-        for (const pair<int, int>& prerequisite : prerequisites) {
-            adjLists[prerequisite.second].push_back(prerequisite.first);
-            ++inDegrees[prerequisite.first];
-        }
-
-        queue<int> nodes;
-        for (int u = 0; u < numCourses; ++u) {
-            if (inDegrees[u] == 0) {
-                nodes.push(u);
-            }
-        }
-        while (!nodes.empty()) {
-            int u = nodes.front();
-            nodes.pop();
-
-            for (int v : adjLists[u]) {
-                if (--inDegrees[v] == 0) {
-                    nodes.push(v);
-                }
-            }
-        }
-
-        return all_of(inDegrees.begin(), inDegrees.end(), [](int d){return d == 0;});
-    }
-
-    bool canFinish(int numCourses, vector<pair<int, int>>& prerequisites) {
-        //return canFinishDfs(numCourses, prerequisites);
-
-        return canFinishKahn(numCourses, prerequisites);
+    bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {
+        return bfs(numCourses, prerequisites);
+        //return dfs(numCourses, prerequisites);
     }
 };
+
+// prerequisite [a, b]
+//     => b -> a
+//     => a has one in-degree from b
