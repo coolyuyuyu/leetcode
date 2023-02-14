@@ -1,33 +1,27 @@
 class Solution {
 public:
-    vector<int> topKFrequent_Heap(vector<int>& nums, int k) {
-        unordered_map<int, int> counts; // <num, frequency>
+    vector<int> topKFrequent(vector<int>& nums, int k) {
+        unordered_map<int, int> freq;
         for (int num : nums) {
-            ++counts[num];
+            ++freq[num];
         }
 
-        auto comp = [](const pair<int, int>& p1, const pair<int, int>& p2) -> bool {
-            return (p1.second > p2.second);
+        auto comp = [](const pair<int, int>& p1, const pair<int, int>& p2) -> bool{
+            return p1.second > p2.second;
         };
         priority_queue<pair<int, int>, vector<pair<int, int>>, decltype(comp)> pq(comp); // min_heap
-        for (const pair<int, int>& p : counts) {
-            if (pq.size() < k) {
-                pq.push(p);
-            }
-            else if (comp(p, pq.top())) {
+        for (const pair<int, int>& p : freq) {
+            pq.push(p);
+            if (k < pq.size()) {
                 pq.pop();
-                pq.push(p);
             }
         }
 
-        vector<int> ret;
-        for (; !pq.empty(); pq.pop()) {
-            ret.push_back(pq.top().first);
+        vector<int> ret(k);
+        for (int i = 0; i < k; ++i) {
+            ret[i] = pq.top().first;
+            pq.pop();
         }
         return ret;
-    }
-
-    vector<int> topKFrequent(vector<int>& nums, int k) {
-        return topKFrequent_Heap(nums, k);
     }
 };
