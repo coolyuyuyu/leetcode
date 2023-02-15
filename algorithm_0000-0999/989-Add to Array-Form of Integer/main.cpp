@@ -1,23 +1,20 @@
 class Solution {
 public:
     vector<int> addToArrayForm(vector<int>& num, int k) {
-        for (size_t i = num.size(); 0 < i-- && 0 < k;) {
-            num[i] += k % 10;
-            k /= 10;
-            if (10 <= num[i]) {
-                num[i] %= 10;
-                ++k;
-            }
-        }
-        if (0 < k) {
-            size_t n = floor(log10(k)) + 1;
-            num.insert(num.begin(), n, 0);
-            while (0 < n--) {
-                num[n] = k % 10;
-                k /= 10;
-            }
-        }
+        for (int i = num.size() - 1, carry = 0; 0 <= i || 0 < k || carry; --i) {
+            int v = (0 <= i ? num[i] : 0) + (k % 10) + carry;
 
+            k /= 10;
+            carry = (10 <= v);
+
+            v %= 10;
+            if (0 <= i) {
+                num[i] = v;
+            }
+            else {
+                num.insert(num.begin(), v);
+            }
+        }
 
         return num;
     }
