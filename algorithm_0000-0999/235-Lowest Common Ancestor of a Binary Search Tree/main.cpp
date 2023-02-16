@@ -10,32 +10,25 @@
 
 class Solution {
 public:
-    TreeNode* lowestCommonAncestor_Recursive(TreeNode* root, int p, int q) {
-        assert(p < q);
-
-        if (q < root->val) {
-            return lowestCommonAncestor_Recursive(root->left, p, q);
+    TreeNode* recursive(TreeNode* root, TreeNode* p, TreeNode* q) {
+        if (p->val < root->val && q->val < root->val) {
+            return recursive(root->left, p, q);
         }
-        else if (root->val < p) {
-            return lowestCommonAncestor_Recursive(root->right, p, q);
+        else if (root->val < p->val && root->val < q->val) {
+            return recursive(root->right, p, q);
         }
         else {
             return root;
         }
     }
 
-    TreeNode* lowestCommonAncestor_Iterative(TreeNode* root, int p, int q) {
-        assert(p < q);
-
-        while (root) {
-            if (q < root->val) {
+    TreeNode* iterative(TreeNode* root, TreeNode* p, TreeNode* q) {
+        while (std::max(p->val, q->val) < root->val || root->val < std::min(p->val, q->val)) {
+            if (p->val < root->val) {
                 root = root->left;
             }
-            else if (root->val < p) {
-                root = root->right;
-            }
             else {
-                break;
+                root = root->right;
             }
         }
 
@@ -43,11 +36,7 @@ public:
     }
 
     TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
-        if (q->val < p->val) {
-            swap(p, q);
-        }
-
-        //return lowestCommonAncestor_Recursive(root, p->val, q->val);
-        return lowestCommonAncestor_Iterative(root, p->val, q->val);
+        //return recursive(root, p, q);
+        return iterative(root, p, q);
     }
 };
