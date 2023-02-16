@@ -1,103 +1,82 @@
-class Solution {
+class DisjointSets {
 public:
-    class DisjointSet {
-    public:
-        DisjointSet(int size)
-            : m_parents(size)
-            , m_size(0) {
-            for (size_t i = 0; i < m_parents.size(); ++i) {
-                m_parents[i] = -1;
-            }
-        }
-
-        bool isEnabled(int i) {
-            return 0 <= m_parents[i];
-        }
-
-        void enable(int i) {
-            assert(!isEnabled(i));
-            m_parents[i] = i;
-            ++m_size;
-        }
-
-        int size() const {
-            return m_size;
-        }
-
-        int find(int i) {
-            assert(isEnabled(i));
-
-            if (m_parents[i] != i) {
-                m_parents[i] = find(m_parents[i]);
-            }
-
-            return m_parents[i];
-        }
-
-        void merge(int i, int j) {
-            assert(isEnabled(i) && isEnabled(j));
-
-            int rootI = find(i);
-            int rootJ = find(j);
-            if (rootI != rootJ) {
-                m_parents[rootI] = rootJ;
-                --m_size;
-            }
-        }
-
-    private:
-        vector<int> m_parents;
-        int m_size;
-    };
-
-    inline int encode(int r, int c, int rowCount, int colCount) {
-        return r * colCount + c;
+    DisjointSets(size_t n)
+        : m_size(0)
+        , m_parents(n, -1) {
     }
 
-    vector<int> numIslands2(int m, int n, vector<pair<int, int>>& positions) {
-        vector<int> ans;
+    size_t size() const {
+        return m_size;
+    }
 
-        DisjointSet ds(m * n);
-        for (const pair<int, int>& pos : positions) {
-            int r = pos.first, c = pos.second;
-            int keyCenter = encode(r, c, m, n);
-            ds.enable(keyCenter);
-
-            // left
-            if (0 < c) {
-                int keyLft = encode(r, c - 1, m, n);
-                if (ds.isEnabled(keyLft)) {
-                    ds.merge(keyCenter, keyLft);
-                }
-            }
-
-            // upper
-            if (0 < r) {
-                int keyUpr = encode(r - 1, c, m, n);
-                if (ds.isEnabled(keyUpr)) {
-                    ds.merge(keyCenter, keyUpr);
-                }
-            }
-
-            // right
-            if (c + 1 < n) {
-                int keyRht = encode(r, c + 1, m, n);
-                if (ds.isEnabled(keyRht)) {
-                    ds.merge(keyCenter, keyRht);
-                }
-            }
-
-            // lower
-            if (r + 1 < m) {
-                int keyLwr = encode(r + 1, c, m, n);
-                if (ds.isEnabled(keyLwr)) {
-                    ds.merge(keyCenter, keyLwr);
-                }
-            }
-
-            ans.push_back(ds.size());
+    void fill(int elem) {
+        if (filled(elem)) {
+            return;
         }
 
-        return ans;
+        ++m_size;
+        m_parents[elem] = elem;
+    }
+
+    bool filled(int elem) {
+        return 0 <= m_parents[elem];
+    }
+
+    void merge(int elem1, int elem2) {
+        int root1 = root(elem1), root2 = root(elem2);
+        if (root1 != root2) {
+            --m_size;
+            m_parents[root1] = root2;
+        }
+    }
+
+private:
+    int root(int elem) const {
+        if (m_parents[elem] != elem) {
+            m_parents[elem] = root(m_parents[elem]);
+        }
+        return m_parents[elem];
+    }
+
+    size_t m_size;
+    mutable vector<int> m_parents;
+};
+
+class Solution {
+public:
+    vector<array<int, 2>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
+
+    vector<int> numIslands2(int m, int n, vector<vector<int>>& positions) {
+        auto encode = [m, n](const vector<int>& position) -> int {
+            return position[0] * n + position[1];
+        };
+
+        DisjointSets ds(m * n);
+
+        vector<int> ret(positions.size());
+        for (int i = 0; i < positions.size(); ++i) {
+            const vector<int>& position = positions[i];
+
+            int id = encode(position);
+            ds.fill(id);
+
+            for (const auto& dir : dirs) {
+                vector<int> neighbor = {position[0] + dir[0], position[1] + dir[1]};
+                if (neighbor[0] < 0 || m <= neighbor[0] || neighbor[1] < 0 || n <= neighbor[1]) {
+                    continue;
+                }
+
+                int neighborId = encode(neighbor);
+                if (!ds.filled(neighborId)) {
+                    continue;
+                }
+
+                ds.merge(id, neighborId);
+            }
+
+            ret[i] = ds.size();
+        }
+
+        return ret;
     }
 };
