@@ -11,62 +11,42 @@
  */
 class Solution {
 public:
-    int minDiffInBST_Recursive(TreeNode* root, int*& pMinVal, int*& pMaxVal) {
+    int recursive(TreeNode* root, int minVal = INT_MIN, int maxVal = INT_MAX) {
         if (!root) {
-            pMinVal = pMaxVal = nullptr;
-            return numeric_limits<int>::max();
+            return INT_MAX;
         }
 
-        int *pLftMinVal, *pLftMaxVal;
-        int minDiffLft = minDiffInBST_Recursive(root->left, pLftMinVal, pLftMaxVal);
-        pMinVal = pLftMinVal ? pLftMinVal : &(root->val);
-
-        int *pRhtMinVal, *pRhtMaxVal;
-        int minDiffRht = minDiffInBST_Recursive(root->right, pRhtMinVal, pRhtMaxVal);
-        pMaxVal = pRhtMaxVal ? pRhtMaxVal : &(root->val);
-
-        int minDiff = min(minDiffLft, minDiffRht);
-        if (pLftMaxVal) {
-            minDiff = min(minDiff, root->val - *pLftMaxVal);
-        }
-        if (pRhtMaxVal) {
-            minDiff = min(minDiff, *pRhtMinVal - root->val);
-        }
-
-        return minDiff;
+        return std::min({
+            minVal != INT_MIN ? (root->val - minVal) : INT_MAX,
+            maxVal != INT_MAX ? (maxVal - root->val) : INT_MAX,
+            recursive(root->left, minVal, root->val),
+            recursive(root->right, root->val, maxVal)});
     }
 
-    int minDiffInBST_Iterative(TreeNode* root) {
-        int preVal = numeric_limits<int>::min();
-        int minDiff = numeric_limits<int>::max();
+    int iterative(TreeNode* root) {
+        int minDiff = INT_MAX;
+        stack<tuple<TreeNode*, int, int>> stk({{root, INT_MIN, INT_MAX}});
+        while (!stk.empty()) {
+            auto [root, minVal, maxVal] = stk.top();
+            stk.pop();
 
-        stack<TreeNode*> stk;
-        while (root || !stk.empty()) {
-            if (root) {
-                stk.push(root);
-                root = root->left;
+            if (!root) {
+                continue;
             }
-            else {
-                root = stk.top();
-                stk.pop();
+            minDiff = std::min({
+                minDiff,
+                minVal != INT_MIN ? (root->val - minVal) : INT_MAX,
+                maxVal != INT_MAX ? (maxVal - root->val) : INT_MAX});
 
-                int diff = (preVal == numeric_limits<int>::min() ? numeric_limits<int>::max() : (root->val - preVal));
-                if (diff < minDiff) {
-                    minDiff = diff;
-                }
-                preVal = root->val;
-
-                root = root->right;
-            }
+            stk.emplace(root->right, root->val, maxVal);
+            stk.emplace(root->left, minVal, root->val);
         }
 
         return minDiff;
     }
 
     int minDiffInBST(TreeNode* root) {
-        //int *pMinVal, *pMaxVal;
-        //return minDiffInBST_Recursive(root, pMinVal, pMaxVal);
-
-        return minDiffInBST_Iterative(root);
+        //return recursive(root);
+        return iterative(root);
     }
 };
