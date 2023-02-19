@@ -1,36 +1,45 @@
 class Solution {
 public:
-    // Time: O(n^2)
-    int quadratic(const string& s) {
-        size_t ans = 0;
-        for (size_t i = 0; i < s.size() && ans < (s.size() - i); ++i) {
-            set<char> chars;
-            for (size_t j = i; j < s.size(); ++j) {
-                if (chars.insert(s[j]).second == false) {
-                    break;
-                }
+    // two pointer
+    // Time: O(n)
+    int f1 (const string& s) {
+        // [lft, rht)
+        vector<bool> duplicate(128, false);
+        int ret = 0;
+        for (int lft = 0, rht = 0; rht < s.size();) {
+            if (duplicate[s[rht]] == false) {
+                duplicate[s[rht++]] = true;
             }
-            ans = std::max(ans, chars.size());
+            else if (duplicate[s[lft]] == true) {
+                duplicate[s[lft++]] = false;
+            }
+
+            ret = std::max(ret, rht - lft);
         }
 
-        return ans;
+        return ret;
     }
 
+    // two pointer, lft jumps
     // Time: O(n)
-    int linear(const string& s) {
+    int f2 (const string& s) {
+        // [lft, rht]
         vector<int> lastIndexes(128, -1);
-        int ans = 0;
+        int ret = 0;
         for (int lft = 0, rht = 0; rht < s.size(); ++rht) {
-            lft = std::max(lft, lastIndexes[s[rht]] + 1);
+            if (0 <= lastIndexes[s[rht]]) {
+                lft = std::max(lft, lastIndexes[s[rht]] + 1);
+            }
             lastIndexes[s[rht]] = rht;
-            ans = std::max(ans, rht - lft + 1);
+ 
+            ret = std::max(ret, rht - lft + 1);
         }
 
-        return ans;
+        return ret;
     }
 
     int lengthOfLongestSubstring(string s) {
-        //return quadratic(s);
-        return linear(s);
+        //return f1(s);
+        return f2(s);
     }
 };
