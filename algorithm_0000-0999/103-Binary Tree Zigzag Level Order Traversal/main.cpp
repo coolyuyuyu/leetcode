@@ -11,58 +11,61 @@
  */
 class Solution {
 public:
-    void zigzagLevelOrder_Recursive(TreeNode* root, int depth, vector<vector<int>>& ret) {
-        if (!root) {
+    void recursive(TreeNode* root, int d, vector<vector<int>>& ret) {
+        if(!root) {
             return;
         }
 
-        if (ret.size() <= depth) {
-            ret.resize(depth + 1);
+        if (ret.size() <= d) {
+            ret.resize(d + 1);
         }
 
-        if (depth % 2 == 0) {
-            ret[depth].push_back(root->val);
+        if (d & 1) {
+            ret[d].insert(ret[d].begin(), root->val);
         }
         else {
-            ret[depth].insert(ret[depth].begin(), root->val);
+            ret[d].push_back(root->val);
         }
-        zigzagLevelOrder_Recursive(root->left, depth + 1, ret);
-        zigzagLevelOrder_Recursive(root->right, depth + 1, ret);
+
+        recursive(root->left, d + 1, ret);
+        recursive(root->right, d + 1, ret);
     }
 
-    vector<vector<int>> zigzagLevelOrder_Iterative(TreeNode* root) {
-        vector<vector<int>> ret;
-
+    void iterative(TreeNode* root, int d, vector<vector<int>>& ret) {
         queue<TreeNode*> q;
         if (root) {
             q.push(root);
         }
-        for (bool flip = false; !q.empty(); flip = !flip) {
-            size_t len = q.size();
-            ret.emplace_back(len);
-            for (size_t i = 0; i < len; ++i) {
-                TreeNode* node = q.front();
+
+        for (int d = 0; !q.empty(); ++d) {
+            ret.emplace_back();
+            for (int i = q.size(); 0 < i--;) {
+                root = q.front();
                 q.pop();
 
-                if (node->left) {
-                    q.push(node->left);
+                if (d & 1) {
+                    ret[d].insert(ret[d].begin(), root->val);
                 }
-                if (node->right) {
-                    q.push(node->right);
+                else {
+                    ret[d].push_back(root->val);
                 }
 
-                ret.back()[flip ? (len - i - 1) : i] = node->val;
+                if (root->left) {
+                    q.push(root->left);
+                }
+                if (root->right) {
+                    q.push(root->right);
+                }
             }
         }
-
-        return ret;
     }
 
     vector<vector<int>> zigzagLevelOrder(TreeNode* root) {
         vector<vector<int>> ret;
-        zigzagLevelOrder_Recursive(root, 0, ret);
-        return ret;
 
-        //return zigzagLevelOrder_Iterative(root);
+        //recursive(root, 0, ret);
+        iterative(root, 0, ret);
+
+        return ret;
     }
 };
