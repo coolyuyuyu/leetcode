@@ -1,6 +1,6 @@
 class Solution {
 public:
-    int minOperations(int n) {
+    int f1(int n) {
         vector<bool> flags;
         while (n) {
             flags.push_back(n & 1);
@@ -29,5 +29,22 @@ public:
         }
 
         return ret;
+    }
+
+    int f2(int n) {
+        int cnt = 0;
+        for (int i = 0; i < 31; ++i) {
+            if ((__builtin_popcount(n + (1 << i)) + 1) <= __builtin_popcount(n)) {
+                n += (1 << i);
+                ++cnt;
+            }
+        }
+
+        return __builtin_popcount(n) + cnt;
+    }
+
+    int minOperations(int n) {
+        return f1(n);
+        //return f2(n);
     }
 };
