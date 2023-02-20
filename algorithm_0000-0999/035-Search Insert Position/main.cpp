@@ -1,19 +1,10 @@
 class Solution {
 public:
-    size_t searchInsert_BruteForce(vector<int>& nums, int target) {
-        for (size_t i = 0; i < nums.size(); ++i) {
-            if (target <= nums[i]) {
-                return i;
-            }
-        }
-
-        return nums.size();
-    }
-
-    size_t searchInsert_BinarySearch(vector<int>& nums, int target) {
-        size_t lo = 0, hi = nums.size();
+    // Time: O(logN)
+    int bsearch(const vector<int>& nums, int target) {
+        int lo = 0, hi = nums.size();
         while (lo < hi) {
-            size_t mid = lo + (hi - lo) / 2;
+            int mid = lo + (hi - lo) / 2;
             if (nums[mid] < target) {
                 lo = mid + 1;
             }
@@ -21,18 +12,17 @@ public:
                 hi = mid;
             }
         }
-        assert(lo == hi);
 
         return lo;
     }
 
-    size_t searchInsert_std(vector<int>& nums, int target) {
+    // Time: O(logN)
+    int stdlib(const vector<int>& nums, int target) {
         return std::lower_bound(nums.begin(), nums.end(), target) - nums.begin();
     }
 
     int searchInsert(vector<int>& nums, int target) {
-        //return searchInsert_BruteForce(nums, target);
-        //return searchInsert_BinarySearch(nums, target);
-        return searchInsert_std(nums, target);
+        return bsearch(nums, target);
+        //return stdlib(nums, target);
     }
 };
