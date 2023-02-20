@@ -1,9 +1,19 @@
 class Solution {
 public:
     int minimizeSum(vector<int>& nums) {
-        std::sort(nums.begin(), nums.end());
+        // sorted:
+        //     X X X X X X X X
+        // 1.  ^         ^         change last 2 to nums[n-3]
+        // 2.      ^         ^     change first 2 to nums[2]
+        // 3.    ^         ^       change first to nums[1] and last to nums[n-2]
+
+        sort(nums.begin(), nums.end());
+
         int n = nums.size();
-        int a = nums[0], b = nums[1], x = nums[2], y = nums[n - 3], c = nums[n - 2], d = nums[n - 1];
-        return std::min({y - a, d - x, c - b});
+        return std::min({
+            nums[n - 3] - nums[0],
+            nums[n - 1] - nums[2],
+            nums[n - 2] - nums[1],
+        });
     }
 };
