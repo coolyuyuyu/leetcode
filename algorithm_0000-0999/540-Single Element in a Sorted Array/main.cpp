@@ -23,7 +23,6 @@ public:
         }
 
         return nums[lo];
-
     }
 };
 
