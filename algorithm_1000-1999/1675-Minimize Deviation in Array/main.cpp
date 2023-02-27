@@ -15,7 +15,7 @@ public:
 
         int ret = INT_MAX;
         while (true) {
-            ret = std::min(ret, *s.rbegin() - *s.begin());    
+            ret = std::min(ret, *s.rbegin() - *s.begin());
 
             int num = *s.rbegin();
             s.erase(std::prev(s.end()));
