@@ -9,7 +9,23 @@ public:
     Node* bottomLeft;
     Node* bottomRight;
 
-    Node() {}
+    Node() {
+        val = false;
+        isLeaf = false;
+        topLeft = NULL;
+        topRight = NULL;
+        bottomLeft = NULL;
+        bottomRight = NULL;
+    }
+
+    Node(bool _val, bool _isLeaf) {
+        val = _val;
+        isLeaf = _isLeaf;
+        topLeft = NULL;
+        topRight = NULL;
+        bottomLeft = NULL;
+        bottomRight = NULL;
+    }
 
     Node(bool _val, bool _isLeaf, Node* _topLeft, Node* _topRight, Node* _bottomLeft, Node* _bottomRight) {
         val = _val;
@@ -21,38 +37,28 @@ public:
     }
 };
 */
+
 class Solution {
 public:
-    Node* constructHelper(int row, int col, int len, vector<vector<int>>& grid) {
-        if (len <= 1) {
-            return new Node(grid[row][col], true, nullptr, nullptr, nullptr, nullptr);
-        }
-
-        bool isLeaf = true;
-        for (size_t r = row; r < row + len && isLeaf; ++r) {
-            for (size_t c = col; c < col + len; ++c) {
-                if (grid[r][c] != grid[row][col]) {
-                    isLeaf = false;
-                    break;
+    Node* construct(const vector<vector<int>>& grid, int r, int c, int len) {
+        for (int i = r; i < (r + len); ++i) {
+            for (int j = c; j < (c + len); ++j) {
+                if (grid[r][c] != grid[i][j]) {
+                    return new Node(
+                        false,
+                        false,
+                        construct(grid, r, c, len / 2),
+                        construct(grid, r, c + len / 2, len / 2),
+                        construct(grid, r + len / 2, c, len / 2),
+                        construct(grid, r + len / 2, c + len / 2, len / 2));
                 }
             }
         }
 
-        if (isLeaf) {
-            return new Node(grid[row][col], true, nullptr, nullptr, nullptr, nullptr);
-        }
-
-        Node* node = new Node(
-                            false,
-                            false,
-                            constructHelper(row, col, len / 2, grid),
-                            constructHelper(row, col + len / 2, len / 2, grid),
-                            constructHelper(row + len / 2, col, len / 2, grid),
-                            constructHelper(row + len / 2, col + len / 2, len / 2, grid));
-        return node;
+        return new Node(grid[r][c], true);
     }
 
     Node* construct(vector<vector<int>>& grid) {
-        return constructHelper(0, 0, grid.size(), grid);
+        return construct(grid, 0, 0, grid.size());
     }
 };
