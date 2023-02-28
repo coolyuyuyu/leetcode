@@ -11,64 +11,68 @@
  */
 class Solution {
 public:
-    string findDuplicateSubtrees_Recursive(TreeNode* root, map<string, int>& counts, vector<TreeNode*>& duplicates) {
+    int recursive(TreeNode* root, unordered_map<string, int>& key2id, unordered_map<int, int>& id2count, vector<TreeNode*>& duplicates) {
         if (!root) {
-            return "#";
+            return -1;
         }
 
-        ostringstream oss;
-        oss << root->val
-            << "," << findDuplicateSubtrees_Recursive(root->left, counts, duplicates)
-            << "," << findDuplicateSubtrees_Recursive(root->right, counts, duplicates);
-        string id = oss.str();
-        if (++counts[id] == 2) {
+        string key =
+            std::to_string(root->val) +
+            "#" +
+            std::to_string(recursive(root->left, key2id, id2count, duplicates)) +
+            "#" +
+            std::to_string(recursive(root->right, key2id, id2count, duplicates));
+
+        int id = key2id.emplace(key, key2id.size()).first->second;
+        if (++id2count[id] == 2) {
             duplicates.push_back(root);
         }
 
         return id;
     }
-    void findDuplicateSubtrees_Iterative(TreeNode* root, map<string, int>& counts, vector<TreeNode*>& duplicates) {
-        map<TreeNode*, string> m; // <tree, id>
 
-        stack<pair<TreeNode*, bool>> stk;
-        if (root) {
-            stk.emplace(root, false);
-        }
+    void iterative(TreeNode* root, unordered_map<string, int>& key2id, unordered_map<int, int>& id2count, vector<TreeNode*>& duplicates) {
+        unordered_map<TreeNode*, int> tree2id;
+
+        stack<pair<TreeNode*, bool>> stk({{root, false}}); // <tree, visited>
         while (!stk.empty()) {
-            TreeNode* node = stk.top().first;
-            bool visited = stk.top().second;
+            auto [root, visited] = stk.top();
             stk.pop();
 
+            if (!root) {
+                continue;
+            }
+
             if (visited) {
-                string id; {
-                    ostringstream oss;
-                    oss << node->val << "," << (node->left ? m[node->left] : "#") << "," << (node->right ? m[node->right] : "#");
-                    id = oss.str();
+                string key =
+                    std::to_string(root->val) +
+                    "#" +
+                    std::to_string(root->left ? tree2id[root->left] : -1) +
+                    "#" +
+                    std::to_string(root->right ? tree2id[root->right] : -1);
+
+                int id = key2id.emplace(key, key2id.size()).first->second;
+                if (++id2count[id] == 2) {
+                    duplicates.push_back(root);
                 }
 
-                m[node] = id;
-                if (++counts[id] == 2) {
-                    duplicates.push_back(node);
-                }
+                tree2id[root] = id;
             }
             else {
-                stk.emplace(node, true);
-                if (node->right) {
-                    stk.emplace(node->right, false);
-                }
-                if (node->left) {
-                    stk.emplace(node->left, false);
-                }
+                stk.emplace(root, true);
+                stk.emplace(root->left, false);
+                stk.emplace(root->right, false);
             }
         }
     }
 
     vector<TreeNode*> findDuplicateSubtrees(TreeNode* root) {
-        map<string, int> counts;
+        unordered_map<string, int> key2id;
+        unordered_map<int, int> id2count;
         vector<TreeNode*> duplicates;
 
-        //findDuplicateSubtrees_Recursive(root, counts, duplicates);
-        findDuplicateSubtrees_Iterative(root, counts, duplicates);
+        //recursive(root, key2id, id2count, duplicates);
+        iterative(root, key2id, id2count, duplicates);
 
         return duplicates;
     }
