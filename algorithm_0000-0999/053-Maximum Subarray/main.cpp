@@ -1,14 +1,15 @@
 class Solution {
 public:
     int maxSubArray(vector<int>& nums) {
-        int maxSum = INT_MIN, curMax = 0;
-        for (int num : nums) {
-            curMax += num;
-            maxSum = std::max(maxSum, curMax);
-            if (curMax < 0) {
-                curMax = 0;
-            }
+        // dp[i] maximum subarray ending at nums[i]
+
+        int ret = nums[0];
+        int dp = nums[0];
+        for (int i = 1; i < nums.size(); ++i) {
+            dp = std::max(dp + nums[i], nums[i]);
+            ret = std::max(ret, dp);
         }
-        return maxSum;
+
+        return ret;
     }
 };
