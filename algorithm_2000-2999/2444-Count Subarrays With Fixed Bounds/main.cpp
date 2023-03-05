@@ -1,20 +1,25 @@
 class Solution {
 public:
     long long countSubarrays(vector<int>& nums, int minK, int maxK) {
+        // For each index i, count number of subarray ending at i.
+
         long long ret = 0;
-        for (int boundary = -1, preMin = -1, preMax = -1, i = 0; i < nums.size(); ++i) {
+        for (int i = 0, preMin = -1, preMax = -1, boundary = -1; i < nums.size(); ++i) {
             if (nums[i] < minK || maxK < nums[i]) {
                 boundary = i;
                 continue;
             }
-            if (nums[i] == minK) {
+            else if (nums[i] == minK) {
                 preMin = i;
+                if (nums[i] == maxK) {
+                    preMax = i;
+                }
             }
-            if (nums[i] == maxK) {
+            else if (nums[i] == maxK) {
                 preMax = i;
             }
 
-            ret += std::max(0, (std::min(preMin, preMax) - boundary));
+            ret += (std::max(0, std::min(preMin, preMax) - boundary));
         }
 
         return ret;
