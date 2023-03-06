@@ -1,40 +1,45 @@
 class Solution {
 public:
-    int findKthPositive_NaiveBruteForce(vector<int>& arr, int k) {
-        if (k < arr.front()) {
-            return k;
-        }
-        k -= (arr.front() - 1);
-
-        for (size_t i = 0; (i + 1) < arr.size(); ++i) {
-            int missingCnt = arr[i + 1] - arr[i] - 1;
-            if (k <= missingCnt) {
-                return (arr[i] + k);
-            }
-            k -= missingCnt;
-        }
-
-        return (arr.back() + k);
-    }
-
-    int findKthPositive_OptimizedBruteForce(vector<int>& arr, int k) {
-        for (int num : arr) {
-            if (k < num) {
-                return k;
+    // O(n)
+    int linear(const vector<int>& arr, int k) {
+        for (int val : arr) {
+            if (val <= k) {
+                ++k;
             }
             else {
-                ++k;
+                return k;
             }
         }
 
         return k;
     }
 
-    int findKthPositive(vector<int>& arr, int k) {
-        // Time: O(N)
-        // return findKthPositive_NaiveBruteForce(arr, k);
+    // O(logn)
+    int bsearch(const vector<int>& arr, int k) {
+        // lft, ...., mid, ..., rht
+        // S: [1, 2, ..., mid-1]
+        // T: [all arr elements which is less then mid]
+        // if mid == kth missing element
+        //     => len(S) - len(T) = k - 1
 
-        // Time: O(N)
-        return findKthPositive_OptimizedBruteForce(arr, k);
+        int lft = 1, rht = arr.back() + k;
+        while (lft < rht) {
+            int mid = rht - (rht - lft) / 2;
+            int s = mid - 1;
+            int t = std::distance(arr.begin(), std::lower_bound(arr.begin(), arr.end(), mid));
+            if ((s - t) <= (k - 1)) {
+                lft = mid;
+            }
+            else {
+                rht = mid - 1;
+            }
+        }
+
+        return lft;
+    }
+
+    int findKthPositive(vector<int>& arr, int k) {
+        //return linear(arr, k);
+        return bsearch(arr, k);
     }
 };
