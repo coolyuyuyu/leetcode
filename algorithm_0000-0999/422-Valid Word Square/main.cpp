@@ -1,17 +1,12 @@
 class Solution {
 public:
     bool validWordSquare(vector<string>& words) {
-        for (size_t i = 0; i < words.size(); ++i) {
-            if (words.size() < words[i].size()) {
+        for (size_t r = 0; r < words.size(); ++r) {
+            if (words.size() <words[r].size()) {
                 return false;
             }
-            for (size_t j = i + 1; j < words[i].size(); ++j) {
-                if (words[i][j] != words[j][i]) {
-                    return false;
-                }
-            }
-            for (size_t j = words[i].size(); j < words.size(); ++j) {
-                if (i < words[j].size()) {
+            for (size_t c = 0; c < words[r].size(); ++c) {
+                if (words[r][c] != words[c][r]) {
                     return false;
                 }
             }
