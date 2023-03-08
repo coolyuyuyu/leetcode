@@ -2,7 +2,7 @@ class Codec {
 public:
     // Encodes a list of strings to a single string.
     string encode(vector<string>& strs) {
-        string out;    
+        string out;
         for (auto& str : strs) {
             encode(str, out);
         }
@@ -28,10 +28,9 @@ public:
     // Decodes a single string to a list of strings.
     vector<string> decode(string s) {
         vector<string> ret;
-        string tmp;
         for (string::const_iterator itr = s.begin(); itr != s.end();) {
-            decode(itr, tmp);
-            ret.push_back(std::move(tmp));
+            ret.emplace_back();
+            decode(itr, ret.back());
         }
 
         return ret;
@@ -42,7 +41,7 @@ public:
 
         int shiftCnt = 0;
         size_t c;
-        do { 
+        do {
             c = *itr++;
             val |= (c & MASK) << shiftCnt;
             shiftCnt += SHIFT;
