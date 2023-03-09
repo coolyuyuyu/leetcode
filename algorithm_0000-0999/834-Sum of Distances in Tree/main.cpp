@@ -1,45 +1,43 @@
 class Solution {
 public:
-    void dfs1(const vector<vector<int>>& neighbors, int node, int parent, int depth, vector<int>& cnts, int& sumDists) {
-        sumDists += depth;
-
-        cnts[node] = 1;
-        for (int neighbor : neighbors[node]) {
-            if (neighbor == parent) {
+    int dfs1(const vector<vector<int>>& adj, int node, int parent, int depth, vector<int>& counts) {
+        int sum = depth;
+        for (int child : adj[node]) {
+            if (child == parent) {
                 continue;
             }
-            dfs1(neighbors, neighbor, node, depth + 1, cnts, sumDists);
-            cnts[node] += cnts[neighbor];
+
+            sum += dfs1(adj, child, node, depth + 1, counts);
+            counts[node] += counts[child];
         }
+
+        return sum;
     }
 
-    void dfs2(const vector<vector<int>>& neighbors, int node, int parent, const vector<int>& cnts, vector<int>& coverages) {
-        if (parent != -1) {
-            coverages[node] = coverages[parent] + (neighbors.size() - cnts[node]) - (cnts[node]);
-        }
-
-        for (int neighbor : neighbors[node]) {
-            if (neighbor == parent) {
+    void dfs2(const vector<vector<int>>& adj, int node, int parent, const vector<int>& counts, vector<int>& sums) {
+        for (int child : adj[node]) {
+            if (child == parent) {
                 continue;
             }
-            dfs2(neighbors, neighbor, node, cnts, coverages);
+
+            sums[child] = sums[node] - counts[child] + (adj.size() - counts[child]);
+            dfs2(adj, child, node, counts, sums);
         }
     }
 
     vector<int> sumOfDistancesInTree(int n, vector<vector<int>>& edges) {
-        vector<vector<int>> neighbors(n);
+        vector<vector<int>> adj(n);
         for (const auto& edge : edges) {
-            neighbors[edge[0]].push_back(edge[1]);
-            neighbors[edge[1]].push_back(edge[0]);
+            adj[edge[0]].push_back(edge[1]);
+            adj[edge[1]].push_back(edge[0]);
         }
-        vector<int> cnts(n);
-        vector<int> ret(n, 0);
 
-        int src = 0;
-        dfs1(neighbors, src, -1, 0, cnts, ret[src]);
-        dfs2(neighbors, src, -1, cnts, ret);
-        return ret;
+        int node = 0, parent = -1;
+        vector<int> counts(n, 1); // counts[i]: the number of nodes for tree rooted at i
+        vector<int> sums(n, 0); // sums[i]: sum of the distances between the ith node and all other nodes
+        sums[node] = dfs1(adj, node, parent, 0, counts);
+        dfs2(adj, node, parent, counts, sums);
+
+        return sums;
     }
 };
-
-// sumDist(child) = sumDist(parent) + (N - cnts(child)) - (cnts(child))
