@@ -29,14 +29,14 @@ public:
 
     // pure std
     pair<vector<vector<int>>::iterator, vector<vector<int>>::iterator> searchInsert2(vector<vector<int>>& intervals, const vector<int>& newInterval) {
-        auto bgn = std::lower_bound(intervals.begin(), intervals.end(), vector<int>{0, newInterval[0]},
-            [](const vector<int>& interval1, const vector<int>& interval2) {
-                return interval1[1] < interval2[1];
-            });
-        auto end = std::upper_bound(bgn, intervals.end(), vector<int>{newInterval[1], 0},
-            [](const vector<int>& interval1, const vector<int>& interval2) {
-                return interval1[0] < interval2[0];
-            });
+        auto bgn = std::lower_bound(
+            intervals.begin(), intervals.end(),
+            vector<int>{0, newInterval[0]},
+            [](const vector<int>& i1, const vector<int>& i2) { return i1[1] < i2[1]; });
+        auto end = std::upper_bound(
+            intervals.begin(), intervals.end(),
+            vector<int>{newInterval[1], 0},
+            [](const vector<int>& i1, const vector<int>& i2) { return i1[0] < i2[0]; });
 
         return {bgn, end};
     }
