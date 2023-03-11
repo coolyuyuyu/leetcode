@@ -26,16 +26,15 @@ public:
             return nullptr;
         }
 
-        ListNode** ppFast = &head;
-        ListNode** ppSlow = &head;
+        ListNode **ppFast = &head, **ppSlow = &head;
         while (*ppFast && (*ppFast)->next) {
             ppFast = &((*ppFast)->next->next);
             ppSlow = &((*ppSlow)->next);
         }
-        ListNode* pMid = *ppSlow;
+
+        ListNode *pMid = *ppSlow;
         *ppSlow = nullptr;
 
-        TreeNode* pRoot = new TreeNode(pMid->val, sortedListToBST(head), sortedListToBST(pMid->next));
-        return pRoot;
+        return new TreeNode(pMid->val, sortedListToBST(head), sortedListToBST(pMid->next));
     }
 };
