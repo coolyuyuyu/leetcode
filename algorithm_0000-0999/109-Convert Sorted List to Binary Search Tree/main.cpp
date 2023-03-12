@@ -21,20 +21,22 @@
  */
 class Solution {
 public:
-    TreeNode* sortedListToBST(ListNode* head) {
-        if (!head) {
+    TreeNode* sortedListToBST(ListNode* head, ListNode* end) {
+        if (head == end) {
             return nullptr;
         }
 
         ListNode **ppFast = &head, **ppSlow = &head;
-        while (*ppFast && (*ppFast)->next) {
+        while (*ppFast != end && (*ppFast)->next != end) {
             ppFast = &((*ppFast)->next->next);
             ppSlow = &((*ppSlow)->next);
         }
+        ListNode *mid = *ppSlow;
 
-        ListNode *pMid = *ppSlow;
-        *ppSlow = nullptr;
+        return new TreeNode(mid->val, sortedListToBST(head, mid), sortedListToBST(mid->next, end));
+    }
 
-        return new TreeNode(pMid->val, sortedListToBST(head), sortedListToBST(pMid->next));
+    TreeNode* sortedListToBST(ListNode* head) {
+        return sortedListToBST(head, nullptr)
     }
 };
