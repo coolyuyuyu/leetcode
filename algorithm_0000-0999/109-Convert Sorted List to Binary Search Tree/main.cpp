@@ -37,6 +37,6 @@ public:
     }
 
     TreeNode* sortedListToBST(ListNode* head) {
-        return sortedListToBST(head, nullptr)
+        return sortedListToBST(head, nullptr);
     }
 };
