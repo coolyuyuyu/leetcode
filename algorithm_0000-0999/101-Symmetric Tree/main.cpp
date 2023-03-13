@@ -11,61 +11,43 @@
  */
 class Solution {
 public:
-    bool isSymmetric_Recursive(TreeNode* root) {
-        std::function<bool(TreeNode*, TreeNode*)> compare = [&compare](TreeNode* p, TreeNode* q) -> bool {
-            if ((p && !q) || (!p && q)) {
-                return false;
-            }
-
-            return (!p && !q) || ((p->val == q->val) && compare(p->left, q->right) && compare(p->right, q->left));
-        };
-
-        return !root || compare(root->left, root->right);
-    }
-
-    bool isSymmetric_Iterative(TreeNode* root) {
-        assert(root);
-        TreeNode *p = root->left, *q = root->right;
-        if ((p && !q) || (!p && q)) {
+    bool isMirror(TreeNode* p, TreeNode* q) {
+        if (!p && !q) {
+            return true;
+        }
+        if ((p && !q) || (!p && q) || p->val != q->val) {
             return false;
         }
-        assert((p && q) || (!p && !q));
 
-        stack<pair<TreeNode*, TreeNode*>> stk;
-        if (p) {
-            stk.emplace(p, q);
-        }
+        return isMirror(p->left, q->right) && isMirror(p->right, q->left);
+    }
+
+    bool isSymmetric_recursive(TreeNode* root) {
+        return isMirror(root, root);
+    }
+
+    bool isSymmetric_iterative(TreeNode* root) {
+        stack<pair<TreeNode*, TreeNode*>> stk({{root, root}});
         while (!stk.empty()) {
-            p = stk.top().first;
-            q = stk.top().second;
+            auto [p, q] = stk.top();
             stk.pop();
 
-            if (p->val != q->val) {
-                return false;
+            if (!p && !q) {
+                continue;
             }
-            if ((p->left && !q->right) || (!p->left && q->right)) {
-                return false;
-            }
-            if ((p->right && !q->left) || (!p->right && q->left)) {
+            if ((p && !q) || (!p && q) || p->val != q->val) {
                 return false;
             }
 
-            assert(p->left && q->right || (!p->left && !q->right));
-            if (p->left) {
-                stk.emplace(p->left, q->right);
-            }
-
-            assert(p->right && q->left || (!p->right && !q->left));
-            if (p->right) {
-                stk.emplace(p->right, q->left);
-            }
+            stk.emplace(p->left, q->right);
+            stk.emplace(p->right, q->left);
         }
 
         return true;
     }
 
     bool isSymmetric(TreeNode* root) {
-        //return isSymmetric_Recursive(root);
-        return isSymmetric_Iterative(root);
+        //return isSymmetric_recursive(root);
+        return isSymmetric_iterative(root);
     }
 };
