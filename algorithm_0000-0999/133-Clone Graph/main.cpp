@@ -21,64 +21,49 @@ public:
 
 class Solution {
 public:
-    Node* recursive(Node* pNode, unordered_map<Node*, Node*>& cache) {
-        if (!pNode) {
-            return nullptr;
+    Node* recursive(Node* node, unordered_map<Node*, Node*>& cache) {
+        if (!node) {
+            return node;
         }
-        if (cache.find(pNode) != cache.end()) {
-            return cache[pNode];
+        if (cache.find(node) != cache.end()) {
+            return cache[node];
         }
 
-        Node* pCopy = new Node(pNode->val);
-        cache[pNode] = pCopy;
-        for (auto& neighbor : pNode->neighbors) {
-            pCopy->neighbors.push_back(recursive(neighbor, cache));
+        Node* copy = cache[node] = new Node(node->val);
+        for (Node* neighbor : node->neighbors) {
+            copy->neighbors.push_back(recursive(neighbor, cache));
         }
-        return pCopy;
+        return copy;
     }
 
-    Node* recursive(Node* pNode) {
-        unordered_map<Node*, Node*> cache;
-        return recursive(pNode, cache);
-    }
+    Node* iterative(Node* node, unordered_map<Node*, Node*>& cache) {
+        stack<Node*> stk({node});
+        while (!stk.empty()) {
+            auto nodeOld = stk.top();
+            stk.pop();
 
-    Node* iterative(Node* pNode) {
-        unordered_map<Node*, Node*> cache;
+            if (!nodeOld) {
+                continue;
+            }
 
-        Node* pRet = nullptr;
-        queue<Node*> q;
-        if (pNode) {
-            pRet = new Node(pNode->val);
-            cache[pNode] = pRet;
-            q.push(pNode);
-        }
-
-        while (!q.empty()) {
-            pNode = q.front();
-            q.pop();
-
-            Node* pNodeCopy = cache[pNode];
-            for (auto neighbor : pNode->neighbors) {
-                Node* pNeighborCopy;
-                auto itr = cache.find(neighbor);
-                if (itr == cache.end()) { // not found
-                    pNeighborCopy = new Node(neighbor->val);
-                    cache[neighbor] = pNeighborCopy;
-                    q.push(neighbor);
+            if (cache.find(nodeOld) == cache.end()) {
+                cache[nodeOld] = new Node(nodeOld->val);
+            }
+            for (Node* neighborOld : nodeOld->neighbors) {
+                if (cache.find(neighborOld) == cache.end()) {
+                    cache[neighborOld] = new Node(neighborOld->val);
+                    stk.push(neighborOld);
                 }
-                else {
-                    pNeighborCopy = cache[neighbor];
-                }
-
-                pNodeCopy->neighbors.push_back(pNeighborCopy);
+                cache[nodeOld]->neighbors.push_back(cache[neighborOld]);
             }
         }
 
-        return pRet;
+        return cache[node];
     }
 
     Node* cloneGraph(Node* node) {
-        //return recursive(node);
-        return iterative(node);
+        unordered_map<Node*, Node*> cache;
+        //return recursive(node, cache);
+        return iterative(node, cache);
     }
 };
