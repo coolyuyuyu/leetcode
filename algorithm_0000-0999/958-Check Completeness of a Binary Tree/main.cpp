@@ -12,26 +12,21 @@
 class Solution {
 public:
     bool isCompleteTree(TreeNode* root) {
-        queue<pair<TreeNode*, size_t>> q; // <node, id>;
-        if (root) {
-            q.emplace(root, 0);
-        }
-
-        for (size_t index = 0; !q.empty(); ++index) {
-            TreeNode* node = q.front().first;
-            size_t id = q.front().second;
+        queue<pair<TreeNode*, int>> q({{root, 0}});
+        for (int index = 0; !q.empty();) {
+            auto [node, id] = q.front();
             q.pop();
 
+            if (!node) {
+                continue;
+            }
             if (id != index) {
                 return false;
             }
 
-            if (node->left) {
-                q.emplace(node->left, id * 2 + 1);
-            }
-            if (node->right) {
-                q.emplace(node->right, id * 2 + 2);
-            }
+            q.emplace(node->left, id * 2 + 1);
+            q.emplace(node->right, id * 2 + 2);
+            ++index;
         }
 
         return true;
