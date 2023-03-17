@@ -1,46 +1,50 @@
 class Trie {
 public:
-    Trie() 
-        : m_root(new Node) {
+    Trie()
+        : m_root(new Node()) {
     }
-    
-    void insert(string word) {
-        Node** ppNode = &m_root;
-        for (char c : word) {
-            ppNode = &((*ppNode)->childs[c - 'a']);
-            if (*ppNode == nullptr) {
-                *ppNode = new Node;
-            }
-        }
-        (*ppNode)->end = true;
-    }
-    
-    bool search(string word) {
+
+    void insert(const string& word) {
         Node* node = m_root;
-        for (size_t i = 0; i < word.size() && node; ++i) {
-            node = node->childs[word[i] - 'a'];
+        for (char c : word) {
+            if (node->childs[c - 'a'] == nullptr) {
+                node->childs[c - 'a'] = new Node();
+            }
+            node = node->childs[c - 'a'];
+        }
+        node->end = true;
+    }
+
+    bool search(const string& word) {
+        Node* node = m_root;
+        for (char c : word) {
+            if (node->childs[c - 'a'] == nullptr) {
+                return false;
+            }
+            node = node->childs[c - 'a'];
         }
 
-        return node && node->end;
+        return node->end;
     }
-    
-    bool startsWith(string prefix) {
+
+    bool startsWith(const string& prefix) {
         Node* node = m_root;
-        for (size_t i = 0; i < prefix.size() && node; ++i) {
-            node = node->childs[prefix[i] - 'a'];
+        for (char c : prefix) {
+            if (node->childs[c - 'a'] == nullptr) {
+                return false;
+            }
+            node = node->childs[c - 'a'];
         }
 
         return node;
     }
 
 private:
-    class Node {
-    public:
-        Node() {
-            std::fill(childs.begin(), childs.end(), nullptr);
-            end = false;
+    struct Node {
+        Node()
+            : end(false) {
+            childs.fill(nullptr);
         }
-
         array<Node*, 26> childs;
         bool end;
     };
