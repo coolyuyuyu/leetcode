@@ -13,74 +13,55 @@
 
 class Solution {
 public:
-    NodeCopy* copyRandomBinaryTree_Recursive(Node* root, map<Node*, NodeCopy*>& m) {
+    NodeCopy* recursive(Node* root, unordered_map<Node*, NodeCopy*>& cache) {
         if (!root) {
             return nullptr;
         }
-
-        NodeCopy* rootNew; {
-            auto p = m.insert({root, nullptr});
-            if (p.second) {
-                p.first->second = new NodeCopy(root->val);
-            }
-            else {
-                return p.first->second;
-            }
-            rootNew = p.first->second;
+        if (cache.find(root) != cache.end()) {
+            return cache[root];
         }
-        rootNew->random = copyRandomBinaryTree_Recursive(root->random, m);
-        rootNew->left = copyRandomBinaryTree_Recursive(root->left, m);
-        rootNew->right = copyRandomBinaryTree_Recursive(root->right, m);
 
-        return rootNew;
+        NodeCopy* rootCopy = new NodeCopy(root->val);
+        cache[root] = rootCopy;
+        rootCopy->left = recursive(root->left, cache);
+        rootCopy->right = recursive(root->right, cache);
+        rootCopy->random = recursive(root->random, cache);
+        return rootCopy;
     }
 
-    NodeCopy* copyRandomBinaryTree_Iterative(Node* root) {
-        Node* pHeadOld = root;
-        Node** ppCurOld = &pHeadOld;
-        NodeCopy* pHeadNew = nullptr;
-        NodeCopy** ppCurNew = &pHeadNew;
-
-        map<Node*, NodeCopy*> m;
-
-        stack<pair<Node**, NodeCopy**>> stk;
-        if (*ppCurOld) {
-            stk.emplace(ppCurOld, ppCurNew);
-        }
+    NodeCopy* iterative(Node* root, unordered_map<Node*, NodeCopy*>& cache) {
+        NodeCopy* rootCopy = nullptr;
+        stack<pair<Node**, NodeCopy**>> stk({{&root, &rootCopy}});
         while (!stk.empty()) {
-            ppCurOld = stk.top().first;
-            ppCurNew = stk.top().second;
+            auto [ppNode, ppNodeCopy] = stk.top();
             stk.pop();
 
-            auto p = m.insert({*ppCurOld, nullptr});
-            if (p.second) {
-                p.first->second = new NodeCopy((*ppCurOld)->val);
+            if (*ppNode == nullptr) {
+                continue;
             }
-            *ppCurNew = p.first->second;
 
-            if ((*ppCurOld)->random) {
-                auto p = m.insert({(*ppCurOld)->random, nullptr});
-                if (p.second) {
-                    p.first->second = new NodeCopy((*ppCurOld)->random->val);
+            if (cache.find(*ppNode) == cache.end()) {
+                cache[*ppNode] = new NodeCopy((*ppNode)->val);
+            }
+            *ppNodeCopy = cache[*ppNode];
+            if ((*ppNode)->random) {
+                if (cache.find((*ppNode)->random) == cache.end()) {
+                    cache[(*ppNode)->random] = new NodeCopy((*ppNode)->random->val);
                 }
-                (*ppCurNew)->random = p.first->second;
+                (*ppNodeCopy)->random = cache[(*ppNode)->random];
             }
 
-            if ((*ppCurOld)->right) {
-                stk.emplace(&((*ppCurOld)->right), &((*ppCurNew)->right));
-            }
-            if ((*ppCurOld)->left) {
-                stk.emplace(&((*ppCurOld)->left), &((*ppCurNew)->left));
-            }
+            stk.emplace(&((*ppNode)->left), &((*ppNodeCopy)->left));
+            stk.emplace(&((*ppNode)->right), &((*ppNodeCopy)->right));
         }
 
-        return pHeadNew;
+        return rootCopy;
     }
 
     NodeCopy* copyRandomBinaryTree(Node* root) {
-        //map<Node*, NodeCopy*> m;
-        //return copyRandomBinaryTree_Recursive(root, m);
+        unordered_map<Node*, NodeCopy*> cache;
 
-        return copyRandomBinaryTree_Iterative(root);
+        //return recursive(root, cache);
+        return iterative(root, cache);
     }
 };
