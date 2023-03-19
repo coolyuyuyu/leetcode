@@ -1,55 +1,53 @@
 class WordDictionary {
-private:
-    class TrieNode {
-    public:
-        TrieNode()
-            : end(false) {
-            childs.fill(nullptr);
-        }
-
-        bool end;
-        array<TrieNode*, 26> childs;
-    };
-
 public:
     WordDictionary()
-        : m_pRoot(new TrieNode()) {
+        : m_root(new Node()) {
     }
 
-    void addWord(string word) {
-        TrieNode** ppNode = &m_pRoot;
+    void addWord(const string& word) {
+        Node* node = m_root;
         for (char c : word) {
-            ppNode = &((*ppNode)->childs[c - 'a']);
-            if (*ppNode == nullptr) {
-                *ppNode = new TrieNode();
+            if (node->childs[c - 'a'] == nullptr) {
+                node->childs[c - 'a'] = new Node();
             }
+            node = node->childs[c - 'a'];
         }
 
-        (*ppNode)->end = true;
+        node->end = true;
     }
 
     bool search(const string& word) {
-        return search(word, 0, m_pRoot);
+        return search(word, 0, m_root);
     }
 
 private:
-    bool search(const string& word, size_t start, TrieNode* pNode) {
-        for (size_t i = start; i < word.size() && pNode; ++i) {
+    struct Node {
+        Node() {
+            childs.fill(nullptr);
+            end = false;
+        }
+
+        array<Node*, 26> childs;
+        bool end;
+    };
+
+    bool search(const string& word, size_t start, Node* node) {
+        for (size_t i = start; i < word.size() && node; ++i) {
             if (word[i] == '.') {
                 return std::any_of(
-                    pNode->childs.begin(),
-                    pNode->childs.end(),
-                    [&](TrieNode* pChild) { return pChild && search(word, i + 1, pChild); });
+                    node->childs.begin(),
+                    node->childs.end(),
+                    [&](Node* child) { return child && search(word, i + 1, child); });
             }
             else {
-                pNode = pNode->childs[word[i] - 'a'];
+                node = node->childs[word[i] - 'a'];
             }
         }
 
-        return pNode && pNode->end;
+        return node && node->end;
     }
 
-    TrieNode* m_pRoot;
+    Node* m_root;
 };
 
 /**
