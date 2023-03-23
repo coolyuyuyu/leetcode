@@ -10,9 +10,9 @@
  */
 class Solution {
 public:
-    ListNode* splitList(ListNode* head) {
-        ListNode** ppSlow = &head;
-        for (ListNode* pFast = head; pFast;) {
+    pair<ListNode*, ListNode*> splitList(ListNode* head) {
+        ListNode *pFast = head, **ppSlow = &head;
+        while (pFast) {
             pFast = pFast->next;
             if (pFast) {
                 pFast = pFast->next;
@@ -20,9 +20,11 @@ public:
             ppSlow = &((*ppSlow)->next);
         }
 
-        ListNode* pRet = *ppSlow;
+        ListNode *head1 = head;
+        ListNode* head2 = *ppSlow;
         *ppSlow = nullptr;
-        return pRet;
+
+        return {head1, head2};
     }
 
     ListNode* reverseList(ListNode* head) {
@@ -31,23 +33,35 @@ public:
         }
 
         ListNode** ppHead = &head;
-        for (ListNode* pNode = head; pNode->next;) {
-            ListNode* pTmp = pNode->next;
-            pNode->next = pTmp->next;
-            pTmp->next = *ppHead;
-            *ppHead = pTmp;
+        for (ListNode* pCur = *ppHead; pCur->next;) {
+            ListNode* pNxt = pCur->next;
+            pCur->next = pNxt->next;
+            pNxt->next = *ppHead;
+            *ppHead = pNxt;
         }
 
         return head;
     }
 
-    void reorderList(ListNode* head) {
-        for (ListNode *l1 = head, *l2 = reverseList(splitList(head)); l2;) {
-            ListNode *tmp = l2;
-            l2 = l2->next;
-            tmp->next = l1->next;
-            l1->next = tmp;
-            l1 = tmp->next;
+    ListNode* interleaveList(ListNode* head1, ListNode* head2) {
+        ListNode *head = nullptr;
+        ListNode **ppCur = &head;
+        while(head1) {
+            *ppCur = head1;
+            ppCur = &(head1->next);
+            head1 = head1->next;
+            if (head2) {
+                *ppCur = head2;
+                ppCur = &(head2->next);
+                head2 = head2->next;
+            }
         }
+        return head;
+    }
+
+    void reorderList(ListNode* head) {
+        auto [head1, head2] = splitList(head);
+        head2 = reverseList(head2);
+        interleaveList(head1, head2);
     }
 };
