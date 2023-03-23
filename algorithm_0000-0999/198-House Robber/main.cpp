@@ -1,61 +1,73 @@
 class Solution {
 public:
-    int rob1(const vector<int>& nums) {
-        if (nums.empty()) {
-            return 0;
-        }
-        else if (nums.size() == 1) {
-            return nums.front();
-        }
-        else if (nums.size() == 2){
-            return max(nums[0], nums[1]);
+    // Time: O(n), Space: O(n) 
+    int dp1(vector<int>::iterator first, vector<int>::iterator last) {
+        int n = std::distance(first, last);
+
+        vector<int> dpRobY(n); // dpRobY[i]: the maximum amount of money rub from houses[0:i] when house[i] is rob
+        vector<int> dpRobN(n); // dpRobN[i]: the maximum amount of money rub from houses[0:i] when house[i] is NOT rob
+        dpRobY[0] = *first; dpRobN[0] = 0;
+
+        int i = 1;
+        for (auto itr = first + 1; itr != last; ++itr, ++i) {
+            dpRobY[i] = dpRobN[i - 1] + *itr;
+            dpRobN[i] = std::max(dpRobY[i - 1], dpRobN[i - 1]);
         }
 
-        size_t n = nums.size();
-        vector<int> dp(n);
-        dp[0] = nums[0];
-        dp[1] = max(nums[0], nums[1]);
-        for (size_t i = 2; i < n; ++i) {
-            dp[i] = max(dp[i - 2] + nums[i], dp[i - 1]);
-        }
-
-        return dp[n - 1];
+        return std::max(dpRobY[n - 1], dpRobN[n - 1]);
     }
 
-    int rob2(const vector<int>& nums) {
-        int curMax = 0;
-        int preMax = 0;
-        for (int num : nums) {
-            int tmp = curMax;
-            curMax = max(curMax, preMax + num);
-            preMax = tmp;
+    // Time: O(n), Space: O(1) 
+    int dp2(vector<int>::iterator first, vector<int>::iterator last) {
+        int n = std::distance(first, last);
+
+        int robY = *first;
+        int robN = 0;
+
+        int i = 1;
+        for (auto itr = first + 1; itr != last; ++itr, ++i) {
+            int tmpY = robY, tmpN = robN;
+            robY = tmpN + *itr;
+            robN = std::max(tmpY, tmpN);
         }
 
-        return curMax;
+        return std::max(robY, robN);
     }
 
-    int rob3(vector<int>& nums) {
-        int a = 0; // rub current house. max profit.
-        int b = 0; // not run current house. max profit.
-        for (int num : nums) {
-            int tmpA = std::max(a, b + num);
-            int tmpB = std::max(a, b);
-            a = tmpA;
-            b = tmpB;
+    // Time: O(n^2), Space: O(n^2) 
+    int dp3(vector<int>::iterator first, vector<int>::iterator last) {
+        int n = std::distance(first, last);
+
+        vector<vector<int>> dp(n, vector<int>(n)); // dp[i][j]: the maximum amount of money rub from houses[i:ij]
+        for (int i = 0; i < n; ++i) {
+            dp[i][i] = *(first + i);
+        }
+        for (int len = 2; len <= n; ++len) {
+            for (int i = 0; (i + len - 1) < n; ++i) {
+                int j = i + len - 1;
+                dp[i][j] = std::max(*(first + i) + ((i + 2) <= j ? dp[i + 2][j] : 0), dp[i + 1][j]);
+            }
         }
 
-        return std::max(a, b);
+        return dp[0][n - 1];
+    }
+
+    // Time: O(n), Space: O(1) 
+    int greedy(vector<int>::iterator first, vector<int>::iterator last) {
+        int pre = 0, cur = 0;
+        for (auto itr = first; itr != last; ++itr) {
+            int tmp = cur;
+            cur = std::max(pre + *itr, cur);
+            pre = tmp;
+        }
+
+        return std::max(pre, cur);
     }
 
     int rob(vector<int>& nums) {
-        //return rob1(nums);
-        //return rob2(nums);
-        return rob3(nums);
+        //return dp1(nums.begin(), nums.end());
+        //return dp2(nums.begin(), nums.end());
+        //return dp3(nums.begin(), nums.end());
+        return greedy(nums.begin(), nums.end());
     }
 };
-
-/*
-            1   2   3   1
-rub         1   2   4   4
-not rub     0   1   2   
-*/
