@@ -3,6 +3,9 @@ public:
     // Time: O(n), Space: O(n) 
     int dp1(vector<int>::iterator first, vector<int>::iterator last) {
         int n = std::distance(first, last);
+        if (n == 0) {
+            return 0;
+        }
 
         vector<int> dpRobY(n); // dpRobY[i]: the maximum amount of money rub from houses[0:i] when house[i] is rob
         vector<int> dpRobN(n); // dpRobN[i]: the maximum amount of money rub from houses[0:i] when house[i] is NOT rob
@@ -20,6 +23,9 @@ public:
     // Time: O(n), Space: O(1) 
     int dp2(vector<int>::iterator first, vector<int>::iterator last) {
         int n = std::distance(first, last);
+        if (n == 0) {
+            return 0;
+        }
 
         int robY = *first;
         int robN = 0;
