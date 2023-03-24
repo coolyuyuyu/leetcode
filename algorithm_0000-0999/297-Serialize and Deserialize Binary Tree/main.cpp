@@ -7,54 +7,50 @@
  *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
  * };
  */
-class Codec {
+
+class Strategy {
 public:
-    // Encodes a tree to a single string.
-    string serialize(TreeNode* pRoot) {
-        string str;
+    virtual string serialize(TreeNode* root) = 0;
+    virtual TreeNode* deserialize(const string& data) = 0;
+};
 
-        stack<TreeNode*> stk;
-        stk.push(pRoot);
-        while (!stk.empty()) {
-            TreeNode* pNode = stk.top();
-            stk.pop();
+class LevelOrderStrategy : public Strategy {
+public:
+    string serialize(TreeNode* root) {
+        ostringstream oss;
 
-            if (pNode) {
-                str += to_string(pNode->val) + ",";
-                stk.push(pNode->right);
-                stk.push(pNode->left);
+        queue<TreeNode*> q({root});
+        while (!q.empty()) {
+            TreeNode* node = q.front();
+            q.pop();
+
+            if (node) {
+                oss << node->val;
+                q.push(node->left);
+                q.push(node->right);
             }
             else {
-                str += "#,";
+                oss << "#";
             }
-        }
-        str.pop_back();
+            oss << ",";
 
-        return str;
+        }
+
+        return oss.str();
     }
 
-    // Decodes your encoded data to tree.
-    TreeNode* deserialize(string data) {
+    TreeNode* deserialize(const string& data) {
         TreeNode* pRoot = nullptr;
-        stack<TreeNode**> stk;
-        stk.push(&pRoot);
+        queue<TreeNode**> q({&pRoot});
+        string token;
+        for (istringstream iss(data); std::getline(iss, token, ',');) {
+            TreeNode** ppNode = q.front();
+            q.pop();
 
-        size_t pos = 0;
-        while (pos < data.size()) {
-            TreeNode** ppNode = stk.top();
-            stk.pop();
-
-            if (data[pos] == '#') {
-                pos = pos + 2;
-            }
-            else {
-                size_t found = data.find(',', pos);
-                *ppNode = new TreeNode(atoi(data.substr(pos, found).c_str()));
-
-                stk.push(&((*ppNode)->right));
-                stk.push(&((*ppNode)->left));
-
-                pos = found + 1;
+            if (token != "#") {
+                *ppNode = new TreeNode(std::stoi(token));
+                q.push(&((*ppNode)->left));
+                q.push(&((*ppNode)->right));
             }
         }
 
@@ -62,6 +58,55 @@ public:
     }
 };
 
+class PreOrderStrategy : public Strategy {
+public:
+    string serialize(TreeNode* root) {
+        if (!root) {
+            return "#";
+        }
+
+        return std::to_string(root->val) + "," + serialize(root->left) + "," + serialize(root->right);
+    }
+
+    TreeNode* deserialize(const string& data) {
+        istringstream iss(data);
+        return deserialize(iss);
+    }
+
+private:
+    TreeNode* deserialize(istringstream& iss) {
+        string token;
+        if (!std::getline(iss, token, ',') || token == "#") {
+            return nullptr;
+        }
+
+        return new TreeNode(std::stoi(token), deserialize(iss), deserialize(iss));
+    }
+};
+
+class Codec {
+public:
+    Codec() {
+        //m_pStrategy = new LevelOrderStrategy();
+        m_pStrategy = new PreOrderStrategy();
+    }
+
+    // Encodes a tree to a single string.
+    string serialize(TreeNode* root)
+    {
+        return m_pStrategy->serialize(root);
+    }
+
+    // Decodes your encoded data to tree.
+    TreeNode* deserialize(string data)
+    {
+        return m_pStrategy->deserialize(data);
+    }
+
+private:
+    Strategy* m_pStrategy;
+};
+
 // Your Codec object will be instantiated and called as such:
-// Codec codec;
-// codec.deserialize(codec.serialize(root));
+// Codec ser, deser;
+// TreeNode* ans = deser.deserialize(ser.serialize(root));
