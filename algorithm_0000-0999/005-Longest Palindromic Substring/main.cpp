@@ -37,7 +37,7 @@ public:
                 }
             }
         }
-
+        
         return s.substr(ansPos, ansLen);
     }
 
@@ -56,7 +56,7 @@ public:
                 }
             }
         }
-
+        
         return s.substr(ansPos, ansLen);
     }
 
@@ -73,7 +73,7 @@ public:
             while (1 <= lft && (rht + 1) < s.size() && s[lft - 1] == s[rht + 1]) {
                 --lft, ++rht;
             }
-
+            
             size_t len = rht - lft + 1;
             if (ansLen < len) {
                 ansPos = lft;
@@ -89,42 +89,40 @@ public:
         string t = "#";
         for (char c : s) {
             t += c;
-            t += '#';
+            t += "#";
         }
+        
+        int n = t.size();
 
-        size_t n = t.size();
-        vector<int> p(n, 0); // p[i]: radius of the longest palindromic substring cenceted at i
-        for (int i = 0, maxCtr = -1, maxRht = -1; i < t.size(); ++i) {
+        vector<int> p(n, 0); // p[i]: the longest extended radius of palindromic substring centered at i
+        int ansPos = 0;
+        for (int i = 0, maxCtr = -1, maxRht = -1; i < n; ++i) {
             int r = 0;
-            if (i <= maxRht) {
-                int j = 2 * maxCtr - i;
-                r = std::min(p[j], maxRht - i);
+            if (i < maxRht) {
+                int j = maxCtr * 2 - i;
+                r = std::min(p[i], maxRht - i);
             }
-            while (0 <= (i - r - 1) && (i + r + 1) < n && t[i - r - 1] == t[i + r + 1]) {
+            while (0 <= (i - r  - 1) && (i + r + 1) < n && t[i - r - 1] == t[i + r + 1]) {
                 ++r;
             }
-
             p[i] = r;
-            if (maxRht < i + r) {
+
+            if (maxRht < (i + p[i])) {
                 maxCtr = i;
-                maxRht = i + r;
+                maxRht = i + p[i];
             }
-        }
 
-        int ansPos, ansRadius = -1;
-        for (int i = 0; i < n; ++i) {
-            if (ansRadius < p[i]) {
+            if (p[ansPos] < p[i]) {
                 ansPos = i;
-                ansRadius = p[i];
             }
         }
 
-        return s.substr(ansPos / 2 - ansRadius / 2, ansRadius);
+        return s.substr(ansPos/ 2 - p[ansPos] / 2, p[ansPos]);
     }
 
     string longestPalindrome(string s) {
         //return bruteforce(s);
-
+        
         //return dp1(s);
         //return dp2(s);
 
