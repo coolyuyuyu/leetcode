@@ -1,28 +1,18 @@
 class Solution {
 public:
     int minPathSum(vector<vector<int>>& grid) {
-        for (size_t row = 0; row < grid.size(); ++row) {
-            for (size_t col = 0; col < grid[row].size(); ++col) {
-                if (row == 0) {
-                    if (col == 0) {
+        size_t m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
+        assert(0 < m && 0 < n);
 
-                    }
-                    else {
-                        grid[row][col] += grid[row][col - 1];
-                    }
+        for (size_t r = 0; r < m; ++r) {
+            for (size_t c = 0; c < n; ++c) {
+                if (r == 0 && c == 0) {
+                    continue;
                 }
-                else {
-                    if (col == 0) {
-                        grid[row][col] += grid[row - 1][col];
-                    }
-                    else {
-                        grid[row][col] += min(grid[row - 1][col], grid[row][col - 1]);
-                    }
-
-                }
+                grid[r][c] += std::min({0 < r ? grid[r - 1][c] : INT_MAX, 0 < c ? grid[r][c - 1] : INT_MAX});
             }
         }
 
-        return grid.back().back();
+        return grid[m - 1][n - 1];
     }
 };
