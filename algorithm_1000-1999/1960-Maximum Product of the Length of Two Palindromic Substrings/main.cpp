@@ -1,23 +1,52 @@
 class Solution {
 public:
-    bool isDecomposable(string s) {
-        bool found2Once = false;
-        for (size_t i = 0; i < s.size(); ) {
-            size_t pos = s.find_first_not_of(s[i], i + 1);
-            size_t len = pos == string::npos ? s.size() - i : pos - i;
-            if (2 <= len && (len - 2) % 3 == 0) {
-                if (found2Once) {
-                    return false;
-                }
-                found2Once = true;
-            }
-            else if (len % 3 != 0) {
-                return false;
-            }
+    long long maxProduct(string s) {
+        int n = s.size();
 
-            i = pos;
+        vector<int> p(n); // p[i]: the longest extended radius of palindromic substring centered at i
+        for (int i = 0, maxCtr = -1, maxRht = -1; i < n; ++i) {
+            int r = 0;
+            if (i <= maxRht) {
+                int j = maxCtr * 2 - i;
+                r = std::min(p[j], maxRht - i);
+            }
+            while (0 <= (i - r  - 1) && (i + r + 1) < n && s[i - r - 1] == s[i + r + 1]) {
+                ++r;
+            }
+            p[i] = r;
+
+            if (maxRht < (i + p[i])) {
+                maxCtr = i;
+                maxRht = i + p[i];
+            }
         }
-        
-        return found2Once;
+
+        // X X X X X X X X X X
+        //               i
+        //       ------j------ 
+        vector<int> lft(n); // lft[i]: the length of longest palindromic substring from s[0:i];
+        lft[0] = 1;
+        for (int i = 1, j = 0; i < n; ++i) {
+            while (j < i && (j + p[j]) < i) {
+                ++j;
+            }
+            lft[i] = std::max(lft[i - 1], (i - j) * 2 + 1);
+        }
+
+        vector<int> rht(n); // rht[i]: the length of longest palindromic substring from s[i:n-1]
+        rht[n - 1] = 1;
+        for (int i = n - 2, j = n - 1; 0 <= i; --i) {
+            while (i < j && i < (j - p[j])) {
+                --j;
+            }
+            rht[i] = std::max(rht[i + 1], (j - i) * 2 + 1);
+        }
+
+        long long ret = 0;
+        for (int i = 0; i < (n - 1); ++i) {
+            ret = std::max(ret, (long long)lft[i] * (long long)rht[i + 1]);
+        }
+
+        return ret;
     }
 };
