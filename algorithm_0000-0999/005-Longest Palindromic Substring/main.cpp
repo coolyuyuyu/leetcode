@@ -100,7 +100,7 @@ public:
             int r = 0;
             if (i < maxRht) {
                 int j = maxCtr * 2 - i;
-                r = std::min(p[i], maxRht - i);
+                r = std::min(p[j], maxRht - i);
             }
             while (0 <= (i - r  - 1) && (i + r + 1) < n && t[i - r - 1] == t[i + r + 1]) {
                 ++r;
