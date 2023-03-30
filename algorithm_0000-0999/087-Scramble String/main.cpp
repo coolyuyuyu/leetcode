@@ -1,27 +1,27 @@
 class Solution {
 public:
-    // Time: O(5^n), TLE
-    bool recursive(const string& s1, size_t bgn1, const string& s2, size_t bgn2, size_t n) {        
-        vector<unsigned char> cnts(26, 0);
-        for (size_t i = 0; i < n; ++i) {
-            ++cnts[s1[bgn1 + i] - 'a'];
-            --cnts[s2[bgn2 + i] - 'a'];
-        }
-        for (size_t i = 0; i < cnts.size(); ++i) {
-            if (cnts[i] != 0) {
-                return false;
+    typedef unsigned char uchar;
+
+    bool isScramble(const string& s1, uchar idx1, const string& s2, uchar idx2, uchar n) {
+        bool allSame = true;
+        array<uchar, 26> cnts; cnts.fill(0);
+        for (uchar i = 0; i < n; ++i) {
+            if (allSame && s1[idx1 + i] != s2[idx2 + i]) {
+                allSame = false;
             }
+            ++cnts[s1[idx1 + i] - 'a'];
+            --cnts[s2[idx2 + i] - 'a'];
         }
-        if (n <= 3) {
+        if (allSame) {
             return true;
         }
+        if (!std::all_of(cnts.begin(), cnts.end(), [](uchar cnt){ return cnt == 0; })) {
+            return false;
+        }
 
-        for (size_t i = 1; i < n; ++i) {
-            if (recursive(s1, bgn1, s2, bgn2, i) && recursive(s1, bgn1 + i, s2, bgn2 + i, n - i)) {
-                return true;
-            }
-
-            if (recursive(s1, bgn1, s2, bgn2 + n - i, i) && recursive(s1, bgn1 + i, s2, bgn2, n - i)) {
+        for (uchar i = 1; i < n; ++i) {
+            if ((isScramble(s1, idx1, s2, idx2, i) && isScramble(s1, idx1 + i, s2, idx2 + i, n - i)) ||
+                (isScramble(s1, idx1, s2, idx2 + n - i, i) && isScramble(s1, idx1 + i, s2, idx2, n - i))) {
                 return true;
             }
         }
@@ -29,48 +29,41 @@ public:
         return false;
     }
 
-    int cacheCnt = 0;
-    bool recursive_memo(const string& s1, size_t bgn1, const string& s2, size_t bgn2, size_t n, map<tuple<size_t, size_t, size_t>, bool>& cache) {
-        auto itr = cache.find({bgn1, bgn2, n});
-        if (itr != cache.end()) {
-            return itr->second;
+    bool isScramble_memo(const string& s1, uchar idx1, const string& s2, uchar idx2, uchar n, map<tuple<uchar, uchar, uchar>, bool>& cache) {
+        if (cache.find({idx1, idx2, n}) != cache.end()) {
+            return cache[{idx1, idx2, n}];
         }
 
-        vector<unsigned char> cnts(26, 0);
-        for (size_t i = 0; i < n; ++i) {
-            ++cnts[s1[bgn1 + i] - 'a'];
-            --cnts[s2[bgn2 + i] - 'a'];
-        }
-        for (size_t i = 0; i < cnts.size(); ++i) {
-            if (cnts[i] != 0) {
-                return cache[{bgn1, bgn2, n}] = false;
+        bool allSame = true;
+        array<uchar, 26> cnts; cnts.fill(0);
+        for (uchar i = 0; i < n; ++i) {
+            if (allSame && s1[idx1 + i] != s2[idx2 + i]) {
+                allSame = false;
             }
+            ++cnts[s1[idx1 + i] - 'a'];
+            --cnts[s2[idx2 + i] - 'a'];
         }
-        if (n <= 3) {
-            return cache[{bgn1, bgn2, n}] = true;
+        if (allSame) {
+            return cache[{idx1, idx2, n}] = true;
+        }
+        if (!std::all_of(cnts.begin(), cnts.end(), [](uchar cnt){ return cnt == 0; })) {
+            return cache[{idx1, idx2, n}] = false;
         }
 
-        for (size_t i = 1; i < n; ++i) {
-            if (recursive_memo(s1, bgn1, s2, bgn2, i, cache) && recursive_memo(s1, bgn1 + i, s2, bgn2 + i, n - i, cache)) {
-                return cache[{bgn1, bgn2, n}] = true;
-            }
-
-            if (recursive_memo(s1, bgn1, s2, bgn2 + n - i, i, cache) && recursive_memo(s1, bgn1 + i, s2, bgn2, n - i, cache)) {
-                return cache[{bgn1, bgn2, n}] = true;
+        for (uchar i = 1; i < n; ++i) {
+            if ((isScramble_memo(s1, idx1, s2, idx2, i, cache) && isScramble_memo(s1, idx1 + i, s2, idx2 + i, n - i, cache)) ||
+                (isScramble_memo(s1, idx1, s2, idx2 + n - i, i, cache) && isScramble_memo(s1, idx1 + i, s2, idx2, n - i, cache))) {
+                return cache[{idx1, idx2, n}] = true;
             }
         }
 
-        return cache[{bgn1, bgn2, n}] = false;
+        return cache[{idx1, idx2, n}] = false;
     }
 
     bool isScramble(string s1, string s2) {
-        if (s1.size() != s2.size()) {
-            return false;
-        }
-        
-        //return recursive(s1, 0, s2, 0, s1.size());
+        //return isScramble(s1, 0, s2, 0, s1.size());
 
-        map<tuple<size_t, size_t, size_t>, bool> cache;
-        return recursive_memo(s1, 0, s2, 0, s1.size(), cache);
+        map<tuple<uchar, uchar, uchar>, bool> cache;
+        return isScramble_memo(s1, 0, s2, 0, s1.size(), cache);
     }
 };
