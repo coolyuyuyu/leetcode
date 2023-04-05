@@ -1,48 +1,52 @@
 class Solution {
 public:
-    int binary_search(const vector<int>& nums) {
+    // Time: O(nlogn)
+    int bsearch(const vector<int>& nums) {
         auto isOk = [&nums](int maxNum) -> bool {
-            for (long buf = 0, i = 0; i < nums.size(); ++i) {
-                if (nums[i] <= maxNum) {
-                    buf += (maxNum - nums[i]);
+            long buf = 0;
+            for (int num : nums) {
+                if (num <= maxNum) {
+                    buf += (maxNum - num);
                 }
                 else {
-                    buf -= (nums[i] - maxNum);
+                    buf -= (num - maxNum);
                     if (buf < 0) {
                         return false;
                     }
                 }
             }
+
             return true;
         };
 
-        int lft = 0, rht = *std::max_element(nums.begin(), nums.end());
-        while (lft < rht) {
-            int mid = lft + (rht - lft) / 2;
+        int lo = 0, hi = *std::max_element(nums.begin(), nums.end());
+        while (lo < hi) {
+            int mid = lo + (hi - lo) / 2;
             if (isOk(mid)) {
-                rht = mid;
+                hi = mid;
             }
             else {
-                lft = mid + 1;
+                lo = mid + 1;
             }
         }
 
-        return lft;
+        return lo;
     }
 
-    int prefix(const vector<int>& nums) {
-        int ret = 0;
-        long sum = 0;
+    // Time: O(n)
+    int greedy(const vector<int>& nums) {
+        int maxNum = 0;
+        long presum = 0;
         for (int i = 0; i < nums.size(); ++i) {
-            sum += nums[i];
-            ret = std::max(ret, (int)ceil(double(sum) / (i + 1)));
+            presum += nums[i];
+            maxNum = std::max<int>(maxNum, std::ceil(static_cast<double>(presum) / (i + 1)));
         }
 
-        return ret;
+        return maxNum;
     }
 
     int minimizeArrayValue(vector<int>& nums) {
-        //return binary_search(nums);
-        return prefix(nums);
+        //return bsearch(nums);
+        return greedy(nums);
     }
 };
