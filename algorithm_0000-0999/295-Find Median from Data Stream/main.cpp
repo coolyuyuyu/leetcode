@@ -1,92 +1,71 @@
-class MediaFinderStrategy {
+class Strategy {
 public:
     virtual void addNum(int num) = 0;
-    virtual double findMedian() const = 0;
+    virtual double findMedian() = 0;
 };
 
-class MediaFinderStrategyByHeap : public MediaFinderStrategy {
-public:   
+class HeapStrategy : public Strategy {
+public:
     void addNum(int num) {
         m_lo.push(num);
         m_hi.push(m_lo.top());
         m_lo.pop();
-
         if (m_lo.size() < m_hi.size()) {
             m_lo.push(m_hi.top());
             m_hi.pop();
         }
     }
-    
-    double findMedian() const {
+
+    double findMedian() {
         double m = m_lo.top();
         if (m_lo.size() == m_hi.size()) {
-            m = (m + m_hi.top()) * 0.5;
+            m = (m + m_hi.top()) / 2;
         }
         return m;
     }
 
 private:
-    std::priority_queue<int> m_lo; // minheap
-    std::priority_queue<int, std::vector<int>, std::greater<int>> m_hi; // max_heap
+    priority_queue<int, vector<int>, std::less<int>> m_lo;
+    priority_queue<int, vector<int>, std::greater<int>> m_hi;
 };
 
-class MediaFinderStrategyByMultiSet : public MediaFinderStrategy {
-public:   
+class SetStrategy : public Strategy {
+public:
     void addNum(int num) {
-        size_t n = m_nums.size();
         m_nums.insert(num);
-        if (n == 0) {            
+        if (m_nums.size() == 1) {
             m_itr = m_nums.begin();
-            return;
         }
-
-        if (num == *m_itr) {
-            if (n & 1) {
-            }
-            else {
-                ++m_itr;
-            }
-        }
-        else if (num < *m_itr) {
-            if (n & 1) {
-                --m_itr;
-            }
-            else {
+        else if (m_nums.size() & 1) {
+            if (*m_itr <= num) {
+                m_itr = std::next(m_itr);
             }
         }
         else {
-            if (n & 1) {
-            }
-            else {
-                ++m_itr;
+            if (num < *m_itr) {
+                m_itr = std::prev(m_itr);
             }
         }
     }
-    
-    double findMedian() const {
-        size_t n = m_nums.size();
+
+    double findMedian() {
         double m = *m_itr;
-        if (n % 2 == 0) {
-            m = (m + *std::next(m_itr)) * 0.5;
+        if (m_nums.size() % 2 == 0) {
+            m = (m + *std::next(m_itr)) / 2;
         }
         return m;
     }
 
 private:
-    multiset<int> m_nums;
-    multiset<int>::const_iterator m_itr;
+   multiset<int> m_nums;
+   multiset<int>::const_iterator m_itr;
 };
 
 class MedianFinder {
 public:
     MedianFinder() {
-        //m_strategy = new MediaFinderStrategyByHeap();
-
-        m_strategy = new MediaFinderStrategyByMultiSet();
-    }
-
-    ~MedianFinder() {
-        delete m_strategy;
+        m_strategy = new HeapStrategy();
+        //m_strategy = new SetStrategy();
     }
 
     void addNum(int num) {
@@ -98,7 +77,7 @@ public:
     }
 
 private:
-    MediaFinderStrategy* m_strategy;
+    Strategy* m_strategy;
 };
 
 /**
@@ -107,4 +86,3 @@ private:
  * obj->addNum(num);
  * double param_2 = obj->findMedian();
  */
- 
