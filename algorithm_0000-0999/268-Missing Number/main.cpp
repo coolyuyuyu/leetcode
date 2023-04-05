@@ -1,8 +1,10 @@
 class Solution {
 public:
-    int missingNumber_Sum(vector<int>& nums) {
-        int cnt = nums.size();
-        int sum = cnt * (cnt + 1) / 2;
+    // Time: O(n), Space: O(1)
+    int math(const vector<int>& nums) {
+        int n = nums.size();
+
+        int sum = (1 + n) * n / 2;
         for (int num : nums) {
             sum -= num;
         }
@@ -10,35 +12,43 @@ public:
         return sum;
     }
 
-    int missingNumber_Bit(vector<int>& nums) {
-        int target = nums.size();
-        for (int i = 0; i < nums.size(); ++i) {
-            target ^= i;
-            target ^= nums[i];
+    // Time: O(n), Space: O(1)
+    int bit(const vector<int>& nums) {
+        int n = nums.size();
+
+        int x = 0;
+        for (int i = 1; i <= n; ++i) {
+            x ^= i;
+        }
+        for (int num : nums) {
+            x ^= num;
         }
 
-        return target;
+        return x;
     }
 
-    int missingNumber_CycleSort(vector<int>& nums) {
-        for (size_t i = 0; i < nums.size(); ++i) {
-            while (nums[i] < nums.size() && nums[i] != i) {
+    // Time: O(n), Space: O(1)
+    int cyclesort(vector<int>& nums) {
+        int n = nums.size();
+
+        for (int i = 0; i < n; ++i) {
+            while (nums[i] != i && nums[i] < n) {
                 std::swap(nums[i], nums[nums[i]]);
             }
         }
 
-        for (int i = 0; i < nums.size(); ++i) {
+        for (int i = 0; i < n; ++i) {
             if (nums[i] != i) {
                 return i;
             }
         }
 
-        return nums.size();
+        return n;
     }
 
     int missingNumber(vector<int>& nums) {
-        //return missingNumber_Sum(nums);
-        //return missingNumber_Bit(nums);
-        return missingNumber_CycleSort(nums);
+        //return math(nums);
+        //return bit(nums);
+        return cyclesort(nums);
     }
 };
