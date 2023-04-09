@@ -23,38 +23,43 @@ class Solution {
 public:
     Node* recursive(Node* node, unordered_map<Node*, Node*>& cache) {
         if (!node) {
-            return node;
+            return nullptr;
         }
         if (cache.find(node) != cache.end()) {
             return cache[node];
         }
 
-        Node* copy = cache[node] = new Node(node->val);
+        Node*& copy = cache[node];
+        copy = new Node(node->val);
         for (Node* neighbor : node->neighbors) {
             copy->neighbors.push_back(recursive(neighbor, cache));
         }
+
         return copy;
     }
 
     Node* iterative(Node* node, unordered_map<Node*, Node*>& cache) {
         stack<Node*> stk({node});
         while (!stk.empty()) {
-            auto nodeOld = stk.top();
+            Node* node = stk.top();
             stk.pop();
 
-            if (!nodeOld) {
+            if (!node) {
                 continue;
             }
 
-            if (cache.find(nodeOld) == cache.end()) {
-                cache[nodeOld] = new Node(nodeOld->val);
+            Node*& copy = cache[node];
+            if (!copy) {
+                copy = new Node(node->val);
             }
-            for (Node* neighborOld : nodeOld->neighbors) {
-                if (cache.find(neighborOld) == cache.end()) {
-                    cache[neighborOld] = new Node(neighborOld->val);
-                    stk.push(neighborOld);
+            for (Node* neighbor : node->neighbors) {
+                Node*& neighborCopy = cache[neighbor];
+                if (!neighborCopy) {
+                    neighborCopy = new Node(neighbor->val);
+                    stk.push(neighbor);
                 }
-                cache[nodeOld]->neighbors.push_back(cache[neighborOld]);
+
+                copy->neighbors.push_back(neighborCopy);
             }
         }
 
@@ -63,6 +68,7 @@ public:
 
     Node* cloneGraph(Node* node) {
         unordered_map<Node*, Node*> cache;
+
         //return recursive(node, cache);
         return iterative(node, cache);
     }
