@@ -1,17 +1,17 @@
 class Solution {
 public:
     string simplifyPath(string path) {
-        vector<string> tokens;
         istringstream iss(path);
-        for (string token; getline(iss, token, '/');) {
-            if (token == "..") {
-                if (!tokens.empty()) {
-                    tokens.pop_back();
-                }
+        vector<string> tokens;
+        for (string token; std::getline(iss, token, '/');) {
+            if (token == "") {
             }
             else if (token == ".") {
             }
-            else if (token == "") {
+            else if (token == "..") {
+                if (!tokens.empty()) {
+                    tokens.pop_back();
+                }
             }
             else {
                 tokens.push_back(token);
@@ -20,11 +20,11 @@ public:
 
         ostringstream oss;
         if (tokens.empty()) {
-            oss << "/";
+            oss << '/';
         }
         else {
             for (const string& token : tokens) {
-                oss << "/" << token;
+                oss << '/' << token;
             }
         }
 
