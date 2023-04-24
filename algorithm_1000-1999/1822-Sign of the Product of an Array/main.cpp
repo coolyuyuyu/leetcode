@@ -6,9 +6,10 @@ public:
             if (num == 0) {
                 return 0;
             }
-            plus = !(plus ^ (0 < num));
+
+            plus ^= !(0 < num);
         }
 
-        return 0 < plus ? 1 : -1;
+        return plus ? 1 : -1;
     }
 };
