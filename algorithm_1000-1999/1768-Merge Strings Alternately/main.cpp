@@ -1,16 +1,16 @@
 class Solution {
 public:
     string mergeAlternately(string word1, string word2) {
-        string result;
+        size_t n = std::min(word1.size(), word2.size());
 
-        auto itr1 = word1.begin(), itr2 = word2.begin();
-        while (itr1 != word1.end() && itr2!= word2.end()) {
-            result.push_back(*itr1++);
-            result.push_back(*itr2++);
+        string ret;
+        for (int i = 0; i < n; ++i) {
+            ret.push_back(word1[i]);
+            ret.push_back(word2[i]);
         }
-        result.append(itr1, word1.end());
-        result.append(itr2, word2.end());
+        ret.append(word1.begin() + n, word1.end());
+        ret.append(word2.begin() + n, word2.end());
 
-        return result;
+        return ret;
     }
 };
