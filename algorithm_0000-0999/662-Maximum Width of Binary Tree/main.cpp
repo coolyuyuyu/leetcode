@@ -31,33 +31,26 @@ public:
     }
 
     int widthOfBinaryTree_Iterative(TreeNode* root) {
-        int maxWidth = 0;
+        assert(root);
 
-        queue<pair<TreeNode*, size_t>> q;
-        if (root) {
-            q.emplace(root, 1);
-        }
+        int width = 0;
+        queue<pair<TreeNode*, size_t>> q({{root, 0}});
         while (!q.empty()) {
-            int width = q.back().second - q.front().second + 1;
-            if (maxWidth < width) {
-                maxWidth = width;
-            }
-
-            for (size_t i = q.size(); 0 < i; --i) {
-                TreeNode* node = q.front().first;
-                size_t index = q.front().second;
+            width = std::max<int>(width, q.back().second - q.front().second + 1);
+            for (int n = q.size(); 0 < n--;) {
+                auto [node, id] = q.front();;
                 q.pop();
 
                 if (node->left) {
-                    q.emplace(node->left, index * 2);
+                    q.emplace(node->left, id * 2 + 1);
                 }
                 if (node->right) {
-                    q.emplace(node->right, index * 2 + 1);
+                    q.emplace(node->right, id * 2 + 2);
                 }
             }
         }
 
-        return maxWidth;
+        return width;
     }
 
     int widthOfBinaryTree(TreeNode* root) {
