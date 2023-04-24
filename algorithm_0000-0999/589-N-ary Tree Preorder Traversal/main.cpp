@@ -20,45 +20,45 @@ public:
 
 class Solution {
 public:
-    void preorder_Recursive(Node* root, vector<int>& vals) {
-        if (!root) {
-            return;
-        }
+    vector<int> recursive(Node* root) {
+        vector<int> nums;
+        std::function<void(Node*)> f = [&nums, &f](Node* root) {
+            if (!root) {
+                return;
+            }
 
-        vals.push_back(root->val);
-        for (Node* node : root->children) {
-            preorder_Recursive(node, vals);
-        }
+            nums.push_back(root->val);
+            for (Node* node : root->children) {
+                f(node);
+            }
+        };
+        f(root);
+
+        return nums;
     }
 
-    void preorder_Iterative(Node* root, vector<int>& vals) {
-        stack<pair<Node*, bool>> stk;
+    vector<int> iterative(Node* root) {
+        stack<Node*> stk;
         if (root) {
-            stk.emplace(root, true);
+            stk.push(root);
         }
 
+        vector<int> nums;
         while (!stk.empty()) {
-            Node* node = stk.top().first;
-            bool visited = stk.top().second;
+            root = stk.top();
             stk.pop();
 
-            if (visited) {
-                vals.push_back(node->val);
-
-                stk.emplace(node, false);
-                for (size_t i = node->children.size(); 0 < i--;) {
-                    stk.emplace(node->children[i], true);
-                }
+            nums.push_back(root->val);
+            for (size_t i = root->children.size(); 0 < i--;) {
+                stk.push(root->children[i]);
             }
         }
+
+        return nums;
     }
 
     vector<int> preorder(Node* root) {
-        vector<int> vals;
-
-        //preorder_Recursive(root, vals);
-        preorder_Iterative(root, vals);
-
-        return vals;
+        //return recursive(root);
+        return iterative(root);
     }
 };
