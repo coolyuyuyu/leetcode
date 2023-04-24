@@ -1,5 +1,15 @@
 class Solution {
 public:
+    int clearLast1Bit(uint32_t n) {
+        int ret = 0;
+        while (n) {
+            n &= (n - 1);
+            ++ret;
+        }
+
+        return ret;
+    }
+
 #define MASK_01010101010101010101010101010101 (0x55555555)
 #define MASK_00110011001100110011001100110011 (0x33333333)
 #define MASK_00001111000011110000111100001111 (0x0F0F0F0F)
