@@ -1,21 +1,21 @@
 class Solution {
 public:
     bool isHappy(int n) {
-        set<int> visited;
-        while (n != 1) {
-            pair<set<int>::const_iterator, bool> p = visited.insert(n);
-            if (p.second == false) {
-                return false;
-            }
+        unordered_set<int> s;
 
+        while (n != 1) {
             int tmp = 0;
-            while (n != 0) {
-                int digit = n % 10;
-                tmp += (digit * digit);
-                n /= 10;
+            for (; n; n /= 10) {
+                int d = n % 10;
+                tmp += (d * d);
             }
             n = tmp;
+
+            if (s.insert(n).second == false) {
+                return false;
+            }
         }
+
         return true;
     }
 };
