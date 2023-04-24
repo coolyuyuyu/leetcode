@@ -80,7 +80,7 @@ public:
     }
 
     int shortestPath(int src, int dst) {
-        return ((INT_MAX / 3) <= ret ? -1 : m_dp[src][dst];
+        return ((INT_MAX / 3) <= m_dp[src][dst] ? -1 : m_dp[src][dst]);
     }
 
 private:
