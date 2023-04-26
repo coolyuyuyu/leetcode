@@ -38,15 +38,15 @@ public:
                 [](const pair<int, int>& p1, const pair<int, int>& p2){ return p1.first < p2.first; });
 
             int takeN = 1, takeY = 0;
-            for (int i = 0; i < arr.size(); ++i) {\
+            for (int i = 0; i < arr.size(); ++i) {
                 int tmpTakeN = takeN, tmpTakeY = takeY;
                 if (0 < i && (arr[i].first - arr[i - 1].first) == k) {
                     takeN = tmpTakeN + tmpTakeY;
-                    takeY = tmpTakeN * (pow(2, arr[i].second) -1);
+                    takeY = tmpTakeN * (pow(2, arr[i].second) - 1);
                 }
                 else {
                     takeN = tmpTakeN + tmpTakeY;
-                    takeY = (tmpTakeN + tmpTakeY) * (pow(2, arr[i].second) -1);
+                    takeY = (tmpTakeN + tmpTakeY) * (pow(2, arr[i].second) - 1);
                 }
             }
             ret *= (takeN + takeY);
