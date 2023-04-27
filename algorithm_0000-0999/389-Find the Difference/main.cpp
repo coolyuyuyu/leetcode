@@ -1,18 +1,19 @@
 class Solution {
 public:
     char findTheDifference(string s, string t) {
-        vector<int> counts(26, 0);
-        for (auto c : s) {
-            ++counts[c - 'a'];
+        vector<int> cnts(26, 0);
+        for (char c : s) {
+            ++cnts[c - 'a'];
         }
-        
-        for (auto c : t) {
-            if (counts[c - 'a'] == 0) {
-                return c;
+
+        char ret;
+        for (char c : t) {
+            if (--cnts[c - 'a'] < 0) {
+                ret = c;
+                break;
             }
-            --counts[c - 'a'];
         }
-        
-        return 0;
+
+        return ret;
     }
 };
