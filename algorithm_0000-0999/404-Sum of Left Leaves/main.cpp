@@ -11,56 +11,42 @@
  */
 class Solution {
 public:
-    int sumOfLeftLeaves_Recursive(TreeNode* root, bool leftChildOfParent = false) {
+    int recursive(TreeNode* root, bool left = false) {
         if (!root) {
             return 0;
         }
 
-        int sum = 0;
-
-        sum += sumOfLeftLeaves_Recursive(root->left, true);
-        if (!root->left && !root->right && leftChildOfParent) {
-            sum += root->val;
-        }
-        sum += sumOfLeftLeaves_Recursive(root->right, false);
-
-        return sum;
+        int ret = (left && !root->left && !root->right? root->val : 0)
+            + recursive(root->left, true)
+            + recursive(root->right, false);
+        return ret;
     }
 
-    int sumOfLeftLeaves_Iterative(TreeNode* root) {
-        int sum = 0;
+    int iterative(TreeNode* root) {
+        queue<pair<TreeNode*, bool>> q({{root, false}});
 
-        stack<pair<pair<TreeNode*, bool>, bool>> stk; // <<node, leftChildOfParent>, visited>
-        if (root) {
-            stk.emplace(make_pair(root, false), false);
-        }
-        while (!stk.empty()) {
-            TreeNode* node = stk.top().first.first;
-            bool leftChildOfParent = stk.top().first.second;
-            bool visited = stk.top().second;
-            stk.pop();
+        int ret = 0;
+        while (!q.empty()) {
+            auto [node, left] = q.front();
+            q.pop();
 
-            if (visited) {
-                if (!node->left && !node->right && leftChildOfParent) {
-                    sum += node->val;
-                }
+            if (!node) {
+                continue;
             }
-            else {
-                if (node->right) {
-                    stk.emplace(make_pair(node->right, false), false);
-                }
-                stk.emplace(make_pair(node, leftChildOfParent), true);
-                if (node->left) {
-                    stk.emplace(make_pair(node->left, true), false);
-                }
+
+            if (left && !node->left && !node->right) {
+                ret += node->val;
             }
+
+            q.emplace(node->left, true);
+            q.emplace(node->right, false);
         }
 
-        return sum;
+        return ret;
     }
 
     int sumOfLeftLeaves(TreeNode* root) {
-        //return sumOfLeftLeaves_Recursive(root);
-        return sumOfLeftLeaves_Iterative(root);
+        //return recursive(root);
+        return iterative(root);
     }
 };
