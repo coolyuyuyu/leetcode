@@ -1,61 +1,53 @@
+class DisjointSets {
+public:
+    DisjointSets(size_t n)
+        : m_parents(n)
+        , m_size(n) {
+        std::iota(m_parents.begin(), m_parents.end(), 0);
+    }
+
+    void merge(int elem1, int elem2) {
+        int root1 = root(elem1), root2 = root(elem2);
+        if (root1 != root2) {
+            m_parents[root1] = root2;
+            --m_size;
+        }
+    }
+
+    size_t size() const {
+        return m_size;
+    }
+
+private:
+    int root(int elem) const {
+        if (m_parents[elem] != elem) {
+            m_parents[elem] = root(m_parents[elem]);
+        }
+        return m_parents[elem];
+    }
+
+    mutable vector<int> m_parents;
+    size_t m_size;
+};
+
 class Solution {
 public:
-    class DisjointSets {
-    public:
-        DisjointSets(size_t count)
-            : m_parents(count)
-            , m_count(count) {
-            for (size_t i = 0; i < m_parents.size(); ++i) {
-                m_parents[i] = i;
-            }
-        }
-
-        size_t find(size_t i) {
-            if (m_parents[i] != i) {
-                m_parents[i] = find(m_parents[i]);
-            }
-
-            return m_parents[i];
-        }
-
-        void merge(size_t i, size_t j) {
-            size_t rootI = find(i);
-            size_t rootJ = find(j);
-            if (rootI != rootJ) {
-                --m_count;
-            }
-
-            m_parents[rootI] = rootJ;
-        }
-
-        inline size_t size() const {
-            return m_count;
-        }
-
-    private:
-        vector<size_t> m_parents;
-        size_t m_count;
-    };
-
-    bool checkSimilar(const string& a, const string& b) {
-        size_t len = a.size();
-        size_t diff = 0;
-        for (size_t i = 0; i < len; ++i) {
-            if (a[i] != b[i]) {
-                if (2 < ++diff) {
-                    return false;
-                }
+    bool checkSimilar(const string& s, const string& t) {
+        int cntDiff = 0;
+        for (size_t i = 0; i < s.size(); ++i) {
+            if (s[i] != t[i] && 2 < ++cntDiff) {
+                return false;
             }
         }
 
         return true;
     }
 
-    int numSimilarGroups(vector<string>& A) {
-        DisjointSets ds(A.size());
-        for (size_t i = 0; i + 1 < A.size(); ++i) {
-            for (size_t j = i + 1; j < A.size(); ++j) {
-                if (checkSimilar(A[i], A[j])) {
+    int numSimilarGroups(vector<string>& strs) {
+        DisjointSets ds(strs.size());
+        for (int i = 0; (i + 1) < strs.size(); ++i) {
+            for (int j = i + 1; j < strs.size(); ++j) {
+                if (checkSimilar(strs[i], strs[j])) {
                     ds.merge(i, j);
                 }
             }
