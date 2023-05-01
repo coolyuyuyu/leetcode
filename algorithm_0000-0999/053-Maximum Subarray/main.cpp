@@ -1,11 +1,10 @@
 class Solution {
 public:
     int maxSubArray(vector<int>& nums) {
-        // dp[i] maximum subarray ending at nums[i]
-
-        int ret = nums[0];
+        // dp[i]: the maximum sum of subarray ending at nums[i]
         int dp = nums[0];
-        for (int i = 1; i < nums.size(); ++i) {
+        int ret = nums[0];
+        for (size_t i = 1; i < nums.size(); ++i) {
             dp = std::max(dp + nums[i], nums[i]);
             ret = std::max(ret, dp);
         }
