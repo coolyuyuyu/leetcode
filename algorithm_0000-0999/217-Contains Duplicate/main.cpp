@@ -1,10 +1,9 @@
 class Solution {
 public:
     bool containsDuplicate(vector<int>& nums) {
-        unordered_set<int> h;
+        unordered_set<int> s;
         for (int num : nums) {
-            auto p = h.insert(num);
-            if (!p.second) {
+            if (s.insert(num).second == false) {
                 return true;
             }
         }
