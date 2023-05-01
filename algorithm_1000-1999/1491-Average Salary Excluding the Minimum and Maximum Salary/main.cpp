@@ -1,13 +1,13 @@
 class Solution {
 public:
     double average(vector<int>& salary) {
-        int sumVal = 0, minVal = INT_MAX, maxVal = INT_MIN;
+        int sumVal = 0, maxVal = INT_MIN, minVal = INT_MAX;
         for (int val : salary) {
             sumVal += val;
-            minVal = std::min(minVal, val);
             maxVal = std::max(maxVal, val);
+            minVal = std::min(minVal, val);
         }
 
-        return static_cast<double>(sumVal - minVal - maxVal) / (salary.size() - 2);
+        return static_cast<double>(sumVal - maxVal - minVal) / (salary.size() - 2);
     }
 };
