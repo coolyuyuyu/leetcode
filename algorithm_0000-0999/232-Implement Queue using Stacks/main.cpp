@@ -10,14 +10,7 @@ public:
 
     // Time: Amortized O(1)
     int pop() {
-        if (m_stkO.empty()) {
-            while (!m_stkI.empty()) {
-                m_stkO.push(m_stkI.top());
-                m_stkI.pop();
-            }
-        }
-
-        int ret = m_stkO.top();
+        int ret = peek();
         m_stkO.pop();
         return ret;
     }
