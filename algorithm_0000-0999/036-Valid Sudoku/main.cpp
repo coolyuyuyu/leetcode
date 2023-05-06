@@ -2,28 +2,19 @@ class Solution {
 public:
     bool isValidSudoku(vector<vector<char>>& board) {
         for (int i = 0; i < 9; ++i) {
-            vector<bool> row(9, false), col(9, false), box(9, false);
+            vector<int> row(9, 1), col(9, 1), box(9, 1);
             for (int j = 0; j < 9; ++j) {
-                if (board[i][j] != '.') {
-                    if (row[board[i][j] - '0']) {
-                        return false;
-                    }
-                    row[board[i][j] - '0'] = true;
+                if (board[i][j] != '.' && (row[board[i][j] - '1'] ^= 1)) {
+                    return false;
                 }
 
-                if (board[j][i] != '.') {
-                    if (col[board[j][i] - '0']) {
-                        return false;
-                    }
-                    col[board[j][i] - '0'] = true;
+                if (board[j][i] != '.' && (col[board[j][i] - '1'] ^= 1)) {
+                    return false;
                 }
 
-                int row = i / 3 * 3 + j / 3, col = i % 3 * 3 + + j % 3;
-                if (board[row][col] != '.') {
-                    if (box[board[row][col] - '0']) {
-                        return false;
-                    }
-                    box[board[row][col] - '0'] = true;
+                int r = i / 3 * 3 + j / 3, c = i % 3 * 3 + j % 3;
+                if (board[r][c] != '.' && (box[board[r][c] - '1'] ^= 1)) {
+                    return false;
                 }
             }
         }
