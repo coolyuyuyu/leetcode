@@ -1,47 +1,41 @@
 class Solution {
 public:
-    vector<vector<int>> dp(size_t numRows) {
-        if (numRows == 0) {
-            return {};
-        }
-
-        vector<vector<int>> ret(numRows);
-        ret[0]= {1};
-        for (size_t i = 1; i < numRows; ++i) {
-            ret[i].resize(i + 1);
-
-            ret[i][0] = 1;
-            for (size_t j = 1; j < i; ++j) {
-                ret[i][j] = ret[i - 1][j - 1] + ret[i - 1][j];
+    vector<vector<int>> dynamic_programing(int numRows) {
+        vector<vector<int>> dp(numRows);
+        for (int r = 0; r < numRows; ++r) {
+            dp[r].resize(r + 1);
+            for (int c = 0; c < (r / 2 + 1); ++c) {
+                if (r == 0 || c == 0) {
+                    dp[r][c] = dp[r][r - c] = 1;
+                }
+                else {
+                    dp[r][c] = dp[r][r - c] = dp[r - 1][c - 1] + dp[r - 1][c];
+                }
             }
-            ret[i][i] = 1;
         }
 
-        return ret;
+        return dp;
     }
 
-    vector<vector<int>> math(size_t numRows) {
-        if (numRows == 0) {
-            return {};
-        }
-
+    vector<vector<int>> math(int numRows) {
         vector<vector<int>> ret(numRows);
-        ret[0]= {1};
-        for (size_t i = 1; i < numRows; ++i) {
-            ret[i].resize(i + 1);
-
-            ret[i][0] = 1;
-            for (size_t k = 1; k < i; ++k) {
-                ret[i][k] = ret[i][k - 1] * (i - k + 1) / k;
+        for (int r = 0; r < numRows; ++r) {
+            ret[r].resize(r + 1);
+            for (int c = 0; c < (r / 2 + 1); ++c) {
+                if (c == 0) {
+                    ret[r][c] = ret[r][r - c] = 1;
+                }
+                else {
+                    ret[r][c] = ret[r][r - c] = ret[r][c - 1] * (r - c + 1) / c;
+                }
             }
-            ret[i][i] = 1;
         }
 
         return ret;
     }
 
     vector<vector<int>> generate(int numRows) {
-        //return dp(numRows);
-        return math(numRows);
+        return dynamic_programing(numRows);
+        //return math(numRows);
     }
 };
