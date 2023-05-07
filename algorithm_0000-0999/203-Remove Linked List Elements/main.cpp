@@ -11,18 +11,20 @@
 class Solution {
 public:
     ListNode* removeElements(ListNode* head, int val) {
-        ListNode** ppCur = &head;
-        while (*ppCur) {
+        for (ListNode** ppCur = &head; *ppCur;) {
             if ((*ppCur)->val == val) {
-                ListNode* pDel = *ppCur;
-                *ppCur = pDel->next;
-                delete pDel;
+                ListNode* tmp = *ppCur;
+                *ppCur = tmp->next;
+
+                delete tmp;
             }
             else {
                 ppCur = &((*ppCur)->next);
             }
+            
         }
 
         return head;
     }
 };
+
