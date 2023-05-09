@@ -24,12 +24,8 @@ public:
     }
 
     ListNode* reverseList_v2(ListNode* head) {
-        if (!head) {
-            return nullptr;
-        }
-
         ListNode** ppHead = &head;
-        for (ListNode* pCur = *ppHead; pCur->next;) {
+        for (ListNode* pCur = *ppHead; pCur && pCur->next;) {
             ListNode* pNxt = pCur->next;
             pCur->next = pNxt->next;
             pNxt->next = *ppHead;
@@ -40,7 +36,7 @@ public:
     }
 
     ListNode* reverseList(ListNode* head) {
-        //return reverseList_v1(head);
-        return reverseList_v2(head);
+        return reverseList_v1(head);
+        //return reverseList_v2(head);
     }
 };
