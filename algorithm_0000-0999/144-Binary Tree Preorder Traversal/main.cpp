@@ -29,23 +29,17 @@ public:
 
     vector<int> iterative(TreeNode* root) {
         vector<int> nums;
-        
-        stack<TreeNode*> stk;
-        if (root) {
-            stk.push(root);
-        }
-        while (!stk.empty()) {
+        for (stack<TreeNode*> stk({root}); !stk.empty();) {
             root = stk.top();
             stk.pop();
 
-            nums.push_back(root->val);
+            if (!root) {
+                continue;
+            }
 
-            if (root->right) {
-                stk.push(root->right);
-            }
-            if (root->left) {
-                stk.push(root->left);
-            }
+            nums.push_back(root->val);
+            stk.push(root->right);
+            stk.push(root->left);
         }
 
         return nums;
