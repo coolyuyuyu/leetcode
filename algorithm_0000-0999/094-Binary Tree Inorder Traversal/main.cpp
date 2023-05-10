@@ -11,19 +11,48 @@
  */
 class Solution {
 public:
-    void inorderTraversal_Recursive(TreeNode* root, vector<int>& vals) {
+    void recursive(TreeNode* root, vector<int>& nums) {
         if (!root) {
             return;
         }
 
-        inorderTraversal_Recursive(root->left, vals);
-        vals.push_back(root->val);
-        inorderTraversal_Recursive(root->right, vals);
+        recursive(root->left, nums);
+        nums.push_back(root->val);
+        recursive(root->right, nums);
     }
 
-    void inorderTraversal_Iterative1(TreeNode* root, vector<int>& vals) {
-        stack<TreeNode*> stk;
-        while (root || !stk.empty()) {
+    vector<int> recursive(TreeNode* root) {
+        vector<int> nums;
+        recursive(root, nums);
+        return nums;
+    }
+
+    vector<int> iterative1(TreeNode* root) {
+        vector<int> nums;
+        for (stack<pair<TreeNode*, bool>> stk({{root, false}}); !stk.empty();) {
+            auto [root, visited] = stk.top();
+            stk.pop();
+
+            if (!root) {
+                continue;
+            }
+
+            if (visited) {
+                nums.push_back(root->val);
+            }
+            else {
+                stk.emplace(root->right, false);
+                stk.emplace(root, true);
+                stk.emplace(root->left, false);
+            }
+        }
+
+        return nums;
+    }
+
+    vector<int> iterative2(TreeNode* root) {
+        vector<int> nums;
+        for (stack<TreeNode*> stk; root || !stk.empty();) {
             if (root) {
                 while (root) {
                     stk.push(root);
@@ -34,45 +63,18 @@ public:
                 root = stk.top();
                 stk.pop();
 
-                vals.push_back(root->val);
+                nums.push_back(root->val);
                 root = root->right;
             }
         }
-    }
 
-    void inorderTraversal_Iterative2(TreeNode* root, vector<int>& vals) {
-        stack<pair<TreeNode*, bool>> stk;
-        if (root) {
-            stk.emplace(root, false);
-        }
-
-        while (!stk.empty()) {
-            TreeNode* node = stk.top().first;
-            bool visited = stk.top().second;
-            stk.pop();
-
-            if (visited) {
-                vals.push_back(node->val);
-            }
-            else {
-                if (node->right) {
-                    stk.emplace(node->right, false);
-                }
-                stk.emplace(node, true);
-                if (node->left) {
-                    stk.emplace(node->left, false);
-                }
-            }
-        }
+        return nums;
     }
 
     vector<int> inorderTraversal(TreeNode* root) {
-        vector<int> vals;
-
-        //inorderTraversal_Recursive(root, vals);
-        //inorderTraversal_Iterative1(root, vals);
-        inorderTraversal_Iterative2(root, vals);
-
-        return vals;
+        //return recursive(root);
+        //return iterative1(root);
+        return iterative2(root);
     }
 };
+
