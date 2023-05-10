@@ -11,72 +11,67 @@
  */
 class Solution {
 public:
-    void postorderTraversal_Recursive(TreeNode* root, vector<int>& vals) {
+    void recursive(TreeNode* root, vector<int>& nums) {
         if (!root) {
             return;
         }
 
-        postorderTraversal_Recursive(root->left, vals);
-        postorderTraversal_Recursive(root->right, vals);
-        vals.push_back(root->val);
+        recursive(root->left, nums);
+        recursive(root->right, nums);
+        nums.push_back(root->val);
     }
 
-    void postorderTraversal_Iterative1(TreeNode* root, vector<int>& vals) {
-        stack<TreeNode*> stk;
-        if (root) {
-            stk.push(root);
+    vector<int> recursive(TreeNode* root) {
+        vector<int> nums;
+        recursive(root, nums);
+        return nums;
+    }
+
+    vector<int> iterative1(TreeNode* root) {
+        vector<int> nums;
+        for (stack<pair<TreeNode*, bool>> stk({{root, false}}); !stk.empty();) {
+            auto [root, visited] = stk.top();
+            stk.pop();
+
+            if (!root) {
+                continue;
+            }
+
+            if (visited) {
+                nums.push_back(root->val);
+            }
+            else {
+                stk.emplace(root, true);
+                stk.emplace(root->right, false);
+                stk.emplace(root->left, false);
+            }
         }
 
-        while (!stk.empty()) {
+        return nums;
+    }
+
+    vector<int> iterative2(TreeNode* root) {
+        vector<int> nums;
+        for (stack<TreeNode*> stk({root}); !stk.empty();) {
             root = stk.top();
             stk.pop();
 
-            vals.push_back(root->val);
+            if (!root) {
+                continue;
+            }
 
-            if (root->left) {
-                stk.push(root->left);
-            }
-            if (root->right) {
-                stk.push(root->right);
-            }
+            nums.push_back(root->val);
+            stk.push(root->left);
+            stk.push(root->right);
         }
-        reverse(vals.begin(), vals.end());
-    }
+        std::reverse(nums.begin(), nums.end());
 
-    void postorderTraversal_Iterative2(TreeNode* root, vector<int>& vals) {
-        stack<pair<TreeNode*, bool>> stk;
-        if (root) {
-            stk.emplace(root, false);
-        }
-
-        while (!stk.empty()) {
-            TreeNode* node = stk.top().first;
-            bool visited = stk.top().second;
-            stk.pop();
-
-            if (visited) {
-                vals.push_back(node->val);
-            }
-            else {
-                stk.emplace(node, true);
-                if (node->right) {
-                    stk.emplace(node->right, false);
-                }
-                if (node->left) {
-                    stk.emplace(node->left, false);
-                }
-            }
-        }
+        return nums;
     }
 
     vector<int> postorderTraversal(TreeNode* root) {
-        vector<int> vals;
-
-        //postorderTraversal_Recursive(root, vals);
-        //postorderTraversal_Iterative1(root, vals);
-        postorderTraversal_Iterative2(root, vals);
-
-
-        return vals;
+        //return recursive(root);
+        //return iterative1(root);
+        return iterative2(root);
     }
 };
