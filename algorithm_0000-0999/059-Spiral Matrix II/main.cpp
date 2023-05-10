@@ -1,26 +1,38 @@
 class Solution {
 public:
     vector<vector<int>> generateMatrix(int n) {
-        vector<pair<int, int>> deltas = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
-        size_t deltaIndex = 0;
-
-        int x = 0, y = 0;
-        vector<vector<int>> ans(n, vector<int>(n, 0));
-        for (int i = 1; i <= n * n; ++i) {
-            ans[x][y] = i;
-            
-            int newX = x + deltas[deltaIndex].first;
-            int newY = y + deltas[deltaIndex].second;
-            if (newX < 0 || newX >= n || newY < 0 || newY >= n || ans[newX][newY] != 0) {
-                deltaIndex = (deltaIndex + 1) % 4;
-                newX = x + deltas[deltaIndex].first;
-                newY = y + deltas[deltaIndex].second;
+        vector<vector<int>> ret(n, vector<int>(n));
+        int i = 0;
+        for (size_t lft = 0, top = 0, rht = n - 1, btm = n - 1; true;) {
+            for (int col = lft; col <= rht; ++col) {
+                ret[top][col] = ++i;
+            }
+            if (btm < ++top) {
+                break;
             }
 
-            x = newX;
-            y = newY;
+            for (int row = top; row <= btm; ++row) {
+                ret[row][rht] = ++i;
+            }
+            if (rht-- <= lft) {
+                break;
+            }
+
+            for (int col = rht + 1; lft < col--;) {
+                ret[btm][col] = ++i;
+            }
+            if (btm-- <= top) {
+                break;
+            }
+
+            for (int row = btm + 1; top < row--;) {
+                ret[row][lft] = ++i;
+            }
+            if (rht < ++lft) {
+                break;
+            }
         }
 
-        return ans;
+        return ret;
     }
 };
