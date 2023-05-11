@@ -11,31 +11,30 @@
  */
 class Solution {
 public:
-    bool isMirror(TreeNode* p, TreeNode* q) {
-        if (!p && !q) {
-            return true;
-        }
-        if ((p && !q) || (!p && q) || p->val != q->val) {
-            return false;
-        }
+    bool recursive(TreeNode* root) {
+        std::function<bool(TreeNode*, TreeNode*)> isMirror = [&](TreeNode* p, TreeNode* q) {
+            if (!p && !q) {
+                return true;
+            }
+            if ((!p && q) || (p && !q) || (p->val != q->val)) {
+                return false;
+            }
 
-        return isMirror(p->left, q->right) && isMirror(p->right, q->left);
-    }
+            return isMirror(p->left, q->right) && isMirror(p->right, q->left);
+        };
 
-    bool isSymmetric_recursive(TreeNode* root) {
         return isMirror(root, root);
     }
 
-    bool isSymmetric_iterative(TreeNode* root) {
-        stack<pair<TreeNode*, TreeNode*>> stk({{root, root}});
-        while (!stk.empty()) {
+    bool iterative(TreeNode* root) {
+        for (stack<pair<TreeNode*, TreeNode*>> stk({{root, root}}); !stk.empty();) {
             auto [p, q] = stk.top();
             stk.pop();
 
             if (!p && !q) {
                 continue;
             }
-            if ((p && !q) || (!p && q) || p->val != q->val) {
+            if ((!p && q) || (p && !q) || (p->val != q->val)) {
                 return false;
             }
 
@@ -47,7 +46,7 @@ public:
     }
 
     bool isSymmetric(TreeNode* root) {
-        //return isSymmetric_recursive(root);
-        return isSymmetric_iterative(root);
+        //return recursive(root);
+        return iterative(root);
     }
 };
