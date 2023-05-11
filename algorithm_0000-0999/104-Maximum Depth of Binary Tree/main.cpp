@@ -20,22 +20,21 @@ public:
     }
 
     int iterative(TreeNode* root) {
-        int d = -1;
-        for (queue<TreeNode*> q({root}); !q.empty(); ++d) {
-            for (int n = q.size(); 0 < n--;) {
-                TreeNode* node = q.front();
+        int depth = -1;
+        for (queue<TreeNode*> q({root}); !q.empty(); ++depth) {
+            for (int i = q.size(); 0 < i--;) {
+                root = q.front();
                 q.pop();
 
-                if (!node) {
+                if (!root) {
                     continue;
                 }
-
-                q.push(node->left);
-                q.push(node->right);
+                q.push(root->left);
+                q.push(root->right);
             }
         }
 
-        return d;
+        return depth;
     }
 
     int maxDepth(TreeNode* root) {
