@@ -11,39 +11,41 @@
  */
 class Solution {
 public:
-    void recursive(TreeNode* root, int depth, vector<vector<int>>& ans) {
-        if (!root) {
-            return;
-        }
-
-        if (ans.size() <= depth) {
-            ans.resize(depth + 1);
-        }
-        ans[depth].push_back(root->val);
-        recursive(root->left, depth + 1, ans);
-        recursive(root->right, depth + 1, ans);
-    }
-
     vector<vector<int>> recursive(TreeNode* root) {
-        vector<vector<int>> ans;
-        recursive(root, 0, ans);
-        return ans;
+        vector<vector<int>> ret;
+        std::function<void(TreeNode*, int)> f = [&](TreeNode* root, int level) {
+            if (!root) {
+                return;
+            }
+
+            if (ret.size() <= level) {
+                ret.resize(level + 1);
+            }
+
+            ret[level].push_back(root->val);
+
+            f(root->left, level + 1);
+            f(root->right, level + 1);
+        };
+        f(root, 0);
+
+        return ret;
     }
 
     vector<vector<int>> iterative(TreeNode* root) {
-        queue<TreeNode*> q;
-        if (root) {
-            q.push(root);
+        if (!root) {
+            return {};
         }
 
-        vector<vector<int>> ans;
-        while (!q.empty()) {
-            ans.emplace_back();
-            for (size_t i = 0, n = q.size(); i < n; ++i) {
+        vector<vector<int>> ret;
+        for (queue<TreeNode*> q({root}); !q.empty();) {
+            ret.emplace_back();
+            vector<int>& row = ret.back();
+            for (size_t i = q.size(); 0 < i--;) {
                 root = q.front();
                 q.pop();
 
-                ans.back().push_back(root->val);
+                row.push_back(root->val);
                 if (root->left) {
                     q.push(root->left);
                 }
@@ -53,7 +55,7 @@ public:
             }
         }
 
-        return ans;
+        return ret;
     }
 
     vector<vector<int>> levelOrder(TreeNode* root) {
