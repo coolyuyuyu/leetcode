@@ -13,29 +13,28 @@ class Solution {
 public:
     TreeNode* dfs_recv(TreeNode* root) {
         if (!root) {
-            return root;
+            return nullptr;
         }
 
         std::swap(root->left, root->right);
-        root->left = dfs_recv(root->left);
-        root->right = dfs_recv(root->right);
+        dfs_recv(root->left);
+        dfs_recv(root->right);
 
         return root;
     }
 
     TreeNode* dfs_iter(TreeNode* root) {
-        stack<TreeNode*> stk({root});
-        while (!stk.empty()) {
-            TreeNode* node = stk.top();
+        for (stack<TreeNode*> stk({root}); !stk.empty();) {
+            TreeNode* root = stk.top();
             stk.pop();
 
-            if (!node) {
+            if (!root) {
                 continue;
             }
 
-            std::swap(node->left, node->right);
-            stk.push(node->right);
-            stk.push(node->left);
+            std::swap(root->left, root->right);
+            stk.push(root->left);
+            stk.push(root->right);
         }
 
         return root;
