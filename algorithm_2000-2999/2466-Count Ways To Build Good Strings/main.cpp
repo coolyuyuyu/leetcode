@@ -1,22 +1,28 @@
 class Solution {
 public:
+    int M = 1e9 + 7;
+
     int countGoodStrings(int low, int high, int zero, int one) {
-        vector<int> dp(high + 1, 0);
+        // dp[i]: the number of different good strings with length i
+        vector<int> dp(high + 1);
         dp[0] = 1;
-        for (size_t i = 1; i <= high; ++i) {
+        for (int i = 1; i <= high; ++i) {
+            dp[i] = 0;
             if (zero <= i) {
                 dp[i] = dp[i - zero];
             }
             if (one <= i) {
-                dp[i] = (dp[i] + dp[i - one]) % 1000000007;
+                dp[i] += dp[i - one];
+                dp[i] %= M;
             }
         }
 
-        int cnt = 0;
-        for (size_t i = low; i <= high; ++i) {
-            cnt = (cnt + dp[i]) % 1000000007;
+        int ret = 0;
+        for (int i = low; i <= high; ++i) {
+            ret += dp[i];
+            ret %= M;
         }
 
-        return cnt;
+        return ret;
     }
 };
