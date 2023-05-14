@@ -9,104 +9,101 @@
  *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
-class Solution {
+
+class BSTIterator {
 public:
-    bool findTarget_Recursive(TreeNode* root, int k, unordered_set<int>& visited) {
-        if (!root) {
-            return false;
+    BSTIterator(TreeNode* root, bool forward = true)
+        : m_forward(forward) {
+        for (; root; root = (m_forward ? root->left : root->right)) {
+            m_stk.emplace(root);
         }
-
-        if (visited.find(k - root->val) != visited.end()) {
-            return true;
-        }
-        visited.insert(root->val);
-
-        return (findTarget_Recursive(root->left, k, visited) || findTarget_Recursive(root->right, k, visited));
     }
 
-    bool findTarget_Iterative(TreeNode* root, int k) {
-        unordered_set<int> visited;
+    bool hasNext() const {
+        return !m_stk.empty();
+    }
 
-        stack<TreeNode*> stk;
-        if (root) {
-            stk.push(root);
+    TreeNode* next() {
+        if (!hasNext()) {
+            return nullptr;
         }
-        while (!stk.empty()) {
-            root = stk.top();
-            stk.pop();
+
+        TreeNode* ret = m_stk.top();
+        m_stk.pop();
+
+        for (TreeNode* root = (m_forward ? ret->right : ret->left); root; root = (m_forward ? root->left : root->right)) {
+            m_stk.push(root);
+        }
+
+        return ret;
+    }
+
+private:
+    bool m_forward;
+    stack<TreeNode*> m_stk;
+};
+
+class Solution {
+public:
+    bool hashset_recursive(TreeNode* root, int k) {
+        unordered_set<int> visited;
+        std::function<bool(TreeNode*)> f = [&](TreeNode* root) {
+            if (!root) {
+                return false;
+            }
 
             if (visited.find(k - root->val) != visited.end()) {
                 return true;
             }
             visited.insert(root->val);
 
-            if (root->right) {
-                stk.push(root->right);
-            }
-            if (root->left) {
-                stk.push(root->left);
-            }
-        }
-
-        return false;
+            return f(root->left) || f(root->right);
+        };
+        return f(root);
     }
 
-    class BSTIterator {
-    public:
-        BSTIterator(TreeNode* root, bool reverse = false)
-            : m_reverse(reverse) {
-            for (; root; root = (m_reverse ? root->right : root->left)) {
-                m_stk.emplace(root);
+    bool hashset_iterative(TreeNode* root, int k) {
+        unordered_set<int> visited;
+        for (stack<TreeNode*> stk({root}); !stk.empty();) {
+            root = stk.top();
+            stk.pop();
+
+            if (!root) {
+                continue;
             }
-        }
-
-        bool hasNext() {
-            return (!m_stk.empty());
-        }
-
-        TreeNode* next() {
-            TreeNode* root = m_stk.top();
-            m_stk.pop();
-
-            for (TreeNode* node = (m_reverse ? root->left : root->right); node; node = (m_reverse ? node->right : node->left)) {
-                m_stk.emplace(node);
-            }
-
-            return root;
-        }
-
-    private:
-        bool m_reverse;
-        stack<TreeNode*> m_stk;
-    };
-
-    bool findTarget_SearchFromBothEnd(TreeNode* root, int k) {
-        BSTIterator itr1(root, false), itr2(root, true);
-        TreeNode* node1 = (itr1.hasNext() ? itr1.next() : nullptr);
-        TreeNode* node2 = (itr2.hasNext() ? itr2.next() : nullptr);
-        while (node1 != node2) {
-            int sum = node1->val + node2->val;
-            if (sum < k) {
-                node1 = itr1.next();
-            }
-            else if (sum == k) {
+            if (visited.find(k - root->val) != visited.end()) {
                 return true;
             }
+            visited.insert(root->val);
+
+            stk.push(root->left);
+            stk.push(root->right);
+        }
+
+        return false;
+    }
+
+    bool convergeFromBothEnds(TreeNode* root, int k) {
+        BSTIterator itrFwd(root), itrBwd(root, false);
+        for (TreeNode *nodeFwd = itrFwd.next(), *nodeBwd = itrBwd.next(); nodeFwd != nodeBwd;) {
+            int sum = nodeFwd->val + nodeBwd->val;
+            if (sum == k) {
+                return true;
+            }
+            else if (sum < k) {
+                nodeFwd = itrFwd.next();
+            }
             else {
-                node2 = itr2.next();
+                nodeBwd = itrBwd.next();
             }
         }
 
         return false;
     }
 
-
     bool findTarget(TreeNode* root, int k) {
-        //unordered_set<int> visited;
-        //return findTarget_Recursive(root, k, visited);
-
-        //return findTarget_Iterative(root, k);
-
-        return findTarget_SearchFromBothEnd(root, k);
+        //return hashset_recursive(root, k);
+        //return hashset_iterative(root, k);
+        return convergeFromBothEnds(root, k);
     }
 };
