@@ -11,25 +11,25 @@
  */
 class Solution {
 public:
-    TreeNode* searchBST_Recursive(TreeNode* root, int val) {
+    TreeNode* recursive(TreeNode* root, int val) {
         if (!root || root->val == val) {
             return root;
         }
-        else if (val < root->val) {
-            return searchBST_Recursive(root->left, val);
+        else if (root->val < val) {
+            return recursive(root->right, val);
         }
         else {
-            return searchBST_Recursive(root->right, val);
+            return recursive(root->left, val);
         }
     }
 
-    TreeNode* searchBST_Iterative(TreeNode* root, int val) {
+    TreeNode* iterative(TreeNode* root, int val) {
         while (root && root->val != val) {
-            if (val < root->val) {
-                root = root->left;
+            if (root->val < val) {
+                root = root->right;
             }
             else {
-                root = root->right;
+                root = root->left;
             }
         }
 
@@ -37,8 +37,7 @@ public:
     }
 
     TreeNode* searchBST(TreeNode* root, int val) {
-        //return searchBST_Recursive(root, val);
-
-        return searchBST_Iterative(root, val);
+        //return recursive(root, val);
+        return iterative(root, val);
     }
 };
