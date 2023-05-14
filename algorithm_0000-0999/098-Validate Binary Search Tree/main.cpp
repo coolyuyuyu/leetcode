@@ -11,104 +11,94 @@
  */
 class Solution {
 public:
-    bool checkSorted_recursive(TreeNode* root, TreeNode*& prev) {
-        if (!root) {
-            return true;
-        }
-
-        if (!checkSorted_recursive(root->left, prev)) {
-            return false;
-        }
-        if (prev && root->val <= prev->val) {
-            return false;
-        }
-        prev = root;
-
-        return checkSorted_recursive(root->right, prev);
-    }
-
-    // recursive sorted check
-    bool checkSorted_recursive(TreeNode* root) {
+    bool inorder_recursive(TreeNode* root) {
         TreeNode* prev = nullptr;
-        return checkSorted_recursive(root, prev);
+        std::function<bool(TreeNode*)> f = [&](TreeNode* root) {
+            if (!root) {
+                return true;
+            }
+
+            if  (!f(root->left)) {
+                return false;
+            }
+            if (prev && root->val <= prev->val) {
+                return false;
+            }
+            prev = root;
+
+            return f(root->right);
+
+        };
+        return f(root);
     }
 
-    bool checkSorted_iterative(TreeNode* root) {
-        stack<pair<TreeNode*, bool>> stk;
-        if (root) {
-            stk.emplace(root, false);
-        }
-        for (TreeNode* pre = nullptr; !stk.empty();) {
-            TreeNode* cur = stk.top().first;
-            bool visited = stk.top().second;
+    bool inorder_iterative(TreeNode* root) {
+        TreeNode* prev = nullptr;
+        for (stack<pair<TreeNode*, bool>> stk({{root, false}}); !stk.empty();) {
+            auto [root, visited] = stk.top();
             stk.pop();
 
+            if (!root) {
+                continue;
+            }
+
             if (visited) {
-                if (pre && cur->val <= pre->val) {
+                if (prev && root->val <= prev->val) {
                     return false;
                 }
-                pre = cur;
+                prev = root;
             }
             else {
-                if (cur->right) {
-                    stk.emplace(cur->right, false);
-                }
-                stk.emplace(cur, true);
-                if (cur->left) {
-                    stk.emplace(cur->left, false);
-                }
+                stk.emplace(root->right, false);
+                stk.emplace(root, true);
+                stk.emplace(root->left, false);
             }
         }
 
         return true;
     }
 
-    // recursive convergence check
-    bool checkConvergence_recursive(TreeNode* root, int lft = INT_MIN, int rht = INT_MAX) {
+    bool converge_recursive(TreeNode* root, int lo = INT_MIN, int hi = INT_MAX) {
         if (!root) {
             return true;
         }
 
-        if (root->val < lft || rht < root->val) {
+        if (root->val < lo || hi < root->val) {
             return false;
         }
-        if (root->left && (root->val == INT_MIN || !checkConvergence_recursive(root->left, lft, root->val - 1))) {
+        if (root->left && (root->val == INT_MIN || !converge_recursive(root->left, lo, root->val - 1))) {
             return false;
         }
-        if (root->right && (root->val == INT_MAX || !checkConvergence_recursive(root->right, root->val + 1, rht))) {
+        if (root->right && (root->val == INT_MAX || !converge_recursive(root->right, root->val + 1, hi))) {
             return false;
         }
 
         return true;
     }
 
-    // iterative convergence check
-    bool checkConvergence_iterative(TreeNode* root, int lft = INT_MIN, int rht = INT_MAX) {
-        queue<tuple<TreeNode*, int, int>> q;
-        if (root) {
-            q.emplace(root, INT_MIN, INT_MAX);
-        }
+    bool converge_iterative(TreeNode* root, int lo = INT_MIN, int hi = INT_MAX) {
+        for (stack<tuple<TreeNode*, int, int>> stk({{root, INT_MIN, INT_MAX}}); !stk.empty();) {
+            auto [root, lo, hi] = stk.top();
+            stk.pop();
 
-        while (!q.empty()) {
-            root = std::get<0>(q.front());
-            int lft = std::get<1>(q.front());
-            int rht = std::get<2>(q.front());
-            q.pop();
+            if (!root) {
+                continue;
+            }
 
-            if (root->val < lft || rht < root->val) {
+            if (root->val < lo || hi < root->val) {
                 return false;
             }
             if (root->left) {
                 if (root->val == INT_MIN) {
                     return false;
                 }
-                q.emplace(root->left, lft, root->val - 1);
+                stk.emplace(root->left, lo, root->val - 1);
             }
             if (root->right) {
                 if (root->val == INT_MAX) {
                     return false;
                 }
-                q.emplace(root->right, root->val + 1, rht);
+                stk.emplace(root->right, root->val + 1, hi);
             }
         }
 
@@ -116,10 +106,9 @@ public:
     }
 
     bool isValidBST(TreeNode* root) {
-        //return checkSorted_recursive(root);
-        //return checkSorted_iterative(root);
-
-        //return checkConvergence_recursive(root);
-        return checkConvergence_iterative(root);
+        //return inorder_recursive(root);
+        //return inorder_iterative(root);
+        //return converge_recursive(root);
+        return converge_iterative(root);
     }
 };
