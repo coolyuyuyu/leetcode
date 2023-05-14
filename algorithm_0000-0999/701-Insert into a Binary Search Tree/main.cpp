@@ -11,39 +11,37 @@
  */
 class Solution {
 public:
-    TreeNode* insertIntoBST_Recursive(TreeNode* root, int val) {
+TreeNode* recursive(TreeNode* root, int val) {
         if (!root) {
-            return (new TreeNode(val));
+            root = new TreeNode(val);
         }
-
-        if (val < root->val) {
-            root->left = insertIntoBST_Recursive(root->left, val);
+        else if (root->val < val) {
+            root->right = recursive(root->right, val);;
         }
         else {
-            assert(root->val < val);
-            root->right = insertIntoBST_Recursive(root->right, val);
+            root->left = recursive(root->left, val);
         }
+
         return root;
     }
 
-    TreeNode* insertIntoBST_Iterative(TreeNode* root, int val) {
-        TreeNode** ppNode = &root;
-        while (*ppNode) {
-            if (val < (*ppNode)->val) {
-                ppNode = &((*ppNode)->left);
+    TreeNode* iterative(TreeNode* root, int val) {
+        TreeNode** ppCur = &root;
+        while (*ppCur) {
+            if ((*ppCur)->val < val) {
+                ppCur = &((*ppCur)->right);
             }
             else {
-                assert((*ppNode)->val < val);
-                ppNode = &((*ppNode)->right);
+                ppCur = &((*ppCur)->left);
             }
         }
-        *ppNode = new TreeNode(val);
+        *ppCur = new TreeNode(val);
 
         return root;
     }
 
     TreeNode* insertIntoBST(TreeNode* root, int val) {
-        //return insertIntoBST_Recursive(root, val);
-        return insertIntoBST_Iterative(root, val);
+        //return recursive(root, val);
+        return iterative(root, val);
     }
 };
