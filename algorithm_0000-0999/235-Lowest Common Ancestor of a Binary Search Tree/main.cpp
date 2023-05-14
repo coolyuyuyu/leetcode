@@ -11,10 +11,10 @@
 class Solution {
 public:
     TreeNode* recursive(TreeNode* root, TreeNode* p, TreeNode* q) {
-        if (p->val < root->val && q->val < root->val) {
+        if (std::max(p->val, q->val) < root->val) {
             return recursive(root->left, p, q);
         }
-        else if (root->val < p->val && root->val < q->val) {
+        else if (root->val < std::min(p->val, q->val)) {
             return recursive(root->right, p, q);
         }
         else {
@@ -23,12 +23,15 @@ public:
     }
 
     TreeNode* iterative(TreeNode* root, TreeNode* p, TreeNode* q) {
-        while (std::max(p->val, q->val) < root->val || root->val < std::min(p->val, q->val)) {
-            if (p->val < root->val) {
+        while (true) {
+            if (std::max(p->val, q->val) < root->val) {
                 root = root->left;
             }
-            else {
+            else if (root->val < std::min(p->val, q->val)) {
                 root = root->right;
+            }
+            else {
+                break;;
             }
         }
 
