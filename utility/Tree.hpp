@@ -100,34 +100,35 @@ private:
     mutable stack<Node*> m_stk;
 };
 
-class BSTIterator{
+class BSTIterator {
 public:
-    BSTIterator(TreeNode* root, bool forward)
+    BSTIterator(TreeNode* root, bool forward = true)
         : m_forward(forward) {
-        while (root) {
-            m_stk.push(root);
-            root = m_forward ? root->left : root->right;
+        for (; root; root = (m_forward ? root->left : root->right)) {
+            m_stk.emplace(root);
         }
     }
 
-    bool hasNext() {
+    bool hasNext() const {
         return !m_stk.empty();
     }
 
     TreeNode* next() {
-        TreeNode* node = m_stk.top();
-        m_stk.pop();
-
-        TreeNode* root = m_forward ? node->right : node->left;
-        while (root) {
-            m_stk.push(root);
-            root = m_forward ? root->left : root->right;
+        if (!hasNext()) {
+            return nullptr;
         }
 
-        return node;
+        TreeNode* ret = m_stk.top();
+        m_stk.pop();
+
+        for (TreeNode* root = (m_forward ? ret->right : ret->left); root; root = (m_forward ? root->left : root->right)) {
+            m_stk.push(root);
+        }
+
+        return ret;
     }
 
 private:
-    stack<TreeNode*> m_stk;
     bool m_forward;
+    stack<TreeNode*> m_stk;
 };
