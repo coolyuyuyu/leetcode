@@ -11,25 +11,23 @@
 class Solution {
 public:
     ListNode* swapNodes(ListNode* head, int k) {
-        ListNode** ppForeward;
-        ListNode** ppBackward;
-        {
-            ListNode** ppFast = &head;
-            for (int i = 1; i < k; ++i) {
-                ppFast = &((*ppFast)->next);
-            }
-            ppForeward = ppFast;
+        ListNode **ppFwd, **ppBwd;
 
-            ListNode** ppSlow = &head;
-            while ((*ppFast)->next) {
-                ppSlow = &((*ppSlow)->next);
-                ppFast = &((*ppFast)->next);
-            }
-            ppBackward = ppSlow;
-
+        ListNode **ppFast = &head;
+        for (int i = 1; i < k; ++i) {
+            ppFast = &((*ppFast)->next);
         }
-        swap(*ppForeward, *ppBackward);
-        swap((*ppForeward)->next, (*ppBackward)->next);
+        ppFwd = ppFast;
+
+        ListNode **ppSlow = &head;
+        while ((*ppFast)->next) {
+            ppSlow = &((*ppSlow)->next);
+            ppFast = &((*ppFast)->next);
+        }
+        ppBwd = ppSlow;
+
+        std::swap(*ppFwd, *ppBwd);
+        std::swap((*ppFwd)->next, (*ppBwd)->next);
 
         return head;
     }
