@@ -11,11 +11,10 @@
 class Solution {
 public:
     ListNode* swapPairs(ListNode* head) {
-        ListNode** ppNode1 = &head;
-        while (*ppNode1 && (*ppNode1)->next) {
+        for (ListNode** ppNode1 = &head; *ppNode1 && (*ppNode1)->next;) {
             ListNode** ppNode2 = &((*ppNode1)->next);
-            swap(*ppNode1, *ppNode2);
-            swap((*ppNode1)->next, (*ppNode2)->next);
+            std::swap(*ppNode1, *ppNode2);
+            std::swap((*ppNode1)->next, (*ppNode2)->next);
             ppNode1 = ppNode2;
         }
 
