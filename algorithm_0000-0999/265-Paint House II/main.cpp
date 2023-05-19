@@ -45,38 +45,33 @@ public:
         }
         costs.insert(costs.begin(), vector<int>(colors));
 
+        int colorOfMinCost1 = 0;
+        int colorOfMinCost2 = 1;
         for (int i = 1; i <= n; ++i) {
-            int minVal1 = INT_MAX, colorMin1;
-            int minVal2 = INT_MAX, colorMin2;
+            int preColorOfMinCost1 = colorOfMinCost1, preColorOfMinCost2 = colorOfMinCost2;
+            int minCost1 = INT_MAX, minCost2 = INT_MAX;
             for (int color = 0; color < colors; ++color) {
-                if (dp[i - 1][color] < minVal1) {
-                    minVal2 = minVal1;
-                    colorMin2 = colorMin1;
-                    minVal1 = dp[i - 1][color];
-                    colorMin1 = color;
-                }
-                else if (dp[i - 1][color] < minVal2) {
-                    minVal2 = dp[i - 1][color];
-                    colorMin2 = color;
-                }
-            }
-
-            for (int color = 0; color < colors; ++color) {
-                if (color == colorMin1) {
-                    dp[i][color] = minVal2 + costs[i][color];
+                if (color != preColorOfMinCost1) {
+                    dp[i][color] = dp[i - 1][preColorOfMinCost1] + costs[i][color];
                 }
                 else {
-                    dp[i][color] = minVal1 + costs[i][color];
+                    dp[i][color] = dp[i - 1][preColorOfMinCost2] + costs[i][color];
+                }
+
+                if (dp[i][color] < minCost1) {
+                    minCost2 = minCost1;
+                    colorOfMinCost2 = colorOfMinCost1;
+                    minCost1 = dp[i][color];
+                    colorOfMinCost1 = color;
+                }
+                else if (dp[i][color] < minCost2) {
+                    minCost2 = dp[i][color];
+                    colorOfMinCost2 = color;
                 }
             }
         }
 
-        int ret = INT_MAX;
-        for (int color = 0; color < colors; ++color) {
-            ret = std::min(ret, dp[n][color]);
-        }
-
-        return ret;
+        return dp[n][colorOfMinCost1];
     }
 
     int minCostII(vector<vector<int>>& costs) {
