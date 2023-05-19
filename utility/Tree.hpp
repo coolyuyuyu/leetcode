@@ -4,9 +4,9 @@ public:
     // allow only true and false
     template<typename forward = true>
     class Iterator {
-        
+
     };
-    
+
     forewardIterator() {
         return Iterator<T, true>(this);
     }
@@ -33,10 +33,10 @@ public:
             m_stk.push(root);
         }
     }
-    
+
     Node* next() {
         assert(!m_stk.empty());
-        
+
         Node* node = m_stk.top();
         m_stk.pop();
 
@@ -46,14 +46,14 @@ public:
         if (node->left) {
             m_stk.push(node->left);
         }
-        
+
         return node;
     }
-    
+
     bool hasNext() const {
         return !m_stk.empty();
     }
-    
+
 private:
     stack<Node*> m_stk;
 };
@@ -82,9 +82,9 @@ public:
             if (!node->left && !node->right) {
                 return true;
             }
-            
+
             m_stk.pop();
-            
+
             if (node->right) {
                 m_stk.push(node->right);
             }
@@ -92,7 +92,7 @@ public:
                 m_stk.push(node->left);
             }
         }
-        
+
         return false;
     }
 
