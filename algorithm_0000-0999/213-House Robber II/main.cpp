@@ -1,51 +1,55 @@
 class Solution {
 public:
-    // 198: House Robber I
-    // Time: O(n), Space: O(1)
-    int dp1(vector<int>::iterator first, vector<int>::iterator last) {
-        int n = std::distance(first, last);
-        if (n == 0) {
-            return 0;
+    // Time: O(n)
+    int dp1(const vector<int>& nums) {
+        if (nums.size() == 1) {
+            return nums[0];
         }
 
-        int robY = *first;
-        int robN = 0;
+        // 198. House Robber
+        auto f = [&](std::vector<int>::const_iterator first, std::vector<int>::const_iterator last) {
+            if (first == last) {
+                return 0;
+            }
 
-        int i = 1;
-        for (auto itr = first + 1; itr != last; ++itr, ++i) {
-            int tmpY = robY, tmpN = robN;
-            robY = tmpN + *itr;
-            robN = std::max(tmpY, tmpN);
-        }
+            int rubN = 0, rubY = *first;
+            for (auto itr = first + 1; itr != last; ++itr) {
+                int tmpN = rubN, tmpY = rubY;
+                rubN = std::max(tmpN, tmpY);
+                rubY = tmpN + *itr;
+            }
 
-        return std::max(robY, robN);
+            return std::max(rubN, rubY);
+        };
+
+        return std::max(f(nums.begin() + 1, nums.end()), f(nums.begin(), nums.end() - 1));
     }
 
-    // 198: House Robber I
-    // Time: O(n^2), Space: O(n^2) 
-    int dp2(vector<int>::iterator first, vector<int>::iterator last) {
-        int n = std::distance(first, last);
+    // Time: O(n^2)
+    int dp2(const vector<int>& nums) {
+        if (nums.size() == 1) {
+            return nums[0];
+        }
 
-        vector<vector<int>> dp(n, vector<int>(n)); // dp[i][j]: the maximum amount of money rub from houses[i:ij]
+        int n = nums.size();
+
+        // dp[i][j]: the maximum amount of money you can rob from nums[i:j]
+        vector<vector<int>> dp(n, vector<int>(n));
         for (int i = 0; i < n; ++i) {
-            dp[i][i] = *(first + i);
+            dp[i][i] = nums[i];
         }
         for (int len = 2; len <= n; ++len) {
             for (int i = 0; (i + len - 1) < n; ++i) {
                 int j = i + len - 1;
-                dp[i][j] = std::max(*(first + i) + ((i + 2) <= j ? dp[i + 2][j] : 0), dp[i + 1][j]);
+                dp[i][j] = std::max(dp[i + 1][j], nums[i] + (i + 2 <= j ? dp[i + 2][j] : 0));
             }
         }
 
-        return dp[0][n - 1];
+        return std::max(dp[0][n - 2], dp[1][n - 1]);
     }
 
     int rob(vector<int>& nums) {
-        if (nums.size() == 1) {
-            return nums[0];
-        }
-        
-        //return std::max(dp1(nums.begin() + 1, nums.end()), dp1(nums.begin(), nums.end() - 1));
-        return std::max(dp2(nums.begin() + 1, nums.end()), dp2(nums.begin(), nums.end() - 1));
+        //return dp1(nums);
+        return dp2(nums);
     }
 };
