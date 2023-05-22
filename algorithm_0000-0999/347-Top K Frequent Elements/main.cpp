@@ -1,6 +1,6 @@
 class Solution {
 public:
-    // Time: O(n + nlogn), Space: O(n + n)
+    // Time: O(n + mlogm + k), Space: O(m + k), m: number of distinct num
     vector<int> bySort(const vector<int>& nums, int k) {
         unordered_map<int, int> freqs;
         for (int num : nums) {
@@ -8,31 +8,52 @@ public:
         }
 
         vector<pair<int, int>> pairs(freqs.begin(), freqs.end());
-        auto comp = [](const pair<int, int>& p1, const pair<int, int>& p2) -> bool{
-            return p1.second > p2.second;
+        auto comp = [](const pair<int, int>& p1, const pair<int, int>& p2) {
+            return p1.second < p2.second;
         };
-        sort(pairs.begin(), pairs.end(), comp);
+        std::sort(pairs.begin(), pairs.end(), comp);
 
         vector<int> ret(k);
         for (int i = 0; i < k; ++i) {
-            ret[i] = pairs[i].first;
+            ret[i] = pairs[pairs.size() - i - 1].first;
         }
+
         return ret;
     }
 
-    // ---
+    // Time: O(n + m + k), Space: O(n + m + k), m: number of distinct num
+    vector<int> byBucket(const vector<int>& nums, int k) {
+        unordered_map<int, int> freqs;
+        for (int num : nums) {
+            ++freqs[num];
+        }
 
-    // Time: O(n + nlogk), Space: O(n + k)
+        vector<vector<int>> buckets(nums.size() + 1);
+        for (const auto [num, freq] : freqs) {
+            buckets[freq].push_back(num);
+        }
+
+        vector<int> ret(k);
+        for (int i = 0, m = buckets.size(); 0 < m-- && i < k;) {
+            for (int j = 0; j < buckets[m].size(); ++j) {
+                ret[i++] = buckets[m][j];
+            }
+        }
+
+        return ret;
+    }
+
+    // Time: O(n + mlogk + k), Space: O(m + k), m: number of distinct num
     vector<int> byHeap(const vector<int>& nums, int k) {
         unordered_map<int, int> freqs;
         for (int num : nums) {
             ++freqs[num];
         }
 
-        auto comp = [](const pair<int, int>& p1, const pair<int, int>& p2) -> bool{
+        auto comp = [](const pair<int, int>& p1, const pair<int, int>& p2) {
             return p1.second > p2.second;
         };
-        priority_queue<pair<int, int>, vector<pair<int, int>>, decltype(comp)> pq(comp); // min_heap
+        priority_queue<pair<int, int>, vector<pair<int, int>>, decltype(comp)> pq(comp);
         for (const pair<int, int>& p : freqs) {
             pq.push(p);
             if (k < pq.size()) {
@@ -41,30 +62,32 @@ public:
         }
 
         vector<int> ret(k);
-        for (int i = 0; i < k; ++i) {
+        for (int i = 0; i < k; ++i, pq.pop()) {
             ret[i] = pq.top().first;
-            pq.pop();
         }
+
         return ret;
     }
 
-    // ---
-
-    // Time: O(n + nlogn), Space: O(n)
+    // Time: O(n + mlogm), Space: O(m + k), m: number of distinct num
     vector<int> byBinarySearch(const vector<int>& nums, int k) {
         unordered_map<int, int> freqs;
         for (int num : nums) {
             ++freqs[num];
         }
 
-        auto countFreqGE = [&freqs, k](int f) {
-            return k <= std::count_if(freqs.begin(), freqs.end(), [f](const pair<int, int>& p) { return f <= p.second; });
+        auto countFreqGE = [&](int target) {
+            return std::count_if(
+                freqs.begin(), freqs.end(),
+                [&](const auto& p){
+                    return target <= p.second;
+                });
         };
 
-        int lo = 0, hi = nums.size();
+        int lo = 0, hi = freqs.size();
         while (lo < hi) {
             int mid = hi - (hi - lo) / 2;
-            if (countFreqGE(mid)) {
+            if (k <= countFreqGE(mid)) {
                 lo = mid;
             }
             else {
@@ -78,6 +101,7 @@ public:
                 ret[--k] = num;
             }
         }
+
         return ret;
     }
 
@@ -136,9 +160,10 @@ public:
     }
 
     vector<int> topKFrequent(const vector<int>& nums, int k) {
-        return bySort(nums, k);
+        //return bySort(nums, k);
+        //return byBucket(nums, k);
         //return byHeap(nums, k);
-        //return byBinarySearch(nums, k);
+        return byBinarySearch(nums, k);
         //return byQuickSelect(nums, k);
     }
 };
