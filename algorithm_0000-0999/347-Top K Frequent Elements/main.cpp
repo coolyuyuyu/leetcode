@@ -105,43 +105,7 @@ public:
         return ret;
     }
 
-    // ---
-
-    void quickselect(vector<pair<int, int>>& pairs, int lo, int hi, int k) {
-        assert(k <= (hi - lo + 1));
-
-        // S S S S S M M M X X X L L L
-        //           i     x   j
-        int i = lo, j = hi, x = lo;
-        int pivot = pairs[lo + (hi - lo) / 2].second;
-        while (x <= j) {
-            if (pairs[x].second < pivot) {
-                std::swap(pairs[i], pairs[x]);
-                ++i;
-                ++x;
-            }
-            else if (pairs[x].second == pivot) {
-                ++x;
-            }
-            else {
-                std::swap(pairs[x], pairs[j]);
-                --j;
-            }
-        }
-
-        // S S S M M M M L L L
-        //       i     j
-        if (k <= (hi - j)) {
-            quickselect(pairs, j + 1, hi, k);
-        }
-        else if (k <= (hi - i + 1)) {
-        }
-        else {
-            quickselect(pairs, lo, i - 1, k - (hi - i + 1));
-        }
-    }
-
-    // Time: O(n + n), Space: O(n + n)
+    // Time: O(n + m), Space: O(m), m: number of distinct num
     vector<int> byQuickSelect(const vector<int>& nums, int k) {
         unordered_map<int, int> freqs;
         for (int num : nums) {
@@ -149,7 +113,42 @@ public:
         }
 
         vector<pair<int, int>> pairs(freqs.begin(), freqs.end());
-        quickselect(pairs, 0, pairs.size() - 1, k);
+        std::function<void(int, int, int)> quickselect = [&pairs, &quickselect](int lo, int hi, int k) {
+            // S: less then M
+            // M: pivot
+            // X: unknown
+            // L: greater than M
+            // S S S S S M M M M X X X X L L L L
+            //           i       x     j
+            int pivot = pairs[lo + (hi - lo) / 2].second;
+            int i = lo, j = hi, x = lo;
+            while (x <= j) {
+                if (pairs[x].second < pivot) {
+                    std::swap(pairs[i], pairs[x]);
+                    ++i;
+                    ++x;
+                }
+                else if (pairs[x].second == pivot) {
+                    ++x;
+                }
+                else {
+                    std::swap(pairs[x], pairs[j]);
+                    --j;
+                }
+            }
+
+            // S S S S S M M M M M M L L L L
+            //           i         j
+            if (k <= (hi - j)) {
+                quickselect(j + 1, hi, k);
+            }
+            else if (k <= (hi - i + 1)) {
+            }
+            else {
+                quickselect(lo, i - 1, k - (hi - i + 1));
+            }
+        };
+        quickselect(0, freqs.size() - 1, k);
 
         vector<int> ret(k);
         for (int i = 0; i < k; ++i) {
@@ -163,7 +162,7 @@ public:
         //return bySort(nums, k);
         //return byBucket(nums, k);
         //return byHeap(nums, k);
-        return byBinarySearch(nums, k);
-        //return byQuickSelect(nums, k);
+        //return byBinarySearch(nums, k);
+        return byQuickSelect(nums, k);
     }
 };
