@@ -69,22 +69,22 @@ public:
         return ret;
     }
 
-    // Time: O(n + mlogm), Space: O(m + k), m: number of distinct num
+    // Time: O(n + mlogn + m), Space: O(m + k), m: number of distinct num
     vector<int> byBinarySearch(const vector<int>& nums, int k) {
         unordered_map<int, int> freqs;
         for (int num : nums) {
             ++freqs[num];
         }
 
-        auto countFreqGE = [&](int target) {
+        auto countFreqGE = [&](int freq) {
             return std::count_if(
                 freqs.begin(), freqs.end(),
-                [&](const auto& p){
-                    return target <= p.second;
+                [&](const pair<int, int>& p) {
+                    return freq <= p.second;
                 });
         };
 
-        int lo = 0, hi = freqs.size();
+        int lo = 0, hi = nums.size() + 1;
         while (lo < hi) {
             int mid = hi - (hi - lo) / 2;
             if (k <= countFreqGE(mid)) {
@@ -96,7 +96,7 @@ public:
         }
 
         vector<int> ret(k);
-        for (const auto& [num, freq] : freqs) {
+        for (const auto [num, freq] : freqs) {
             if (lo <= freq) {
                 ret[--k] = num;
             }
@@ -162,8 +162,8 @@ public:
     vector<int> topKFrequent(const vector<int>& nums, int k) {
         //return bySort(nums, k);
         //return byBucket(nums, k);
-        return byHeap(nums, k);
-        //return byBinarySearch(nums, k);
+        //return byHeap(nums, k);
+        return byBinarySearch(nums, k);
         //return byQuickSelect(nums, k);
     }
 };
