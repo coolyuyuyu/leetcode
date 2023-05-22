@@ -34,9 +34,9 @@ public:
         }
 
         vector<int> ret(k);
-        for (int i = 0, m = buckets.size(); 0 < m-- && i < k;) {
-            for (int j = 0; j < buckets[m].size(); ++j) {
-                ret[i++] = buckets[m][j];
+        for (int m = buckets.size(), i = 0; 0 < m-- && i < k;) {
+            for (int num : buckets[m]) {
+                ret[i++] = num;
             }
         }
 
@@ -54,16 +54,16 @@ public:
             return p1.second > p2.second;
         };
         priority_queue<pair<int, int>, vector<pair<int, int>>, decltype(comp)> pq(comp);
-        for (const pair<int, int>& p : freqs) {
-            pq.push(p);
+        for (const auto [num, freq] : freqs) {
+            pq.emplace(num, freq);
             if (k < pq.size()) {
                 pq.pop();
             }
         }
 
         vector<int> ret(k);
-        for (int i = 0; i < k; ++i, pq.pop()) {
-            ret[i] = pq.top().first;
+        for (; !pq.empty(); pq.pop()) {
+            ret[--k] = pq.top().first;
         }
 
         return ret;
@@ -162,8 +162,8 @@ public:
     vector<int> topKFrequent(const vector<int>& nums, int k) {
         //return bySort(nums, k);
         //return byBucket(nums, k);
-        //return byHeap(nums, k);
-        return byBinarySearch(nums, k);
+        return byHeap(nums, k);
+        //return byBinarySearch(nums, k);
         //return byQuickSelect(nums, k);
     }
 };
