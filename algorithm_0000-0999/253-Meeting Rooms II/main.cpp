@@ -1,15 +1,15 @@
 class Solution {
 public:
     int sweepline(const vector<vector<int>>& intervals) {
-        map<int, int> m; // time -> diff
+        map<int, int> diffs; // time -> diff
         for (const auto& interval : intervals) {
-            ++m[interval[0]];
-            --m[interval[1]];
+            ++diffs[interval[0]];
+            --diffs[interval[1]];
         }
 
         int ret = 0;
         int sum = 0;
-        for (const auto& [_, diff] : m) {
+        for (auto [_, diff] : diffs) {
             sum += diff;
             ret = std::max(ret, sum);
         }
@@ -18,12 +18,17 @@ public:
     }
 
     int heap(vector<vector<int>>& intervals) {
-        auto cmp1 = [](const vector<int>& i1, const vector<int>& i2) { return i1[0] < i2[0]; };
-        sort(intervals.begin(), intervals.end(), cmp1);
+        auto comp1 = [](const auto& interval1, const auto& interva2) {
+            return interval1[0] < interva2[0];
+        };
+        std::sort(intervals.begin(), intervals.end(), comp1);
+
+        auto comp2 = [](const auto& interval1, const auto& interva2) {
+            return interval1[1] > interva2[1];
+        };
+        priority_queue<vector<int>, vector<vector<int>>, decltype(comp2)> pq(comp2);
 
         int ret = 0;
-        auto cmp2 = [](const vector<int>& i1, const vector<int>& i2) { return i1[1] > i2[1]; };
-        priority_queue<vector<int>, vector<vector<int>>, decltype(cmp2)> pq(cmp2);
         for (const auto& interval : intervals) {
             while (!pq.empty() && pq.top()[1] <= interval[0]) {
                 pq.pop();
