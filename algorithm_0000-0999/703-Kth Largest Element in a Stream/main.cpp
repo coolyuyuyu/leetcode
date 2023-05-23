@@ -2,21 +2,20 @@ class KthLargest {
 public:
     KthLargest(int k, vector<int>& nums)
         : m_k(k)
-        , m_comp(greater<int>())
+        , m_comp(std::greater<int>())
         , m_pq(m_comp) {
-        for (int val : nums) {
-            add(val);
+        for (int num : nums) {
+            add(num);
         }
     }
 
     int add(int val) {
-        // m_pq: min_heap
         if (m_pq.size() < m_k) {
             m_pq.push(val);
         }
-        else if (!m_comp(m_pq.top(), val)) {
-            m_pq.pop();
+        else if (m_comp(val, m_pq.top())) {
             m_pq.push(val);
+            m_pq.pop();
         }
 
         return m_pq.top();
@@ -24,8 +23,8 @@ public:
 
 private:
     int m_k;
-    function<bool(int, int)> m_comp;
-    priority_queue<int, vector<int>, function<bool(int, int)>> m_pq;
+    std::function<bool(int, int)> m_comp;
+    priority_queue<int, vector<int>, std::function<bool(int, int)>> m_pq;
 };
 
 /**
