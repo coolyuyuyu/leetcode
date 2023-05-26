@@ -3,8 +3,8 @@ public:
     // Time: O(n^2), Space: O(n)
     int dp(const vector<int>& nums) {
         int n = nums.size();
-        vector<int> dp(n, 1); // dp[i]: the length of the longest strictly increasing subsequence from nums[0:i] and ending with nums[i]
 
+        vector<int> dp(n, 1); // dp[i]: the length of the longest strictly increasing subsequence from nums[0:i] and ending at nums[i];
         int ret = 0;
         for (int i = 0; i < n; ++i) {
             for (int j = 0; j < i; ++j) {
@@ -16,7 +16,6 @@ public:
         }
 
         return ret;
-
     }
 
     // Time: O(nlogn), Space: O(n)
