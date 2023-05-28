@@ -1,30 +1,25 @@
 class Solution {
 public:
-    int minInsertions(string s) {
-        int num = 0;
+    int minCost(int n, vector<int>& cuts) {
+        std::sort(cuts.begin(), cuts.end());
+        cuts.insert(cuts.begin(), 0);
+        cuts.insert(cuts.end(), n);
 
-        int open = 0;
-        for (size_t i = 0; i < s.size(); ++i) {
-            if (s[i] == '(') {
-                ++open;
-            }
-            else {
-                if (open == 0) {
-                    ++num;
-                }
-                else {
-                    --open;
-                }
+        int m = cuts.size();
 
-                if ((i + 1) < s.size() && s[i + 1] == ')') {
-                    ++i;
-                }
-                else {
-                    ++num;
+        vector<vector<int>> dp(m + 1, vector<int>(m + 1, INT_MAX)); // the total cost of of the cuts for the wood stick of cuts[i] -> cuts[j]
+        for (int i = 0; (i + 1) < m; ++i) {
+            dp[i][i + 1] = 0;
+        }
+        for (int len = 3; len <= m; ++len) {
+            for (int i = 0; (i + len - 1) < m; ++i) {
+                int j = i + len - 1;
+                for (int k = i + 1; k < j; ++k) {
+                    dp[i][j] = std::min(dp[i][j], cuts[j] - cuts[i] + dp[i][k] + dp[k][j]);
                 }
             }
         }
 
-        return (num + open * 2);
+        return dp[0][m - 1];
     }
 };
