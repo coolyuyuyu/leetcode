@@ -7,8 +7,7 @@ public:
         suf[n] = 0;
         std::partial_sum(piles.rbegin(), piles.rend(), suf.rbegin() + 1);
 
-        vector<vector<int>> cache(n + 1, vector<int>(n + 1, 0));
-
+        vector<vector<int>> cache(n, vector<int>(n + 1, 0));
         std::function<int(int, int)> solve = [&](int i, int M) {
             if (piles.size() <= i) {
                 return 0;
