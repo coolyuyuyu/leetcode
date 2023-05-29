@@ -2,10 +2,10 @@ class Solution {
 public:
     int minDistance(string word1, string word2) {
         int m = word1.size(), n = word2.size();
+        word1.insert(word1.begin(), '#');
+        word2.insert(word2.begin(), '#');
 
-        word1 = "#" + word1, word2 = "#" + word2;
-
-        // dp[i][j]: minimum number of operations required to convert word1[1:i] to word2[1:j]
+        // dp[i][j]: the minimum number of operations required to convert word1[1:i] to word2[1:j]
         vector<vector<int>> dp(m + 1, vector<int>(n + 1));
         dp[0][0] = 0;
         for (int i = 1; i <= m; ++i) {
@@ -20,7 +20,8 @@ public:
                     dp[i][j] = dp[i - 1][j - 1];
                 }
                 else {
-                    dp[i][j] = std::min({dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]}) + 1;
+                    // {replace, delete, insert}
+                    dp[i][j] = std::min({dp[i - 1][j - 1] + 1, dp[i - 1][j] + 1, dp[i][j - 1] + 1});
                 }
             }
         }
