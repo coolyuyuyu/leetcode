@@ -13,7 +13,7 @@ public:
         t = "#" + t;
 
         // dp[i][j]: the number of distinct subsequences of s[1:i] which equals t[1:j]
-        vector<vector<long>> dp(m + 1, vector<long>(n + 1));
+        vector<vector<unsigned long>> dp(m + 1, vector<unsigned long>(n + 1));
         dp[0][0] = 1;
         for (int i = 1; i <= m; ++i) {
             dp[i][0] = 1;
