@@ -1,22 +1,24 @@
 class Solution {
 public:
     long long matrixSumQueries(int n, vector<vector<int>>& queries) {
+        vector<int> rowFilled(n, false), colFilled(n, false);
+        int rowLeft = n, colLeft = n;
+
         long long ret = 0;
-        vector<bool> rowEmpty(n, true), colEmpty(n, true);
-        int rowRemaining = n, colRemaining = n;
-        for (int i = queries.size(); 0 < i--;) {
-            if (queries[i][0] == 0) {
-                if (rowEmpty[queries[i][1]]) {
-                    rowEmpty[queries[i][1]] = false;
-                    ret += (colRemaining) * queries[i][2];
-                    --rowRemaining;
+        for (size_t i = queries.size(); 0 < i--;) {
+            int type = queries[i][0], idx = queries[i][1], val = queries[i][2];
+            if (type == 0) {
+                if (!rowFilled[idx]) {
+                    rowFilled[idx] = true;
+                    ret += colLeft * val;
+                    --rowLeft;
                 }
             }
             else {
-                if (colEmpty[queries[i][1]]) {
-                    colEmpty[queries[i][1]] = false;
-                    ret += (rowRemaining) * queries[i][2];
-                    --colRemaining;
+                if (!colFilled[idx]) {
+                    colFilled[idx] = true;
+                    ret += rowLeft * val;
+                    --colLeft;
                 }
             }
         }
