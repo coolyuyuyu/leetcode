@@ -6,7 +6,7 @@ public:
         nums1.insert(nums1.begin(), 0);
         nums2.insert(nums2.begin(), 0);
 
-        // dp[i][j]: the maximum number of connecting lines we can draw from nums1[1:i] and nums2[1:j]
+        // dp[i][j]: maximum number of connecting lines for nums1[1:i] and nums2[1:j]
         vector<vector<int>> dp(m + 1, vector<int>(n + 1));
         dp[0][0] = 0;
         for (int i = 1; i <= m; ++i) {
