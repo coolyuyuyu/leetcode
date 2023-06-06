@@ -3,9 +3,9 @@ public:
     bool canMakeArithmeticProgression(vector<int>& arr) {
         std::sort(arr.begin(), arr.end());
 
-        int diff = arr[1] - arr[0];
+        int d = arr[1] - arr[0];
         for (size_t i = 2; i < arr.size(); ++i) {
-            if ((arr[i - 1] + diff) != arr[i]) {
+            if ((arr[i - 1] + d) != arr[i]) {
                 return false;
             }
         }
