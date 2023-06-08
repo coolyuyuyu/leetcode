@@ -2,44 +2,44 @@ class Solution {
 public:
     // Time: O(M + N)
     int linearSearch(vector<vector<int>>& grid) {
-        size_t row = grid.size(), col = grid.empty() ? 0 : grid.front().size();
+        size_t m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
 
-        size_t cnt = 0;
-        for (size_t r = row, c = 0; 0 < r-- && c < col;) {
-            while (c < col && grid[r][c] >= 0 ) {
+        size_t ret = 0;
+        for (size_t r = m, c = 0; 0 < r--;) {
+            while (c < n && 0 <= grid[r][c]) {
                 ++c;
             }
-            cnt += (col - c);
+            ret += (n - c);
         }
 
-        return cnt;
+        return ret;
     }
 
     // Time: W(MlogN)
     int binarySearch(vector<vector<int>>& grid) {
-        size_t row = grid.size(), col = grid.empty() ? 0 : grid.front().size();
+        size_t m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
 
-        auto firstNegative = [&](vector<int>& row, size_t lo) -> size_t {
-            size_t hi = col;
-            while (lo < hi) {
+        std::function<size_t(const vector<int>&, size_t)> firstNegative = [&](const vector<int>& nums, size_t lo) {
+            for (size_t hi = n; lo < hi;) {
                 size_t mid = lo + (hi - lo) / 2;
-                if (0 <= row[mid]) {
-                    lo = mid + 1;
-                }
-                else {
+                if (nums[mid] < 0) {
                     hi = mid;
                 }
+                else {
+                    lo = mid + 1;
+                }
             }
+
             return lo;
         };
 
-        size_t cnt = 0;
-        for (size_t r = row, c = 0; 0 < r-- && c < col;) {
+        size_t ret = 0;
+        for (size_t r = m, c = 0; 0 < r--;) {
             c = firstNegative(grid[r], c);
-            cnt += (col - c);
+            ret += (n - c);
         }
 
-        return cnt;
+        return ret;
     }
 
     int countNegatives(vector<vector<int>>& grid) {
