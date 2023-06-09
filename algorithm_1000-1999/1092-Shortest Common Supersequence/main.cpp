@@ -1,9 +1,10 @@
 class Solution {
 public:
-    string dp1_scs(string str1, string str2) {
+    string dp_scs(string str1, string str2) {
         int m = str1.size(), n = str2.size();
-        str1.insert(str1.begin(), '#');
-        str2.insert(str2.begin(), '#');
+
+        str1 = "#" + str1;
+        str2 = "#" + str2;
 
         // dp[i][j]: the length of shortest common supersequence of str1[1:i] and str2[1:j]
         vector<vector<int>> dp(m + 1, vector<int>(n + 1));
@@ -25,37 +26,37 @@ public:
             }
         }
 
-        int i = m, j = n;
-        string ret;
+        string ret(dp[m][n], '\0');
+        int i = m, j = n, k = ret.size() - 1;
         while (1 <= i && 1 <= j) {
             if (str1[i] == str2[j]) {
-                ret += str1[i];
+                ret[k--] = str1[i];
                 --i, --j;
             }
             else if (dp[i][j] == (dp[i - 1][j] + 1)) {
-                ret += str1[i];
+                ret[k--] = str1[i];
                 --i;
             }
             else {
-                ret += str2[j];
+                ret[k--] = str2[j];
                 --j;
             }
         }
-        for (; 1 <= i; --i) {
-            ret += str1[i];
+        while (1 <= i) {
+            ret[k--] = str1[i--];
         }
-        for (; 1 <= j; --j) {
-            ret += str2[j];
+        while (1 <= j) {
+            ret[k--] = str2[j--];
         }
-        std::reverse(ret.begin(), ret.end());
 
         return ret;
     }
 
-    string dp1_lcs(string str1, string str2) {
+    string dp_lcs(string str1, string str2) {
         int m = str1.size(), n = str2.size();
-        str1.insert(str1.begin(), '#');
-        str2.insert(str2.begin(), '#');
+
+        str1 = "#" + str1;
+        str2 = "#" + str2;
 
         // dp[i][j]: the length of longest common subsequence of str1[1:i] and str2[1:j]
         vector<vector<int>> dp(m + 1, vector<int>(n + 1));
@@ -77,35 +78,34 @@ public:
             }
         }
 
-        int i = m, j = n;
-        string ret;
+        string ret(m + n - dp[m][n], '\0');
+        int i = m, j = n, k = ret.size() - 1;
         while (1 <= i && 1 <= j) {
             if (str1[i] == str2[j]) {
-                ret += str1[i];
+                ret[k--] = str1[i];
                 --i, --j;
             }
-            else if (dp[i][j] == (dp[i - 1][j])) {
-                ret += str1[i];
+            else if (dp[i][j] == dp[i - 1][j]) {
+                ret[k--] = str1[i];
                 --i;
             }
             else {
-                ret += str2[j];
+                ret[k--] = str2[j];
                 --j;
             }
         }
-        for (; 1 <= i; --i) {
-            ret += str1[i];
+        while (1 <= i) {
+            ret[k--] = str1[i--];
         }
-        for (; 1 <= j; --j) {
-            ret += str2[j];
+        while (1 <= j) {
+            ret[k--] = str2[j--];
         }
-        std::reverse(ret.begin(), ret.end());
 
         return ret;
     }
 
     string shortestCommonSupersequence(string str1, string str2) {
-        //return dp1_scs(str1, str2);
-        return dp1_lcs(str1, str2);
+        return dp_scs(str1, str2);
+        //return dp_lcs(str1, str2);
     }
 };
