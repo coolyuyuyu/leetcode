@@ -5,16 +5,15 @@ public:
         size_t hi = letters.size();
         while (lo < hi) {
             size_t mid = lo + (hi - lo) / 2;
-            if (letters[mid] <= target) {
-                lo = mid + 1;
-            }
-            else {
+            if (target < letters[mid]) {
                 hi = mid;
             }
+            else {
+                lo = mid + 1;
+            }
         }
-        assert(lo == hi);
 
-        assert(!letters.empty());;
+        assert(!letters.empty());
         return (lo == letters.size() ? letters.front() : letters[lo]);
     }
 
