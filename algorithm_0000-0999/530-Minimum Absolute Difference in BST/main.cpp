@@ -9,70 +9,131 @@
  *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
-class Solution {
+
+class BSTIterator {
 public:
-    void getMinimumDifference_Recursive(TreeNode* root, int& minDiff, int*& pPreVal) {
-        if (!root) {
-            return;
+    BSTIterator(TreeNode* root, bool forward = true)
+        : m_forward(forward) {
+        for (; root; root = (m_forward ? root->left : root->right)) {
+            m_stk.emplace(root);
         }
-
-        getMinimumDifference_Recursive(root->left, minDiff, pPreVal);
-
-        if (pPreVal) {
-            int diff = root->val - *pPreVal;
-            if (diff < minDiff) {
-                minDiff = diff;
-            }
-        }
-        else {
-            minDiff = numeric_limits<int>::max();
-        }
-        pPreVal = &(root->val);
-
-        getMinimumDifference_Recursive(root->right, minDiff, pPreVal);
     }
 
-    void getMinimumDifference_Iterative(TreeNode* root, int& minDiff, int*& pPreVal) {
-        stack<pair<TreeNode*, bool>> stk;
-        if (root) {
-            stk.emplace(root, false);
+    bool hasNext() const {
+        return !m_stk.empty();
+    }
+
+    TreeNode* next() {
+        if (!hasNext()) {
+            return nullptr;
         }
-        while (!stk.empty()) {
-            TreeNode* node = stk.top().first;
-            bool visited = stk.top().second;
+
+        TreeNode* ret = m_stk.top();
+        m_stk.pop();
+
+        for (TreeNode* root = (m_forward ? ret->right : ret->left); root; root = (m_forward ? root->left : root->right)) {
+            m_stk.push(root);
+        }
+
+        return ret;
+    }
+
+private:
+    bool m_forward;
+    stack<TreeNode*> m_stk;
+};
+
+class Solution {
+public:
+    int byBSTIterator(TreeNode* root) {
+        BSTIterator itr(root);
+
+        int ret = INT_MAX;
+        for (TreeNode* pre = itr.next(), *cur = nullptr; itr.hasNext(); pre = cur) {
+            cur = itr.next();
+            ret = std::min(ret, cur->val - pre->val);
+        }
+
+        return ret;
+    }
+
+    int byRecursive(TreeNode* root) {
+        int ret = INT_MAX;
+        TreeNode* pre = nullptr;
+        std::function<void(TreeNode*)> f =[&](TreeNode* root) {
+            if (!root) {
+                return;
+            }
+
+            f(root->left);
+            if (pre) {
+                ret = std::min(ret, root->val - pre->val);
+            }
+            pre = root;
+            f(root->right);
+        };
+        f(root);
+
+        return ret;
+    }
+
+    int byIterative1(TreeNode* root) {
+        int ret = INT_MAX;
+        TreeNode* pre = nullptr;
+        for (stack<pair<TreeNode*, bool>> stk({{root, false}}); !stk.empty();) {
+            auto [cur, visited] = stk.top();
             stk.pop();
 
+            if (!cur) {
+                continue;
+            }
+
             if (visited) {
-                if (pPreVal) {
-                    int diff = node->val - *pPreVal;
-                    if (diff < minDiff) {
-                        minDiff = diff;
-                    }
+                if (pre) {
+                    ret = std::min(ret, cur->val - pre->val);
                 }
-                else {
-                    minDiff = numeric_limits<int>::max();
-                }
-                pPreVal = &(node->val);
+                pre = cur;
             }
             else {
-                if (node->right) {
-                    stk.emplace(node->right, false);
-                }
-                stk.emplace(node, true);
-                if (node->left) {
-                    stk.emplace(node->left, false);
-                }
+                stk.emplace(cur->right, false);
+                stk.emplace(cur, true);
+                stk.emplace(cur->left, false);
             }
         }
+
+        return ret;
+    }
+
+    int byIterative2(TreeNode* root) {
+        int ret = INT_MAX;
+        TreeNode* pre = nullptr;
+        for (stack<TreeNode*> stk; !stk.empty() || root;) {
+            if (root) {
+                while (root) {
+                    stk.push(root);
+                    root = root->left;
+                }
+            }
+            else {
+                root = stk.top();
+                stk.pop();
+
+                if (pre) {
+                    ret = std::min(ret, root->val - pre->val);
+                }
+                pre = root;
+
+                root = root->right;
+            }
+        }
+
+        return ret;
     }
 
     int getMinimumDifference(TreeNode* root) {
-        int minDiff;
-        int* pPreVal = nullptr;
-
-        //getMinimumDifference_Recursive(root, minDiff, pPreVal);
-        getMinimumDifference_Iterative(root, minDiff, pPreVal);
-
-        return minDiff;
+        //return byBSTIterator(root);
+        //return byRecursive(root);
+        //return byIterative1(root);
+        return byIterative2(root);
     }
 };
