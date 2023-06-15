@@ -11,34 +11,39 @@
  */
 class Solution {
 public:
-    void maxLevelSum_Recursive(TreeNode* root, vector<int>& sums, int depth = 0) {
-        if (!root) {
-            return;
-        }
+    int recursive(TreeNode* root) {
+        vector<int> sums;
+        std::function<void(TreeNode*, int)> f = [&](TreeNode* root, int depth) {
+            if (!root) {
+                return;
+            }
 
-        if (sums.size() <= depth) {
-            sums.push_back(0);
-        }
-        sums[depth] += root->val;
+            if (sums.size() <= depth) {
+                sums.emplace_back(0);
+            }
+            sums[depth] += root->val;
+            f(root->left, depth + 1);
+            f(root->right, depth + 1);
+        };
+        f(root, 0);
 
-        maxLevelSum_Recursive(root->left, sums, depth + 1);
-        maxLevelSum_Recursive(root->right, sums, depth + 1);
+        return std::distance(sums.begin(), std::max_element(sums.begin(), sums.end())) + 1;
     }
 
-    void maxLevelSum_Iterative(TreeNode* root, vector<int>& sums) {
+    int iterative(TreeNode* root) {
         queue<TreeNode*> q;
         if (root) {
             q.push(root);
         }
 
+        int maxDepth = -1, maxSum = INT_MIN;
         for (int depth = 0; !q.empty(); ++depth) {
-            sums.push_back(0);
-            for (int i = q.size(); 0 < i; --i) {
+            int sum = 0;
+            for (int n = q.size(); 0 < n--;) {
                 TreeNode* node = q.front();
                 q.pop();
 
-                sums[depth] += node->val;
-
+                sum += node->val;
                 if (node->left) {
                     q.push(node->left);
                 }
@@ -46,15 +51,18 @@ public:
                     q.push(node->right);
                 }
             }
+
+            if (maxSum < sum) {
+                maxSum = sum;
+                maxDepth = depth;
+            }
         }
+
+        return maxDepth + 1;
     }
 
     int maxLevelSum(TreeNode* root) {
-        vector<int> sums;
-
-        //maxLevelSum_Recursive(root, sums);
-        maxLevelSum_Iterative(root, sums);
-
-        return (max_element(sums.begin(), sums.end()) - sums.begin() + 1);
+        //return recursive(root);
+        return iterative(root);
     }
 };
