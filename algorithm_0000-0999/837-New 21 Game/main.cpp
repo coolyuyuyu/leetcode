@@ -1,6 +1,6 @@
 class Solution {
 public:
-    // TLE, TimeL O(n * maxPts)
+    // TLE, Time: O(n * maxPts)
     double dfs(int n, int k, int maxPts) {
         std::function<double(int)> recursive = [&](int cur) {
             if (cur >= k) {
@@ -22,7 +22,7 @@ public:
         return recursive(0);
     }
 
-    // TLE, TimeL O(n * maxPts)
+    // TLE, Time: O(n * maxPts)
     double dfs_memo(int n, int k, int maxPts) {
         vector<double> cache(n + 1, DBL_MIN);
         std::function<double(int)> recursive = [&](int cur) {
@@ -50,7 +50,7 @@ public:
         return recursive(0);
     }
 
-    // TLE, TimeL O(n * maxPts)
+    // TLE, Time: O(n * maxPts)
     double dp(int n, int k, int maxPts) {
         vector<double> p(n + 1, 0);
         p[0] = 1.0;
