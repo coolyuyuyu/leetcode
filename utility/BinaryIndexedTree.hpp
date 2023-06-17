@@ -3,6 +3,12 @@
 
 class BinaryIndexedTree {
 public:
+    BinaryIndexedTree(std::size_t size)
+        : m_size(size)
+        , m_nums(m_size + 1)
+        , m_sums(m_size + 1) {
+    }
+
     BinaryIndexedTree(const std::vector<int>& nums)
         : m_size(nums.size())
         , m_nums(m_size + 1)
@@ -72,6 +78,13 @@ private:
 
 class BinaryIndexedTree2D {
 public:
+    BinaryIndexedTree2D(std::size_t rsize, std::size_t csize)
+        : m_rsize(rsize)
+        , m_csize(csize)
+        , m_nums(m_rsize + 1, vector<int>(m_csize + 1))
+        , m_sums(m_rsize + 1, vector<int>(m_csize + 1)) {
+    }
+
     BinaryIndexedTree2D(const std::vector<vector<int>>& nums)
         : m_rsize(nums.size())
         , m_csize(nums.empty() ? 0 : nums[0].size())
