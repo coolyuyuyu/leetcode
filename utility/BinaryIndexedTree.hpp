@@ -1,3 +1,4 @@
+#include <cassert>
 #include <vector>
 
 class BinaryIndexedTree {
@@ -6,13 +7,13 @@ public:
         : m_size(nums.size())
         , m_nums(m_size + 1)
         , m_sums(m_size + 1) {
-        m_nums[0] = m_sums[0] = 0;;
-        for (std::size_t i = 0; i < nums.size(); ++i) {
+        std::size_t n = size();
+        for (std::size_t i = 0; i < n; ++i) {
             set(i, nums[i]);
         }
     }
 
-    std::size_t size() const {
+    inline std::size_t size() const {
         return m_size;
     }
 
@@ -33,35 +34,120 @@ public:
     }
 
 private:
-    void setByIdx(std::size_t idx, int val) {
-        int diff = val - m_nums[idx];
-        m_nums[idx] = val;
+    void setByIdx(std::size_t i, int val) {
+        assert(0 < i && i <= size());
 
-        for (std::size_t n = size(); idx <= n; idx += lowbit(idx)) {
-            m_sums[idx] += diff;
+        int diff = val - m_nums[i];
+        m_nums[i] = val;
+
+        std::size_t n = size();
+        for (; i <= n; i += lowbit(i)) {
+            m_sums[i] += diff;
         }
     }
 
-    int getByIdx(std::size_t idx) const {
-        return m_nums[idx];
+    int getByIdx(std::size_t i) const {
+        assert(0 < i && i <= size());
+
+        return m_nums[i];
     }
 
-    int sumByIdx(std::size_t idx) const {
+    int sumByIdx(std::size_t i) const {
         int ret = 0;
-        for (; idx; idx -= lowbit(idx)) {
-            ret += m_sums[idx];
+        for (; i; i -= lowbit(i)) {
+            ret += m_sums[i];
         }
 
         return ret;
     }
 
-    std::size_t lowbit(std::size_t idx) const {
-        return idx & ~(idx - 1);
+    inline std::size_t lowbit(std::size_t i) const {
+        return i & ~(i - 1);
     }
 
     std::size_t m_size;
     std::vector<int> m_nums;
     std::vector<int> m_sums;
+};
+
+class BinaryIndexedTree2D {
+public:
+    BinaryIndexedTree2D(const std::vector<vector<int>>& nums)
+        : m_rsize(nums.size())
+        , m_csize(nums.empty() ? 0 : nums[0].size())
+        , m_nums(m_rsize + 1, vector<int>(m_csize + 1))
+        , m_sums(m_rsize + 1, vector<int>(m_csize + 1)) {
+        std::size_t m = rsize(), n = csize();
+        for (std::size_t r = 0; r < m; ++r) {
+            for (std::size_t c = 0; c < n; ++c) {
+                set(r, c, nums[r][c]);
+            }
+        }
+    }
+
+    inline std::size_t rsize() const {
+        return m_rsize;
+    }
+
+    inline std::size_t csize() const {
+        return m_csize;
+    }
+
+    void set(std::size_t r, std::size_t c, int val) {
+        setByIdx(r + 1, c + 1, val);
+    }
+
+    int get(std::size_t r, std::size_t c) const {
+        return getByIdx(r + 1, c + 1);
+    }
+
+    int sum(std::size_t r, std::size_t c) const {
+       return sumByIdx(r + 1, c + 1);
+    }
+
+    int sum(std::size_t rlo, std::size_t clo, std::size_t rhi, std::size_t chi) const {
+        return sumByIdx(rhi + 1, chi + 1) - sumByIdx(rlo, chi + 1) - sumByIdx(rhi + 1, clo) + sumByIdx(rlo, clo);
+    }
+
+private:
+    void setByIdx(std::size_t r, std::size_t c, int val) {
+        assert(0 < r && r <= rsize() && 0 < c && c <= csize());
+
+        int diff = val - m_nums[r][c];
+        m_nums[r][c] = val;
+
+        std::size_t m = rsize(), n = csize();
+        std::size_t ctmp = c;
+        for (; r <= m; r += lowbit(r)) {
+            for (c = ctmp; c <= n; c += lowbit(c)) {
+                m_sums[r][c] += diff;
+            }
+        }
+    }
+
+    int getByIdx(std::size_t r, std::size_t c) const {
+        return m_nums[r][c];
+    }
+
+    int sumByIdx(std::size_t r, std::size_t c) const {
+        int ret = 0;
+        std::size_t ctmp = c;
+        for (; r; r -= lowbit(r)) {
+            for (c = ctmp; c; c -= lowbit(c)) {
+                ret += m_sums[r][c];
+            }
+        }
+
+        return ret;
+    }
+
+    inline std::size_t lowbit(std::size_t i) const {
+        return i & ~(i - 1);
+    }
+
+    std::size_t m_rsize, m_csize;
+    std::vector<std::vector<int>> m_nums;
+    std::vector<std::vector<int>> m_sums;
 };
 
 #include <iostream>
