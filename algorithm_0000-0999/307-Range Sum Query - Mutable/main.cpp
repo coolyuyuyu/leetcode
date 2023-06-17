@@ -217,47 +217,88 @@ private:
     TreeNode* m_root;
 };
 
-class RangeSumBinaryIndexTree : public RangeSumStrategy {
+class BinaryIndexedTree {
 public:
-    RangeSumBinaryIndexTree(vector<int>& nums)
-        : m_nums(nums)
-        , m_sums(nums.size() + 1) {
-        for (size_t i = 1; i < m_sums.size(); ++i) {
-            m_sums[i] = nums[i - 1];
-            for (size_t j = i - lowbit(i) + 1; j < i; ++j) {
-                m_sums[i] += nums[j - 1];
-            }
+    BinaryIndexedTree(const std::vector<int>& nums)
+        : m_size(nums.size())
+        , m_nums(m_size + 1)
+        , m_sums(m_size + 1) {
+        std::size_t n = size();
+        for (std::size_t i = 0; i < n; ++i) {
+            set(i, nums[i]);
         }
     }
 
-    void update(size_t i, int val) {
+    inline std::size_t size() const {
+        return m_size;
+    }
+
+    void set(std::size_t i, int val) {
+        setByIdx(i + 1, val);
+    }
+
+    int get(std::size_t i) const {
+        return getByIdx(i + 1);
+    }
+
+    int sum(std::size_t i) const {
+       return sumByIdx(i + 1);
+    }
+
+    int sum(std::size_t lo, std::size_t hi) const {
+        return sumByIdx(hi + 1) - sumByIdx(lo);
+    }
+
+private:
+    void setByIdx(std::size_t i, int val) {
+        assert(0 < i && i <= size());
+
         int diff = val - m_nums[i];
         m_nums[i] = val;
 
-        for (i = i + 1; i < m_sums.size(); i += lowbit(i)) {
+        std::size_t n = size();
+        for (; i <= n; i += lowbit(i)) {
             m_sums[i] += diff;
         }
     }
 
-    int sum(size_t i) const {
-        int ans = 0;
-        for (i = i + 1; i != 0; i -= lowbit(i)) {
-            ans += m_sums[i];
+    int getByIdx(std::size_t i) const {
+        assert(0 < i && i <= size());
+
+        return m_nums[i];
+    }
+
+    int sumByIdx(std::size_t i) const {
+        int ret = 0;
+        for (; i; i -= lowbit(i)) {
+            ret += m_sums[i];
         }
-        return ans;
+
+        return ret;
+    }
+
+    inline std::size_t lowbit(std::size_t i) const {
+        return i & ~(i - 1);
+    }
+
+    std::size_t m_size;
+    std::vector<int> m_nums;
+    std::vector<int> m_sums;
+};
+
+class RangeSumBinaryIndexedTree : public BinaryIndexedTree, public RangeSumStrategy {
+public:
+    RangeSumBinaryIndexedTree(vector<int>& nums)
+        : BinaryIndexedTree(nums) {
+    }
+
+    void update(size_t i, int val) {
+        BinaryIndexedTree::set(i, val);
     }
 
     int sum(size_t lo, size_t hi) const {
-        return sum(hi) - (0 < lo ? sum(lo - 1) : 0);
+        return BinaryIndexedTree::sum(lo, hi);
     }
-
-private:
-    size_t lowbit(size_t x) const {
-        return x & ~(x - 1);
-    }
-
-    vector<int>& m_nums;
-    vector<int> m_sums;
 };
 
 class NumArray {
@@ -270,7 +311,7 @@ public:
 
         //m_strategy = new RangeSumSegmentTreeByTree(m_nums);
 
-        m_strategy = new RangeSumBinaryIndexTree(m_nums);
+        m_strategy = new RangeSumBinaryIndexedTree(m_nums);
     }
 
     ~NumArray() {
