@@ -4,53 +4,9 @@ public:
     virtual int sum(size_t rowLo, size_t colLo, size_t rowHi, size_t colHi) const = 0;
 };
 
-class RegionSumMultiple1DPrefixSum : public RegionSumStrategy {
+class RegionSumPrefixSum : public RegionSumStrategy {
 public:
-    RegionSumMultiple1DPrefixSum(vector<vector<int>>& matrix)
-        : m_rowSize(matrix.size())
-        , m_colSize(matrix.empty() ? 0 : matrix.front().size())
-        , m_numMatrix(matrix)
-        , m_sumMatrix(matrix) {
-        for (size_t row = 0; row < m_rowSize; ++row) {
-            vector<int>& sums = m_sumMatrix[row];
-            for (size_t col = 1; col < m_colSize; ++ col) {
-                sums[col] += sums[col - 1];
-            }
-        }
-    }
-
-    void update(size_t row, size_t col, int val) {
-        int diff = val - m_numMatrix[row][col];
-        m_numMatrix[row][col] = val;
-
-        vector<int>& sums = m_sumMatrix[row];
-        for (size_t c = col; c < m_colSize; ++c) {
-            sums[c] += diff;
-        }
-    }
-
-    int sum(size_t rowLo, size_t colLo, size_t rowHi, size_t colHi) const {
-        int ans = 0;
-        for (size_t row = rowLo; row <= rowHi; ++ row) {
-            ans += m_sumMatrix[row][colHi];
-        }
-        if (0 < colLo) {
-            for (size_t row = rowLo; row <= rowHi; ++ row) {
-                ans -= m_sumMatrix[row][colLo - 1];
-            }
-        }
-        return ans;
-    }
-
-private:
-    size_t m_rowSize, m_colSize;
-    vector<vector<int>>& m_numMatrix;
-    vector<vector<int>> m_sumMatrix;
-};
-
-class RegionSum2DPrefixSum : public RegionSumStrategy {
-public:
-    RegionSum2DPrefixSum(vector<vector<int>>& matrix)
+    RegionSumPrefixSum(vector<vector<int>>& matrix)
         : m_rowSize(matrix.size())
         , m_colSize(matrix.empty() ? 0 : matrix.front().size())
         , m_numMatrix(matrix)
@@ -105,101 +61,10 @@ private:
     vector<vector<int>> m_sumMatrix;
 };
 
-class RangeSumMultiple1DSegmentTreeByHeap : public RegionSumStrategy {
+// RangeSumSegmentTreeByHeap is NOT true 2D. It should be updated.
+class RangeSumSegmentTreeByHeap : public RegionSumStrategy {
 public:
-    RangeSumMultiple1DSegmentTreeByHeap(vector<vector<int>>& matrix)
-        : m_size(matrix.empty() ? 0 : matrix.front().size())
-        , m_sumMatrix(matrix.size()) {
-        if (0 < m_size) {
-            for (size_t i = 0; i < matrix.size(); ++ i) {
-                build(0, m_size - 1, 0, m_sumMatrix[i], matrix[i]);
-            }
-        }
-    }
-
-    void update(size_t row, size_t col, int val) {
-        update(0, m_size - 1, 0, m_sumMatrix[row], col, val);
-    }
-
-    int sum(size_t rowLo, size_t colLo, size_t rowHi, size_t colHi) const {
-        int ans = 0;
-        for (size_t row = rowLo; row <= rowHi; ++ row) {
-            ans += query(0, m_size - 1, 0, m_sumMatrix[row], colLo , colHi);
-        }
-        return ans;
-    }
-
-private:
-    inline size_t lftChildIndex(size_t parent) const {
-        return parent * 2 + 1;
-    }
-
-    inline size_t rhtChildIndex(size_t parent) const {
-        return parent * 2 + 2;
-    }
-
-    void build(size_t lo, size_t hi, size_t parent, vector<int>& sums, const vector<int>& nums) {
-        assert(lo <= hi);
-
-        if (lo == hi) {
-            if (sums.size() <= parent) {
-                sums.resize(parent + 1);
-            }
-            sums[parent] = nums[lo];
-            return;
-        }
-
-        size_t mid = lo + (hi - lo) / 2;
-        size_t lftChild = lftChildIndex(parent), rhtChild = rhtChildIndex(parent);
-        build(lo, mid, lftChild, sums, nums);
-        build(mid + 1, hi, rhtChild, sums, nums);
-        sums[parent] = sums[lftChild] + sums[rhtChild];
-    }
-
-    void update(size_t lo, size_t hi, size_t parent, vector<int>& sums, size_t i, int val) {
-        assert(lo <= hi);
-
-        if (i < lo || hi < i) {
-            return;
-        }
-
-        if (lo == hi) {
-            assert(i == lo);
-            sums[parent] = val;
-        }
-        else {
-            size_t mid = lo + (hi - lo) / 2;
-            size_t lftChild = lftChildIndex(parent), rhtChild = rhtChildIndex(parent);
-            update(lo, mid, lftChild, sums, i, val);
-            update(mid + 1, hi, rhtChild, sums, i, val);
-            sums[parent] = sums[lftChild] + sums[rhtChild];
-        }
-    }
-
-    int query(size_t lo, size_t hi, size_t parent, const vector<int>& sums, size_t i, size_t j) const {
-        assert(lo <= hi);
-
-        if (j < lo || hi < i) {
-            return 0;
-        }
-
-        if (i <= lo && hi <= j) {
-            return sums[parent];
-        }
-        else {
-            size_t mid = lo + (hi - lo) / 2;
-            return query(lo, mid, lftChildIndex(parent), sums, i, j) + query(mid + 1, hi, rhtChildIndex(parent), sums, i, j);
-        }
-    }
-
-    size_t m_size; // per row size, column count
-    vector<vector<int>> m_sumMatrix;
-};
-
-// RangeSum2DSegmentTreeByHeap is NOT true 2D. It should be updated.
-class RangeSum2DSegmentTreeByHeap : public RegionSumStrategy {
-public:
-    RangeSum2DSegmentTreeByHeap(const vector<vector<int>>& matrix)
+    RangeSumSegmentTreeByHeap(const vector<vector<int>>& matrix)
         : m_size(matrix.empty() ? 0 : matrix.front().size())
         , m_sumMatrix(matrix.size(), vector<int>(m_size)) {
         if (0 < m_size) {
@@ -292,7 +157,7 @@ private:
         }
         else {
             size_t mid = lo + (hi - lo) / 2;
-            return query(lo, mid, lftChildIndex(parent), sums, i, j) + query(mid + 1, hi, rhtChildIndex(parent), sums, i, j);
+            return query(lo, mid, lftChildIndex(parent), sums, i , j) + query(mid + 1, hi, rhtChildIndex(parent), sums, i , j);
         }
     }
 
@@ -300,128 +165,14 @@ private:
     vector<vector<int>> m_sumMatrix;
 };
 
-class RegionSumMultiple1DSegmentTreeByTree : public RegionSumStrategy {
+class RegionSumSegmentTreeByTree : public RegionSumStrategy {
 public:
-    RegionSumMultiple1DSegmentTreeByTree(const vector<vector<int>>& matrix)
-        : m_roots(matrix.size(), nullptr) {
-        size_t size = matrix.empty() ? 0 : matrix.front().size();
-        if (0 < size) {
-            for (size_t i = 0; i < matrix.size(); ++i) {
-                m_roots[i] = build(0, size - 1, matrix[i]);
-            }
-        }
-    }
-
-    ~RegionSumMultiple1DSegmentTreeByTree() {
-        for (TreeNode* root : m_roots) {
-            queue<TreeNode*> q;
-            if (root) {
-                q.push(root);
-            }
-            while (!q.empty()) {
-                TreeNode* node = q.front();
-                q.pop();
-
-                if (node->lft) {
-                    q.push(node->lft);
-                }
-                if (node->rht) {
-                    q.push(node->rht);
-                }
-
-                delete node;
-            }
-        }
-    }
-
-    void update(size_t row, size_t col, int val) {
-        update(m_roots[row], col, val);
-    }
-
-    int sum(size_t rowLo, size_t colLo, size_t rowHi, size_t colHi) const {
-        int ans = 0;
-        for (size_t row = rowLo; row <= rowHi; ++ row) {
-            ans += query(m_roots[row], colLo , colHi);
-        }
-        return ans;
-    }
-
-private:
-    class TreeNode {
-    public:
-        TreeNode(size_t l, size_t h)
-            : lo(l)
-            , hi(h)
-            , sum(0)
-            , lft(nullptr)
-            , rht(nullptr) {
-        }
-
-        size_t lo;
-        size_t hi;
-        int sum;
-
-        TreeNode* lft;
-        TreeNode* rht;
-    };
-
-    TreeNode* build(size_t lo, size_t hi, const vector<int>& nums) {
-        assert(lo <= hi);
-
-        TreeNode* parent = new TreeNode(lo, hi);
-        if (lo == hi) {
-            parent->sum = nums[lo];
-        }
-        else {
-            size_t mid = lo + (hi - lo) / 2;
-            parent->lft = build(lo, mid, nums);
-            parent->rht = build(mid + 1, hi, nums);
-            parent->sum = parent->lft->sum + parent->rht->sum;
-        }
-
-        return parent;
-    }
-
-    void update(TreeNode* parent, size_t i, int val) {
-        if (i < parent->lo || parent->hi < i) {
-            return;
-        }
-
-        if (parent->lo == parent->hi) {
-            assert(parent->lo == i);
-            parent->sum = val;
-        }
-        else {
-            update(parent->lft, i, val);
-            update(parent->rht, i, val);
-            parent->sum = parent->lft->sum + parent->rht->sum;
-        }
-    }
-
-    int query(TreeNode* parent, size_t lo, size_t hi) const {
-        if (!parent || hi < parent->lo || parent->hi < lo) {
-            return 0;
-        }
-
-        if (lo <= parent->lo && parent->hi <= hi) {
-            return parent->sum;
-        }
-        else {
-            return query(parent->lft, lo, hi) + query(parent->rht, lo, hi);
-        }
-    }
-
-    vector<TreeNode*> m_roots;
-};
-
-class RegionSum2DSegmentTreeByTree : public RegionSumStrategy {
-public:
-    RegionSum2DSegmentTreeByTree(vector<vector<int>>& matrix)
+    RegionSumSegmentTreeByTree(vector<vector<int>>& matrix)
         : m_numMatrix(matrix)
         , m_root(matrix.empty() ? nullptr : (matrix.front().empty() ? nullptr : buildRow(0, 0, matrix.size() - 1, matrix.front().size() - 1, matrix))) {
     }
 
-    ~RegionSum2DSegmentTreeByTree() {
+    ~RegionSumSegmentTreeByTree() {
         queue<TreeNode*> q;
         if (m_root) {
             q.push(m_root);
@@ -584,147 +335,109 @@ private:
     TreeNode* m_root;
 };
 
-class RegionSumMultiple1DBinaryIndexTree : public RegionSumStrategy {
+class BinaryIndexedTree2D {
 public:
-    RegionSumMultiple1DBinaryIndexTree(vector<vector<int>>& matrix)
-        : m_rowSize(matrix.size())
-        , m_colSize(matrix.empty() ? 0 : matrix.front().size())
-        , m_numMatrix(matrix)
-        , m_sumMatrix(m_rowSize, vector<int>(m_colSize + 1, 0)) {
-        for (size_t row = 0; row < m_rowSize; ++row) {
-            vector<int>& sums = m_sumMatrix[row];
-            const vector<int>& nums = matrix[row];
-            for (size_t col = 1; col <= m_colSize; ++col) {
-                sums[col] = nums[col - 1];
-                for (size_t i = col - lowbit(col) + 1; i < col; ++i) {
-                    sums[col] += nums[i - 1];
-                }
+    BinaryIndexedTree2D(const std::vector<vector<int>>& nums)
+        : m_rsize(nums.size())
+        , m_csize(nums.empty() ? 0 : nums[0].size())
+        , m_nums(m_rsize + 1, vector<int>(m_csize + 1))
+        , m_sums(m_rsize + 1, vector<int>(m_csize + 1)) {
+        std::size_t m = rsize(), n = csize();
+        for (std::size_t r = 0; r < m; ++r) {
+            for (std::size_t c = 0; c < n; ++c) {
+                set(r, c, nums[r][c]);
             }
         }
     }
 
-    void update(size_t row, size_t col, int val) {
-        int diff = val - m_numMatrix[row][col];
-        m_numMatrix[row][col] = val;
-
-        for (col = col + 1; col <= m_colSize; col += lowbit(col)) {
-            m_sumMatrix[row][col] += diff;
-        }
+    inline std::size_t rsize() const {
+        return m_rsize;
     }
 
-    int sum(const vector<int>& sums, size_t i) const {
-        int ans = 0;
-        for (i = i + 1; i != 0; i -= lowbit(i)) {
-            ans += sums[i];
-        }
-        return ans;
+    inline std::size_t csize() const {
+        return m_csize;
     }
 
-    int sum(size_t rowLo, size_t colLo, size_t rowHi, size_t colHi) const {
-        int ans = 0;
-        for (size_t row = rowLo; row <= rowHi; ++ row) {
-            ans += sum(m_sumMatrix[row], colHi);
-        }
-        if (0 < colLo) {
-            for (size_t row = rowLo; row <= rowHi; ++ row) {
-                ans -= sum(m_sumMatrix[row], colLo - 1);
-            }
-        }
-        return ans;
+    void set(std::size_t r, std::size_t c, int val) {
+        setByIdx(r + 1, c + 1, val);
+    }
+
+    int get(std::size_t r, std::size_t c) const {
+        return getByIdx(r + 1, c + 1);
+    }
+
+    int sum(std::size_t r, std::size_t c) const {
+       return sumByIdx(r + 1, c + 1);
+    }
+
+    int sum(std::size_t rlo, std::size_t clo, std::size_t rhi, std::size_t chi) const {
+        return sumByIdx(rhi + 1, chi + 1) - sumByIdx(rlo, chi + 1) - sumByIdx(rhi + 1, clo) + sumByIdx(rlo, clo);
     }
 
 private:
-    size_t lowbit(size_t x) const {
-        return x & ~(x - 1);
+    void setByIdx(std::size_t r, std::size_t c, int val) {
+        assert(0 < r && r <= rsize() && 0 < c && c <= csize());
+
+        int diff = val - m_nums[r][c];
+        m_nums[r][c] = val;
+
+        std::size_t m = rsize(), n = csize();
+        std::size_t ctmp = c;
+        for (; r <= m; r += lowbit(r)) {
+            for (c = ctmp; c <= n; c += lowbit(c)) {
+                m_sums[r][c] += diff;
+            }
+        }
     }
 
-    size_t m_rowSize, m_colSize;
-    vector<vector<int>>& m_numMatrix;
-    vector<vector<int>> m_sumMatrix;
+    int getByIdx(std::size_t r, std::size_t c) const {
+        return m_nums[r][c];
+    }
+
+    int sumByIdx(std::size_t r, std::size_t c) const {
+        int ret = 0;
+        std::size_t ctmp = c;
+        for (; r; r -= lowbit(r)) {
+            for (c = ctmp; c; c -= lowbit(c)) {
+                ret += m_sums[r][c];
+            }
+        }
+
+        return ret;
+    }
+
+    inline std::size_t lowbit(std::size_t i) const {
+        return i & ~(i - 1);
+    }
+
+    std::size_t m_rsize, m_csize;
+    std::vector<std::vector<int>> m_nums;
+    std::vector<std::vector<int>> m_sums;
 };
 
-class RegionSum2DBinaryIndexTree : public RegionSumStrategy {
+class RegionSumBinaryIndexTree : public BinaryIndexedTree2D, public RegionSumStrategy {
 public:
-    RegionSum2DBinaryIndexTree(vector<vector<int>>& matrix)
-        : m_rowSize(matrix.size())
-        , m_colSize(matrix.empty() ? 0 : matrix.front().size())
-        , m_numMatrix(matrix)
-        , m_sumMatrix(m_rowSize + 1, vector<int>(m_colSize + 1, 0)) {
-        for (size_t row = 0; row < m_rowSize; ++row) {
-            for (size_t col = 0; col < m_colSize; ++col) {
-                updateTree(row, col, matrix[row][col]);
-            }
-        }
+    RegionSumBinaryIndexTree(vector<vector<int>>& matrix)
+        : BinaryIndexedTree2D(matrix) {
     }
 
     void update(size_t row, size_t col, int val) {
-        int diff = val - m_numMatrix[row][col];
-        m_numMatrix[row][col] = val;
-
-        updateTree(row, col, diff);
+        BinaryIndexedTree2D::set(row, col, val);
     }
 
-    int sum(size_t row, size_t col) const {
-        int ans = 0;
-        for (size_t r = row + 1; r != 0; r -= lowbit(r)) {
-            for (size_t c = col + 1; c != 0; c -= lowbit(c)) {
-                ans += m_sumMatrix[r][c];
-            }
-        }
-        return ans;
+    int sum(size_t rlo, size_t clo, size_t rhi, size_t chi) const {
+        return BinaryIndexedTree2D::sum(rlo, clo, rhi, chi);
     }
-
-    int sum(size_t rowLo, size_t colLo, size_t rowHi, size_t colHi) const {
-        int ans = sum(rowHi, colHi);
-        if (0 < rowLo) {
-            ans -= sum(rowLo - 1, colHi);
-            if (0 < colLo) {
-                ans -= sum(rowHi, colLo - 1);
-                ans += sum(rowLo - 1, colLo - 1);
-            }
-        }
-        else {
-            if (0 < colLo) {
-                ans -= sum(rowHi, colLo - 1);
-            }
-        }
-        return ans;
-    }
-
-private:
-    size_t lowbit(size_t x) const {
-        return x & ~(x - 1);
-    }
-
-    void updateTree(size_t row, size_t col, int val) {
-        for (size_t r = row + 1; r <= m_rowSize; r += lowbit(r)) {
-            for (size_t c = col + 1; c <= m_colSize; c += lowbit(c)) {
-                m_sumMatrix[r][c] += val;
-            }
-        }
-    }
-
-    size_t m_rowSize, m_colSize;
-    vector<vector<int>>& m_numMatrix;
-    vector<vector<int>> m_sumMatrix;
 };
 
 class NumMatrix {
 public:
     NumMatrix(vector<vector<int>> matrix)
         : m_numMatrix(matrix) {
-        //m_strategy = new RegionSumMultiple1DPrefixSum(m_numMatrix);
-        //m_strategy = new RegionSum2DPrefixSum(m_numMatrix);
-
-        //m_strategy = new RangeSumMultiple1DSegmentTreeByHeap(m_numMatrix);
-        //m_strategy = new RangeSum2DSegmentTreeByHeap(m_numMatrix); // wrong, should be updated.
-
-        //m_strategy = new RegionSumMultiple1DSegmentTreeByTree(m_numMatrix);
-        //m_strategy = new RegionSum2DSegmentTreeByTree(m_numMatrix);
-
-
-        //m_strategy = new RegionSumMultiple1DBinaryIndexTree(m_numMatrix);
-        m_strategy = new RegionSum2DBinaryIndexTree(m_numMatrix);
+        //m_strategy = new RegionSumPrefixSum(m_numMatrix);
+        //m_strategy = new RangeSumSegmentTreeByHeap(m_numMatrix); // wrong, should be updated.
+        //m_strategy = new RegionSumSegmentTreeByTree(m_numMatrix);
+        m_strategy = new RegionSumBinaryIndexTree(m_numMatrix);
     }
 
     void update(size_t row, size_t col, int val) {
