@@ -77,7 +77,7 @@ class Solution {
 public:
     int M = 1e9 + 7;
 
-    int createSortedArray(vector<int>& instructions) {
+    int byBinaryIndexedTree(const vector<int>& instructions) {
         int n = *std::max_element(instructions.begin(), instructions.end()) + 1;
         BinaryIndexedTree bit(n);
 
@@ -90,5 +90,47 @@ public:
         }
 
         return ret;
+    }
+
+    int byDivideAndConquer(const vector<int>& instructions) {
+        int n = instructions.size();
+
+        vector<int> cntLE(n, 0);
+        vector<int> sorted(instructions);
+
+        std::function<void(int, int)> f = [&](int lo, int hi) {
+            if (hi <= lo) {
+                return;
+            }
+
+            int mid = lo + (hi - lo) / 2;
+            f(lo, mid);
+            f(mid + 1, hi);
+
+            for (int i = mid + 1; i <= hi; ++i) {
+                auto itr = std::lower_bound(sorted.begin() + lo, sorted.begin() + mid + 1, instructions[i]);
+                cntLE[i] += std::distance(sorted.begin() + lo, itr);
+                cntLE[i] %= M;
+            }
+
+            std::inplace_merge(sorted.begin() + lo, sorted.begin() + mid + 1, sorted.begin() + hi + 1);;
+        };
+        f(0, n - 1);
+
+        unordered_map<int, int> cntE;
+        int ret = 0;
+        for (int i = 0; i < n; ++i) {
+            ret += std::min(cntLE[i], i - cntLE[i] - cntE[instructions[i]]);
+            ret %= M;
+
+            ++cntE[instructions[i]];
+        }
+
+        return ret;
+    }
+
+    int createSortedArray(vector<int>& instructions) {
+        //return byBinaryIndexedTree(instructions);
+        return byDivideAndConquer(instructions);
     }
 };
