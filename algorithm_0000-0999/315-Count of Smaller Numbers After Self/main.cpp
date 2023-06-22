@@ -90,7 +90,31 @@ public:
         return ret;
     }
 
+    vector<int> byDivideAndConquer(const vector<int>& nums) {
+        vector<int> ret(nums.size(), 0);
+        vector<int> sorted(nums);
+        std::function<void(int, int)> f = [&](int lo, int hi) {
+            if (hi <= lo) {
+                return;
+            }
+
+            int mid = lo + (hi - lo) / 2;
+            f(lo, mid);
+            f(mid + 1, hi);
+
+            for (int i = lo; i <= mid; ++i) {
+                ret[i] += std::distance(sorted.begin() + mid + 1, std::lower_bound(sorted.begin() + mid + 1, sorted.begin() + hi + 1, nums[i]));
+            }
+
+            std::inplace_merge(sorted.begin() + lo, sorted.begin() + mid + 1, sorted.begin() + hi + 1);
+        };
+        f(0, nums.size() - 1);
+
+        return ret;
+    }
+
     vector<int> countSmaller(vector<int>& nums) {
-        return byBinaryIndexedTree(nums);
+        //return byBinaryIndexedTree(nums);
+        return byDivideAndConquer(nums);
     }
 };
