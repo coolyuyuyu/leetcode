@@ -20,7 +20,7 @@ public:
             }
         }
 
-        // dp[i][numParts]: minimal number of characters that you need to change to divide the s[1:i] into numParts substring.
+        // dp[i][numParts]: minimal number of characters that you need to change to divide the s[1:i] into numParts palindromic substring.
         vector<vector<int>> dp(n + 1, vector<int>(k + 1));
         dp[0][0] = 0;
         for (int i = 1; i <= n; ++i) {
