@@ -29,8 +29,8 @@ public:
         }
 
         int ret = 0;
-        for (int i = 0; i < m; ++i) {
-            ret += dp[m - 1][i];
+        for (int j = 0; j < m; ++j) {
+            ret += dp[m - 1][j];
             ret %= M;
         }
 
