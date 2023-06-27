@@ -30,6 +30,7 @@ public:
     }
 
     int splitArray(vector<int>& nums, int k) {
-        return byDp(nums, k);    
+        return byDp(nums, k);
     }
 };
+
