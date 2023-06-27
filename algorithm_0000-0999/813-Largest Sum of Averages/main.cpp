@@ -19,7 +19,7 @@ public:
         }
         for (int i = 1; i <= n; ++i) {
             for (int numParts = 1; numParts <= std::min(i, k); ++numParts) {
-                //dp[i][numParts] = -DBL_MAX;
+                dp[i][numParts] = -DBL_MAX;
                 for (int j = i; numParts <= j; --j) {
                     dp[i][numParts] = std::max(dp[i][numParts], dp[j - 1][numParts - 1] + avg(j, i));
                 }
