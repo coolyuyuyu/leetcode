@@ -29,8 +29,42 @@ public:
         return dp[n][k];
     }
 
+    int byBinarySearch(vector<int>& nums, int k) {
+        std::function<bool(int)> fitLargestSumOfSplit = [&](int target) {
+            int cnt = 0;
+            for (int i = 0; i < nums.size(); ++i) {
+                if (target < nums[i]) {
+                    return false;
+                }
+
+                int j = i, sum = 0;
+                for (; j < nums.size() && (sum + nums[j]) <= target; ++j) {
+                    sum += nums[j];
+                }
+
+                ++cnt;
+                i = j - 1;
+            }
+
+            return cnt <= k;
+        };
+
+        int lo = 0, hi = 1e9;
+        while (lo < hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (fitLargestSumOfSplit(mid)) {
+                hi = mid;
+            }
+            else {
+                lo = mid + 1;
+            }
+        }
+
+        return lo;
+    }
+
     int splitArray(vector<int>& nums, int k) {
-        return byDp(nums, k);
+        //return byDp(nums, k);
+        return byBinarySearch(nums, k);
     }
 };
-
