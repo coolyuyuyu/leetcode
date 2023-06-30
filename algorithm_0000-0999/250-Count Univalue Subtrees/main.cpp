@@ -31,46 +31,40 @@ public:
         return ret;
     }
 
-    int countUnivalSubtrees_Iterative(TreeNode* root) {
-        map<TreeNode*, pair<int, bool>> m = {{nullptr, {0, true}}}; // node -> <count, uniVal>
+    int iterative(TreeNode* root) {
+        int ret = 0;
 
-        stack<pair<TreeNode*, bool>> stk;
-        if (root) {
-            stk.emplace(root, false);
-        }
+        map<TreeNode*, bool> m;
+        stack<pair<TreeNode*, bool>> stk({{root, false}});
         while (!stk.empty()) {
-            TreeNode* node = stk.top().first;
-            bool visited = stk.top().second;
+            auto [node, visited] = stk.top();
             stk.pop();
 
+            if (!node) {
+                continue;
+            }
+
             if (visited) {
-                pair<int, bool> lftResult = m[node->left], rhtReult = m[node->right];
-                int count = lftResult.first + rhtReult.first;
-                bool uniVal = false;
-                if ((lftResult.second && (!node->left || node->left->val == node->val)) &&
-                    (rhtReult.second && (!node->right || node->right->val == node->val))) {
-                    count += 1;
-                    uniVal = true;
+                bool isUni = 
+                    (!(node->left) || (m[node->left] && node->val == node->left->val)) &&
+                    (!(node->right) || (m[node->right] && node->val == node->right->val));
+                if (isUni) {
+                    ++ret;
+                    m[node] = true;
                 }
-                m[node] = {count, uniVal};
             }
             else {
                 stk.emplace(node, true);
-                if (node->right) {
-                    stk.emplace(node->right, false);
-                }
-                if (node->left) {
-                    stk.emplace(node->left, false);
-                }
+                stk.emplace(node->right, false);
+                stk.emplace(node->left, false);
             }
         }
 
-        return m[root].first;
+        return ret;
     }
 
-
     int countUnivalSubtrees(TreeNode* root) {
-        //return recursive(root);
-        return countUnivalSubtrees_Iterative(root);
+        return recursive(root);
+        //return iterative(root);
     }
 };
