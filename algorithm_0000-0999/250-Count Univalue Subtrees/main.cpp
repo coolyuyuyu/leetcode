@@ -11,21 +11,24 @@
  */
 class Solution {
 public:
-    pair<int, bool> countUnivalSubtrees_Recursive(TreeNode* root) {
-        if (!root) {
-            return {0, true};
-        }
+    int recursive(TreeNode* root) {
+        int ret = 0;
+        std::function<bool(TreeNode*)> isUni = [&](TreeNode* root) {
+            if (!root) {
+                return true;
+            }
 
-        pair<int, bool> lftResult = countUnivalSubtrees_Recursive(root->left), rhtReult = countUnivalSubtrees_Recursive(root->right);
-        int count = lftResult.first + rhtReult.first;
-        bool uniVal = false;
-        if ((lftResult.second && (!root->left || root->left->val == root->val)) &&
-            (rhtReult.second && (!root->right || root->right->val == root->val))) {
-            count += 1;
-            uniVal = true;
-        }
+            bool lftUni = isUni(root->left) , rhtUni = isUni(root->right);
+            if (lftUni && (!(root->left) || root->val == root->left->val) &&
+                rhtUni && (!(root->right) || root->val == root->right->val) ) {
+                ++ret;
+                return true;
+            }
+            return false;
+        };
+        isUni(root);
 
-        return {count, uniVal};
+        return ret;
     }
 
     int countUnivalSubtrees_Iterative(TreeNode* root) {
@@ -67,7 +70,7 @@ public:
 
 
     int countUnivalSubtrees(TreeNode* root) {
-        //return countUnivalSubtrees_Recursive(root).first;
+        //return recursive(root);
         return countUnivalSubtrees_Iterative(root);
     }
 };
