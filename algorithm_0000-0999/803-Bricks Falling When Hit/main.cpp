@@ -38,18 +38,12 @@ class Solution {
 public:
     vector<pair<int, int>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
 
-    vector<int> hitBricks(vector<vector<int>>& grid, vector<vector<int>>& hits) {
+    vector<int> byUnionFind(vector<vector<int>>& grid, vector<vector<int>>& hits) {
         int m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
 
-        unordered_set<int> miss;
-        for (int i = 0; i < hits.size(); ++i) {
-            int r = hits[i][0], c = hits[i][1];
-            if (grid[r][c] == 0) {
-                miss.insert(i);
-            }
-            else {
-                grid[r][c] = 0;
-            }
+        for (const auto& hit : hits) {
+            int r = hit[0], c = hit[1];
+            grid[r][c] *= -1;
         }
 
         std::function<int(int, int)> getId = [&](int r, int c) {
@@ -60,11 +54,11 @@ public:
         DisjointSets ds(m * n + 1);
         for (int r = 0; r < m; ++r) {
             for (int c = 0; c < n; ++c) {
-                if (grid[r][c] == 0) { continue; }
+                if (grid[r][c] != 1) { continue; }
                 for (const auto& [dr, dc] : dirs) {
                     int x = r + dr, y = c + dc;
                     if (x < 0 || m <= x || y < 0 || n <= y) { continue; }
-                    if (grid[x][y] == 0) { continue; }
+                    if (grid[x][y] != 1) { continue; }
                     ds.merge(getId(r, c), getId(x, y));
                 }
             }
@@ -75,11 +69,14 @@ public:
             }
         }
 
-        vector<int> ret(hits.size(), 0);
+        vector<int> ret(hits.size());
         for (int i = hits.size(); 0 < i--;) {
-            if (miss.find(i) != miss.end()) { continue; }
-
             int r = hits[i][0], c = hits[i][1];
+            if (grid[r][c] == 0) {
+                ret[i] = 0;
+                continue;
+            }
+
             grid[r][c]= 1;
             if (r == 0) {
                 ds.merge(getId(r, c), ceilId);
@@ -90,7 +87,7 @@ public:
             for (const auto& [dr, dc] : dirs) {
                 int x = r + dr, y = c + dc;
                 if (x < 0 || m <= x || y < 0 || n <= y) { continue; }
-                if (grid[x][y] == 0) { continue; }
+                if (grid[x][y] != 1) { continue; }
                 if (ds.connected(getId(r, c), getId(x, y))) { continue; }
 
                 if (ds.connected(getId(x, y), ceilId)) {
@@ -105,5 +102,9 @@ public:
         }
 
         return ret;
+    }
+
+    vector<int> hitBricks(vector<vector<int>>& grid, vector<vector<int>>& hits) {
+        return byUnionFind(grid, hits);
     }
 };
