@@ -27,7 +27,6 @@ private:
     mutable vector<int> m_parents;
 };
 
-
 class Solution {
 public:
     int byDisjointedSets(int row, int col, const vector<vector<int>>& cells) {
