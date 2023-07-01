@@ -104,7 +104,63 @@ public:
         return ret;
     }
 
+    vector<int> byDfs(vector<vector<int>>& grid, vector<vector<int>>& hits) {
+        int m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
+
+        for (const auto& hit : hits) {
+            int r = hit[0], c = hit[1];
+            grid[r][c] *= -1;
+        }
+
+        std::function<int(int, int)> dfs = [&](int r, int c) {
+            grid[r][c] = 2;
+
+            int count = 1;
+            for (const auto& [dr, dc] : dirs) {
+                int x = r + dr, y = c + dc;
+                if (x < 0 || m <= x || y < 0 || n <= y) { continue; }
+                if (grid[x][y] != 1) { continue; }
+                count += dfs(x, y);
+            }
+
+            return count;
+        };
+        for (int c = 0; c < n; ++c) {
+            if (grid[0][c] == 1) {
+               dfs(0, c);
+            }
+        }
+
+        vector<int> ret(hits.size());
+        for (int i = hits.size(); 0 < i--;) {
+            int r = hits[i][0], c = hits[i][1];
+            if (grid[r][c] == 0) {
+                ret[i] = 0;
+                continue;
+            }
+
+            grid[r][c]= 1;
+
+            bool connectCeil = (r == 0);
+            if (!connectCeil) {
+                for (const auto& [dr, dc] : dirs) {
+                    int x = r + dr, y = c + dc;
+                    if (x < 0 || m <= x || y < 0 || n <= y) { continue; }
+                    if (grid[x][y] == 2) {
+                        connectCeil = true;
+                        break;
+                    }
+                }
+            }
+            ret[i] = (connectCeil ? dfs(r, c) - 1 : 0);
+        }
+
+        return ret;
+
+    }
+
     vector<int> hitBricks(vector<vector<int>>& grid, vector<vector<int>>& hits) {
-        return byUnionFind(grid, hits);
+        //return byUnionFind(grid, hits);
+        return byDfs(grid, hits);
     }
 };
