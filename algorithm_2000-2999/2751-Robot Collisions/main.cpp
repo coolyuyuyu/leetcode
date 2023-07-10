@@ -1,35 +1,36 @@
 class Solution {
 public:
     vector<int> survivedRobotsHealths(vector<int>& positions, vector<int>& healths, string directions) {
-        int n = positions.size();
-
-        vector<int> indexes(n);
+        vector<int> indexes(positions.size());
         std::iota(indexes.begin(), indexes.end(), 0);
         std::sort(indexes.begin(), indexes.end(), [&](int i1, int i2) { return positions[i1] < positions[i2]; });
 
-        vector<int> stk;
+        stack<int> stk;
         for (int index : indexes) {
-            while (!stk.empty() && directions[stk.back()] == 'R' && 0 < healths[index] && directions[index] == 'L') {
-                if (healths[stk.back()] == healths[index]) {
-                    healths[stk.back()] = 0;
-                    stk.pop_back();
-                    healths[index] = 0;
-                }
-                else if (healths[stk.back()]  < healths[index]) {
-                    healths[stk.back()] = 0;
-                    stk.pop_back();
+            while (!stk.empty() && directions[stk.top()] == 'R' && directions[index] == 'L') {
+                if (healths[stk.top()] < healths[index]) {
+                    healths[stk.top()] = 0;
                     healths[index] -= 1;
+                    stk.pop();
+                }
+                else if (healths[stk.top()] == healths[index]) {
+                    healths[stk.top()] = 0;
+                    healths[index] = 0;
+                    stk.pop();
+                    break;
                 }
                 else {
-                    healths[stk.back()] -= 1;
-                    if (healths[stk.back()] == 0) {
-                        stk.pop_back();
+                    healths[stk.top()] -= 1;
+                    if (healths[stk.top()] == 0) {
+                        stk.pop();
                     }
                     healths[index] = 0;
+                    break;
                 }
             }
+
             if (0 < healths[index]) {
-                stk.emplace_back(index);
+                stk.push(index);
             }
         }
 
