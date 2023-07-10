@@ -11,39 +11,44 @@
  */
 class Solution {
 public:
-    int minDepth_Recursive(TreeNode* root, int depth = 0) {
-        if (root) {
-            if (root->left && root->right) {
-                return min(minDepth_Recursive(root->left, depth + 1), minDepth_Recursive(root->right, depth + 1));
-            }
-            else if (root->left && !root->right) {
-                return minDepth_Recursive(root->left, depth + 1);
-            }
-            else if (!root->left && root->right) {
-                return minDepth_Recursive(root->right, depth + 1);
-            }
-            else {
-                assert(!root->left && !root->right);
-                return depth + 1;
-            }
+    int recursive(TreeNode* root) {
+        if (!root) {
+            return 0;
         }
-        else {
-            return depth;
-        }
+
+        int ret = INT_MAX;
+        std::function<void(TreeNode*, int)> f = [&](TreeNode* root, int depth) {
+            if (ret <= depth) {
+                return;
+            }
+
+            if (root->left == nullptr && root->right == nullptr) {
+                ret = depth;
+                return;
+            }
+
+            if (root->left) {
+                f(root->left, depth + 1);
+            }
+            if (root->right) {
+                f(root->right, depth + 1);
+            }
+        };
+        f(root, 1);
+        return ret;
     }
 
-    int minDepth_Iterative(TreeNode* root) {
+    int iterative(TreeNode* root) {
         queue<TreeNode*> q;
         if (root) {
             q.push(root);
         }
         for (int depth = 1; !q.empty(); ++depth) {
-            size_t n = q.size();
-            for (size_t i = 0; i < n; ++i) {
+            for (int i = q.size(); 0 < i--;) {
                 root = q.front();
                 q.pop();
 
-                if (!root->left && !root->right) {
+                if (root->left == nullptr && root->right == nullptr) {
                     return depth;
                 }
 
@@ -60,7 +65,7 @@ public:
     }
 
     int minDepth(TreeNode* root) {
-        //return minDepth_Recursive(root);
-        return minDepth_Iterative(root);
+        //return recursive(root);
+        return iterative(root);
     }
 };
