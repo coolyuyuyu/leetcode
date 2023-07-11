@@ -5,7 +5,7 @@ public:
 
         int ret = 0;
         for (int lft = 0, rht = 0, n = s.size(); lft < n; ++lft) {
-            for (;rht < n && (0 < k || (k == 0 && 0 < cnts[s[rht]])); ++rht) {
+            for (;rht < n && (rht < lft || 0 < k || (k == 0 && 0 < cnts[s[rht]])); ++rht) {
                 if (cnts[s[rht]]++ == 0) {
                     k--;
                 }
