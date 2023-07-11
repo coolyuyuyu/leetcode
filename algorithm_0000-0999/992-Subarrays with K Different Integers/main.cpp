@@ -14,7 +14,7 @@ public:
                 }
 
                 ret += (rht - lft);
-                
+
                 if (--cnts[nums[lft]] == 0) {
                     ++k;
                 }
