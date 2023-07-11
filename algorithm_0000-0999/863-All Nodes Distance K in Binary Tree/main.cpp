@@ -9,59 +9,114 @@
  */
 class Solution {
 public:
-    bool buildBackEdgesFromTarget2Root(TreeNode* root, TreeNode* target, unordered_map<TreeNode*, TreeNode*>& backEdges) {
-        if (!root) {
-            return false;
-        }
-        else if (root == target) {
-            return true;
-        }
+    vector<int> bfs(TreeNode* root, TreeNode* target, int k) {
+        unordered_map<TreeNode*, TreeNode*> backs;
+        std::function<bool(TreeNode*, TreeNode*)> collectBacks = [&](TreeNode* root, TreeNode* target) {
+            if (!root) {
+                return false;
+            }
+            if (root == target) {
+                return true;
+            }
 
-        if (buildBackEdgesFromTarget2Root(root->left, target, backEdges)) {
-            backEdges.emplace(root->left, root);
-            return true;
-        }
+            if (collectBacks(root->left, target)) {
+                backs[root->left] = root;
+                return true;
+            }
+            else if (collectBacks(root->right, target)) {
+                backs[root->right] = root;
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
+        collectBacks(root, target);
 
-        if (buildBackEdgesFromTarget2Root(root->right, target, backEdges)) {
-            backEdges.emplace(root->right, root);
-            return true;
-        }
+        queue<pair<TreeNode*, TreeNode*>> q({{target, nullptr}});
+        for (; !q.empty() && 0 < k; --k) {
+            for (int i = q.size(); 0 < i--;) {
+                auto [cur, pre] = q.front();
+                q.pop();
 
-        return false;
-    }
-
-    vector<int> distanceK(TreeNode* root, TreeNode* target, int K) {
-        unordered_map<TreeNode*, TreeNode*> backEdges;
-        buildBackEdgesFromTarget2Root(root, target, backEdges);
-
-        // bfs
-        queue<TreeNode*> candidates({target});
-        unordered_set<TreeNode*> visited({target});
-        while (!candidates.empty() && 0 < K--) {
-            for (size_t i = candidates.size(); 0 < i; --i) {
-                TreeNode* node = candidates.front();
-                candidates.pop();
-
-                if (node->left && visited.insert(node->left).second) {
-                    candidates.push(node->left);
+                if (cur->left && cur->left != pre) {
+                    q.emplace(cur->left, cur);
                 }
-
-                if (node->right && visited.insert(node->right).second) {
-                    candidates.push(node->right);
+                if (cur->right && cur->right != pre) {
+                    q.emplace(cur->right, cur);
                 }
-
-                auto backItr = backEdges.find(node);
-                if (backItr != backEdges.end() && visited.insert(backItr->second).second) {
-                    candidates.push(backItr->second);
+                if (backs[cur] && backs[cur] != pre) {
+                    q.emplace(backs[cur], cur);
                 }
             }
         }
 
-        vector<int> ret;
-        while (!candidates.empty()) {
-            ret.push_back(candidates.front()->val);
-            candidates.pop();
+        vector<int> ret(q.size());
+        for (int i = q.size(); 0 < i--; q.pop()) {
+            ret[i] = q.front().first->val;
         }
+
         return ret;
+    }
+
+    vector<int> dfs(TreeNode* root, TreeNode* target, int k) {
+        vector<int> ret;
+
+        std::function<void(TreeNode*, int)> fetch = [&](TreeNode* root, int k) {
+            if (!root) {
+                return;
+            }
+
+            if (k == 0) {
+                ret.push_back(root->val);
+            }
+            else {
+                fetch(root->left, k - 1);
+                fetch(root->right, k - 1);
+            }
+        };
+
+        std::function<int(TreeNode*, TreeNode*, int)> f = [&](TreeNode* root, TreeNode* target, int k) {
+            if (!root) {
+                return -1;
+            }
+
+            if (root == target) {
+                fetch(target, k);
+                return 0;
+            }
+
+            int lftDepth = f(root->left, target, k);
+            if (0 <= lftDepth) {
+                if (lftDepth + 1 == k) {
+                    ret.push_back(root->val);
+                }
+                else if ((lftDepth + 2) <= k) {
+                    fetch(root->right, k - lftDepth - 2);
+                }
+                return lftDepth + 1;
+            }
+
+            int rhtDepth = f(root->right, target, k);
+            if (0 <= rhtDepth) {
+                if (rhtDepth + 1 == k) {
+                    ret.push_back(root->val);
+                }
+                else if ((rhtDepth + 2) <= k) {
+                    fetch(root->left, k - rhtDepth - 2);
+                }
+                return rhtDepth + 1;
+            }
+
+            return -1;
+        };
+        f(root, target, k);
+
+        return ret;
+    }
+
+    vector<int> distanceK(TreeNode* root, TreeNode* target, int k) {
+        //return bfs(root, target, k);
+        return dfs(root, target, k);
     }
 };
