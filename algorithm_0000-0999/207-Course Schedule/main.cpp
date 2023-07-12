@@ -1,75 +1,68 @@
 class Solution {
 public:
-    // Kahn's algorithm
-    // Time: O(V + E)
-    bool bfs(int numCourses, const vector<vector<int>>& prerequisites) {
-        vector<int> inDegrees(numCourses);
-        vector<vector<int>> nexts(numCourses);
+    bool bfs(int n, const vector<vector<int>>& prerequisites) {
+        vector<vector<int>> graph(n);
+        vector<int> iDegrees(n, 0);
         for (const auto& prerequisite : prerequisites) {
-            nexts[prerequisite[0]].push_back(prerequisite[1]);
-            ++inDegrees[prerequisite[1]];
+            graph[prerequisite[1]].push_back(prerequisite[0]);
+            ++iDegrees[prerequisite[0]];
         }
 
         queue<int> q;
-        for (int course = 0; course < numCourses; ++course) {
-            if (inDegrees[course] == 0) {
-                q.push(course);
+        for (int i = 0; i < n; ++i) {
+            if (iDegrees[i] == 0) {
+                q.push(i);
             }
         }
         while (!q.empty()) {
-            int course = q.front();
+            int from = q.front();
             q.pop();
 
-            --numCourses;
+            --n;
 
-            for (int next : nexts[course]) {
-                if (--inDegrees[next] == 0) {
-                    q.push(next);
+            for (int to : graph[from]) {
+                if (--iDegrees[to] == 0) {
+                    q.push(to);
                 }
             }
         }
 
-        return numCourses == 0;
+        return (n == 0);
     }
 
-    // ---
-
-    enum class State {
-        kNone,
-        kProcessed,
-        kVisited,
-    };
-
-    bool checkCycle(const vector<vector<int>>& nexts, int node, vector<State>& states) {
-        if (states[node] == State::kVisited) {
-            return false;
-        }
-        if (states[node] == State::kProcessed) {
-            return true;
+    bool dfs(int n, const vector<vector<int>>& prerequisites) {
+        vector<vector<int>> graph(n);
+        for (const auto& prerequisite : prerequisites) {
+            graph[prerequisite[1]].push_back(prerequisite[0]);
         }
 
-        states[node] = State::kProcessed;
-        for (int next : nexts[node]) {
-            if (checkCycle(nexts, next, states)) {
+        enum class State {
+            kNone,
+            kProcessing,
+            kVisited,
+        };
+        vector<State> states(n, State::kNone);
+        std::function<bool(int)> checkCycle = [&](int cur) {
+            if (states[cur] == State::kProcessing) {
                 return true;
             }
-        }
-        states[node] = State::kVisited;
+            else if (states[cur] == State::kVisited) {
+                return false;
+            }
 
-        return false;
-    }
+            states[cur] = State::kProcessing;
+            for (int nxt : graph[cur]) {
+                if (checkCycle(nxt)) {
+                    return true;
+                }
+            }
+            states[cur] = State::kVisited;
 
-    // cycle detection
-    // Time: O(V + E)
-    bool dfs(int numCourses, const vector<vector<int>>& prerequisites) {
-        vector<vector<int>> nexts(numCourses);
-        for (const auto& prerequisite : prerequisites) {
-            nexts[prerequisite[0]].push_back(prerequisite[1]);
-        }
+            return false;
+        };
 
-        vector<State> states(numCourses, State::kNone);
-        for (int i = 0; i < numCourses; ++i) {
-            if (checkCycle(nexts, i, states)) {
+        for (int i = 0; i < n; ++i) {
+            if (checkCycle(i)) {
                 return false;
             }
         }
@@ -78,11 +71,7 @@ public:
     }
 
     bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {
-        return bfs(numCourses, prerequisites);
-        //return dfs(numCourses, prerequisites);
+        //return bfs(numCourses, prerequisites);
+        return dfs(numCourses, prerequisites);
     }
 };
-
-// prerequisite [a, b]
-//     => b -> a
-//     => a has one in-degree from b
