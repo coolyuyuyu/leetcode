@@ -13,7 +13,7 @@ public:
             dp[i][0] = 0;
         }
         for (int j = 1; j <= k; ++j) {
-            dp[0][j] = 0;
+            dp[0][j] = INT_MIN;
         }
         for (int i = 1; i <= n; ++i) {
             auto itr = std::lower_bound(
