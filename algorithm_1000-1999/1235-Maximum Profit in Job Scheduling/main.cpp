@@ -1,21 +1,27 @@
 class Solution {
 public:
     int jobScheduling(vector<int>& startTime, vector<int>& endTime, vector<int>& profit) {
-        size_t n = startTime.size();
+        int n = startTime.size();
 
-        map<int, int> dp; // dp[i]: max profit starting from time i
+        vector<tuple<int, int, int>> jobs(n);
+        for (int i = 0; i < n; ++i) {
+            jobs[i] = {startTime[i], endTime[i], profit[i]};
+        }
+        jobs.insert(jobs.begin(), {-1, -1, 0});
+        std::sort(jobs.begin(), jobs.end(), [&](const auto& job1, const auto& job2) { return std::get<1>(job1) < std::get<1>(job2); });
 
-        vector<size_t> indexes(n);
-        std::iota(indexes.begin(), indexes.end(), 0);
-        std::sort(indexes.begin(), indexes.end(), [&](size_t i, size_t j) { return startTime[i] < startTime[j]; });
-
-        int ans = 0;
-        for (size_t i = n; 0 < i--;) {
-            auto itr = dp.lower_bound(endTime[indexes[i]]);
-            ans = std::max(ans, (itr == dp.end() ? 0 : itr->second) + profit[indexes[i]]);
-            dp[startTime[indexes[i]]] = ans;
+        // dp[i]: the maximum profit from first i jobs
+        vector<int> dp(n + 1);
+        dp[0] = 0;
+        for (int i = 1; i <= n; ++i) {
+            auto itr = std::upper_bound(
+                jobs.begin(), jobs.begin() + i,
+                tuple<int, int, int>{-1, std::get<0>(jobs[i]), 0},
+                [&](const auto& job1, const auto& job2) { return std::get<1>(job1) < std::get<1>(job2); });
+            int x = itr - 1 - jobs.begin();
+            dp[i] = std::max(dp[i - 1], dp[x] + std::get<2>(jobs[i]));
         }
 
-        return ans;
+        return dp[n];
     }
 };
