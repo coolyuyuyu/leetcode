@@ -31,22 +31,19 @@ public:
         l1 = reverseList(l1);
         l2 = reverseList(l2);
 
-        int carry = 0;
         ListNode* pHead = nullptr;
         ListNode** ppCur = &pHead;
-        for (ListNode** ppCur = &pHead; l1 || l2 || carry; ppCur = &((*ppCur)->next)) {
-            int val = carry;
+        for (int carry = 0; l1 || l2 || carry; ppCur = &((*ppCur)->next), carry /= 10) {
             if (l1) {
-                val += l1->val;
+                carry += l1->val;
                 l1 = l1->next;
             }
             if (l2) {
-                val += l2->val;
+                carry += l2->val;
                 l2 = l2->next;
             }
 
-            *ppCur = new ListNode(val % 10);
-            carry = val / 10;
+            *ppCur = new ListNode(carry % 10);
         }
 
         return reverseList(pHead);
