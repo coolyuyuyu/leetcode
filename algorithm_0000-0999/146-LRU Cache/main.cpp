@@ -14,60 +14,52 @@ public:
             return -1;
         }
 
-        Node* node = *(m_key2itr[key]);
-
-        m_list.erase(m_key2itr[key]);
+        auto itr = m_key2itr[key];
+        Node* node = *itr;
+        m_list.erase(itr);
         m_list.push_back(node);
-
         m_key2itr[key] = std::prev(m_list.end());
 
         return node->val;
     }
 
     void put(int key, int value) {
-        if (capacity() == 0) {
-            return;
-        }
-
         if (get(key) != -1) {
-            (*(m_key2itr[key]))->val = value;
+            (*m_key2itr[key])->val = value;
             return;
         }
 
-        Node* node;
-        if (capacity() <= size()) {
-            node = m_list.front();
-            m_list.pop_front();
-
-            m_key2itr.erase(node->key);
+        Node* node = nullptr;
+        if (size() < capacity()) {
+            node = m_nodes + m_key2itr.size();
         }
         else {
-            node = &(m_nodes[size()]);
+            node = m_list.front();
+            m_list.pop_front();
+            m_key2itr.erase(node->key);
         }
 
         node->key = key;
         node->val = value;
-
         m_list.push_back(node);
         m_key2itr[key] = std::prev(m_list.end());
     }
 
-    size_t capacity() const {
+    int capacity() const {
         return m_capacity;
     }
 
-    size_t size() const {
+    int size() const {
         return m_key2itr.size();
     }
 
 private:
-    class Node {
-    public:
+    struct Node {
         int key;
         int val;
     };
 
-    size_t m_capacity;
+    int m_capacity;
     Node* m_nodes;
 
     list<Node*> m_list;
