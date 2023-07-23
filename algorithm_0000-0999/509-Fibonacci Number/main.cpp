@@ -8,13 +8,13 @@ public:
             return 1;
         }
 
-        int x = 1, y = 0;
-        for (size_t i = 2; i <= n; ++i) {
-            int tmp = x + y;
-            y = x;
-            x = tmp;
+        int cur = 1, pre = 0;
+        for (int i = 2; i <= n; ++i) {
+            int tmp = cur + pre;
+            pre = cur;
+            cur = tmp;
         }
 
-        return x;
+        return cur;
     }
 };
