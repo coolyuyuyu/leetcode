@@ -11,55 +11,66 @@
  */
 class Solution {
 public:
-    Solution()
-        : m_fbtGroups({{}, {new TreeNode(0)}}) {
-    }
-
-    vector<TreeNode*>& allPossibleFBT_Recursive(size_t n) {
-        if (m_fbtGroups.size() <= n) {
-            m_fbtGroups.resize(n + 1);
+    vector<TreeNode*> topdn_recursion(int n) {
+        if (n == 1) {
+            return {new TreeNode(0)};
         }
 
-        if (n % 2 == 0 || !m_fbtGroups[n].empty()) {
-            return m_fbtGroups[n];
-        }
-
-        for (size_t i = 1; i < n; i += 2) {
-            size_t j = n - i - 1;
-            for (TreeNode* lft : allPossibleFBT_Recursive(i)) {
-                for (TreeNode* rht : allPossibleFBT_Recursive(j)) {
-                    m_fbtGroups[n].push_back(new TreeNode(0, lft, rht));
+        vector<TreeNode*> ret;
+        for (int i = 1; i < n; i += 2) {
+            for (TreeNode* lft : topdn_recursion(i)) {
+                for (TreeNode* rht : topdn_recursion(n - i - 1)) {
+                    ret.push_back(new TreeNode(0, lft, rht));
                 }
             }
         }
-        return m_fbtGroups[n];
+
+        return ret;
     }
 
-    vector<TreeNode*>& allPossibleFBT_Iterative(size_t n) {
-        for (size_t i = m_fbtGroups.size(); i <= n; ++i) {
-            m_fbtGroups.push_back(vector<TreeNode*>(0));
-            if (i % 2 == 0) {
-                continue;
+    vector<TreeNode*> topdn_recursion_memo(int n) {
+        vector<vector<TreeNode*>> cache(n + 1);
+        cache[1] = {new TreeNode(0)};
+        std::function<vector<TreeNode*>(int)> f = [&](int n) {
+            vector<TreeNode*>& ret = cache[n];
+            if (!ret.empty()) {
+                return ret;
             }
 
-            for (size_t lftIndex = 1; lftIndex < i; lftIndex += 2) {
-                size_t rhtIndex = i - lftIndex - 1;
-                for (TreeNode* lft : allPossibleFBT_Recursive(lftIndex)) {
-                    for (TreeNode* rht : allPossibleFBT_Recursive(rhtIndex)) {
-                        m_fbtGroups[i].push_back(new TreeNode(0, lft, rht));
+            for (int i = 1; i < n; i += 2) {
+                for (TreeNode* lft : f(i)) {
+                    for (TreeNode* rht : f(n - i - 1)) {
+                        ret.push_back(new TreeNode(0, lft, rht));
+                    }
+                }
+            }
+
+            return ret;
+        };
+
+        return f(n);
+    }
+
+    vector<TreeNode*> btmup_dp(int n) {
+        // dp[i]: all possible full binary trees with i nodes
+        vector<vector<TreeNode*>> dp(n + 1);
+        dp[1] = {new TreeNode(0)};
+        for (int i = 3; i <= n; i += 2) {
+            for (int j = 1; j < i; j += 2) {
+                for (TreeNode* lft : dp[j]) {
+                    for (TreeNode* rht : dp[i - j - 1]) {
+                        dp[i].push_back(new TreeNode(0, lft, rht));
                     }
                 }
             }
         }
 
-        return m_fbtGroups[n];
+        return dp[n];
     }
 
-    vector<TreeNode*>& allPossibleFBT(size_t n) {
-        //return allPossibleFBT_Recursive(n);
-        return allPossibleFBT_Iterative(n);
+    vector<TreeNode*> allPossibleFBT(int n) {
+        //return topdn_recursion(n);
+        //return topdn_recursion_memo(n);
+        return btmup_dp(n);
     }
-
-private:
-    vector<vector<TreeNode*>> m_fbtGroups;
 };
