@@ -1,6 +1,7 @@
 class Solution {
 public:
-    int dp1(size_t n) {
+    // Time: O(n), Space: O(n)
+    int dp1(int n) {
         if (n == 0) {
             return 0;
         }
@@ -8,17 +9,19 @@ public:
             return 1;
         }
 
-        vector<int> nums(n + 1);
-        nums[0] = 0;
-        nums[1] = nums[2] = 1;
-        for (size_t i = 3; i < nums.size(); ++i) {
-            nums[i] = nums[i - 1] + nums[i - 2] + nums[i - 3];
+        // dp[i]: the number of distinct ways to climb to i
+        vector<int> dp(n + 1);
+        dp[0] = 0;
+        dp[1] = dp[2] = 1;
+        for (int i = 3; i <= n; ++i) {
+            dp[i] = dp[i - 1] + dp[i - 2] + dp[i - 3];
         }
 
-        return nums.back();
+        return dp[n];
     }
 
-    int dp2(size_t n) {
+    // Time: O(n), Space: O(1)
+    int dp2(int n) {
         if (n == 0) {
             return 0;
         }
@@ -26,6 +29,7 @@ public:
             return 1;
         }
 
+        // [..., x, y, z]
         int x = 0, y = 1, z = 1;
         for (int i = 3; i <= n; ++i) {
             int tmp = x + y + z;
