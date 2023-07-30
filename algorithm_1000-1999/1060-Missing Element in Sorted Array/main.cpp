@@ -1,45 +1,42 @@
 class Solution {
 public:
-    // O(n)
-    int linear(const vector<int>& nums, int k) {
+    // Time: O(N)
+    int linearSearch(const vector<int>& nums, int k) {
         for (int num : nums) {
             if (num <= k) {
                 ++k;
             }
             else {
-                return k;
+                break;
             }
         }
 
         return k;
     }
 
-    // O(logn)
-    int bsearch(const vector<int>& arr, int k) {
-        // lft, ...., mid, ..., rht
-        // S: [1, 2, ..., mid-1]
-        // T: [all arr elements which is less then mid]
-        // if mid == kth missing element
-        //     => len(S) - len(T) = k - 1
+    // Time: O(logN)
+    int binarySearch(const vector<int>& nums, int k) {
+        // S: [0, 1, 2, ..., mid-1], len(S): mid
+        // T: number of nums less than mid
 
-        int lft = 1, rht = arr.back() + k;
-        while (lft < rht) {
-            int mid = rht - (rht - lft) / 2;
-            int s = mid - 1;
-            int t = std::distance(arr.begin(), std::lower_bound(arr.begin(), arr.end(), mid));
-            if ((s - t) <= (k - 1)) {
-                lft = mid;
+        int lo = 0, hi = nums.back() + (k - nums.front() + 1);
+        while (lo < hi) {
+            int mid = hi - (hi - lo) / 2;
+            int s = mid;
+            int t = std::distance(nums.begin(), std::lower_bound(nums.begin(), nums.end(), mid));
+            if ((s - t) <= k) {
+                lo = mid;
             }
             else {
-                rht = mid - 1;
+                hi = mid - 1;
             }
         }
 
-        return lft;
+        return lo;
     }
 
     int missingElement(vector<int>& nums, int k) {
-        return linear(nums, nums.front() + k - 1);
-        //return linear(nums, nums.front() + k - 1);
+        //return linearSearch(nums, nums.front() + k - 1);
+        return binarySearch(nums, nums.front() + k - 1);
     }
 };
