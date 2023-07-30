@@ -50,7 +50,7 @@ public:
                         if (x < 0 || n <= x || y < 0 || n <= y) {
                             continue;
                         }
-                        dp2[r][c] += dp1[x][y] / 8.0;
+                        dp2[r][c] += dp1[x][y] / dirs.size();
                     }
                 }
             }
