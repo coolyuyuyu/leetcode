@@ -7,7 +7,7 @@ public:
         s2 = "#" + s2;
 
         // dp[i][j]: the lowest ASCII sum of deleted characters to make s1[1:i] == s2[1:j]
-        vector<vector<int>> dp(m + 1, vector<int>(n + 1, INT_MAX));
+        vector<vector<int>> dp(m + 1, vector<int>(n + 1));
         dp[0][0] = 0;
         for (int i = 1; i <= m; ++i) {
             dp[i][0] = dp[i - 1][0] + s1[i];
