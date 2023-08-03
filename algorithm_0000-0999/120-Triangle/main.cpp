@@ -1,46 +1,44 @@
 class Solution {
 public:
-    // Space(m, n) = m * n
-    int minimumTotalV1(const vector<vector<int>>& triangle) {
-        vector<vector<int>> dp(triangle.size());
-        dp.front() = triangle.front();
+    // Space: O(m^2)
+    int dp1(const vector<vector<int>>& triangle) {
+        int m = triangle.size();
 
-        for (size_t row = 1; row < triangle.size(); ++row) {
-            size_t colCnt = row + 1;
-            dp[row].resize(colCnt);
-
-            dp[row][0] = dp[row - 1].front() + triangle[row].front();
-            for (size_t col = 1; col < colCnt; ++col) {
-                dp[row][col] = triangle[row][col];
-                dp[row][col] += min(dp[row - 1][col - 1], dp[row - 1][col]);
+        vector<vector<int>> dp(m);
+        dp[0].push_back(triangle[0][0]);
+        for (int i = 1; i < m; ++i) {
+            int n = i + 1;
+            dp[i].resize(i + 1);
+            dp[i][0] = dp[i - 1][0] + triangle[i][0];
+            for (int j = 1; (j + 1) < n; ++j) {
+                dp[i][j] = std::min(dp[i - 1][j - 1], dp[i - 1][j]) + triangle[i][j];
             }
-            dp[row].back() = dp[row - 1].back() + triangle[row].back();
+            dp[i][n - 1] = dp[i - 1][n - 2] + triangle[i][n - 1];
         }
 
-        return *min_element(dp.back().begin(), dp.back().end());
+        return *std::min_element(dp[m - 1].begin(), dp[m - 1].end());
     }
 
-    // Space(m, n) = n
-    int minimumTotalV2(const vector<vector<int>>& triangle) {
-        vector<int> dp(triangle.size(), 0);
-        dp.front() = triangle.front().front();
-        for (size_t row = 1; row < triangle.size(); ++row) {
-            size_t colCnt = row + 1;
-            dp[colCnt - 1] = dp[colCnt - 2] + triangle[row][colCnt - 1];
-            for (size_t col = colCnt - 1; 1 < col--;) {
-                dp[col] = min(dp[col - 1], dp[col]) + triangle[row][col];
+    // Space: O(m)
+    int dp2(const vector<vector<int>>& triangle) {
+        int m = triangle.size();
+
+        vector<int> dp(m);
+        dp[0] = triangle[0][0];
+        for (int i = 1; i < m; ++i) {
+            int n = i + 1;
+            dp[n - 1] = dp[n - 2] + triangle[i][n - 1];
+            for (int j = i; 1 < j--;) {
+                dp[j] = std::min(dp[j - 1], dp[j]) + triangle[i][j];
             }
-            dp[0] = dp[0] + triangle[row][0];
+            dp[0] = dp[0] + triangle[i][0];
         }
 
-        return *min_element(dp.begin(), dp.end());
+        return *std::min_element(dp.begin(), dp.end());
     }
 
     int minimumTotal(vector<vector<int>>& triangle) {
-        assert(!triangle.empty());
-
-        //return minimumTotalV1(triangle);
-
-        return minimumTotalV2(triangle);
+        //return dp1(triangle);
+        return dp2(triangle);
     }
 };
