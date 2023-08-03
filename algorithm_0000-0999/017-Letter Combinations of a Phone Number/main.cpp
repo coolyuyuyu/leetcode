@@ -1,87 +1,60 @@
 class Solution {
 public:
-    static vector<string> s_lettersList;
+    vector<string> letters = {"", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
 
-    static const string& getLetters(char c) {
-        return s_lettersList[c - '0'];
-    }
-
-    void letterCombinationsRecv(const string& digits, string& result, vector<string>& results) {
-        if (result.size() == digits.size()) {
-            results.push_back(result);
-        }
-        else {
-            const string& letters = getLetters(digits[result.size()]);
-            for (size_t i = 0; i < letters.size(); ++i) {
-                result.push_back(letters[i]);
-                letterCombinationsRecv(digits, result, results);
-                result.pop_back();
-            }
-        }
-    }
-
-    vector<string> letterCombinationsRecv(const string& digits) {
+    vector<string> recursive(const string& digits) {
         if (digits.empty()) {
             return {};
         }
 
-        string result;
-
-        vector<string> results; {
-            size_t num = 1;
-            for (size_t i = 0; i < digits.size(); ++i) {
-                num *= getLetters(digits[i]).size();
+        vector<string> ret;
+        string comb;
+        std::function<void()> f = [&]() {
+            if (digits.size() <= comb.size()) {
+                ret.push_back(comb);
+                return;
             }
-            results.reserve(num);
-        }
 
-        letterCombinationsRecv(digits, result, results);
-        return results;
+            for (char c : letters[digits[comb.size()] - '0']) {
+                comb.push_back(c);
+                f();
+                comb.pop_back();
+            }
+        };
+        f();
+
+        return ret;
     }
 
-    vector<string> letterCombinationsIter(const string& digits) {
+    vector<string> itertive(const string& digits) {
         if (digits.empty()) {
-            return{};
+            return {};
         }
 
-        string result;
-        vector<string> results;
-        size_t num = 1;
-        for (size_t i = 0; i < digits.size(); ++i) {
-            const string& letters = getLetters(digits[i]);
-            num *= letters.size();
-            result.push_back(letters.front());
-        }
-        results.reserve(num);
-        results.push_back(result);
+        queue<string> q({""});
+        for (char digit : digits) {
+            for (int n = q.size(); 0 < n--;) {
+                string comb = q.front();
+                q.pop();
 
-        while (true) {
-            size_t index = digits.size();
-            for (; index > 0; --index) {
-                const string& letters = getLetters(digits[index - 1]);
-                if (result[index - 1] == letters.back()) {
-                    result[index - 1] = letters.front();
-                }
-                else {
-                    break;
+                for (char c : letters[digit - '0']) {
+                    string tmp = comb;
+                    tmp.push_back(c);
+                    q.push(tmp);
                 }
             }
-
-            if (index == 0) {
-                break;
-            }
-
-            const string& letters = getLetters(digits[index - 1]);
-            result[index - 1] = letters[letters.find(result[index - 1]) + 1];
-            results.push_back(result);
         }
 
-        return results;
+        vector<string> ret;
+        for (; !q.empty(); q.pop()) {
+            ret.push_back(q.front());
+        }
+
+        return ret;
     }
 
     vector<string> letterCombinations(string digits) {
-        return letterCombinationsRecv(digits);
+        //return recursive(digits);
+        return itertive(digits);
     }
 };
-
-vector<string> Solution::s_lettersList = {"0", "1", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
