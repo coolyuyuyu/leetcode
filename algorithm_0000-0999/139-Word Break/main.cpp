@@ -136,33 +136,39 @@ public:
     }
 
     // --- dp foreward ---
-    bool dp_foreward(const string& s, vector<string>& words) {
+    bool dp_foreward(string& s, vector<string>& words) {
         size_t n = s.size();
-        vector<bool> dp(n, false); // dp[i]: s[0:i] is breakable or not by words
 
-        for (size_t i = 0; i < n; ++i) {
+        s = "#" + s;
+
+        // dp[i]: s[1:i] is breakable or not by words
+        vector<bool> dp(n + 1);
+        dp[0] = true;
+        for (size_t i = 1; i <= n; ++i) {
             for (const string& word : words) {
-                if (word.size() <= (i + 1) &&
-                    (word.size() == (i + 1) || dp[i - word.size()]) &&
-                    s.compare(i + 1 - word.size(), word.size(), word) == 0) {
+                if (word.size() <= i &&
+                    dp[i - word.size()] &&
+                    s.compare(i - word.size() + 1, word.size(), word) == 0) {
                     dp[i] = true;
                     break;
                 }
             }
         }
 
-        return dp[n - 1];
+        return dp[n];
     }
 
     // --- dp backward ---
     bool dp_backward(const string& s, vector<string>& words) {
         size_t n = s.size();
-        vector<bool> dp(n, false); // dp[i]: s[i:] is breakable or not by words
 
+        // dp[i]: s[i:] is breakable or not by words
+        vector<bool> dp(n + 1);
+        dp[n] = true;
         for (size_t i = n; 0 < i--;) {
             for (const string& word : words) {
-                if (word.size() <= (n - i) &&
-                    (word.size() == (n - i) || dp[i + word.size()]) &&
+                if ((i + word.size()) <= n &&
+                    dp[i + word.size()] &&
                     s.compare(i, word.size(), word) == 0) {
                     dp[i] = true;
                     break;
