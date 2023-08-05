@@ -11,65 +11,62 @@
  */
 class Solution {
 public:
-    Solution()
-        : m_treeVecs({{nullptr}}) {
-    }
-
-    TreeNode* cloneTree(TreeNode* root, int diff) {
-        if (!root) {
-            return nullptr;
-        }
-        return new TreeNode(root->val + diff, cloneTree(root->left, diff), cloneTree(root->right, diff));
-    }
-
-    const vector<TreeNode*>& generateTrees_Recursive(int n) {
-        if (n < m_treeVecs.size()) {
-            return m_treeVecs[n];
-        }
-
-        vector<TreeNode*> trees;
-        for (int i = 0; i < n; ++i) {
-            for (TreeNode* lft : generateTrees_Recursive(i)) {
-                for (TreeNode* rht : generateTrees_Recursive(n - i - 1)) {
-                    TreeNode* root = new TreeNode(i + 1, lft, cloneTree(rht, i + 1));
-                    trees.push_back(root);
-                }
+    TreeNode* clone(TreeNode* root, int delta) {
+        std::function<TreeNode*(TreeNode*)> f = [&](TreeNode* root) -> TreeNode* {
+            if (!root) {
+                return nullptr;
             }
-        }
-        if (m_treeVecs.size() <= n) {
-            m_treeVecs.resize(n + 1, {});
-        }
-        m_treeVecs[n] = trees;
 
-        return m_treeVecs[n];
+            return new TreeNode(root->val + delta, f(root->left), f(root->right));
+        };
+
+        return f(root);
     }
 
-    const vector<TreeNode*>& generateTrees_Iterative(int n) {
-        if (n < m_treeVecs.size()) {
-            return m_treeVecs[n];
-        }
+    vector<TreeNode*> topdn_recursive(int n) {
+        vector<vector<TreeNode*>> cache(n + 1);
+        cache[0].push_back(nullptr);
+        std::function< vector<TreeNode*>(int)> f = [&](int n) {
+            vector<TreeNode*>& ret = cache[n];
+            if (!ret.empty()) {
+                return ret;
+            }
 
-        for (int i = m_treeVecs.size(); i <= n; ++i) {
-            vector<TreeNode*> trees;
-            for (int j = 0; j < i; ++j) {
-                for (TreeNode* lft : m_treeVecs[j]) {
-                    for (TreeNode* rht : m_treeVecs[i - j - 1]) {
-                        TreeNode* root = new TreeNode(j + 1, lft, cloneTree(rht, j + 1));
-                        trees.push_back(root);
+            for (int val = 1; val <= n; ++val) {
+                int lftCnt = val - 1, rhtCnt = n - val;
+                for (TreeNode* lftChild : f(lftCnt)) {
+                    for (TreeNode* rhtChild : f(rhtCnt)) {
+                        ret.push_back(new TreeNode(val, lftChild, clone(rhtChild, val)));
                     }
                 }
             }
-            m_treeVecs.push_back(trees);
+
+            return ret;
+        };
+
+        return f(n);
+    }
+
+    vector<TreeNode*> btmup_dp(int n) {
+        // dp[i]: all the structurally unique BST's, which has exactly n nodes of unique values from 1 to n
+        vector<vector<TreeNode*>> dp(n + 1);
+        dp[0].push_back(nullptr);
+        for (int i = 1; i <= n; ++i) {
+            for (int val = 1; val <= i; ++val) {
+                int lftCnt = val - 1, rhtCnt = i - val;
+                for (TreeNode* lftChild : dp[lftCnt]) {
+                    for (TreeNode* rhtChild : dp[rhtCnt]) {
+                        dp[i].push_back(new TreeNode(val, lftChild, clone(rhtChild, val)));
+                    }
+                }
+            }
         }
 
-        return m_treeVecs[n];
+        return dp[n];
     }
 
-    const vector<TreeNode*>& generateTrees(int n) {
-        //return generateTrees_Recursive(n);
-        return generateTrees_Iterative(n);
+    vector<TreeNode*> generateTrees(int n) {
+        //return topdn_recursive(n);
+        return btmup_dp(n);
     }
-
-private:
-    vector<vector<TreeNode*>> m_treeVecs;
 };
