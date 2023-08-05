@@ -1,47 +1,41 @@
 class Solution {
 public:
-    Solution()
-        : m_nums({1}) {
-    }
-
-    int numTrees_Recursive(int n) {
-        if (n < m_nums.size()) {
-            return m_nums[n];
-        }
-
-        int num = 0;
-        for (int i = 0; i < n; ++i) {
-            num += (numTrees_Recursive(i) * numTrees_Recursive(n - i - 1));
-        }
-        if (m_nums.size() <= n) {
-            m_nums.resize(n + 1, 0);
-        }
-        m_nums[n] = num;
-
-        return m_nums[n];
-    }
-
-    int numTrees_Iterative(int n) {
-        if (n < m_nums.size()) {
-            return m_nums[n];
-        }
-
-        for (int i = m_nums.size(); i <= n; ++i) {
-            int num = 0;
-            for (int j = 0; j < i; ++j) {
-                num += (m_nums[j] * m_nums[i - j - 1]);
+    int topdn_recursive(int n) {
+        vector<int> cache(n + 1, 0);
+        cache[0] = 1;
+        std::function<int(int)> f = [&](int n) {
+            int& ret = cache[n];
+            if (0 < ret) {
+                return ret;
             }
-            m_nums.push_back(num);
+
+            for (int lft = 0; lft < n; ++lft) {
+                int rht = n - lft - 1;
+                ret += f(lft) * f(rht);
+            }
+
+            return ret;
+        };
+
+        return f(n);
+    }
+
+    int btmup_dp(int n){
+        // dp[i]: the number of structurally unique BST's which has exactly n nodes
+        vector<int> dp(n + 1, 0);
+        dp[0] = 1;
+        for (int i = 1; i <= n; ++i) {
+            for (int lft = 0; lft < i; ++lft) {
+                int rht = i - lft - 1;
+                dp[i] += dp[lft] * dp[rht];
+            }
         }
 
-        return m_nums[n];
+        return dp[n];
     }
 
     int numTrees(int n) {
-        //return numTrees_Recursive(n);
-        return numTrees_Iterative(n);
+        //return topdn_recursive(n);
+        return btmup_dp(n);
     }
-
-private:
-    vector<int> m_nums;
 };
