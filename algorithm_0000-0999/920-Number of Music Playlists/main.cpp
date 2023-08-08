@@ -3,7 +3,7 @@ public:
     int M = 1e9 + 7;
 
     int numMusicPlaylists(int n, int goal, int k) {
-        // dp[i][j]: the number of playlists of length i using j different songs;
+        // dp[i][j]: the number of playlists of length i using j different songs
         vector<vector<long>> dp(goal + 1, vector<long>(n + 1));
         dp[1][1] = n;
         for (int i = 2; i <= goal; ++i) {
