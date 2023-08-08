@@ -1,21 +1,12 @@
 class Codec {
 public:
-    // Encodes a list of strings to a single string.
-    string encode(vector<string>& strs) {
-        string out;
-        for (auto& str : strs) {
-            encode(str, out);
-        }
-
-        return out;
-    }
-
     void encode(size_t val, string& out) {
         do {
             unsigned char v = static_cast<unsigned char>(val) & MASK;
             if (MASK < val) {
                 v |= CARRY;
             }
+
             out += v;
         } while (val >>= SHIFT);
     }
@@ -23,6 +14,36 @@ public:
     void encode(const string& str, string& out) {
         encode(str.size(), out);
         out += str;
+    }
+
+    // Encodes a list of strings to a single string.
+    string encode(const vector<string>& strs) {
+        string out;
+        for (const string& str : strs) {
+            encode(str, out);
+        }
+
+        return out;
+    }
+
+    void decode(string::const_iterator& itr, size_t& val) {
+        val = 0;
+
+        int shiftCnt = 0;
+        unsigned char v;
+        do {
+            v = *itr++;
+            val |= static_cast<size_t>(v & MASK) << shiftCnt;
+            shiftCnt += SHIFT;
+        } while (v & CARRY);
+    }
+
+    void decode(string::const_iterator& itr, string& out) {
+        size_t len;
+        decode(itr, len);
+
+        out.assign(itr, itr + len);
+        itr += len;
     }
 
     // Decodes a single string to a list of strings.
@@ -34,28 +55,6 @@ public:
         }
 
         return ret;
-    }
-
-    void decode(string::const_iterator& itr, size_t& val) {
-        val = 0;
-
-        int shiftCnt = 0;
-        size_t c;
-        do {
-            c = *itr++;
-            val |= (c & MASK) << shiftCnt;
-            shiftCnt += SHIFT;
-        } while (c & CARRY);
-    }
-
-    void decode(string::const_iterator& itr, string& str) {
-        size_t len;
-        decode(itr, len);
-
-        str.resize(len, '\0');
-
-        std::copy(itr, itr + len, str.begin());
-        itr += len;
     }
 
 private:
