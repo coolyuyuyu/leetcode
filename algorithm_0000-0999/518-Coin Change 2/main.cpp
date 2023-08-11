@@ -1,35 +1,77 @@
 class Solution {
 public:
-    // Time(amount, size_of_coins) = O(amount * size_of_coins), Space(amount, size_of_coins) = O(amount * size_of_coins)
-    size_t changeDpV1(int amount, const vector<int>& coins) {
-        vector<vector<int>> dp(coins.size() + 1, vector<int>(amount + 1, 0));
-        dp[0][0] = 1;
+    // Time: O(n * amount * k), k = amount / min(coins)
+    // Space: O(n * amount)
+    int dp1(int amount, vector<int>& coins) {
+        int n = coins.size();
 
-        for (int i = 1; i <= coins.size(); ++i) {
+        coins.insert(coins.begin(), 0);
+
+        // dp[i][j] the number of combinations from coins[1:i] that make up that amount j
+        vector<vector<int>> dp(n + 1, vector<int>(amount + 1));
+        for (int i = 0; i <= n; ++i) {
             dp[i][0] = 1;
+        }
+        for (int i = 1; i <= n; ++i) {
             for (int j = 1; j <= amount; ++j) {
-                dp[i][j] = dp[i - 1][j] + (coins[i - 1] <= j ? dp[i][j - coins[i - 1]] : 0);
+                dp[i][j] = 0;
+                for (int k = 0; 0 <= (j - coins[i] * k); ++k) {
+                    dp[i][j] += dp[i - 1][j - coins[i] * k];
+                }
             }
         }
-        return dp.back().back();
+
+        return dp[n][amount];
     }
 
-    // Time(amount, size_of_coins) = O(amount * size_of_coins), Space(amount, size_of_coins) = O(amount)
-    size_t changeDpV2(int amount, const vector<int>& coins) {
-        vector<int> dp(amount + 1, 0);
+    // Time: O(n * amount * k), k = amount / min(coins)
+    // Space: O(n)
+    int dp2(int amount, vector<int>& coins) {
+        int n = coins.size();
+
+        coins.insert(coins.begin(), 0);
+
+        // dp[j]: the number of combinationsthat make up that amount j
+        vector<int> dp(amount + 1);
         dp[0] = 1;
-
-        for (int i = 1; i <= coins.size(); ++i) {
+        for (int i = 1; i <= n; ++i) {
+            vector<int> tmp = dp;
             for (int j = 1; j <= amount; ++j) {
-                dp[j] = dp[j] + (coins[i - 1] <= j ? dp[j - coins[i - 1]] : 0);
+                dp[j] = 0;
+                for (int k = 0; 0 <= (j - coins[i] * k); ++k) {
+                    dp[j] += tmp[j - coins[i] * k];
+                }
             }
         }
-        return dp.back();
+
+        return dp[amount];
     }
 
-    size_t change(int amount, const vector<int>& coins) {
-        //return changeDpV1(amount, coins);
+    // Time: O(n * amount)
+    // Space: O(n)
+    int dp3(int amount, vector<int>& coins) {
+        int n = coins.size();
 
-        return changeDpV2(amount, coins);
+        coins.insert(coins.begin(), 0);
+
+        // dp[j]: the number of combinationsthat make up that amount j
+        vector<int> dp(amount + 1);
+        dp[0] = 1;
+        for (int i = 1; i <= n; ++i) {
+            vector<int> tmp = dp;
+            for (int j = 1; j <= amount; ++j) {
+                if (coins[i] <= j) {
+                    dp[j] += dp[j - coins[i]];
+                }
+            }
+        }
+
+        return dp[amount];
+    }
+
+    int change(int amount, vector<int>& coins) {
+        //return dp1(amount, coins);
+        //return dp2(amount, coins);
+        return dp3(amount, coins);
     }
 };
