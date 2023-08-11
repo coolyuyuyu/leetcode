@@ -1,118 +1,99 @@
 class Solution {
 public:
-    // Space(rowCnt, colCnt) = rowCnt * colCnt
-    size_t maximalRectangleV1(const vector<vector<char>>& matrix) {
-        size_t rowCnt = matrix.size();
-        size_t colCnt = matrix.empty() ? 0 : matrix.front().size();
+    int dp(const vector<vector<char>>& matrix) {
+        int m = matrix.size(), n = matrix.empty() ? 0 : matrix[0].size();
 
-        size_t maxArea = 0;
-        vector<vector<size_t>> lftDp(rowCnt, vector<size_t>(colCnt, 0));
-        vector<vector<size_t>> rhtDp(rowCnt, vector<size_t>(colCnt, colCnt));
-        vector<vector<size_t>> heightDp(rowCnt, vector<size_t>(colCnt, 0));
-        for (size_t col = 0, lftMost = 0; col < colCnt; ++col) {
-            if (matrix[0][col] == '1') {
-                lftDp[0][col] = lftMost;
-            }
-            else {
-                lftMost = col + 1;
-            }
-        }
-        for (size_t col = colCnt, rhtMost = colCnt; 0 < col--;) {
-            if (matrix[0][col] == '1') {
-                rhtDp[0][col] = rhtMost;
-            }
-            else {
-                rhtMost = col;
-            }
-        }
-        for (size_t col = 0; col < colCnt; ++col) {
-            heightDp[0][col] = matrix[0][col] - '0';
-        }
-        for (size_t col = 0; col < colCnt; ++col) {
-            maxArea = max(maxArea, (rhtDp[0][col] - lftDp[0][col]) * heightDp[0][col]);
-        }
+        // dpL(i, j): left bound of the rectangle containing  (i, j)
+        vector<int> dpL(n, 0);
+        // dpR(i, j): right bound of the rectangle containing  (i, j)
+        vector<int> dpR(n, n);
+        // dpU(i, j): height bound of the rectangle containing  (i, j)
+        vector<int> dpH(n, 0);
 
-        for (size_t row = 1; row < rowCnt; ++row) {
-            for (size_t col = 0, lftMost = 0; col < colCnt; ++col) {
-                if (matrix[row][col] == '1') {
-                    lftDp[row][col] = max(lftDp[row - 1][col], lftMost);
+        int ret = 0;
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0, mostL = 0; c < n; ++c) {
+                if (matrix[r][c] == '1') {
+                    dpL[c] = std::max(dpL[c], mostL);
                 }
                 else {
-                    lftDp[row][col] = 0;
-                    lftMost = col + 1;
+                    dpL[c] = 0;
+                    mostL = c + 1;
                 }
             }
-            for (size_t col = colCnt, rhtMost = colCnt; 0 < col--;) {
-                if (matrix[row][col] == '1') {
-                    rhtDp[row][col] = min(rhtDp[row - 1][col], rhtMost);
+            for (int c = n, mostR = n; 0 < c--;) {
+                if (matrix[r][c] == '1') {
+                    dpR[c] = std::min(dpR[c], mostR);
                 }
                 else {
-                    rhtDp[row][col] = colCnt;
-                    rhtMost = col;
+                    dpR[c] = n;
+                    mostR = c;
                 }
             }
-            for (size_t col = 0; col < colCnt; ++col) {
-                if (matrix[row][col] == '1') {
-                    heightDp[row][col] = heightDp[row - 1][col] + 1;
+            for (int c = 0; c < n; ++c) {
+                if (matrix[r][c] == '1') {
+                    dpH[c] = dpH[c] + 1;
                 }
                 else {
-                    heightDp[row][col] = 0;
+                    dpH[c] = 0;
                 }
             }
-            for (size_t col = 0; col < colCnt; ++col) {
-                maxArea = max(maxArea, (rhtDp[row][col] - lftDp[row][col]) * heightDp[row][col]);
+
+            for (int c = 0; c < n; ++c) {
+                ret = std::max(ret, (dpR[c] - dpL[c]) * dpH[c]);
             }
         }
 
-        return maxArea;
+        return ret;
     }
 
-    size_t maximalRectangleV2(const vector<vector<char>>& matrix) {
-        size_t rowCnt = matrix.size();
-        size_t colCnt = matrix.empty() ? 0 : matrix.front().size();
+    int monotonic_stack(const vector<vector<char>>& matrix) {
+        int m = matrix.size(), n = matrix.empty() ? 0 : matrix[0].size();
 
-        size_t maxArea = 0;
-        vector<size_t> lftDp(colCnt, 0);
-        vector<size_t> rhtDp(colCnt, colCnt);
-        vector<size_t> heightDp(colCnt, 0);
-        for (size_t row = 0; row < rowCnt; ++row) {
-            for (size_t col = 0, lftMost = 0; col < colCnt; ++col) {
-                if (matrix[row][col] == '1') {
-                    lftDp[col] = max(lftDp[col], lftMost);
+        // 84. Largest Rectangle in Histogram
+        std::function<int(vector<int>)> largestRectangleArea = [](vector<int> heights) {
+            heights.insert(heights.begin(), 0);
+            heights.push_back(0);
+
+            int n = heights.size();
+
+            stack<int> stk;
+
+            int ret = 0;
+            for (int i = 0; i < n; ++i) {
+                while (!stk.empty() && heights[stk.top()] > heights[i]) {
+                    int h = heights[stk.top()];
+                    stk.pop();
+                    int w = i - stk.top() - 1;
+
+                    ret = std::max(ret, w * h);
+                }
+                stk.push(i);
+            }
+
+            return ret;
+        };
+
+        vector<int> hist(n, 0);
+        int ret = 0;
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                if (matrix[r][c] == '1') {
+                    hist[c] += 1;
                 }
                 else {
-                    lftDp[col] = 0;
-                    lftMost = col + 1;
+                    hist[c] = 0;
                 }
             }
-            for (size_t col = colCnt, rhtMost = colCnt; 0 < col--;) {
-                if (matrix[row][col] == '1') {
-                    rhtDp[col] = min(rhtDp[col], rhtMost);
-                }
-                else {
-                    rhtDp[col] = colCnt;
-                    rhtMost = col;
-                }
-            }
-            for (size_t col = 0; col < colCnt; ++col) {
-                if (matrix[row][col] == '1') {
-                    heightDp[col] = heightDp[col] + 1;
-                }
-                else {
-                    heightDp[col] = 0;
-                }
-            }
-            for (size_t col = 0; col < colCnt; ++col) {
-                maxArea = max(maxArea, (rhtDp[col] - lftDp[col]) * heightDp[col]);
-            }
+
+            ret = std::max(ret, largestRectangleArea(hist));
         }
 
-        return maxArea;
+        return ret;
     }
 
-    size_t maximalRectangle(vector<vector<char>>& matrix) {
-        //return maximalRectangleV1(matrix);
-
-        return maximalRectangleV2(matrix);
+    int maximalRectangle(vector<vector<char>>& matrix) {
+        //return dp(matrix);
+        return monotonic_stack(matrix);
     }
 };
