@@ -7,15 +7,15 @@ public:
         // dp[i][j]: the number of possible unique paths that the robot can take to reach (i, j)
         vector<vector<int>> dp(m, vector<int>(n));
         dp[0][0] = obstacleGrid[0][0] ? 0 : 1;
-        for (int r = 1; r < m; ++r) {
-            dp[r][0] = obstacleGrid[r][0] ? 0 : dp[r - 1][0];
+        for (int i = 1; i < m; ++i) {
+            dp[i][0] = obstacleGrid[i][0] ? 0 : dp[i - 1][0];
         }
-        for (int c = 1; c < n; ++c) {
-            dp[0][c] = obstacleGrid[0][c] ? 0 : dp[0][c - 1];
+        for (int j = 1; j < n; ++j) {
+            dp[0][j] = obstacleGrid[0][j] ? 0 : dp[0][j - 1];
         }
-        for (int r = 1; r < m; ++r) {
-            for (int c = 1; c < n; ++c) {
-                dp[r][c] = obstacleGrid[r][c] ? 0 : (dp[r - 1][c] + dp[r][c - 1]);
+        for (int i = 1; i < m; ++i) {
+            for (int j = 1; j < n; ++j) {
+                dp[i][j] = obstacleGrid[i][j] ? 0 : (dp[i - 1][j] + dp[i][j - 1]);
             }
         }
 
@@ -29,15 +29,15 @@ public:
         // dp[i][j]: the number of possible unique paths that the robot can take to reach (i, j)
         vector<int> dp(n);
         dp[0] = obstacleGrid[0][0] ? 0 : 1;
-        for (int c = 1; c < n; ++c) {
-            dp[c] = obstacleGrid[0][c] ? 0 : dp[c - 1];
+        for (int j = 1; j < n; ++j) {
+            dp[j] = obstacleGrid[0][j] ? 0 : dp[j - 1];
         }
-        for (int r = 1; r < m; ++r) {
-            if (obstacleGrid[r][0]) {
+        for (int i = 1; i < m; ++i) {
+            if (obstacleGrid[i][0]) {
                 dp[0] = 0;
             }
-            for (int c = 1; c < n; ++c) {
-                dp[c] = obstacleGrid[r][c] ? 0 : (dp[c] + dp[c - 1]);
+            for (int j = 1; j < n; ++j) {
+                dp[j] = obstacleGrid[i][j] ? 0 : (dp[j] + dp[j - 1]);
             }
         }
 
