@@ -1,23 +1,20 @@
 class Solution {
 public:
     void sortColors(vector<int>& nums) {
-        size_t index0 = 0;
-        size_t index1 = 0;
-        size_t index2 = 0;
-        for (int num : nums) {
-            switch (num) {
-            case 0:
-                nums[index2++] = 2;
-                nums[index1++] = 1;
-                nums[index0++] = 0;
-                break;
-            case 1:
-                nums[index2++] = 2;
-                nums[index1++] = 1;
-                break;
-            case 2:
-                ++index2;
-                break;
+        // quick select
+        int i = 0, j = nums.size() - 1, x = 0;
+        while (x <= j) {
+            if (nums[x] == 0) {
+                std::swap(nums[i], nums[x]);
+                ++i;
+                ++x;
+            }
+            else if (nums[x] == 1) {
+                ++x;
+            }
+            else {
+                std::swap(nums[x], nums[j]);
+                --j;
             }
         }
     }
