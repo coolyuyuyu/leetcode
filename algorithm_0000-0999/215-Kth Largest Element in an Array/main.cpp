@@ -11,7 +11,7 @@ public:
         priority_queue<int> pq;
         for (int num : nums) {
             pq.push(num);
-            if ((k+1) < pq.size()) {
+            if ((k + 1) < pq.size()) {
                 pq.pop();
             }
         }
