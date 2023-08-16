@@ -11,24 +11,21 @@
 class Solution {
 public:
     ListNode* partition(ListNode* head, int x) {
-        ListNode* pLftHead = nullptr;
-        ListNode** ppLftCur = &pLftHead;
-        ListNode* pRhtHead = nullptr;
-        ListNode** ppRhtCur = &pRhtHead;
-        for (ListNode* pCur = head; pCur; pCur = pCur->next) {
-            if (pCur->val < x) {
-                *ppLftCur = pCur;
-                ppLftCur = &(pCur->next);
+        ListNode *head1 = nullptr, *head2 = nullptr;
+        ListNode **ppNode1 = &head1, **ppNode2 = &head2;
+        for (ListNode* pNode = head; pNode; pNode = pNode->next) {
+            if (pNode->val < x) {
+                *ppNode1 = pNode;
+                ppNode1 = &((*ppNode1)->next);
             }
             else {
-                *ppRhtCur = pCur;
-                ppRhtCur = &(pCur->next);
+                *ppNode2 = pNode;
+                ppNode2 = &((*ppNode2)->next);
             }
         }
+        *ppNode1 = head2;
+        *ppNode2 = nullptr;
 
-        *ppLftCur = pRhtHead;
-        *ppRhtCur = nullptr;
-
-        return pLftHead;
+        return head1;
     }
 };
