@@ -1,62 +1,38 @@
 class Solution {
 public:
+
+    
+    
     bool hasPath(vector<vector<int>>& maze, vector<int>& start, vector<int>& destination) {
-        size_t rowCnt = maze.size(), colCnt = maze.empty() ? 0 : maze.front().size();
-        vector<vector<bool>> visited(rowCnt, vector<bool>(colCnt, false));
-        pair<size_t, size_t> bgn = {start[0], start[1]}, end = {destination[0], destination[1]};
+        int m = maze.size(), n = maze.empty() ? 0 : maze[0].size();
 
-        queue<pair<size_t, size_t>> positions;
-        positions.emplace(bgn.first, bgn.second);
-        while (!positions.empty()) {
-            pair<size_t, size_t> pos = positions.front();
-            positions.pop();
+        vector<pair<int, int>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
 
-            if (visited[pos.first][pos.second]) {
-                continue;
+        auto nextPos = [&](int r, int c, const pair<int, int>& dir) {
+            while (0 <= r && r < m && 0 <= c && c < n && maze[r][c] == 0) {
+                r += dir.first;
+                c += dir.second;
             }
-            else if (pos == end) {
-                return true;
-            }
-            else {
-                visited[pos.first][pos.second] = true;
+ 
+            return std::make_pair(r - dir.first, c - dir.second);
+        };
 
-                pair<size_t, size_t> posTmp;
+        queue<pair<int, int>> q;
+        vector<vector<bool>> visited(m, vector<bool>(n, false));
 
-                // lft
-                posTmp = pos;
-                while (0 < posTmp.second && maze[posTmp.first][posTmp.second - 1] == 0) {
-                    --(posTmp.second);
-                }
-                if (posTmp != pos) {
-                    positions.emplace(posTmp.first, posTmp.second);
-                }
+        q.emplace(start[0], start[1]);
+        visited[start[0]][start[1]] = true;
+        while (!q.empty()) {
+            auto [r1, c1] = q.front();
+            q.pop();
 
-                // upr
-                posTmp = pos;
-                while (0 < posTmp.first && maze[posTmp.first - 1][posTmp.second] == 0) {
-                    --(posTmp.first);
-                }
-                if (posTmp != pos) {
-                    positions.emplace(posTmp.first, posTmp.second);
-                }
+            for (const auto& dir : dirs) {
+                auto [r2, c2] = nextPos(r1, c1, dir);
+                if (r2 == destination[0] && c2 == destination[1]) { return true; }
+                if (visited[r2][c2]) { continue; }
 
-                // rht
-                posTmp = pos;
-                while (posTmp.second + 1 < colCnt && maze[posTmp.first][posTmp.second + 1] == 0) {
-                    ++(posTmp.second);
-                }
-                if (posTmp != pos) {
-                    positions.emplace(posTmp.first, posTmp.second);
-                }
-
-                // btm
-                posTmp = pos;
-                while (posTmp.first + 1 < rowCnt && maze[posTmp.first + 1][posTmp.second] == 0) {
-                    ++(posTmp.first);
-                }
-                if (posTmp != pos) {
-                    positions.emplace(posTmp.first, posTmp.second);
-                }
+                q.emplace(r2, c2);
+                visited[r2][c2] = true;
             }
         }
 
