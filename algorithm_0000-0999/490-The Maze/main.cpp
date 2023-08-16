@@ -1,8 +1,5 @@
 class Solution {
 public:
-
-    
-    
     bool hasPath(vector<vector<int>>& maze, vector<int>& start, vector<int>& destination) {
         int m = maze.size(), n = maze.empty() ? 0 : maze[0].size();
 
