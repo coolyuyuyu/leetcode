@@ -1,89 +1,72 @@
 class Solution {
 public:
-    vector<vector<int>> updateMatrixBfs(vector<vector<int>>& matrix) {
-        size_t rowCnt = matrix.size();
-        size_t colCnt = matrix.empty() ? 0 : matrix.front().size();
+    vector<vector<int>> bfs(vector<vector<int>>& mat) {
+        int m = mat.size(), n = mat.empty() ? 0 : mat[0].size();
+        vector<pair<int, int>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
 
-        vector<pair<size_t, size_t>> points;
-        for (size_t row = 0; row < rowCnt; ++row) {
-            for (size_t col = 0; col < colCnt; ++col) {
-                if (matrix[row][col] == 0) {
-                    points.emplace_back(row, col);
-                }
-                else {
-                    matrix[row][col] = -1;
+        vector<vector<int>> ret(m, vector<int>(n, -1));
+        queue<pair<int, int>> q;
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                if (mat[r][c] == 0) {
+                    ret[r][c] = 0;
+                    q.emplace(r, c);
                 }
             }
         }
 
-        int distance = 0;
-        while (!points.empty()) {
-            for (const pair<size_t, size_t>& point : points) {
-                matrix[point.first][point.second] = distance;
+        while (!q.empty()) {
+            auto [r, c] = q.front();
+            q.pop();
+
+            for (const auto& [dr, dc] : dirs) {
+                int x = r + dr, y = c + dc;
+                if (x < 0 || m <= x || y < 0 || n <= y) { continue; }
+                if (0 <= ret[x][y]) { continue; }
+
+                ret[x][y] = ret[r][c] + 1;
+                q.emplace(x, y);
             }
-
-            vector<pair<size_t, size_t>> pointsTmp;
-            for (const pair<size_t, size_t>& point : points) {
-                size_t row = point.first, col = point.second;
-
-                // lft
-                if (0 < col && matrix[row][col - 1] < 0) {
-                    pointsTmp.emplace_back((row), (col - 1));
-                }
-
-                // upr
-                if (0 < row && matrix[row - 1][col] < 0) {
-                    pointsTmp.emplace_back((row - 1) , + (col));
-                }
-
-                // rht
-                if (col + 1 < colCnt && matrix[row][col + 1] < 0) {
-                    pointsTmp.emplace_back((row) , (col + 1));
-                }
-
-                // btm
-                if (row + 1 < rowCnt && matrix[row + 1][col] < 0) {
-                    pointsTmp.emplace_back((row + 1) , (col));
-                }
-            }
-            points.swap(pointsTmp);
-
-            ++distance;
         }
 
-        return matrix;
+        return ret;
     }
 
-    vector<vector<int>> updateMatrixDp(vector<vector<int>>& matrix) {
-        size_t rowCnt = matrix.size();
-        size_t colCnt = matrix.empty() ? 0 : matrix.front().size();
+    vector<vector<int>> dynamicProgramming(vector<vector<int>>& mat) {
+        int m = mat.size(), n = mat.empty() ? 0 : mat[0].size();
 
-        for (size_t row = 0; row < rowCnt; ++row) {
-            for (size_t col = 0; col < colCnt; ++col) {
-                if (matrix[row][col] == 1) {
-                    int lftMax = 0 < col ? matrix[row][col - 1] : INT_MAX;
-                    int uprMax = 0 < row ? matrix[row - 1][col] : INT_MAX;
-                    int neighborMax = min(lftMax, uprMax);
-                    matrix[row][col] = (neighborMax == INT_MAX ? INT_MAX : (neighborMax + 1));
-                }
+        // dp[r][c]: the distance of the nearest 0 for cell (r, c)
+        vector<vector<int>> dp(m, vector<int>(n));
+        dp[0][0] = mat[0][0] == 0 ? 0 : (INT_MAX / 2);
+        for (int r = 1; r < m; ++r) {
+            dp[r][0] = mat[r][0] == 0 ? 0 : (dp[r - 1][0] + 1);
+        }
+        for (int c = 1; c < n; ++c) {
+            dp[0][c] = mat[0][c] == 0 ? 0 : (dp[0][c - 1] + 1);
+        }
+        for (int r = 1; r < m; ++r) {
+            for (int c = 1; c < n; ++c) {
+                dp[r][c] = mat[r][c] == 0 ? 0 : (std::min(dp[r - 1][c], dp[r][c - 1]) + 1);
             }
         }
 
-        for (size_t row = rowCnt; 0 < row--;) {
-            for (size_t col = colCnt; 0 < col--;) {
-                int rhtMax = col + 1 < colCnt ? matrix[row][col + 1] : INT_MAX;
-                int btmMax = row + 1 < rowCnt ? matrix[row + 1][col] : INT_MAX;
-                int neighborMax = min(rhtMax, btmMax);
-                matrix[row][col] = min(matrix[row][col], neighborMax == INT_MAX ? INT_MAX : (neighborMax + 1));
+        for (int r = m - 1; 0 < r--;) {
+            dp[r][n - 1] = std::min(dp[r][n - 1], dp[r + 1][n - 1] + 1);
+        }
+        for (int c = n - 1; 0 < c--;) {
+            dp[m - 1][c] = std::min(dp[m - 1][c], dp[m - 1][c + 1] + 1);
+        }
+        for (int r = m - 1; 0 < r--;) {
+            for (int c = n - 1; 0 < c--;) {
+                dp[r][c] = std::min({dp[r][c], dp[r + 1][c] + 1, dp[r][c + 1] + 1});
             }
         }
 
-        return matrix;
+        return dp;
     }
 
-    vector<vector<int>> updateMatrix(vector<vector<int>>& matrix) {
-        //return updateMatrixBfs(matrix);
-
-        return updateMatrixDp(matrix);
+    vector<vector<int>> updateMatrix(vector<vector<int>>& mat) {
+        //return bfs(mat);
+        return dynamicProgramming(mat);
     }
 };
