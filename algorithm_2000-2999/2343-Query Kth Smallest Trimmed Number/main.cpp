@@ -1,6 +1,7 @@
 class Solution {
 public:
-    vector<int> smallestTrimmedNumbers(vector<string>& nums, vector<vector<int>>& queries) {
+    // Time: O(m * n)
+    vector<int> quickSelectApproach(vector<string>& nums, vector<vector<int>>& queries) {
         int m = nums.size(), n = nums.empty() ? 0 : nums[0].size();
 
         vector<pair<string, int>> pairs(m);
@@ -61,12 +62,53 @@ public:
         for (int i = 0; i < queries.size(); ++i) {
             int k = queries[i][0] - 1;
             int len = queries[i][1];
-            //std::nth_element(pairs.begin(), pairs.begin() + k, pairs.end(), Comp(n - len, len));
-            quickselect(0, m  - 1, k, Comp(n - len, len));
+
+            std::nth_element(pairs.begin(), pairs.begin() + k, pairs.end(), Comp(n - len, len));
+            //quickselect(0, m  - 1, k, Comp(n - len, len));
 
             ret[i] = pairs[k].second;
         }
 
         return ret;
+    }
+
+    // Time: O(m * n)
+    vector<int> radixSortApproach(vector<string>& nums, vector<vector<int>>& queries) {
+        int m = nums.size(), n = nums.empty() ? 0 : nums[0].size();
+
+        // ans[i][j]: keep right most i digits the index of jth string
+        vector<vector<int>> ans(n + 1, vector<int>(m));
+        for (int j = 0; j < m; ++j) {
+            ans[0][j] = j;
+        }
+        for (int i = 1; i <= n; ++i) {
+            vector<vector<int>> buckets(10);
+            for (int j = 0; j < m; ++j) {
+                int idx = ans[i - 1][j];
+                buckets[nums[idx][n - i] - '0'].push_back(idx);
+            }
+
+            int j = 0;
+            for (const vector<int>& bucket : buckets) {
+                for (int idx : bucket) {
+                    ans[i][j++] = idx;
+                }
+            }
+        }
+
+        vector<int> ret(queries.size());
+        for (int i = 0; i < queries.size(); ++i) {
+            int k = queries[i][0];
+            int trim = queries[i][1];
+
+            ret[i] = ans[trim][k - 1];
+        }
+
+        return ret;
+    }
+
+    vector<int> smallestTrimmedNumbers(vector<string>& nums, vector<vector<int>>& queries) {
+        //return quickSelectApproach(nums, queries);
+        return radixSortApproach(nums, queries);
     }
 };
