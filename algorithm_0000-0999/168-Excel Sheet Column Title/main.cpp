@@ -2,11 +2,12 @@ class Solution {
 public:
     string convertToTitle(int n) {
         string s;
-        while (n != 0) {
-            s.push_back((n - 1) % 26 + 'A');
+        while (n) {
+            s += ('A' + (n - 1) % 26);
             n = (n - 1) / 26;
         }
-        reverse(s.begin(), s.end());
+        std::reverse(s.begin(), s.end());
+
         return s;
     }
 };
