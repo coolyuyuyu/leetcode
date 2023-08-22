@@ -10,12 +10,10 @@ public:
         for (const auto& [_, indexes] : m) {
             for (int lft = 0, rht = 0, n = indexes.size(); lft < n; ++lft) {
                 for (; rht < n && ((indexes[rht] - indexes[lft] + 1) - (rht - lft + 1) <= k); ++rht) {
-                ;
+                    ;
                 }
-
                 ret = std::max(ret, rht - lft);
             }
-
         }
 
         return ret;
