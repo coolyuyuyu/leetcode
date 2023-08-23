@@ -1,42 +1,76 @@
 class Solution {
 public:
-    string reorganizeString_Heap(string& s) {
-        typedef pair<char, int> CharCount;
-        auto comp = [](const CharCount& cc1, const CharCount& cc2) {
-            return (cc1.second < cc2.second);
-        };
-        priority_queue<CharCount, vector<CharCount>, decltype(comp)> pq(comp); { // max_heap
-            unordered_map<char, int> counts;
-            for (char c : s) {
-                ++counts[c];
-            }
+    string greedy(const string& s) {
+        unordered_map<char, int> cnts;
+        for (char c : s) {
+            ++cnts[c];
+        }
 
-            for (const auto& p : counts) {
-                pq.push(p);
+        vector<pair<int, char>> pairs;
+        for (const auto& [c, cnt] : cnts) {
+            pairs.emplace_back(cnt, c);
+        }
+        std::sort(pairs.rbegin(), pairs.rend());
+
+        if (((s.size() + 1) / 2) < pairs[0].first ) {
+            return "";
+        }
+
+        string ret(s.size(), ' ');
+        int idx = 0;
+        for (const auto& [cnt, c] : pairs) {
+            for (int i = 0; i < cnt; ++i) {
+                ret[idx] = c;
+                idx += 2;
+
+                if (ret.size() <= idx) {
+                    idx = 1;
+                }
             }
         }
 
-        s.assign(s.size(), ' ');
-        for (size_t index = 0; !pq.empty(); pq.pop()) {
-            const CharCount& cc = pq.top();
-            for (int i = 0; i < cc.second; ++i) {
-                if (s.size() <= index) {
-                    index = 1;
-                }
+        return ret;
+    }
 
-                if ((0 < index && s[index - 1] == cc.first) || ((index + 1) < s.size() && s[index + 1] == cc.first)) {
-                    return "";
-                }
-                s[index] = cc.first;
+    string pqueue(const string& s) {
+        unordered_map<char, int> cnts;
+        for (char c : s) {
+            ++cnts[c];
+        }
 
-                index += 2;
+        priority_queue<pair<int, char>> pq;
+        for (const auto& [c, cnt] : cnts) {
+            pq.emplace(cnt, c);
+        }
+
+        if (((s.size() + 1) / 2) < pq.top().first ) {
+            return "";
+        }
+
+        string ret;
+        while (!pq.empty()) {
+            vector<pair<int, char>> tmp;
+            for (int i = 0, n = std::min<int>(2, pq.size()); i < n; ++i) {
+                auto [cnt, c] = pq.top();
+                pq.pop();
+                ret += c;
+                --cnt;
+
+                if (0 < cnt) {
+                    tmp.emplace_back(cnt, c);
+                }
+            }
+
+            for (const auto& [cnt, c] : tmp) {
+                pq.emplace(cnt, c);
             }
         }
 
-        return s;
+        return ret;
     }
 
     string reorganizeString(string s) {
-        return reorganizeString_Heap(s);
+        //return greedy(s);
+        return pqueue(s);
     }
 };
