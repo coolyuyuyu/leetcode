@@ -1,52 +1,47 @@
 class Solution {
 public:
     vector<vector<int>> candyCrush(vector<vector<int>>& board) {
-        size_t rowCnt = board.size(), colCnt = board.empty() ? 0 : board.front().size();
-        bool todo;
-        do {
-            todo = false;
-
-            // check horizontally
-            for (size_t r = 0; r < rowCnt; ++r) {
-                for (size_t c = 1; c + 1 < colCnt; ++c) {
-                    int v = abs(board[r][c]);
-                    if (v != 0 &&
-                        abs(board[r][c - 1]) == v &&
-                        abs(board[r][c + 1]) == v) {
-                        todo = true;
-                        board[r][c - 1] = board[r][c] = board[r][c + 1] = -v;
+        size_t m = board.size(), n = board.empty() ? 0 : board[0].size();
+        auto find = [&]() -> bool {
+            bool marked = false;
+            for (size_t r = 0; r < m; ++r) {
+                for (size_t c = 1; (c + 1) < n; ++c) {
+                    int t = abs(board[r][c]);
+                    if (t != 0 && abs(board[r][c - 1]) == t && t == abs(board[r][c + 1])) {
+                        board[r][c - 1] = board[r][c] = board[r][c + 1] = -t;
+                        marked = true;
+                    }
+                }
+            }
+            for (size_t c = 0; c < n; ++c) {
+                for (size_t r = 1; (r + 1) < m; ++r) {
+                    int t = abs(board[r][c]);
+                    if (t != 0 && abs(board[r - 1][c]) == t && t == abs(board[r + 1][c])) {
+                        board[r - 1][c] = board[r][c] = board[r + 1][c] = -t;
+                        marked = true;
                     }
                 }
             }
 
-            // check vertically
-            for (size_t c = 0; c < colCnt; ++c) {
-                for (size_t r = 1; r + 1 < rowCnt; ++r) {
-                    int v = abs(board[r][c]);
-                    if (v != 0 &&
-                        abs(board[r - 1][c]) == v &&
-                        abs(board[r + 1][c]) == v) {
-                        todo = true;
-                        board[r - 1][c] = board[r][c] = board[r + 1][c] = -v;
+            return marked;
+        };
+        auto crush = [&]() -> void {
+            for (size_t c = 0; c < n; ++c) {
+                size_t idx = m;
+                for (size_t r = m; 0 < r--;) {
+                    if (0 < board[r][c]) {
+                        board[--idx][c] = board[r][c];
                     }
                 }
-            }
-
-            if (todo) {
-                for (size_t c = 0; c < colCnt; ++c) {
-                    size_t index = rowCnt;
-                    for (size_t r = rowCnt; 0 < r--;) {
-                        if (0 < board[r][c]) {
-                            board[--index][c] = board[r][c];
-                        }
-                    }
-                    while (0 < index--) {
-                        board[index][c] = 0;
-                    }
+                while (0 < idx--) {
+                    board[idx][c] = 0;
                 }
             }
-        } while (todo);
+        };
 
+        while (find()) {
+            crush();
+        }
 
         return board;
     }
