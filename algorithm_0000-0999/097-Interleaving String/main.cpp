@@ -10,7 +10,7 @@ public:
         s2.insert(s2.begin(), '#');
         s3.insert(s3.begin(), '#');
 
-        // dp[i][j]: whether s3[:i+j] is formed by an interleaving of s1[:i] and s2[j]
+        // dp[i][j]: whether s3[1:i+j] is formed by an interleaving of s1[1:i] and s2[1:j]
         vector<vector<bool>> dp(m + 1, vector<bool>(n + 1, false));
         dp[0][0] = true;
         for (int i = 1; i <= m && s1[i] == s3[i]; ++i) {
