@@ -1,17 +1,22 @@
 class Solution {
 public:
     bool isInterleave(string s1, string s2, string s3) {
-        if ((s1.size() + s2.size()) != s3.size()) {
+        int m = s1.size(), n = s2.size();
+        if (m + n != s3.size()) {
             return false;
         }
 
-        int m = s1.size(), n = s2.size();
-        s1.insert(s1.begin(), '#');
-        s2.insert(s2.begin(), '#');
-        s3.insert(s3.begin(), '#');
+        s1 = "#" + s1;
+        s2 = "#" + s2;
+        s3 = "#" + s3;
 
         // dp[i][j]: whether s3[1:i+j] is formed by an interleaving of s1[1:i] and s2[1:j]
-        vector<vector<bool>> dp(m + 1, vector<bool>(n + 1, false));
+        bool dp[m + 1][n + 1];
+        for (int i = 0; i <= m; ++i) {
+            for (int j = 0; j <= n; ++j) {
+                dp[i][j] = false;
+            }
+        }
         dp[0][0] = true;
         for (int i = 1; i <= m && s1[i] == s3[i]; ++i) {
             dp[i][0] = true;
@@ -21,10 +26,10 @@ public:
         }
         for (int i = 1; i <= m; ++i) {
             for (int j = 1; j <= n; ++j) {
-                if (s1[i] == s3[i + j] && dp[i - 1][j]) {
+                if (dp[i - 1][j] && s1[i] == s3[i + j]) {
                     dp[i][j] = true;
                 }
-                else if (s2[j] == s3[i + j] && dp[i][j - 1]) {
+                else if (dp[i][j - 1] && s2[j] == s3[i + j]) {
                     dp[i][j] = true;
                 }
             }
