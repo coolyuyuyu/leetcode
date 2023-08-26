@@ -2,20 +2,20 @@ class Solution {
 public:
     // Time: O(n^2)
     int dynamicProgramming(vector<vector<int>>& pairs) {
-        std::sort(pairs.begin(), pairs.end(), [](const auto& p1, const auto& p2) {
-            return p1[1] < p2[1];
-        });
+        std::sort(pairs.begin(), pairs.end(), [](const auto& p1, const auto& p2) { return p1[1] < p2[1]; });
 
         int n = pairs.size();
 
-        vector<int> dp(n, 1);
+        // dp[i]: length longest chain ending at i
+        vector<int> dp(n);
+
         int ret = 0;
         for (int i = 0; i < n; ++i) {
-            for (int j = i; 0 < j--;) {
-                if (pairs[j][1] < pairs[i][0]) {
-                    dp[i] = std::max(dp[i], dp[j] + 1);
-                }
+            dp[i] = 1;
+            for (int j = 0; j < i && pairs[j][1] < pairs[i][0]; ++j) {
+                dp[i] = std::max(dp[i], 1 + dp[j]);
             }
+
             ret = std::max(ret, dp[i]);
         }
 
@@ -46,7 +46,7 @@ public:
     }
 
     int findLongestChain(vector<vector<int>>& pairs) {
-        //return dynamicProgramming(pairs);
-        return greedy(pairs);
+        return dynamicProgramming(pairs);
+        //return greedy(pairs);
     }
 };
