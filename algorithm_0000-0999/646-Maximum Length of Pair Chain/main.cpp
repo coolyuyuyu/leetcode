@@ -26,27 +26,26 @@ public:
     int greedy(vector<vector<int>>& pairs) {
         // 435. Non-overlapping Intervals
 
-        std::sort(pairs.begin(), pairs.end(), [](const auto& p1, const auto& p2) {
-            return p1[1] < p2[1];
-        });
+        std::sort(pairs.begin(), pairs.end(), [](const auto& p1, const auto& p2) { return p1[1] < p2[1]; });
 
         int n = pairs.size();
 
         int ret = 0;
-        for (int i = 0; i < n;) {
-            int j;
-            for (j = i + 1; j < n && pairs[i][1] >= pairs[j][0]; ++j) {
+        for (int i = 0; i < n; ) {
+            int j = i + 1;
+            for (; j < n && pairs[i][1] >= pairs[j][0]; ++j) {
                 ;
             }
-            ++ret;
             i = j;
+
+            ++ret;
         }
 
         return ret;
     }
 
     int findLongestChain(vector<vector<int>>& pairs) {
-        return dynamicProgramming(pairs);
-        //return greedy(pairs);
+        //return dynamicProgramming(pairs);
+        return greedy(pairs);
     }
 };
