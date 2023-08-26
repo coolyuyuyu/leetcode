@@ -1,23 +1,19 @@
 class Solution {
 public:
-    // greedy
     vector<string> wordsAbbreviation(vector<string>& words) {
-        size_t n = words.size();
-
-        vector<string> ret(n);
-
-        vector<size_t> pending(n);
+        vector<int> pending(words.size());
         std::iota(pending.begin(), pending.end(), 0);
-        for (size_t level = 1; !pending.empty(); ++level) {
-            map<string, vector<size_t>> abbr2Indexes;
-            for (size_t index : pending) {
-                const string& word = words[index];
-                string abbr = word.substr(0, level) + std::to_string(word.size() - level - 1) + word.back();
-                if (abbr.size() < word.size()) {
-                    abbr2Indexes[abbr].push_back(index);
+
+        vector<string> ret(words.size());
+        for (int level = 1; !pending.empty(); ++level) {
+            unordered_map<string, vector<int>> abbr2Indexes;
+            for (int idx : pending) {
+                string abbr = words[idx].substr(0, level) + std::to_string(words[idx].size() - level - 1) + words[idx].back();
+                if (words[idx].size() <= abbr.size()) {
+                    ret[idx] = words[idx];
                 }
                 else {
-                    ret[index] = word;
+                    abbr2Indexes[abbr].push_back(idx);
                 }
             }
             pending.clear();
