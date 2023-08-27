@@ -23,7 +23,7 @@ public:
     }
 
     // Time: O(n)
-    int greedy(vector<vector<int>>& pairs) {
+    int greedy1(vector<vector<int>>& pairs) {
         // 435. Non-overlapping Intervals
 
         std::sort(pairs.begin(), pairs.end(), [](const auto& p1, const auto& p2) { return p1[1] < p2[1]; });
@@ -44,8 +44,31 @@ public:
         return ret;
     }
 
+    // Time: O(n)
+    int greedy2(vector<vector<int>>& pairs) {
+        // 435. Non-overlapping Intervals
+
+        std::sort(pairs.begin(), pairs.end(), [](const auto& p1, const auto& p2) { return p1[0] < p2[0]; });
+
+        int ret = 0;
+        int far = INT_MIN;
+        for (const auto& pair : pairs) {
+            if (far < pair[0]) {
+                far = pair[1];
+                ++ret;
+            }
+            else if (pair[1] < far) {
+                far = pair[1];
+            }
+        }
+
+        return ret;
+        return ret;
+    }
+
     int findLongestChain(vector<vector<int>>& pairs) {
         //return dynamicProgramming(pairs);
-        return greedy(pairs);
+        //return greedy1(pairs);
+        return greedy2(pairs);
     }
 };
