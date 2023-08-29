@@ -1,48 +1,68 @@
-class MyStack {
+class StackImpl {
 public:
-    /** Initialize your data structure here. */
-    MyStack() {
-    }
+    virtual void push(int x) = 0;
+    virtual int pop() = 0;
+    virtual int top() = 0;
+    virtual bool empty()= 0;
+};
 
-    /** Push element x onto stack. */
-    // Time: O(1)
-    void push(int x) {
-        if (!m_qO.empty()) {
-            m_qI.push(m_qO.front());
-            m_qO.pop();
-        }
-        m_qO.push(x);
-    }
-
-    /** Removes the element on top of the stack and returns that element. */
+class StackImpl1 : public StackImpl {
+public:
     // Time: O(n)
-    int pop() {
-        int val = top();
-        m_qO.pop();
-
-        while (1 < m_qI.size()) {
-            m_qO.push(m_qI.front());
-            m_qI.pop();
+    void push(int x) {
+        m_q.push(x);
+        for (int n = m_q.size() - 1; 0 < n--;) {
+            m_q.push(m_q.front());
+            m_q.pop();
         }
-        m_qO.swap(m_qI);
-
-        return val;
     }
 
-    /** Get the top element. */
+    // Time: O(1)
+    int pop() {
+        int ret = top();
+        m_q.pop();
+
+        return ret;
+    }
+
     // Time: O(1)
     int top() {
-        return m_qO.front();
+        return m_q.front();
     }
 
-    /** Returns whether the stack is empty. */
+    // Time: O(1)
     bool empty() {
-        return m_qO.empty();
+        return m_q.empty();
     }
 
 private:
-    queue<int> m_qI;
-    queue<int> m_qO;
+    queue<int> m_q;
+};
+
+class MyStack {
+public:
+    MyStack() {
+        pImpl = new StackImpl1();
+    }
+
+    void push(int x) {
+        pImpl->push(x);
+    }
+
+    int pop() {
+        return pImpl->pop();
+    }
+
+    int top() {
+        return pImpl->top();
+    }
+
+    bool empty() {
+        return pImpl->empty();
+    }
+
+private:
+    StackImpl* pImpl;
 };
 
 /**
@@ -53,3 +73,4 @@ private:
  * int param_3 = obj->top();
  * bool param_4 = obj->empty();
  */
+ 
