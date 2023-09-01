@@ -1,23 +1,30 @@
 class Solution {
 public:
-    size_t findTargetSumWaysDfs(vector<int>& nums, size_t level, int target, const pair<int, int>& range) {
-        if (nums.size() <= level) {
-            return target == 0 ? 1 : 0;
+    int findTargetSumWays(vector<int>& nums, int target) {
+        int n = nums.size();
+
+        nums.insert(nums.begin(), 0);
+
+        int offset = 1000;
+
+        // dp[i][s]: the number of different expressions that you can build from nums[1:i], which evaluates to s
+        int dp[n + 1][2001];
+        for (int s = -1000; s <= 1000; ++s) {
+            dp[0][s + offset] = 0;
+        }
+        dp[0][0 + offset] = 1;
+        for (int i = 1; i <= n; ++i) {
+            for (int s = -1000; s <= 1000; ++s) {
+                dp[i][s + offset] = 0;
+                if (-1000 <= (s - nums[i])) {
+                    dp[i][s + offset] += dp[i - 1][s - nums[i] + offset];
+                }
+                if ((s + nums[i]) <= 1000) {
+                    dp[i][s + offset] += dp[i - 1][s + nums[i] + offset];
+                }
+            }
         }
 
-        if (target < range.first || range.second < target) {
-            return 0;
-        }
-
-        int num = nums[level];
-        pair<size_t, size_t> rangeNew = {range.first + num, range.second - num};
-        size_t countPlus = findTargetSumWaysDfs(nums, level + 1, target - num, rangeNew);
-        size_t countMinus = findTargetSumWaysDfs(nums, level + 1, target + num, rangeNew);
-        return countPlus + countMinus;
-    }
-
-    size_t findTargetSumWays(vector<int>& nums, int S) {
-        int total = accumulate(nums.begin(), nums.end(), int(0));
-        return findTargetSumWaysDfs(nums, 0, S, {-total, total});
+        return dp[n][target + offset];
     }
 };
