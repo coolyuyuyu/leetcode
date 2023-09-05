@@ -11,10 +11,7 @@ public:
             }
         }
 
-        long long ret = 0;
-        if (m <= uniqueCnt) {
-            ret = sum;
-        }
+        long long ret = (m <= uniqueCnt ? sum : 0);
         for (int i = k; i < nums.size(); ++i) {
             sum -= nums[i - k];
             sum += nums[i];
