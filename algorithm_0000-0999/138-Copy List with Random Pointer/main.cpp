@@ -68,8 +68,31 @@ public:
         return headNew;
     }
 
+    // Time: O(n), Space: O(n)
+    Node* copyRandomList_v3(Node* head) {
+        unordered_map<Node*, Node*> cache;
+        std::function<Node*(Node*)> dfs = [&](Node* p) -> Node* {
+            if (!p) {
+                return nullptr;
+            }
+
+            Node*& q = cache[p];
+            if (q) {
+                return q;
+            }
+            q = new Node(p->val);
+            q->next = dfs(p->next);
+            q->random = dfs(p->random);
+
+            return q;
+        };
+
+        return dfs(head);
+    }
+
     Node* copyRandomList(Node* head) {
         //return copyRandomList_v1(head);
-        return copyRandomList_v2(head);
+        //return copyRandomList_v2(head);
+        return copyRandomList_v3(head);
     }
 };
