@@ -11,31 +11,28 @@
 class Solution {
 public:
     ListNode* splitList(ListNode* head, int k) {
-        ListNode** ppCur = &head;
-        while (*ppCur && 0 < k--) {
-            ppCur = &((*ppCur)->next);
+        ListNode** ppNode = &head;
+        while (k-- && *ppNode) {
+            ppNode = &((*ppNode)->next);
         }
 
-        ListNode* headLeft = *ppCur;
-        *ppCur = nullptr;
-        return headLeft;
+        ListNode* head2 = *ppNode;
+        *ppNode = nullptr;
+        return head2;
     }
 
-    vector<ListNode*> splitListToParts(ListNode* root, int k) {
-        assert(0 < k);
-
-        int size = 0;
-        for (ListNode* pCur = root; pCur; pCur = pCur->next) {
-            ++size;
+    vector<ListNode*> splitListToParts(ListNode* head, int k) {
+        int len = 0;
+        for (ListNode* node = head; node; node = node->next) {
+            ++len;
         }
 
-        vector<ListNode*> parts(k, nullptr);
-        parts[0] = root;
-        for (int i = 1; i < k; ++i) {
-            int count = size / k + (i <= (size % k) ? 1 : 0);
-            parts[i] = splitList(parts[i - 1], count);
+        vector<ListNode*> ret(k);
+        for (int i = 0; i < k; ++i) {
+            ret[i] = head;
+            head = splitList(head, len / k + (i < (len % k) ? 1 : 0));
         }
 
-        return parts;
+        return ret;
     }
 };
