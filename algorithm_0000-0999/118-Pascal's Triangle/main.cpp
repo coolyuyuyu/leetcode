@@ -5,7 +5,7 @@ public:
         for (int r = 0; r < numRows; ++r) {
             dp[r].resize(r + 1);
             for (int c = 0; c < (r / 2 + 1); ++c) {
-                if (r == 0 || c == 0) {
+                if (c == 0) {
                     dp[r][c] = dp[r][r - c] = 1;
                 }
                 else {
