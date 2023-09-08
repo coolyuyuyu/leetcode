@@ -42,20 +42,19 @@ public:
         return head;
     }
 
-    ListNode* reverseBetween_v2(ListNode* head, int m, int n) {
+    ListNode* reverseBetween_v2(ListNode* head, int left, int right) {
         ListNode** ppHead = &head;
-        while (--n && (--m > 0)) {
+        while (--right && --left) {
             ppHead = &((*ppHead)->next);
         }
-        assert(*ppHead);
 
-        ListNode* pNode = *ppHead;
-        while (pNode->next && n-- > 0) {
-            ListNode* pTmp = pNode->next;
-            pNode->next = pTmp->next;
-            pTmp->next = *ppHead;
-            (*ppHead) = pTmp;
+        for (ListNode* pCur = *ppHead; pCur && pCur->next && right--;) {
+            ListNode* pNxt = pCur->next;
+            pCur->next = pNxt->next;
+            pNxt->next = *ppHead;
+            *ppHead = pNxt;
         }
+
         return head;
     }
 
