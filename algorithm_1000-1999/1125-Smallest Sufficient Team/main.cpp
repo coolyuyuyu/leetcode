@@ -1,37 +1,42 @@
 class Solution {
 public:
     vector<int> smallestSufficientTeam(vector<string>& req_skills, vector<vector<string>>& people) {
-        int m = req_skills.size(), n = people.size();
-
         unordered_map<string, int> skill2id;
-        for (int i = 0; i < m; ++i) {
-            skill2id[req_skills[i]] = i;
+        for (const string& skill : req_skills) {
+            skill2id.emplace(skill, skill2id.size());
+        }
+        int m = (1 << skill2id.size());
+
+        int n = people.size();
+        vector<int> skillsets(n, 0);
+        for (int i = 0; i < n; ++i) {
+            int& skillset = skillsets[i];
+            for (const string& skill : people[i]) {
+                skillset |= (1 << skill2id[skill]);
+            }
         }
 
-        vector<int> dp(1 << m, INT_MAX / 2); // dp[state]: the minimal number of people to cover the skill state
-        vector<long> member(1 << m, 0); // member[state]: the minimal people combination to cover the skill state
-        dp[0] = 0;
-        for (int i = 0; i < n; ++i) {
-            int state1 = 0;
-            for (const string& skill : people[i]) {
-                state1 |= (1 << skill2id[skill]);
-            }
-
-            auto tmp = dp;
-            for (int state2 = 0; state2 < (1 << m); ++state2) {
-                int newState = state2 | state1;
-                if ((tmp[state2] + 1) < dp[newState]) {
-                    dp[newState] = tmp[state2] + 1;
-                    member[newState] = member[state2] | (1L << i);
+        // state: binary representation of skills
+        // dp1[state]: the minimum number of people to cover the state of skills
+        // dp2[state]: the minimum people combination to cover the state of skills
+        vector<int> dp1(m, INT_MAX);
+        dp1[0] = 0;
+        vector<long> dp2(m, 0);
+        for (int state1 = 0; state1 < m; ++state1) {
+            if (dp1[state1] == INT_MAX) { continue; }
+            for (int j = 0; j < n; ++j) {
+                int state2 = state1 | skillsets[j];
+                if (dp1[state1] + 1 < dp1[state2]) {
+                    dp1[state2] = dp1[state1] + 1;
+                    dp2[state2] = dp2[state1] | (1L << j);
                 }
             }
         }
 
-        long retMember = member[(1 << m) - 1];
         vector<int> ret;
-        for (int i = 0; i < n; ++i) {
-            if ((retMember >> i) & 1) {
-                ret.push_back(i);
+        for (int j = 0; j < n; ++j) {
+            if ((dp2[m - 1] >> j) & 1) {
+                ret.push_back(j);
             }
         }
 
