@@ -1,34 +1,48 @@
 class Solution {
 public:
-    // Time: O(n), Space: O(n)
-    int dp1(const string& s) {
-        size_t n = s.size();
-        vector<int> dp(n, 0); // dp[i]: number of decode ways for string s[0:i+1]
-        dp[0] = (s[0] == '0' ? 0 : 1);
-        for (size_t i = 1; i < n; ++i) {
-            if (s[i] != '0') {
+    int dp1(string s) {
+        int n = s.size();
+        s.insert(s.begin(), '9' + 1);
+
+        // dp[i]: the number of ways to decode it s[1:i]
+        int dp[n + 1];
+        dp[0] = 1;
+        dp[1] = ('1' <= s[1]? 1 : 0);
+        for (int i = 2; i <= n; ++i) {
+            dp[i] = 0;
+
+            int d1 = s[i] - '0';
+            if (1 <= d1) {
                 dp[i] += dp[i - 1];
             }
-            if ((s[i - 1] == '2' && s[i] <= '6') || s[i - 1] == '1') {
-                dp[i] += (2 <= i ? dp[i - 2] : 1);
+            int d2 = (s[i - 1] - '0') * 10 + s[i] - '0';
+            if (10 <= d2 && d2 <= 26) {
+                dp[i] += dp[i - 2];
             }
         }
 
-        return dp.back();
+        return dp[n];
     }
 
-    // Time: O(n), Space: O(1)
-    int dp2(const string& s) {
-        size_t n = s.size();
-        int x = (s[0] == '0' ? 0 : 1), y, z;
-        for (size_t i = 1; i < n; ++i) {
+    int dp2(string s) {
+        int n = s.size();
+        s.insert(s.begin(), '9' + 1);
+
+        // dp[i]: the number of ways to decode it s[1:i]
+        int dp[n + 1];
+        int z = 0; // dp[-1]
+        int y = 1; // dp[0]
+        int x = ('1' <= s[1]? 1 : 0); // dp[1]
+        for (int i = 2; i <= n; ++i) {
             z = y, y = x, x = 0;
 
-            if (s[i] != '0') {
+            int d1 = s[i] - '0';
+            if (1 <= d1) {
                 x += y;
             }
-            if ((s[i - 1] == '2' && s[i] <= '6') || s[i - 1] == '1') {
-                x += (2 <= i ? z : 1);
+            int d2 = (s[i - 1] - '0') * 10 + s[i] - '0';
+            if (10 <= d2 && d2 <= 26) {
+                x += z;
             }
         }
 
@@ -36,7 +50,7 @@ public:
     }
 
     int numDecodings(string s) {
-        //return dp1(s);
-        return dp2(s);
+        return dp1(s);
+        // return dp2(s);
     }
 };
