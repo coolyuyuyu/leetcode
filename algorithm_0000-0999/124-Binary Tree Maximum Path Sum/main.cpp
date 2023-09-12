@@ -11,22 +11,21 @@
  */
 class Solution {
 public:
-    int maxDownwardPathSum(TreeNode* root, int& maxPathSum) {
-        if (!root) {
-            return 0;
-        }
-
-        int maxLftDownwardPathSum = maxDownwardPathSum(root->left, maxPathSum);
-        int maxRhtDownwardPathSum = maxDownwardPathSum(root->right, maxPathSum);
-        int maxTurnPathSum = root->val + std::max(0, maxLftDownwardPathSum) + std::max(0, maxRhtDownwardPathSum);
-        maxPathSum = std::max(maxPathSum, maxTurnPathSum);
-
-        return root->val + std::max({0, maxLftDownwardPathSum, maxRhtDownwardPathSum});
-    }
-
     int maxPathSum(TreeNode* root) {
-        int ret = INT_MIN;
-        maxDownwardPathSum(root, ret);
-        return ret;
+        int maxTurnPathSum = INT_MIN;
+        std::function<int(TreeNode*)> maxDownPathSum = [&](TreeNode* root) {
+            if (!root) {
+                return 0;
+            }
+
+            int lftDownPathSum = maxDownPathSum(root->left);
+            int rhtDownPathSum = maxDownPathSum(root->right);
+            maxTurnPathSum = std::max(maxTurnPathSum, root->val + std::max(0, lftDownPathSum) + std::max(0, rhtDownPathSum));
+
+            return root->val + std::max({0, lftDownPathSum, rhtDownPathSum});
+        };
+        maxDownPathSum(root);
+
+        return maxTurnPathSum;
     }
 };
