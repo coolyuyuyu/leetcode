@@ -11,39 +11,40 @@
  */
 class Solution {
 public:
-    pair<int, int> rob_Recursibve(TreeNode* root) {
-        if (!root) {
-            return {0, 0};
-        }
+    int recursive(TreeNode* root) {
+        // dp(root): the maximum amount of money from tree rooted at root and [not rub root, rub root]
+        std::function<pair<int, int>(TreeNode*)> dp = [&](TreeNode* root) -> pair<int, int> {
+            if (!root) {
+                return {0, 0};
+            }
 
-        auto lftResult = rob_Recursibve(root->left);
-        auto rhtResult = rob_Recursibve(root->right);
+            auto [lftRubN, lftRubY] = dp(root->left);
+            auto [rhtRubN, rhtRubY] = dp(root->right);
+            int rubN = std::max(lftRubN, lftRubY) + std::max(rhtRubN, rhtRubY);
+            int rubY = root->val + lftRubN + rhtRubN;
 
-        int robbedN = max(lftResult.first, lftResult.second) + max(rhtResult.first, rhtResult.second);
-        int robbedY = lftResult.first + root->val + rhtResult.first;
-        return {robbedN, robbedY};
+            return {rubN, rubY};
+        };
+
+        auto [rubN, rubY] = dp(root);
+        return std::max(rubN, rubY);
     }
 
-    int rob_Iterative(TreeNode* root) {
-        if (!root) {
-            return 0;
-        }
+    int iterative(TreeNode* root) {
+        // dp(root): the maximum amount of money from tree rooted at root and [not rub root, rub root]
+        unordered_map<TreeNode*, pair<int, int>> dp = {{nullptr, {0, 0}}};
 
-        map<TreeNode*, pair<int, int>> m; // <node, <robbedN, robbedY>>
-
-        // postorder traversal
-        stack<pair<TreeNode*, bool>> stk({{root, false}});
-        while (!stk.empty()) {
-            TreeNode* node = stk.top().first;
-            bool visited = stk.top().second;
+        for (stack<pair<TreeNode*, bool>> stk({{root, false}}); !stk.empty();) {
+            auto [node, visited] = stk.top();
             stk.pop();
 
             if (visited) {
-                pair<int, int> lftResult = (node->left ? m[node->left] : make_pair(0, 0));
-                pair<int, int> rhtResult = (node->right ? m[node->right] : make_pair(0, 0));
-                int robbedN = max(lftResult.first, lftResult.second) + max(rhtResult.first, rhtResult.second);
-                int robbedY = lftResult.first + node->val + rhtResult.first;
-                m[node] = {robbedN, robbedY};
+                auto [lftRubN, lftRubY] = dp[node->left];
+                auto [rhtRubN, rhtRubY] = dp[node->right];
+
+                int rubN = std::max(lftRubN, lftRubY) + std::max(rhtRubN, rhtRubY);
+                int rubY = node->val + lftRubN + rhtRubN;
+                dp[node] = {rubN, rubY};
             }
             else {
                 stk.emplace(node, true);
@@ -56,13 +57,12 @@ public:
             }
         }
 
-        return max(m[root].first, m[root].second);
+        auto [rubN, rubY] = dp[root];
+        return std::max(rubN, rubY);
     }
 
     int rob(TreeNode* root) {
-        //auto result = rob_Recursibve(root);
-        //return max(result.first, result.second);
-
-        return rob_Iterative(root);
+        //return recursive(root);
+        return iterative(root);
     }
 };
