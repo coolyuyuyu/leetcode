@@ -4,12 +4,13 @@ public:
         int n = s.size();
 
         // dp[i][j]: the longest palindromic subsequence's length in s[i:j]
-        vector<vector<int>> dp(n, vector<int>(n, 0));
+        int dp[n][n];
+        std::memset(dp, 0, sizeof(dp));
         for (int i = 0; i < n; ++i) {
             dp[i][i] = 1;
         }
         for (int len = 2; len <= n; ++len) {
-            for (int i = 0, j = i + len - 1; j < n; ++i, ++j) {
+            for (int i = 0, j = len - 1; j < n; ++i, ++j) {
                 if (s[i] == s[j]) {
                     dp[i][j] = dp[i + 1][j - 1] + 2;
                 }
