@@ -1,13 +1,13 @@
 class Solution {
 public:
     int mincostTickets(vector<int>& days, vector<int>& costs) {
-        int n = days.back() + 1;
-
         unordered_set<int> s(days.begin(), days.end());
+        int n = days.back();
 
-        vector<int> dp(n); // dp[i] the minimum number of dollars you need to travel for the first (i+1) days
+        // dp[i]: the minimum number of dollars to travel to day i
+        int dp[n + 1];
         dp[0] = 0;
-        for (int i = 1; i < n; ++i) {
+        for (int i = 1; i <= n; ++i) {
             if (s.find(i) == s.end()) {
                 dp[i] = dp[i - 1];
             }
@@ -15,11 +15,10 @@ public:
                 dp[i] = std::min({
                     dp[std::max(0, i - 1)] + costs[0],
                     dp[std::max(0, i - 7)] + costs[1],
-                    dp[std::max(0, i - 30)] + costs[2]}
-                );
+                    dp[std::max(0, i - 30)] + costs[2]});
             }
         }
 
-        return dp[n - 1];
+        return dp[n];
     }
 };
