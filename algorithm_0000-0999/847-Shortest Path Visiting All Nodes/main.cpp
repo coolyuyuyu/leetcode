@@ -2,32 +2,29 @@ class Solution {
 public:
     int shortestPathLength(vector<vector<int>>& graph) {
         int n = graph.size();
-
         int finalState = (1 << n) - 1;
-        vector<vector<bool>> visited(n, vector<bool>(1 << n, false));
 
-        queue<pair<int, int>> q;
-        for (int i = 0; i < n; ++i) {
-            visited[i][1 << i] = true;
-            q.emplace(i, 1 << i);
+        queue<pair<int, int>> q; // <node, state>
+        vector<vector<int>> visited(n, vector<int>(1 << n, false));
+        for (int node = 0; node < n; ++node) {
+            q.emplace(node, 1 << node);
+            visited[node][1 << node] = true;
         }
-        for (int step = 0; !q.empty(); ++step) {
+        for (int steps = 0;; !q.empty(); ++steps) {
             for (int len = q.size(); 0 < len--;) {
                 auto [cur, state] = q.front();
                 q.pop();
 
                 if (state == finalState) {
-                    return step;
+                    return steps;
                 }
 
                 for (int nxt : graph[cur]) {
-                    int nxtState = state | (1 << nxt);
-                    if (visited[nxt][nxtState]) {
-                        continue;
-                    }
+                    int nxtState = state | (1 << next);
+                    if (visited[nxt][nxtState]) { continue; }
 
-                    visited[nxt][nxtState] = true;
                     q.emplace(nxt, nxtState);
+                    visited[nxt][nxtState] = true;
                 }
             }
         }
