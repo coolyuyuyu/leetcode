@@ -26,38 +26,66 @@ public:
 
     // DP, Time: O(n^3), Space: O(n^2)
     string dp1(const string& s) {
-        size_t ansPos = 0, ansLen = s.empty() ? 0 : 1;
-        vector<vector<bool>> dp(s.size(), vector<bool>(s.size(), true));
-        for (size_t len = 2; len <= s.size(); ++len) {
-            for (size_t i = 0; (i + len) < (s.size() + 1); ++i) {
-                size_t j = i + len - 1;
-                dp[i][j] = s[i] == s[j] && dp[i + 1][j - 1];
-                if (dp[i][j] && ansLen < len) {
-                    ansPos = i, ansLen = len;
+        int n = s.size();
+
+        // dp[i][j]: whether s[i:j] is palindromic
+        std::vector<vector<bool>> dp(n, vector<bool>(n));
+        for (int i = 0; i + 1 < n; ++i) { // len = 0
+            dp[i + 1][i] = true;
+        }
+        for (int i = 0; i < n; ++i) { // len = 1
+            dp[i][i] = true;
+        }
+
+        int maxLen = 1, pos = 0;
+        for (int len = 2; len <= n; ++len) {
+            for (int i = 0, j = i + len - 1; j < n; ++i, ++j) {
+                if (dp[i + 1][j - 1] && s[i] == s[j]) {
+                    dp[i][j] = true;
+                    if (maxLen < len) {
+                        maxLen = len;
+                        pos = i;
+                    }
+                }
+                else {
+                    dp[i][j] = false;
                 }
             }
         }
-        
-        return s.substr(ansPos, ansLen);
+
+        return s.substr(pos, maxLen);
     }
 
     // DP, Time: O(n^3), Space: O(n)
     string dp2(const string& s) {
-        size_t ansPos = 0, ansLen = s.empty() ? 0 : 1;
-        vector<bool> dp0(s.size(), true);
-        vector<bool> dp1(s.size(), true);
-        for (size_t len = 2; len <= s.size(); ++len) {
-            for (size_t i = 0; (i + len) < (s.size() + 1); ++i) {
-                size_t j = i + len - 1;
-                auto& dp = (len % 2 ? dp1 : dp0);
-                dp[i] = s[i] == s[j] && dp[i + 1];
-                if (dp[i] && ansLen < len) {
-                    ansPos = i, ansLen = len;
+        int n = s.size();
+
+        // dpE[i][j]: whether s[i:j] is palindromic and the len(s[i:j] is even)
+        // dpO[i][j]: whether s[i:j] is palindromic and the len(s[i:j] is odd)
+        std::vector<bool> dpE(n), dpO(n);
+        for (int i = 0; i < n; ++i) {
+            dpE[i] = true; // len = 0
+            dpO[i] = true; // len = 1
+        }
+
+        int maxLen = 1, pos = 0;
+        for (int len = 2; len <= n; ++len) {
+            for (int i = 0, j = i + len - 1; j < n; ++i, ++j) {
+                auto& dp = ((len & 1) ? dpE : dpO);
+                if (dp[i + 1]&& s[i] == s[j]) {
+                    dp[i] = true;
+                    if (maxLen < len) {
+                        maxLen = len;
+                        pos = i;
+                    }
+                }
+                else {
+                    dp[i] = false;
                 }
             }
         }
-        
-        return s.substr(ansPos, ansLen);
+
+        return s.substr(pos, maxLen);
     }
 
     // iterative, Time: O(n^3), Space: O(1)
@@ -73,7 +101,7 @@ public:
             while (1 <= lft && (rht + 1) < s.size() && s[lft - 1] == s[rht + 1]) {
                 --lft, ++rht;
             }
-            
+
             size_t len = rht - lft + 1;
             if (ansLen < len) {
                 ansPos = lft;
@@ -91,7 +119,7 @@ public:
             t += c;
             t += "#";
         }
-        
+
         int n = t.size();
 
         vector<int> p(n, 0); // p[i]: the longest extended radius of palindromic substring centered at i
@@ -122,12 +150,12 @@ public:
 
     string longestPalindrome(string s) {
         //return bruteforce(s);
-        
+
         //return dp1(s);
-        //return dp2(s);
+        return dp2(s);
 
         //return iterative(s);
 
-        return manacher(s);
+        //return manacher(s);
     }
 };
