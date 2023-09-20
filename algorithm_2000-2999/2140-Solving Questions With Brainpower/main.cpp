@@ -1,99 +1,160 @@
 class Solution {
 public:
-    long long dp1(const vector<vector<int>>& questions) {
+    // Time: O(n^2)
+    long long dp1_TLE(vector<vector<int>>& questions) {
+        // forward dp 填表法
+
         int n = questions.size();
+        questions.insert(questions.begin(), {0, 0});
 
-        // dp[i][0]: max points from questions[0:i] and do solve questions[i]
-        // dp[i][1]: max points from questions[0:i] and do not solve questions[i]
-        vector<vector<long long>> dp(n, vector<long long>(2));
-        dp[0] = {0, questions[0][0]};
+        // dp[i][0]: the maximum points from questions[1:i] and skip questions[i]
+        // dp[i][1]: the maximum points from questions[1:i] and solve questions[i]
+        long long dp[n + 1][2];
+        dp[0][0] = 0, dp[0][1] = questions[0][0];
 
-        vector<pair<int, int>> endTimes(n);
-        for (int i = 0; i < n; ++i) {
-            endTimes[i] = {i + questions[i][1], i};
-        }
-        std::sort(endTimes.begin(), endTimes.end());
+        // dp[i][0] = max{dp[i - 1][0], dp[i - 1][1]}
+        // dp[i][1] = max{dp[j][1] + questions[i][0], ...}, where for each j, j + questions[j][1] < i
 
-        int p = 0;
-        long long rollingMax = 0;
-        for (int i = 1; i < n; ++i) {
-            while (p < n && endTimes[p].first < i) {
-                rollingMax = std::max(rollingMax, dp[endTimes[p].second][1]);
-                ++p;
-            }
-
+        for (int i = 1; i <= n; ++i) {
             dp[i][0] = std::max(dp[i - 1][0], dp[i - 1][1]);
-            dp[i][1] = rollingMax + questions[i][0];
+
+            dp[i][1] = 0;
+            for (int j = 0; j < i; ++j) {
+                if (j + questions[j][1] < i) {
+                    dp[i][1] = std::max(dp[i][1], dp[j][1] + questions[i][0]);
+                }
+            }
         }
 
-        return std::max(dp[n - 1][0], dp[n - 1][1]);
+        return std::max(dp[n][0], dp[n][1]);
     }
 
-    long long dp2(const vector<vector<int>>& questions) {
+    // Time: O(nlogn)
+    long long dp1(vector<vector<int>>& questions) {
+        // forward dp 填表法
+
         int n = questions.size();
+        questions.insert(questions.begin(), {0, 0});
 
-        // dp[i][0]: max points from questions[0:i] and do solve questions[i]
-        // dp[i][1]: max points from questions[0:i] and do not solve questions[i]
-        vector<vector<long long>> dp(n, vector<long long>(2));
-        dp[0] = {0, questions[0][0]};
+        // dp[i][0]: the maximum points from questions[1:i] and skip questions[i]
+        // dp[i][1]: the maximum points from questions[1:i] and solve questions[i]
+        long long dp[n + 1][2];
+        dp[0][0] = 0, dp[0][1] = questions[0][0];
 
-        vector<long long> diffs(n, 0);
+        // dp[i][0] = max{dp[i - 1][0], dp[i - 1][1]}
+        // dp[i][1] = max{dp[j][1] + questions[i][0], ...}, where for each j, j + questions[j][1] < i
+
+        pair<int, int> endTime[n + 1];
+        for (int i = 0; i <= n; ++i) {
+            endTime[i] = {i + questions[i][1], i};
+        }
+        std::sort(endTime, endTime + n + 1);
+
+        long long preMaxDP1 = 0;
+        for (int i = 1, j = 0; i <= n; ++i) {
+            dp[i][0] = std::max(dp[i - 1][0], dp[i - 1][1]);
+
+            for (; j <= n && endTime[j].first < i; ++j) {
+                preMaxDP1 = std::max(preMaxDP1, dp[endTime[j].second][1]);
+            }
+            dp[i][1] = preMaxDP1 + questions[i][0];
+        }
+
+        return std::max(dp[n][0], dp[n][1]);
+    }
+
+    // Time: O(n^2)
+    long long dp2_TLE(vector<vector<int>>& questions) {
+        // forward dp 刷表法
+
+        int n = questions.size();
+        questions.insert(questions.begin(), {0, 0});
+
+        // dp[i][0]: the maximum points from questions[1:i] and skip questions[i]
+        // dp[i][1]: the maximum points from questions[1:i] and solve questions[i]
+        long long dp[n + 1][2];
+        dp[0][0] = 0, dp[0][1] = questions[0][0];
+        for (int i = 1; i <= n; ++i) {
+            dp[i][1] = INT_MIN;
+        }
+
+        // dp[i + 1][0] = max{dp[i][0], dp[i][1]}
+        // dp[j][1] = max{dp[j][1], dp[i][1] + questions[j][0]}, where for each j, i + questions[i][1] < j
+
+        for (int i = 0; i <= n; ++i) {
+            if (i + 1 <= n) {
+                dp[i + 1][0] = std::max(dp[i][0], dp[i][1]);
+            }
+
+            for (int j = i + questions[i][1] + 1; j <= n; ++j) {
+                dp[j][1] = std::max(dp[j][1], dp[i][1] + questions[j][0]);
+            }
+        }
+
+        return std::max(dp[n][0], dp[n][1]);
+    }
+
+    // Time: O(nlogn)
+    long long dp2(vector<vector<int>>& questions) {
+        // forward dp 刷表法
+
+        int n = questions.size();
+        questions.insert(questions.begin(), {0, 0});
+
+        // dp[i][0]: the maximum points from questions[1:i] and skip questions[i]
+        // dp[i][1]: the maximum points from questions[1:i] and solve questions[i]
+        long long dp[n + 1][2];
+        dp[0][0] = 0, dp[0][1] = questions[0][0];
+
+        // dp[i + 1][0] = max{dp[i][0], dp[i][1]}
+        // dp[j][1] = max{dp[j][1], dp[i][1] + questions[j][0]}, where for each j, i + questions[i][1] < j
+
+        long long base[n + 1];
+        for (int i = 0; i <= n; ++i) {
+            base[i] = 0;
+        }
         long long diff = 0;
-        for (int i = 0; i < n; ++i) {
-            diff = std::max(diff, diffs[i]);
+
+        for (int i = 0; i <= n; ++i) {
+            diff = std::max(diff, base[i]);
             dp[i][1] = diff + questions[i][0];
 
-            if ((i + 1) < n) {
+            if (i + 1 <= n) {
                 dp[i + 1][0] = std::max(dp[i][0], dp[i][1]);
             }
 
             int j = i + questions[i][1] + 1;
-            if (j < n) {
-                diffs[j] = std::max(diffs[j], dp[i][1]);
+            if (j <= n) {
+                base[j] = std::max(base[j], dp[i][1]);
             }
         }
 
-        return std::max(dp[n - 1][0], dp[n - 1][1]);
+        return std::max(dp[n][0], dp[n][1]);
     }
 
-    long long dp3(const vector<vector<int>>& questions) {
+    // Time: O(n)
+    long long dp3(vector<vector<int>>& questions) {
+        // backward dp 填表法
+
         int n = questions.size();
 
-        // dp[i]: max points from questions[i:n-1]
-        vector<long long> dp(n);
+        // dp[i]: the maximum points from questions[i:]
+        long long dp[n + 1];
+        dp[n] = 0;
 
         for (int i = n; 0 < i--;) {
-            long long solveN = (i + 1) < n ? dp[i + 1] : 0;
-            long long solveY = ((i + questions[i][1] + 1) < n ? dp[i + questions[i][1] + 1] : 0) + questions[i][0];
-            dp[i] = std::max(solveN, solveY);
+            int j = i + questions[i][1] + 1;
+            dp[i] = std::max(dp[i + 1], (j < n ? dp[j] : 0) + questions[i][0]);
         }
 
         return dp[0];
     }
 
     long long mostPoints(vector<vector<int>>& questions) {
+        //return dp1_TLE(questions);
         //return dp1(questions);
+        //return dp2_TLE(questions);
         //return dp2(questions);
         return dp3(questions);
     }
 };
-
-// dp1: 填表法
-//     dp[i][0]: max points from questions[0:i] and do solve questions[i]
-//     dp[i][1]: max points from questions[0:i] and do not solve questions[i]
-
-//     dp[i][0] = max(dp[i-1][0], dp[i-1][1])
-//     dp[i][1] = max(dp[j][1] + questions[i][0], ...), where for each j, j + questions[j][1] < i 
-
-// dp2: 刷表法
-//     dp[i][0]: max points from questions[0:i] and do solve questions[i]
-//     dp[i][1]: max points from questions[0:i] and do not solve questions[i]
-
-//     dp[i+1][0] = max(dp[i][0], dp[i][1])
-//     dp[j][1] = max(dp[i][1] + questions[j][0], ...), where for each j, i + questions[i][1] < j
-
-// dp3:
-//     dp[i]: max points from questions[i:n-1]
-
-//     do solve questions[i], dp[i] = dp[i + question[i][1] + 1] + questions[i][0];
-//     do not solve questions[i], dp[i] = dp[i + 1]
