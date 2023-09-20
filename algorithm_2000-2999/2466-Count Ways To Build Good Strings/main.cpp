@@ -3,8 +3,8 @@ public:
     int M = 1e9 + 7;
 
     int countGoodStrings(int low, int high, int zero, int one) {
-        // dp[i]: the number of different good strings with length i
-        vector<int> dp(high + 1);
+        // dp[i]: number of different good strings and its length = i
+        int dp[high + 1];
         dp[0] = 1;
         for (int i = 1; i <= high; ++i) {
             dp[i] = 0;
