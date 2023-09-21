@@ -1,12 +1,13 @@
 class Solution {
 public:
     int maxA(int n) {
-        vector<int> dp(n + 1); // dp[i]: the maximum number of 'A' of i presses
+        // dp[i]: the maximum number of 'A' with at n presses
+        int dp[n + 1];
         dp[0] = 0;
         for (int i = 1; i <= n; ++i) {
             dp[i] = dp[i - 1] + 1;
-            for (int j = 1; j < (i - 2); ++j) {
-                dp[i] = std::max(dp[i], dp[i - j - 2] * (j + 1));
+            for (int j = 1; j + 1 < i; ++j) {
+                dp[i] = std::max(dp[i], dp[j] * (i - j - 1));
             }
         }
 
