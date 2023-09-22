@@ -4,20 +4,25 @@ public:
 
     int numberOfArrays(string s, int k) {
         int n = s.size();
-        s.insert(s.begin(), '#');
+        int kLen = log10(k) + 1;
 
-        int l = ceil(log10(k));
+        s = "#" + s;
 
-        vector<int> dp(n + 1, 0);  // dp[i] the number of the possible arrays from s[0:i]
+        // dp[i] the number of the possible arrays that can be printed as s[1:i]
+        int dp[n + 1];
         dp[0] = 1;
         for (int i = 1; i <= n; ++i) {
-            for (int len = 1, num = 0, base = 1; len <= i && len <= l; ++len, base *= 10) {
+            dp[i] = 0;
+        }
+
+        for (int i = 1; i <= n; ++i) {
+            long long num = 0, base = 1;
+            for (int len = 1; len <= i && len <= kLen; ++len, base *= 10) {
                 int d = s[i - len + 1] - '0';
                 if (d == 0) {
                     continue;
                 }
-
-                num += (d * base);
+                num += d * base;
                 if (k < num) {
                     break;
                 }
