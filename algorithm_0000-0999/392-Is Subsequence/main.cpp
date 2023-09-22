@@ -1,20 +1,47 @@
 class Solution {
 public:
-    bool dp(const string& s, const string& t) {
+    bool linearScan(const string& s, const string& t) {
         if (s.empty()) {
             return true;
         }
 
-        for (size_t i = 0, j = 0; i < s.size() && j < t.size();) {
+        int i = 0, j = 0;
+        for (int i = 0, j = 0, m = s.size(), n = t.size(); j < n; ++j) {
             if (s[i] == t[j]) {
-                if (s.size() <= ++i) {
+                if (++i == m) {
                     return true;
                 }
             }
-            ++j;
         }
 
         return false;
+    }
+
+    bool dynamicProgramming(string& s, string& t) {
+        int m = s.size(), n = t.size();
+        s = "#" + s, t = "#" + t;
+
+        // dp[i][j]: whether s[1:i] is a subsequence of t[1:j]
+        bool dp[m + 1][n + 1];
+        dp[0][0] = true;
+        for (int i = 1; i <= m; ++i) {
+            dp[i][0] = false;
+        }
+        for (int j = 1; j <= n; ++j) {
+            dp[0][j] = true;
+        }
+        for (int i = 1; i <= m; ++i) {
+            for (int j = 1; j <= n; ++j) {
+                if (s[i] == t[j]) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                }
+                else {
+                    dp[i][j] = dp[i][j - 1];
+                }
+            }
+        }
+
+        return dp[m][n];
     }
 
     // Preferable when we have a large number of s for a single t
@@ -53,7 +80,8 @@ public:
     }
 
     bool isSubsequence(string s, string t) {
-        //return dp(s, t);
-        return bsearch(s, t);
+        //return linearScan(s, t);
+        return dynamicProgramming(s, t);
+        //return bsearch(s, t);
     }
 };
