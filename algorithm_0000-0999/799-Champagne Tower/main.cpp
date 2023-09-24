@@ -1,24 +1,31 @@
 class Solution {
 public:
-    double champagneTower(int poured, int query_row, int query_glass) {
-        vector<vector<double>> remainings;
-        for (size_t row = 0; row < 101; ++row) {
-            remainings.emplace_back(row + 1, 0.0);
-        }
+    // dp[i][j]: how full the jth glass in the ith row
+    double dp[101][101];
 
-        remainings[0][0] = poured;
-        for (size_t row = 0; row <= query_row; ++row) {
-            for (size_t col = 0; col <= row; ++col) {
-                double remaining = remainings[row][col];
-                if (remaining > 1.0) {
-                    double spiltDown = (remaining - 1) / 2;
-                    remainings[row + 1][col] += spiltDown;
-                    remainings[row + 1][col + 1] += spiltDown;
-                    remainings[row][col] = 1.0;
+    double champagneTower(int poured, int query_row, int query_glass) {
+        int m = query_row + 1, n = query_glass + 1;
+
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                dp[r][c] = 0.0;
+            }
+        }
+        dp[0][0] = poured;
+
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < std::min(n, (r + 1)); ++c) {
+                if (dp[r][c] <= 1.0) {
+                    continue;
                 }
+
+                double extraHalf = (dp[r][c] - 1) / 2;
+                dp[r + 1][c] += extraHalf;
+                dp[r + 1][c + 1] += extraHalf;
+                dp[r][c] = 1.0;
             }
         }
 
-        return remainings[query_row][query_glass];
+        return dp[m - 1][n - 1];
     }
 };
