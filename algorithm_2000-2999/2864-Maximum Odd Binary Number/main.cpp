@@ -2,10 +2,12 @@ class Solution {
 public:
     string maximumOddBinaryNumber(string s) {
         int n = s.size();
-        int cnt1 = std::count(s.begin(), s.end(), '1');
-
+        int cnt1 = 0;
         for (char& c : s) {
-            c = '0';
+            if (c == '1') {
+                ++cnt1;
+                c = '0';
+            }
         }
 
         if (cnt1 > 0) {
