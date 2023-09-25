@@ -8,7 +8,7 @@ public:
 
         char ret;
         for (char c : t) {
-            if (--cnts[c - 'a'] < 0) {
+            if (cnts[c - 'a']-- == 0) {
                 ret = c;
                 break;
             }
