@@ -1,32 +1,23 @@
 class Solution {
 public:
-    // Time: O(NlogN)
+    // Time: O(nlogn)
     vector<int> sortByLastBit(vector<int>& nums) {
-        std::sort(nums.begin(), nums.end(), [](int a, int b) { return a % 2 < b % 2; });
-
+        std::sort(nums.begin(), nums.end(), [](int num1, int num2) { return (num1 & 1) < (num2 & 1); });
         return nums;
     }
 
-    // Time: O(N)
-    vector<int> linearSwap(vector<int>& nums) {
-        assert(!nums.empty());
-
-        for (size_t i = 0, j = nums.size() - 1; i < j; ++i) {
-            if (nums[i] % 2 == 1) {
-                for (; i < j; --j) {
-                    if (nums[j] % 2 == 0) {
-                        std::swap(nums[i], nums[j]);
-                        break;
-                    }
-                }
+    // Time: O(n)
+    vector<int> twopointers(vector<int>& nums) {
+        for (int i = 0, j = 0; j < nums.size(); ++j) {
+            if (nums[j] % 2 == 0) {
+                swap(nums[i++], nums[j]);
             }
         }
-
         return nums;
     }
 
     vector<int> sortArrayByParity(vector<int>& nums) {
         //return sortByLastBit(nums);
-        return linearSwap(nums);
+        return twopointers(nums);
     }
 };
