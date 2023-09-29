@@ -2,6 +2,7 @@ class Solution {
 public:
     typedef unsigned char uchar;
 
+    // TLE
     bool isScramble(const string& s1, uchar idx1, const string& s2, uchar idx2, uchar n) {
         bool allSame = true;
         array<uchar, 26> cnts; cnts.fill(0);
@@ -60,10 +61,39 @@ public:
         return cache[{idx1, idx2, n}] = false;
     }
 
+    bool btmupDp(string s1, string s2) {
+        int n = s1.size();
+
+        // dp[i][j][len]: whether s1[i:i+len-1] is a scramble of s2[j:j+len-1]
+        bool dp[n][n][n + 1];
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                dp[i][j][1] = (s1[i] == s2[j]);
+            }
+        }
+        for (int len = 2; len <= n; ++len) {
+            for (int i = 0; (i + len) <= n; ++i) {
+                for (int j = 0; (j + len) <= n; ++j) {
+                    dp[i][j][len] = false;
+                    for (int xLen = 1, yLen = len - xLen; xLen + 1 <= len && !dp[i][j][len]; ++xLen, --yLen) {
+                        if ((dp[i][j][xLen] && dp[i+xLen][j+xLen][yLen]) ||
+                            (dp[i][j+yLen][xLen] && dp[i+xLen][j][yLen])) {
+                            dp[i][j][len] = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return dp[0][0][n];
+    }
+
     bool isScramble(string s1, string s2) {
         //return isScramble(s1, 0, s2, 0, s1.size());
 
-        map<tuple<uchar, uchar, uchar>, bool> cache;
-        return isScramble_memo(s1, 0, s2, 0, s1.size(), cache);
+        //map<tuple<uchar, uchar, uchar>, bool> cache;
+        //return isScramble_memo(s1, 0, s2, 0, s1.size(), cache);
+
+        return btmupDp(s1, s2);
     }
 };
