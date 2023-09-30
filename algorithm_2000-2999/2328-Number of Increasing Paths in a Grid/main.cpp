@@ -2,6 +2,7 @@ class Solution {
 public:
     int M = 1e9 + 7;
     pair<int, int> dirs[4] = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
+
     int btmupDP(const vector<vector<int>>& grid) {
         int m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
 
@@ -77,7 +78,7 @@ public:
     }
 
     int countPaths(vector<vector<int>>& grid) {
-        //return btmupDP(grid);
-        return topdnDFS(grid);
+        return btmupDP(grid);
+        //return topdnDFS(grid);
     }
 };
