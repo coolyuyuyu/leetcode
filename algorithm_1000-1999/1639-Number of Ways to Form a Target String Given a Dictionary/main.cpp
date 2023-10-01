@@ -7,7 +7,12 @@ public:
 
         target = "#" + target;
 
-        vector<array<int, 26>> cnt(n + 1);
+        int cnt[n + 1][26];
+        for (int i = 0; i <= n; ++i) {
+            for (int j = 0; j < 26; ++j) {
+                cnt[i][j] = 0;
+            }
+        }
         for (const string& word : words) {
             for (int j = 0; j < n; ++j) {
                 ++cnt[j + 1][word[j] - 'a'];
