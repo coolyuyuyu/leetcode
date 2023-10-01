@@ -1,25 +1,19 @@
 class Solution {
 public:
     int maxSubarrays(vector<int>& nums) {
-        int sum = INT_MAX;
-        for (int num : nums) {
-            sum &= num;
-        }
-        if (sum > 0) {
-            return 1;
-        }
+        int n = nums.size();
 
         int ret = 0;
-        for (int i = 0; i < nums.size();) {
-            int s = INT_MAX;
-            while (s != 0 && i < nums.size()) {
-                s &= nums[i++];
+        for (int i = 0; i < n;) {
+            int sum = INT_MAX;
+            while (sum != 0 && i < n) {
+                sum &= nums[i++];
             }
-            if (s == 0) {
+            if (sum == 0) {
                 ++ret;
             }
         }
 
-        return ret;
+        return std::max(1, ret);
     }
 };
