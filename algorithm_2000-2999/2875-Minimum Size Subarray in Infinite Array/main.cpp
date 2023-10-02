@@ -20,7 +20,6 @@ public:
 
             long long r = (presum[i] - target) % sum;
             r = (r + sum) % sum;
-
             if (m.find(r) != m.end()) {
                 int j = m[r];
                 int k = ((j == -1 ? 0 : presum[j]) - presum[i] + target) / sum;
