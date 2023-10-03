@@ -5,20 +5,23 @@ public:
     int dp1(const vector<int>& locations, int start, int finish, int fuel) {
         int n = locations.size();
 
-        // dp[f][i]: the count of all possible routes ending at ith city with remaining fuel f
-        vector<vector<int>> dp(fuel + 1, vector<int>(n, 0));
+        // the count of all possible routes to city f with remaining fuel f
+        int dp[fuel + 1][n];
+        for (int f = fuel; 0 <= f; --f) {
+            for (int i = 0; i < n; ++i) {
+                dp[f][i] = 0;
+            }
+        }
         dp[fuel][start] = 1;
         for (int f = fuel; 0 <= f; --f) {
-            for (int from = 0; from < n; ++from) {
-                for (int to = 0; to < n; ++to) {
-                    if (from == to) {
-                        continue;
-                    }
+            for (int i = 0; i < n; ++i) {
+                for (int j = 0; j < n; ++j) {
+                    if (i == j) { continue; }
 
-                    int cost = std::abs(locations[to] - locations[from]);
-                    if (0 <= (f - cost)) {
-                        dp[f - cost][to] += dp[f][from];
-                        dp[f - cost][to] %= M;
+                    int cost = abs(locations[j] - locations[i]);
+                    if (cost <= f) {
+                        dp[f - cost][j] += dp[f][i];
+                        dp[f - cost][j] %= M;
                     }
                 }
             }
@@ -81,7 +84,7 @@ public:
     }
 
     int countRoutes(vector<int>& locations, int start, int finish, int fuel) {
-        //return dp1(locations, start, finish, fuel);
-        return dp2(locations, start, finish, fuel);
+        return dp1(locations, start, finish, fuel);
+        //return dp2(locations, start, finish, fuel);
     }
 };
