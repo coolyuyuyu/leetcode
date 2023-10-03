@@ -5,7 +5,7 @@ public:
     int dp1(const vector<int>& locations, int start, int finish, int fuel) {
         int n = locations.size();
 
-        // the count of all possible routes to city f with remaining fuel f
+        // dp[f][i] the count of all possible routes to city i with remaining fuel f
         int dp[fuel + 1][n];
         for (int f = fuel; 0 <= f; --f) {
             for (int i = 0; i < n; ++i) {
