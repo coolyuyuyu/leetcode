@@ -7,7 +7,7 @@ public:
 
         stack<int> stk;
         for (int i = 0; i < nums.size(); ++i) {
-            if (stk.empty() || nums[stk.top()] >= nums[i]) {
+            if (stk.empty() || nums[stk.top()] > nums[i]) {
                 stk.push(i);
             }
         }
