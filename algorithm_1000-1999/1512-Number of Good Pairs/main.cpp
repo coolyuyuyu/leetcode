@@ -1,18 +1,18 @@
 class Solution {
 public:
     int numIdenticalPairs(vector<int>& nums) {
-        vector<int> counts(102, 0);
+        array<int, 101> cnts;
+        cnts.fill(0);
+
         for (int num : nums) {
-            ++counts[num];
+            ++cnts[num];
         }
 
-        int numPairs = 0;
-        for (int count : counts) {
-            if (count > 1) {
-                numPairs += (count * (count - 1) / 2);
-            }
+        int ret = 0;
+        for (int cnt : cnts) {
+            ret += cnt * (cnt - 1) / 2;
         }
 
-        return numPairs;
+        return ret;
     }
 };
