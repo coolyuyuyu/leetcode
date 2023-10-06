@@ -2,8 +2,9 @@ class Solution {
 public:
     int strangePrinter(string s) {
         int n = s.size();
-        // dp[i][j]: the minimum number of turns to print s[i:j]
-        vector<vector<int>> dp(n, vector<int>(n, INT_MAX / 4));
+
+        // dp[i][j]: the minimum number of turns the printer needed to print s[i:j]
+        int dp[n][n];
         for (int i = 0; i < n; ++i) {
             dp[i][i] = 1;
         }
@@ -24,14 +25,3 @@ public:
         return dp[0][n - 1];
     }
 };
-
-// s[i:j]
-
-// [a..] a {...}
-//  i    k    j
-
-// [] a {...}
-//    k        k = i
-
-// [a..] a {}
-//  i    k     k = j*/
