@@ -1,38 +1,101 @@
 class Solution {
 public:
-    bool canCross(vector<int>& stones) {
-        unordered_set<int> s;
-        for (int stone : stones) {
-            s.insert(stone);
+    bool btmupDP(vector<int>& stones) {
+        int n = stones.size();
+
+        unordered_map<int, int> pos2idx;
+        for (int i = 0; i < n; ++i) {
+            pos2idx[stones[i]] = i;
         }
 
-        set<pair<int, int>> failed;
-        std::function<int(int, int)> dfs = [&](int pos , int jump) {
-            if (pos == stones.back()) {
+        // dp[i][j]: whether the frog can jump from stones[i] to stones[j];
+        bool dp[n][n];
+        for (int i = 0; i < n; ++i) {
+            for (int j = i; j < n; ++j) {
+                dp[i][j] = false;
+            }
+        }
+        dp[0][0] = true;
+        for (int j = 0; j < n; ++j) {
+            for (int i = 0; i <= j; ++i) {
+                if (!dp[i][j]) {
+                    continue;
+                }
+
+                int diff = stones[j] - stones[i];
+                if (0 < diff - 1 && pos2idx.find(stones[j] + diff - 1) != pos2idx.end()) {
+                    dp[j][pos2idx[stones[j] + diff - 1]] = true;
+                }
+                if (0 < diff && pos2idx.find(stones[j] + diff) != pos2idx.end()) {
+                    dp[j][pos2idx[stones[j] + diff]] = true;
+                }
+                if (pos2idx.find(stones[j] + diff + 1) != pos2idx.end()) {
+                    dp[j][pos2idx[stones[j] + diff + 1]] = true;
+                }
+            }
+        }
+
+        for (int i = 0; i < n; ++i) {
+            if (dp[i][n - 1]) {
                 return true;
             }
-            if (s.find(pos) == s.end()) {
-                return false;
+        }
+
+        return false;
+    }
+
+    int topdnDFS(vector<int>& stones) {
+        int n = stones.size();
+
+        unordered_map<int, int> pos2idx;
+        for (int i = 0; i < n; ++i) {
+            pos2idx[stones[i]] = i;
+        }
+
+        bool failed[n][n];
+        for (int i = 0; i < n; ++i) {
+            for (int j = i; j < n; ++j) {
+                failed[i][j] = false;;
             }
-            if (failed.find({pos, jump}) != failed.end()) {
+        }
+
+        // f(i, j): whether the frog can jump from stones[i] to stones[j];
+        std::function<bool(int, int)> f = [&](int i, int j) {
+            if (j == n - 1) {
+                return true;
+            }
+
+            if (failed[i][j]) {
                 return false;
             }
 
-            if (1 < jump && dfs(pos + jump - 1, jump - 1)) {
-                return true;
+
+            int diff = stones[j] - stones[i];
+            if (0 < diff - 1 && pos2idx.find(stones[j] + diff - 1) != pos2idx.end()) {
+                if (f(j, pos2idx[stones[j] + diff - 1])) {
+                    return true;
+                }
             }
-            if (0 < jump && dfs(pos + jump, jump)) {
-                return true;
+            if (0 < diff && pos2idx.find(stones[j] + diff) != pos2idx.end()) {
+                if (f(j, pos2idx[stones[j] + diff])) {
+                    return true;
+                }
             }
-            if (dfs(pos + jump + 1, jump + 1)) {
-                return true;
+            if (pos2idx.find(stones[j] + diff + 1) != pos2idx.end()) {
+                if (f(j, pos2idx[stones[j] + diff + 1])) {
+                    return true;
+                }
             }
 
-            failed.insert({pos, jump});
+            failed[i][j] = true;
             return false;
         };
 
-        return dfs(0, 0);
+        return f(0, 0);
+    }
 
+    bool canCross(vector<int>& stones) {
+        //return btmupDP(stones);
+        return topdnDFS(stones);
     }
 };
