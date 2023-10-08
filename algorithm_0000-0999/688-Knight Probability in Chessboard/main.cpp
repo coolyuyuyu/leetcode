@@ -1,67 +1,75 @@
 class Solution {
 public:
-    std::vector<pair<int, int>> dirs = {{-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}, {1, 2}, {2, 1}, {2, -1}, {1, -2}};
+    vector<pair<int, int>> dirs = {{-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}, {1, 2}, {2, 1}, {2, -1}, {1, -2}};
 
-    double recursion(int n, int k, int row, int column) {
-        double cache[k + 1][n][n];
-        for (int i = 0; i <= k; ++i) {
-            for (int r = 0; r < n; ++r) {
-                for (int c = 0; c < n; ++c) {
-                    cache[i][r][c] = -1.0;
+    double topdnDFS(int n, int k, int row, int column) {
+        // dp[r][c][k]: the probability that the knight remains on the board after it starts from (r, c) and moves k times.
+        double dp[n][n][k + 1];
+        for (int r = 0; r < n; ++r) {
+            for (int c = 0; c < n; ++c) {
+                for (int move = 0; move <= k; ++move) {
+                    dp[r][c][move] = -1.0;
                 }
             }
         }
-        std::function<double(int, int, int, double)> f = [&](int depth, int r, int c, double prob) {
-            if (r < 0 || n <= r || c < 0 || n <= c) {
-                return 0.0;
-            }
-
-            double& ret = cache[depth][r][c];
+        std::function<double(int ,int, int)> f = [&](int r, int c, int k) {
+            double& ret = dp[r][c][k];
             if (0.0 <= ret) {
                 return ret;
             }
 
-            if (k <= depth) {
-                ret = prob;
-                return prob;
+            if (k == 0) {
+                return ret = 1.0;
             }
 
             ret = 0.0;
             for (const auto& [dr, dc] : dirs) {
                 int x = r + dr, y = c + dc;
-                ret += f(depth + 1, x, y, prob) / dirs.size();
+                if (x < 0 || n <= x || y < 0 || n <= y) { continue; }
+
+                ret += f(x, y, k - 1) / dirs.size();
+
             }
 
             return ret;
         };
 
-        return f(0, row, column, 1.0);
+        return f(row, column, k);
     }
 
-    double dp(int n, int k, int row, int column) {
-        vector<vector<double>> dp1(n, vector<double>(n));
-        dp1[row][column] = 1.0;
-        for (int d = 0; d < k; ++d) {
-            vector<vector<double>> dp2(n, vector<double>(n));
+    double btmupDP(int n, int k, int row, int column) {
+        // dp[r][c][k]: the probability that the knight reaches (r, c) with k moves
+        double dp[n][n], tmp[n][n];
+        for (int r = 0; r < n; ++r) {
+            for (int c = 0; c < n; ++c) {
+                dp[r][c] = 0.0;
+            }
+        }
+        dp[row][column] = 1.0;
+
+        for (int move = 0; move < k; ++move) {
+            for (int r = 0; r < n; ++r) {
+                for (int c = 0; c < n; ++c) {
+                    tmp[r][c] = dp[r][c];
+                    dp[r][c] = 0.0;
+                }
+            }
             for (int r = 0; r < n; ++r) {
                 for (int c = 0; c < n; ++c) {
                     for (const auto& [dr, dc] : dirs) {
                         int x = r + dr, y = c + dc;
-                        if (x < 0 || n <= x || y < 0 || n <= y) {
-                            continue;
-                        }
-                        dp2[r][c] += dp1[x][y] / dirs.size();
+                        if (x < 0 || n <= x || y < 0 || n <= y) { continue; }
+
+                        dp[r][c] += tmp[x][y] / dirs.size();
                     }
                 }
             }
-
-            dp1.swap(dp2);
         }
 
         double ret = 0.0;
         for (int r = 0; r < n; ++r) {
             for (int c = 0; c < n; ++c) {
-                ret += dp1[r][c];
+                ret += dp[r][c];
             }
         }
 
@@ -69,7 +77,7 @@ public:
     }
 
     double knightProbability(int n, int k, int row, int column) {
-        //return recursion(n, k, row, column);
-        return dp(n, k, row, column);
+        //return topdnDFS(n, k, row, column);
+        return btmupDP(n, k, row, column);
     }
 };
