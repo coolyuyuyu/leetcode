@@ -2,7 +2,7 @@ class Solution {
 public:
     vector<pair<int, int>> dirs = {{-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}, {1, 2}, {2, 1}, {2, -1}, {1, -2}};
 
-    double topdnDFS(int n, int k, int row, int column) {
+    double topdnRecursion(int n, int k, int row, int column) {
         // dp[r][c][k]: the probability that the knight remains on the board after it starts from (r, c) and moves k times.
         double dp[n][n][k + 1];
         for (int r = 0; r < n; ++r) {
@@ -28,7 +28,6 @@ public:
                 if (x < 0 || n <= x || y < 0 || n <= y) { continue; }
 
                 ret += f(x, y, k - 1) / dirs.size();
-
             }
 
             return ret;
@@ -77,7 +76,7 @@ public:
     }
 
     double knightProbability(int n, int k, int row, int column) {
-        //return topdnDFS(n, k, row, column);
+        //return topdnRecursion(n, k, row, column);
         return btmupDP(n, k, row, column);
     }
 };
