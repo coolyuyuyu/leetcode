@@ -13,19 +13,36 @@
  */
 class Solution {
 public:
-    char getKthCharacter(RopeTreeNode* root, int k) {
+    char recursive(RopeTreeNode* root, int k) {
         if (root->len == 0) {
             return root->val[k - 1];
         }
-
-        if (root->left == nullptr) {
-            return getKthCharacter(root->right, k);
-        }
-        else if (k > (root->left->val.size() + root->left->len)) {
-            return getKthCharacter(root->right, k - root->left->val.size() - root->left->len);
+        int lftLen = (root->left ? (root->left->val.size() + root->left->len) : 0);
+        if (k > lftLen) {
+            return getKthCharacter(root->right, k - lftLen);
         }
         else {
             return getKthCharacter(root->left, k);
         }
+    }
+
+    char iterative(RopeTreeNode* root, int k) {
+        while (root->len != 0) {
+            int lftLen = (root->left ? (root->left->val.size() + root->left->len) : 0);
+            if (k > lftLen) {
+                root = root->right;
+                k -= lftLen;
+            }
+            else {
+                root = root->left;
+            }
+        }
+
+        return root->val[k - 1];
+    }
+    
+    char getKthCharacter(RopeTreeNode* root, int k) {
+        //return recursive(root, k);
+        return iterative(root, k);
     }
 };
