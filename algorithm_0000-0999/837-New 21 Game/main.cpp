@@ -1,103 +1,81 @@
 class Solution {
 public:
     // TLE, Time: O(n * maxPts)
-    double dfs(int n, int k, int maxPts) {
-        std::function<double(int)> recursive = [&](int cur) {
-            if (cur >= k) {
-                if (cur <= n) {
-                    return 1.0;
-                }
-                else {
-                    return 0.0;
-                }
+    double topdnDFS(int n, int k, int maxPts) {
+        // dp[i]: the probability such that Alice starts with i points
+        double dp[k + 1];
+        for (int i = 0; i <= k; ++i) {
+            dp[i] = -1.0;
+        }
+        std::function<double(int)> f = [&](int i) {
+            if (i >= k) {
+                return (i > n ? 0.0 : 1.0);
             }
 
-            double sum = 0.0;
-            for (int i = 1; i <= maxPts; ++i) {
-                sum += 1.0 / maxPts * recursive(cur + i);
+            double& ret = dp[i];
+            if (0.0 <= ret) {
+                return ret;
             }
 
-            return sum;
+            ret = 0.0;
+            for (int j = 1; j <= maxPts; ++j) {
+                ret += (1.0) / maxPts * f(i + j);
+            }
+
+            return ret;
         };
-        return recursive(0);
+
+        return f(0);
     }
 
     // TLE, Time: O(n * maxPts)
-    double dfs_memo(int n, int k, int maxPts) {
-        vector<double> cache(n + 1, DBL_MIN);
-        std::function<double(int)> recursive = [&](int cur) {
-            if (cur >= k) {
-                if (cur <= n) {
-                    return 1.0;
-                }
-                else {
-                    return 0.0;
-                }
-            }
+    double btmupDP1(int n, int k, int maxPts) {
+        // dp[i]: the probability such that Alice gets i points
+        double dp[n + 1];
+        dp[0] = 1.0;
 
-            if (cache[cur] != DBL_MIN) {
-                return cache[cur];
-            }
-
-            double& sum = cache[cur];
-            sum = 0;
-            for (int i = 1; i <= maxPts; ++i) {
-                sum += 1.0 / maxPts * recursive(cur + i);
-            }
-
-            return sum;
-        };
-        return recursive(0);
-    }
-
-    // TLE, Time: O(n * maxPts)
-    double dp(int n, int k, int maxPts) {
-        vector<double> p(n + 1, 0);
-        p[0] = 1.0;
         for (int i = 1; i <= n; ++i) {
-            for (int j = std::max(i - maxPts, 0); j <= (i - 1) && j < k; ++j) {
-                p[i] += (p[j] * 1.0 / maxPts);
+            dp[i] = 0.0;
+            for (int j = std::max(0, i - maxPts); j < std::min(i, k); ++j) {
+                dp[i] += 1.0 / maxPts * dp[j];
             }
         }
 
         double ret = 0.0;
         for (int i = k; i <= n; ++i) {
-            ret += p[i];
+            ret += dp[i];
         }
-
         return ret;
     }
 
     // Time: O(n)
-    double dp_presum(int n, int k, int maxPts) {
-        vector<double> p(n + 1, 0);
-        p[0] = 1.0;
+    double btmupDP2(int n, int k, int maxPts) {
+        // dp[i]: the probability such that Alice gets i points
+        double dp[n + 1];
+        dp[0] = 1.0;
 
-        double sum = 0.0;
+        double sum = (0 < k ? dp[0] : 0.0);
         for (int i = 1; i <= n; ++i) {
-            if (0 <= i - maxPts - 1 && (i - maxPts - 1) < k) {
-                sum -= p[i - maxPts - 1];
-            }
-            if ((i - 1) < k) {
-                sum += p[i - 1];
-            }
+            dp[i] = 1.0 / maxPts * sum;
 
-            p[i] = sum * 1.0 / maxPts;
+            if (i < k) {
+                sum += dp[i];
+            }
+            if (0 <= i - maxPts && i - maxPts < k) {
+                sum -= dp[i - maxPts];
+            }
         }
 
         double ret = 0.0;
         for (int i = k; i <= n; ++i) {
-            ret += p[i];
+            ret += dp[i];
         }
-
         return ret;
     }
 
     double new21Game(int n, int k, int maxPts) {
-        //return dfs(n, k, maxPts);
-        //return dfs_memo(n, k, maxPts);
-
-        //return dp(n, k, maxPts);
-        return dp_presum(n, k, maxPts);
+        //return topdnDFS(n, k, maxPts);
+        //return btmupDP1(n, k, maxPts);
+        return btmupDP2(n, k, maxPts);
     }
 };
