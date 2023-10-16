@@ -11,32 +11,36 @@
  */
 class Solution {
 public:
-    int sumOfNodes(TreeNode* root) {
-        if (!root) {
-            return 0;
-        }
-        return sumOfNodes(root->left) + root->val + sumOfNodes(root->right);
-    }
+    int M = 1e9 + 7;
 
-    int maxProduct_recursive(TreeNode* root, int sum, long long& ans) {
-        if (!root) {
-            return 0;
-        }
+    int topdnDFS(TreeNode* root) {
+        std::function<int(TreeNode*)> computeSum = [&](TreeNode* root) {
+            if (!root) {
+                return 0;
+            }
 
-        int lftSum = maxProduct_recursive(root->left, sum, ans);
-        int rhtSum = maxProduct_recursive(root->right, sum, ans);
+            root->val += computeSum(root->left) + computeSum(root->right);
+            return root->val;
+        };
+        computeSum(root);
 
-        ans = std::max({ans, (long long)(sum - lftSum) * lftSum, (long long)(sum - rhtSum) * rhtSum});
+        long long sum = root->val;
+        long long ans = 0;
+        std::function<void(TreeNode*)> calcSplitPdt = [&](TreeNode* root) {
+            if (!root) {
+                return;
+            }
+            ans = std::max(ans, (sum - root->val) * root->val);
 
-        return lftSum + root->val + rhtSum;
+            calcSplitPdt(root->right);
+            calcSplitPdt(root->left);
+        };
+        calcSplitPdt(root);
+
+        return ans % M;
     }
 
     int maxProduct(TreeNode* root) {
-        int sum = sumOfNodes(root);
-
-        long long ans = INT_MIN;
-        maxProduct_recursive(root, sum, ans);
-        ans %= 1000000007;
-        return ans;
+        return topdnDFS(root);
     }
 };
