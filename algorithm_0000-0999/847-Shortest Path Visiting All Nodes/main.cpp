@@ -2,15 +2,24 @@ class Solution {
 public:
     int shortestPathLength(vector<vector<int>>& graph) {
         int n = graph.size();
-        int finalState = (1 << n) - 1;
+        int m = 1 << n;
+        int finalState = m - 1;
 
-        queue<pair<int, int>> q; // <node, state>
-        vector<vector<int>> visited(n, vector<int>(1 << n, false));
-        for (int node = 0; node < n; ++node) {
-            q.emplace(node, 1 << node);
-            visited[node][1 << node] = true;
+        bool visited[n][m]; // [node][state]
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < m; ++j) {
+                visited[i][j] = false;
+            }
         }
-        for (int steps = 0;; !q.empty(); ++steps) {
+
+        queue<pair<int, int>> q; // [node][state]
+        for (int i = 0; i < n; ++i) {
+            int state = 1 << i;
+            q.emplace(i, state);
+            visited[i][state] = true;
+        }
+
+        for (int steps = 0; !q.empty(); ++steps) {
             for (int len = q.size(); 0 < len--;) {
                 auto [cur, state] = q.front();
                 q.pop();
@@ -20,11 +29,10 @@ public:
                 }
 
                 for (int nxt : graph[cur]) {
-                    int nxtState = state | (1 << next);
-                    if (visited[nxt][nxtState]) { continue; }
-
-                    q.emplace(nxt, nxtState);
-                    visited[nxt][nxtState] = true;
+                    int nextState = state | (1 << nxt);
+                    if (visited[nxt][nextState]) { continue; }
+                    visited[nxt][nextState] = true;
+                    q.emplace(nxt, nextState);
                 }
             }
         }
