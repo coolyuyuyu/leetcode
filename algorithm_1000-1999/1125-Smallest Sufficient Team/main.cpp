@@ -16,9 +16,9 @@ public:
             }
         }
 
-        // state: binary representation of skills
-        // dp1[state]: the minimum number of people to cover the state of skills
-        // dp2[state]: the minimum people combination to cover the state of skills
+        // state: binary representation of all skills
+        // dp1[state]: the minimum number of people to cover the requires skillset
+        // dp2[state]: the minimum people combination to cover the requires skillset
         int dp1[m];
         long dp2[m];
         for (int state = 0; state < m; ++state) {
@@ -26,14 +26,14 @@ public:
             dp2[state] = 0;
         }
         dp1[0] = 0;
-        for (int state = 0; state < m; ++state) {
-            if (dp1[state] == INT_MAX) { continue; }
-            for (int i = 0; i < n; ++i) {
+        for (int i = 0; i < n; ++i) {
+            for (int state = 0; state < m; ++state) {
+                if (dp1[state] == INT_MAX) { continue; }
+
                 int nxtState = state | skillset[i];
                 if (dp1[state] + 1 < dp1[nxtState]) {
                     dp1[nxtState] = dp1[state] + 1;
                     dp2[nxtState] = dp2[state] | (1L << i);
-
                 }
             }
         }
