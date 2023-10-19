@@ -1,6 +1,7 @@
 class Solution {
 public:
-    bool reduceAndCompare(const string& s, const string& t) {
+    // Time: O(n), Space: O(n)
+    bool simulateAndCompare(string s, string t) {
         std::function<string(const string&)> f = [](const string& str) {
             string ret;
             for (char c : str) {
@@ -18,7 +19,28 @@ public:
         return f(s) == f(t);
     }
 
-    bool compareOnTheFly(const string& s, const string& t) {
+    // Time: O(n), Space: O(1)
+    bool dualptrFwdOnTheFly(string s, string t) {
+        std::function<int(string&)> f = [](string& str) {
+            int slow = 0;
+            for (int fast = 0; fast < str.size(); ++fast) {
+                if (str[fast] != '#') {
+                    str[slow++] = str[fast];
+                }
+                else {
+                    slow = std::max(0, slow - 1);
+                }
+            }
+
+            return slow;
+        };
+
+        int i = f(s), j = f(t);
+        return s.compare(0, i, t, 0, j) == 0;
+    }
+
+    // Time: O(n), Space: O(1)
+    bool compareBwdOnTheFly(string s, string t) {
         class BackspaceStringReverseIterator {
         public:
             BackspaceStringReverseIterator(const string& str)
@@ -45,11 +67,9 @@ public:
         private:
             const string& m_str;
             size_t m_idx;
-
         };
 
-        BackspaceStringReverseIterator itr1(s), itr2(t);
-        while (true) {
+        for (BackspaceStringReverseIterator itr1(s), itr2(t); true;) {
             const char* pChar1 = itr1.next();
             const char* pChar2 = itr2.next();
             if (pChar1 && pChar2) {
@@ -69,7 +89,8 @@ public:
     }
 
     bool backspaceCompare(string s, string t) {
-        //return reduceAndCompare(s, t);
-        return compareOnTheFly(s, t);
+        //return simulateAndCompare(s, t);
+        //return dualptrFwdOnTheFly(s, t);
+        return compareBwdOnTheFly(s, t);
     }
 };
