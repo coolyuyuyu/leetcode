@@ -1,58 +1,54 @@
 class Solution {
-private:
-    string reduceBackspace(const string& s) {
-        string result;
-        result.reserve(s.size());
-
-        for (char c : s) {
-            if (c == '#') {
-                if (!result.empty()) {
-                    result.pop_back();
-                }
-            }
-            else {
-                result.push_back(c);
-            }
-        }
-
-        return result;
-    }
-
-    class ReverseIterator {
-    public:
-        ReverseIterator(const string& str)
-            : m_str(str)
-            , m_itr(m_str.crbegin()) {
-        }
-
-        const char* next() {
-            for (size_t i = 1; m_itr != m_str.crend(); ++m_itr) {
-                i += (*m_itr == '#' ? 1 : -1);
-                if (i == 0) {
-                    break;
-                }
-            }
-
-            if (m_itr == m_str.crend()) {
-                return nullptr;
-            }
-            else {
-                return &(*(m_itr++));
-            }
-        }
-
-    private:
-        const string& m_str;
-        string::const_reverse_iterator m_itr;
-    };
-
 public:
-    bool backspaceCompare_Reduce(const string& S, const string& T) {
-        return reduceBackspace(S) == reduceBackspace(T);
+    bool reduceAndCompare(const string& s, const string& t) {
+        std::function<string(const string&)> f = [](const string& str) {
+            string ret;
+            for (char c : str) {
+                if (c != '#') {
+                    ret.push_back(c);
+                }
+                else if (!ret.empty()){
+                    ret.pop_back();
+                }
+            }
+
+            return ret;
+        };
+
+        return f(s) == f(t);
     }
 
-    bool backspaceCompare_ScanBackward(string S, string T) {
-        ReverseIterator itr1(S), itr2(T);
+    bool compareOnTheFly(const string& s, const string& t) {
+        class BackspaceStringReverseIterator {
+        public:
+            BackspaceStringReverseIterator(const string& str)
+                : m_str(str)
+                , m_idx(m_str.size()) {
+            }
+
+            const char* next() {
+                for (int skip = 1; 0 < m_idx; --m_idx) {
+                    skip += (m_str[m_idx - 1] == '#' ? 1 : -1);
+                    if (skip == 0) {
+                        break;
+                    }
+                }
+
+                if (0 < m_idx) {
+                    return &(m_str[--m_idx]);
+                }
+                else {
+                    return nullptr;
+                }
+            }
+
+        private:
+            const string& m_str;
+            size_t m_idx;
+
+        };
+
+        BackspaceStringReverseIterator itr1(s), itr2(t);
         while (true) {
             const char* pChar1 = itr1.next();
             const char* pChar2 = itr2.next();
@@ -72,8 +68,8 @@ public:
         return true;
     }
 
-    bool backspaceCompare(string S, string T) {
-        //return backspaceCompare_Reduce(S, T);
-        return backspaceCompare_ScanBackward(S, T);
+    bool backspaceCompare(string s, string t) {
+        //return reduceAndCompare(s, t);
+        return compareOnTheFly(s, t);
     }
 };
