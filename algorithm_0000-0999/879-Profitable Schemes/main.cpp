@@ -4,10 +4,10 @@ public:
 
     int profitableSchemes(int n, int minProfit, vector<int>& group, vector<int>& profit) {
         int m = group.size();
-        group.insert(group.begin(), -1);
-        profit.insert(profit.begin(), -1);
+        group.insert(group.begin(), 0);
+        profit.insert(profit.begin(), 0);
 
-        // dp[i][j][k]: the number of schemes from the first i crimes such that from j members participate and generate k profit
+        // dp[i][j][k]: the number of schemes such that from the first i crimes with j members participation and generate k profit
         int dp[m + 1][n + 1][minProfit + 1];
         for (int i = 0; i <= m; ++i) {
             for (int j = 0; j <= n; ++j) {
