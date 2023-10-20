@@ -16,50 +16,97 @@
  * };
  */
 
-class NestedIterator {
+class IStrategy {
 public:
-    NestedIterator(vector<NestedInteger> &nestedList)
-        : m_itr(nestedList.cbegin())
-        , m_end(nestedList.cend()) {
+    virtual int next() = 0;
+    virtual bool hasNext() = 0;
+};
+
+class FwdScanStrategy : public IStrategy{
+public:
+    FwdScanStrategy(vector<NestedInteger>& nestedList) {
+        m_stk.emplace(nestedList.begin(), nestedList.end());
     }
 
     int next() {
-        int val = m_itr->getInteger();
-        ++m_itr;
-        return val;
+        return (m_stk.top().first++)->getInteger();
     }
 
     bool hasNext() {
-        while (true) {
-            if (m_itr == m_end) {
-                if (m_stk.empty()) {
-                    return false;
-                }
-                else {
-                    m_itr = m_stk.top().first;
-                    m_end = m_stk.top().second;
-                    m_stk.pop();
-                    ++m_itr;
-                }
+        while (!m_stk.empty()) {
+            auto& [itr, end] = m_stk.top();
+            if (itr == end) {
+                m_stk.pop();
             }
             else {
-                if (m_itr->isInteger()) {
+                if (itr->isInteger()) {
                     return true;
                 }
                 else {
-                    m_stk.emplace(m_itr, m_end);
-
-                    const vector<NestedInteger>& nestedList = m_itr->getList();
-                    m_itr = nestedList.cbegin();
-                    m_end = nestedList.cend();
+                    const vector<NestedInteger>& nl = itr++->getList();
+                    m_stk.emplace(nl.begin(), nl.end());
                 }
             }
         }
+
+        return false;
     }
 
 private:
-    vector<NestedInteger>::const_iterator m_itr, m_end;
     stack<pair<vector<NestedInteger>::const_iterator, vector<NestedInteger>::const_iterator>> m_stk;
+};
+
+class BwdScanStrategy : public IStrategy{
+public:
+    BwdScanStrategy(vector<NestedInteger>& nestedList) {
+        for (int i = nestedList.size(); 0 < i--;) {
+            m_stk.push(nestedList[i]);
+        }
+    }
+
+    int next() {
+        int ret = m_stk.top().getInteger();
+        m_stk.pop();
+        return ret;
+    }
+
+    bool hasNext() {
+        while (!m_stk.empty()) {
+            if (m_stk.top().isInteger()) {
+                return true;
+            }
+
+            vector<NestedInteger> nl = m_stk.top().getList();
+            m_stk.pop();
+            for (int i = nl.size(); 0 < i--;) {
+                m_stk.push(nl[i]);
+            }
+        }
+
+        return false;
+    }
+
+private:
+    stack<NestedInteger> m_stk;
+};
+
+class NestedIterator {
+public:
+    NestedIterator(vector<NestedInteger>& nestedList)
+        //: m_strategy(new FwdScanStrategy(nestedList)) {
+        : m_strategy(new BwdScanStrategy(nestedList)) {
+    }
+
+    int next() {
+        return m_strategy->next();
+    }
+
+    bool hasNext() {
+        return m_strategy->hasNext();
+    }
+
+private:
+    IStrategy* m_strategy;
 };
 
 /**
