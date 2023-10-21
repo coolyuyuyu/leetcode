@@ -2,29 +2,28 @@ class Solution {
 public:
     int tallestBillboard(vector<int>& rods) {
         int minDiff = -5000, maxDiff = 5000;
-        int offset = 0 - minDiff;
-
-        // dp[diff]: the maximum left support such that diff = left height - right height
-        int dp[maxDiff - minDiff + 1];
+        int m = maxDiff - minDiff + 1;
+        int OFFSET = 0 - minDiff;
+        
+        // dp[diff]: the largest possible left support of billboard such that diff = height of left - height of right
+        int dp[m];
         for (int diff = minDiff; diff <= maxDiff; ++diff) {
-            dp[diff + offset] = INT_MIN;
+            dp[diff + OFFSET] = INT_MIN;
         }
-        dp[0 + offset] = 0;
-
-
+        dp[0 + OFFSET] = 0;
         for (int rod : rods) {
-            int tmp[maxDiff - minDiff + 1];
-            memcpy(tmp, dp, sizeof(dp));
+            int tmp[m];
+            std::copy(dp, dp + m, tmp);
             for (int diff = minDiff; diff <= maxDiff; ++diff) {
                 if (diff + rod <= maxDiff) {
-                    dp[diff + rod + offset] = std::max(dp[diff + rod + offset], tmp[diff + offset] + rod);
+                    dp[diff + rod +  + OFFSET] = std::max(dp[diff + rod +  + OFFSET], tmp[diff + OFFSET] + rod); // welded with left support
                 }
                 if (minDiff <= diff - rod) {
-                    dp[diff - rod + offset] = std::max(dp[diff - rod + offset], tmp[diff + offset]);
+                    dp[diff - rod + OFFSET] = std::max(dp[diff - rod + OFFSET], tmp[diff + OFFSET]); // welded with right support
                 }
             }
         }
-        
-        return dp[0 + offset];
+
+        return dp[0 + OFFSET];
     }
 };
