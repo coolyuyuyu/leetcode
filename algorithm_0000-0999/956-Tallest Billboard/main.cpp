@@ -4,8 +4,8 @@ public:
         int minDiff = -5000, maxDiff = 5000;
         int m = maxDiff - minDiff + 1;
         int OFFSET = 0 - minDiff;
-        
-        // dp[diff]: the largest possible left support of billboard such that diff = height of left - height of right
+
+        // dp[diff]: the maximum left support of billboard such that diff = height of left - height of right
         int dp[m];
         for (int diff = minDiff; diff <= maxDiff; ++diff) {
             dp[diff + OFFSET] = INT_MIN;
