@@ -9,16 +9,16 @@ public:
             return presum[rht] - (0 < lft ? presum[lft - 1] : 0);
         };
 
-        // dp[i][j]: the maximum number of stones the player can take
+        // dp[i][j]: the maximum number of stones the player can take from piles[i:j]
         int dp[n][n];
         for (int lft = 0; lft < n; ++lft) {
             for (int rht = lft; rht < n; ++rht) {
-                dp[lft][rht] = -1;
+                dp[lft][rht] = 0;
             }
         }
         std::function<int(int, int)> f = [&](int lft, int rht) {
             int& ret = dp[lft][rht];
-            if (0 <= ret) {
+            if (0 < ret) {
                 return ret;
             }
 
@@ -40,7 +40,7 @@ public:
             return presum[rht] - (0 < lft ? presum[lft - 1] : 0);
         };
 
-        // dp[i][j]: the maximum number of stones the player can take
+        // dp[i][j]: the maximum number of stones the player can take from piles[i:j]
         int dp[n][n];
         for (int i = 0; i < n; ++i) {
             dp[i][i] = piles[i];
