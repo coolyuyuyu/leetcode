@@ -1,7 +1,8 @@
 class Solution {
 public:
     int tallestBillboard(vector<int>& rods) {
-        int minDiff = -5000, maxDiff = 5000;
+        int maxDiff = std::accumulate(rods.begin(), rods.end(), 0) / 2;
+        int minDiff = 0 - maxDiff;
         int m = maxDiff - minDiff + 1;
         int OFFSET = 0 - minDiff;
 
