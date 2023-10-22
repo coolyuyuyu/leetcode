@@ -1,77 +1,86 @@
 class Solution {
 public:
-    string topdn(const vector<int>& stoneValue) {
+    string topdnDFS(vector<int>& stoneValue) {
         int n = stoneValue.size();
 
-        vector<int> suf(n + 1);
-        suf[n] = 0;
-        std::partial_sum(stoneValue.rbegin(), stoneValue.rend(), suf.rbegin() + 1);
+        int presum[n];
+        std::partial_sum(stoneValue.begin(), stoneValue.end(), presum);
+        std::function<int(int)> sufsum = [&](int i) {
+            if (i >= n) {
+                return 0;
+            }
+            return presum[n - 1] - (0 < i ? presum[i - 1] : 0);
+        };
 
-        vector<int> cache(n, INT_MIN);
-        std::function<int(int)> solve = [&](int i) {
-            if (stoneValue.size() <= i) {
+        // dp[i]: the maximum score the player can take from stoneValue[i:]
+        int dp[n];
+        std::fill(dp, dp + n, INT_MIN);
+        std::function<int(int)> f = [&](int i) {
+            if (n <= i) {
                 return 0;
             }
 
-            int& ret = cache[i];
+            int& ret = dp[i];
             if (ret != INT_MIN) {
                 return ret;
             }
 
-            int sum = 0;
-            for (int j = 1; j <= 3 && (i + j - 1) < n; ++j) {
-                sum += stoneValue[i + j - 1];
-                ret = std::max(ret, sum + suf[i + j] - solve(i + j));
+            for (int j = 1; j <= 3 && i + j - 1 < n; ++j) {
+                //ret = std::max(ret, sum(i, i + j - 1) + sum(i + j, n) - f(i + j));
+                ret = std::max(ret, sufsum(i) - f(i + j));
             }
-
             return ret;
         };
 
-        int score = solve(0);
-        if (score < (suf[0] - score)) {
-            return "Bob";
+        int score = f(0);
+        int other = sufsum(0) - score;
+        if (score > other) {
+            return "Alice";
         }
-        else if (score == (suf[0] - score)) {
+        else if (score == other) {
             return "Tie";
         }
         else {
-            return "Alice";
+            return "Bob";
         }
     }
 
-    string btmup(const vector<int>& stoneValue) {
+    string btmupDP(vector<int>& stoneValue) {
         int n = stoneValue.size();
 
-        vector<int> suf(n + 1);
-        suf[n] = 0;
-        std::partial_sum(stoneValue.rbegin(), stoneValue.rend(), suf.rbegin() + 1);
+        int presum[n];
+        std::partial_sum(stoneValue.begin(), stoneValue.end(), presum);
+        std::function<int(int)> sufsum = [&](int i) {
+            if (i >= n) {
+                return 0;
+            }
+            return presum[n - 1] - (0 < i ? presum[i - 1] : 0);
+        };
 
-        vector<int> dp(n + 1, INT_MIN); // dp[i]: the maximum score the player can gain from stones[i:]
-        dp[n] = 0;
+        int dp[n];
         for (int i = n; 0 < i--;) {
-            int sum = 0;
-            for (int j = 1; j <= 3; ++j) {
-                if (n <= i + j - 1) {
-                    break;
-                }
-                sum += stoneValue[i + j - 1];
-                dp[i] = std::max(dp[i], sum + suf[i + j] - dp[i + j]);
+            dp[i] = INT_MIN;
+            for (int j = 1; j <= 3 && i + j - 1 < n; ++j) {
+                //dp[i] = std::max(dp[i], sum(i, i + j - 1) + sum(i + j, n) - dp[i + j]);
+                dp[i] = std::max(dp[i], sufsum(i) - (i + j < n ? dp[i + j] : 0));
             }
         }
 
-        if (dp[0] < (suf[0] - dp[0])) {
-            return "Bob";
+        int score = dp[0];
+        int other = sufsum(0) - score;
+        if (score > other) {
+            return "Alice";
         }
-        else if (dp[0] == (suf[0] - dp[0])) {
+        else if (score == other) {
             return "Tie";
         }
         else {
-            return "Alice";
+            return "Bob";
         }
     }
 
     string stoneGameIII(vector<int>& stoneValue) {
-        //return topdn(stoneValue);
-        return btmup(stoneValue);
+        //return topdnDFS(stoneValue);
+        return btmupDP(stoneValue);
     }
 };
