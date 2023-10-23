@@ -4,15 +4,13 @@ public:
         //dp[i]: whether the player can win when there are n stones
         char dp[n + 1];
         std::fill(dp, dp + n + 1, -1);
+        dp[0] = 0;
         std::function<bool(int)> f = [&](int n) {
             char& ret = dp[n];
-            if (ret >= 0) {
+            if (ret != -1) {
                 return ret;
             }
 
-            if (n == 0) {
-                return ret = 0;
-            }
             for (int i = std::sqrt(n); i >= 1; --i) {
                 if (!f(n - i * i)) {
                     return ret = 1;
@@ -43,7 +41,7 @@ public:
     }
 
     bool winnerSquareGame(int n) {
-        //return topdnDFS(n);
-        return btmupDP(n);
+        return topdnDFS(n);
+        //return btmupDP(n);
     }
 };
