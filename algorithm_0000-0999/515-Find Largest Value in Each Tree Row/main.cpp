@@ -11,55 +11,48 @@
  */
 class Solution {
 public:
-    void largestValues_Recursive(TreeNode* root, vector<int>& vals, int depth = 0) {
-        if (!root) {
-            return;
-        }
+    vector<int> recursive(TreeNode* root) {
+        vector<int> ret;
+        std::function<void(TreeNode*, int)> f = [&](TreeNode* root, int depth) {
+            if (!root) {
+                return;
+            }
 
-        if (vals.size() <= depth) {
-            vals.resize(depth + 1, numeric_limits<int>::min());
-        }
+            if (ret.size() <= depth) {
+                ret.resize(depth + 1, INT_MIN);
+            }
+            ret[depth] = std::max(ret[depth], root->val);
 
-        if (vals[depth] < root->val) {
-            vals[depth] = root->val;
-        }
+            f(root->left, depth + 1);
+            f(root->right, depth + 1);
+        };
+        f(root, 0);
 
-        largestValues_Recursive(root->left, vals, depth + 1);
-        largestValues_Recursive(root->right, vals, depth + 1);
+        return ret;
     }
 
-    void largestValues_Iterative(TreeNode* root, vector<int>& vals) {
-        // level-order traversal
+    vector<int> iterative(TreeNode* root) {
+        vector<int> ret;
         queue<TreeNode*> q;
-        if (root) {
-            q.push(root);
-        }
-        while(!q.empty()) {
-            vals.push_back(numeric_limits<int>::min());
-            for (size_t i = q.size(); 0 < i; --i) {
+        if (root) { q.push(root); }
+        while (!q.empty()) {
+            ret.emplace_back(INT_MIN);
+            for (int n = q.size(); 0 < n--;) {
                 TreeNode* node = q.front();
                 q.pop();
+                
+                ret.back() = std::max(ret.back(), node->val);
 
-                if (vals.back() < node->val) {
-                    vals.back() = node->val;
-                }
-
-                if (node->left) {
-                    q.push(node->left);
-                }
-                if (node->right) {
-                    q.push(node->right);
-                }
+                if (node->left) { q.push(node->left); }
+                if (node->right) { q.push(node->right); }
             }
         }
+
+        return ret;
     }
 
     vector<int> largestValues(TreeNode* root) {
-        vector<int> vals;
-
-        //largestValues_Recursive(root, vals);
-        largestValues_Iterative(root, vals);
-
-        return vals;
+        //return recursive(root);
+        return iterative(root);
     }
 };
