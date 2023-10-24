@@ -1,21 +1,22 @@
 class Solution {
 public:
-    int linerarScan(int n, vector<vector<int>>& requests) {
+    int scan(int n, vector<vector<int>>& requests) {
         int m = requests.size();
+
         std::function<bool(int)> check = [&](int state) {
-            vector<int> cnts(n, 0);
+            int cnts[n];
+            std::fill(cnts, cnts + n, 0);
             for (int i = 0; state; state >>= 1, ++i) {
                 if (state & 1) {
-                    cnts[requests[i][0]] -= 1;
-                    cnts[requests[i][1]] += 1;
+                    --cnts[requests[i][0]];
+                    ++cnts[requests[i][1]];
                 }
             }
-
-            return std::all_of(cnts.begin(), cnts.end(), [](int cnt) { return cnt == 0; });
+            return std::count(cnts, cnts + n, 0) == n;
         };
 
         int ret = 0;
-        for (int state = 1; state < (1 << m); ++state) {
+        for (int state = 0, limit = 1 << m; state < limit; ++state) {
             if (check(state)) {
                 ret = std::max(ret, __builtin_popcount(state));
             }
@@ -24,29 +25,29 @@ public:
         return ret;
     }
 
-    int scanTopDnByNextPermutation(int n, vector<vector<int>>& requests) {
+    int scanDecreasinglyByNextPerm(int n, vector<vector<int>>& requests) {
         int m = requests.size();
+
         std::function<bool(int)> check = [&](int state) {
-            vector<int> cnts(n, 0);
+            int cnts[n];
+            std::fill(cnts, cnts + n, 0);
             for (int i = 0; state; state >>= 1, ++i) {
                 if (state & 1) {
-                    cnts[requests[i][0]] -= 1;
-                    cnts[requests[i][1]] += 1;
+                    --cnts[requests[i][0]];
+                    ++cnts[requests[i][1]];
                 }
             }
-
-            return std::all_of(cnts.begin(), cnts.end(), [](int cnt) { return cnt == 0; });
+            return std::count(cnts, cnts + n, 0) == n;
         };
 
-        for (int ret = m; 0 < ret; --ret) {
-            vector<int> perm(m);
-            std::fill(perm.begin(), perm.begin() + m - ret, 0);
-            std::fill(perm.begin() + m - ret, perm.end(), 1);
-
+        for (int ret = m; ret >= 1; --ret) {
+            bool flag[m];
+            std::fill(flag, flag + m - ret, false);
+            std::fill(flag + m - ret, flag + m, true);
             do {
                 int state = 0;
                 for (int i = 0; i < m; ++i) {
-                    if (perm[i] == 1) {
+                    if (flag[i]) {
                         state |= (1 << i);
                     }
                 }
@@ -54,34 +55,36 @@ public:
                 if (check(state)) {
                     return ret;
                 }
-            } while (std::next_permutation(perm.begin(), perm.end()));
+            } while (std::next_permutation(flag, flag + m));
         }
 
         return 0;
     }
 
-    int scanTopDnByGosperHack(int n, vector<vector<int>>& requests) {
+    int scanDecreasinglyByGopherHack(int n, vector<vector<int>>& requests) {
         int m = requests.size();
+
         std::function<bool(int)> check = [&](int state) {
-            vector<int> cnts(n, 0);
+            int cnts[n];
+            std::fill(cnts, cnts + n, 0);
             for (int i = 0; state; state >>= 1, ++i) {
                 if (state & 1) {
-                    cnts[requests[i][0]] -= 1;
-                    cnts[requests[i][1]] += 1;
+                    --cnts[requests[i][0]];
+                    ++cnts[requests[i][1]];
                 }
             }
-
-            return std::all_of(cnts.begin(), cnts.end(), [](int cnt) { return cnt == 0; });
+            return std::count(cnts, cnts + n, 0) == n;
         };
 
-        for (int ret = m; 0 < ret; --ret) {
+        for (int ret = m; ret >= 1; --ret) {
+            // Gosper's hack: iterate all the m-bit state where there are k 1-bits.
             int state = (1 << ret) - 1;
             while (state < (1 << m)) {
                 if (check(state)) {
                     return ret;
                 }
 
-                int c = state & -state;
+                int c = state & - state;
                 int r = state + c;
                 state = (((r ^ state) >> 2) / c) | r;
             }
@@ -91,8 +94,8 @@ public:
     }
 
     int maximumRequests(int n, vector<vector<int>>& requests) {
-        //return linerarScan(n, requests);
-        //return scanTopDnByNextPermutation(n, requests);
-        return scanTopDnByGosperHack(n, requests);
+        //return scan(n, requests);
+        //return scanDecreasinglyByNextPerm(n, requests);
+        return scanDecreasinglyByGopherHack(n, requests);
     }
 };
