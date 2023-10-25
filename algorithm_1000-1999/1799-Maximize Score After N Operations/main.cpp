@@ -90,7 +90,6 @@ public:
                     if (((state >> idx1) & 1) == 0) { continue; }
                     for (int idx2 = idx1 + 1; idx2 < m; ++idx2) {
                         if (((state >> idx2) & 1) == 0) { continue; }
-
                         int subset = state & ~((1 << idx1) | (1 << idx2));
                         dp[state] = std::max(dp[state], dp[subset] + i * GCD[idx1][idx2]);
                     }
