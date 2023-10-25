@@ -1,6 +1,6 @@
 class Solution {
 public:
-    int maxScore(vector<int>& nums) {
+    int sol1(vector<int>& nums) {
         int n = nums.size() / 2;
         int m = n * 2;
 
@@ -31,7 +31,6 @@ public:
                 // iterate all subset, exclude 0
                 for (int subset = state; subset > 0; subset = (subset - 1) & state) {
                     if (__builtin_popcount(subset) != (i - 1) * 2) { continue; }
-                    if (state & subset != subset) { continue; }
 
                     int diff = state - subset;
                     int idx1 = -1, idx2 = -1;
@@ -56,5 +55,58 @@ public:
         }
 
         return dp[(1 << m) - 1];
+    }
+
+    int sol2(vector<int>& nums) {
+        int n = nums.size() / 2;
+        int m = n * 2;
+
+        int GCD[m][m];
+        for (int i = 0; i < m; ++i) { // 2 1-bit
+            for (int j = i + 1; j < m; ++j) {
+                GCD[i][j] = std::gcd(nums[i], nums[j]);
+            }
+        }
+
+        // state: binary representation whether nums[i] is considered
+        // dp[state]: the maximum score of state
+        int dp[1 << (n * 2)];
+        dp[0] = 0; // zero 1-bit
+        for (int i = 0; i < m; ++i) { // 2 1-bit
+            for (int j = i + 1; j < m; ++j) {
+                int state = (1 << i) | (1 << j);
+                dp[state] = GCD[i][j];
+            }
+        }
+
+        for (int i = 2; i <= n; ++i) {
+            int k = 2 * i;
+            // Gosper's hack: Iterate all the m-bit state where there are k 1-bits.
+            for (int state = (1 << k) - 1; state < (1 << m);) {
+                dp[state] = 0;
+
+                // iterate all 1-bit pair
+                for (int idx1 = 0; idx1 < m; ++idx1) {
+                    if (((state >> idx1) & 1) == 0) { continue; }
+                    for (int idx2 = idx1 + 1; idx2 < m; ++idx2) {
+                        if (((state >> idx2) & 1) == 0) { continue; }
+
+                        int subset = state & ~((1 << idx1) | (1 << idx2));
+                        dp[state] = std::max(dp[state], dp[subset] + i * GCD[idx1][idx2]);
+                    }
+                }
+
+                int c = state & - state;
+                int r = state + c;
+                state = (((r ^ state) >> 2) / c) | r;
+            }
+        }
+
+        return dp[(1 << m) - 1];
+    }
+
+    int maxScore(vector<int>& nums) {
+        //return sol1(nums);
+        return sol2(nums);
     }
 };
