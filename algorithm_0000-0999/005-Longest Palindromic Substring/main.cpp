@@ -29,7 +29,7 @@ public:
         int n = s.size();
 
         // dp[i][j]: whether s[i:j] is palindromic
-        std::vector<vector<bool>> dp(n, vector<bool>(n));
+        bool dp[n][n];
         for (int i = 0; i + 1 < n; ++i) { // len = 0
             dp[i + 1][i] = true;
         }
@@ -40,15 +40,9 @@ public:
         int maxLen = 1, pos = 0;
         for (int len = 2; len <= n; ++len) {
             for (int i = 0, j = i + len - 1; j < n; ++i, ++j) {
-                if (dp[i + 1][j - 1] && s[i] == s[j]) {
-                    dp[i][j] = true;
-                    if (maxLen < len) {
-                        maxLen = len;
-                        pos = i;
-                    }
-                }
-                else {
-                    dp[i][j] = false;
+                dp[i][j] = dp[i + 1][j - 1] && s[i] == s[j];
+                if (dp[i][j] && maxLen < len) {
+                    maxLen = len, pos = i;
                 }
             }
         }
@@ -60,9 +54,9 @@ public:
     string dp2(const string& s) {
         int n = s.size();
 
-        // dpE[i][j]: whether s[i:j] is palindromic and the len(s[i:j] is even)
-        // dpO[i][j]: whether s[i:j] is palindromic and the len(s[i:j] is odd)
-        std::vector<bool> dpE(n), dpO(n);
+        // dpE[i][j]: whether s[i:j] is palindromic and len(s[i:j]) is even
+        // dpO[i][j]: whether s[i:j] is palindromic and len(s[i:j]) is odd
+        bool dpE[n], dpO[n];
         for (int i = 0; i < n; ++i) {
             dpE[i] = true; // len = 0
             dpO[i] = true; // len = 1
@@ -70,17 +64,11 @@ public:
 
         int maxLen = 1, pos = 0;
         for (int len = 2; len <= n; ++len) {
+            bool* dp = ((len & 1) ? dpO : dpE);
             for (int i = 0, j = i + len - 1; j < n; ++i, ++j) {
-                auto& dp = ((len & 1) ? dpE : dpO);
-                if (dp[i + 1]&& s[i] == s[j]) {
-                    dp[i] = true;
-                    if (maxLen < len) {
-                        maxLen = len;
-                        pos = i;
-                    }
-                }
-                else {
-                    dp[i] = false;
+                dp[i] = dp[i + 1] && s[i] == s[j];
+                if (dp[i] && maxLen < len) {
+                    maxLen = len, pos = i;
                 }
             }
         }
