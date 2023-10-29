@@ -22,12 +22,12 @@ public:
     // Time: O(N), Space: O(1)
     bool compareFreq2(const string& s, const string& t) {
         vector<int> freq(26, 0);
-        for (int i = 0; i < s.size(); ++i) {
+        for (int i = 0, n = s.size(); i < n; ++i) {
             ++freq[s[i] - 'a'];
             --freq[t[i] - 'a'];
         }
 
-        return std::all_of(freq.begin(), freq.end(), [](int f) { return f == 0; });
+        return std::all_of(freq.begin(), freq.end(), [](int f){ return f == 0; });
     }
 
     bool isAnagram(string s, string t) {
