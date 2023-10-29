@@ -1,25 +1,22 @@
 class Solution {
 public:
     bool judgeCircle(string moves) {
-        if (moves.size() % 2 != 0) {
-            return false;
-        }
-
-        int x = 0;
-        int y = 0;
-        for (size_t i = 0; i < moves.size(); ++i) {
-            switch (moves[i]) {
-            case 'U':
-                ++y;
+        int x = 0, y = 0;
+        for (char c : moves) {
+            switch (c) {
+            case 'L':
+                --x;
                 break;
             case 'R':
                 ++x;
                 break;
+            case 'U':
+                ++y;
+                break;
             case 'D':
                 --y;
                 break;
-            case 'L':
-                --x;
+            default:
                 break;
             }
         }
