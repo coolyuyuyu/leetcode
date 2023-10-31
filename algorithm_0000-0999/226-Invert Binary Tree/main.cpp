@@ -13,7 +13,7 @@ class Solution {
 public:
     TreeNode* dfs_recv(TreeNode* root) {
         if (!root) {
-            return nullptr;
+            return root;
         }
 
         std::swap(root->left, root->right);
@@ -41,7 +41,7 @@ public:
     }
 
     TreeNode* invertTree(TreeNode* root) {
-        //return dfs_recv(root);
-        return dfs_iter(root);
+        return dfs_recv(root);
+        //return dfs_iter(root);
     }
 };
