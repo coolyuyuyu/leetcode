@@ -28,7 +28,7 @@ public:
         // binary lift
 
         int n = receiver.size();
-        int m = log2(k);
+        int m = ceil(log2(k));
 
         // pos[i][j]: the pos from i after 2^j passes
         int pos[n][m + 1];
