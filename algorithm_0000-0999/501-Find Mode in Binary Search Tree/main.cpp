@@ -11,95 +11,74 @@
  */
 class Solution {
 public:
-    void findMode_Recursive(TreeNode* root, vector<int>& mode, int& count, int& maxCount, int*& pPreVal) {
-        if (!root) {
-            return;
-        }
+    vector<int> recursive(TreeNode* root) {
+        int preVal = INT_MIN, maxCnt = 0, curCnt = 0;
+        vector<int> ret;
+        std::function<void(TreeNode*)> f = [&](TreeNode* root) {
+            if (!root) { return; }
 
-        findMode_Recursive(root->left, mode, count, maxCount, pPreVal);
+            f(root->left);
 
-        if (pPreVal) {
-            if (*pPreVal == root->val) {
-                ++count;
+            if (preVal != root->val) {
+                curCnt = 1;
             }
             else {
-                pPreVal = &(root->val);
-                count = 1;
+                ++curCnt;
             }
+            if (curCnt > maxCnt) {
+                maxCnt = curCnt;
+                ret = {root->val};
+            }
+            else if (curCnt == maxCnt) {
+                ret.push_back(root->val);
+            }
+            preVal = root->val;
 
-            if (maxCount < count) {
-                maxCount = count;
-                mode.clear();
-                mode.push_back(root->val);
-            }
-            else if (maxCount == count) {
-                mode.push_back(root->val);
-            }
-        }
-        else {
-            pPreVal = &(root->val);
-            count = maxCount = 1;
-            mode.push_back(root->val);
-        }
+            f(root->right);
+        };
+        f(root);
 
-        findMode_Recursive(root->right, mode, count, maxCount, pPreVal);
+        return ret;
     }
 
-    void findMode_Iterative(TreeNode* root, vector<int>& mode, int& count, int& maxCount, int*& pPreVal) {
-        stack<pair<TreeNode*, bool>> stk;
-        if (root) {
-            stk.emplace(root, false);
-        }
-        while (!stk.empty()) {
-            TreeNode* node = stk.top().first;
-            bool visited = stk.top().second;
-            stk.pop();
-
-            if (visited) {
-                if (pPreVal) {
-                    if (*pPreVal == node->val) {
-                        ++count;
-                    }
-                    else {
-                        pPreVal = &(node->val);
-                        count = 1;
-                    }
-
-                    if (maxCount < count) {
-                        maxCount = count;
-                        mode.clear();
-                        mode.push_back(node->val);
-                    }
-                    else if (maxCount == count) {
-                        mode.push_back(node->val);
-                    }
-                }
-                else {
-                    pPreVal = &(node->val);
-                    count = maxCount = 1;
-                    mode.push_back(node->val);
+    vector<int> iterative(TreeNode* root) {
+        int preVal = INT_MIN, maxCnt = 0, curCnt = 0;
+        vector<int> ret;
+        for (stack<TreeNode*> stk; root || !stk.empty();) {
+            if (root) {
+                while (root) {
+                    stk.push(root);
+                    root = root->left;
                 }
             }
             else {
-                if (node->right) {
-                    stk.emplace(node->right, false);
+                root = stk.top();
+                stk.pop();
+
+                if (preVal != root->val) {
+                    curCnt = 1;
                 }
-                stk.emplace(node, true);
-                if (node->left) {
-                    stk.emplace(node->left, false);
+                else {
+                    ++curCnt;
                 }
+                if (curCnt > maxCnt) {
+                    maxCnt = curCnt;
+                    ret = {root->val};
+                }
+                else if (curCnt == maxCnt) {
+                    ret.push_back(root->val);
+                }
+                preVal = root->val;
+
+                root = root->right;
             }
         }
+
+        return ret;
     }
 
     vector<int> findMode(TreeNode* root) {
-        vector<int> mode;
-        int count = 0, maxCount = 0;
-        int* pPreVal = nullptr;
-
-        //findMode_Recursive(root, mode, count, maxCount, pPreVal);
-        findMode_Iterative(root, mode, count, maxCount, pPreVal);
-
-        return mode;
+        //return recursive(root);
+        return iterative(root);
     }
 };
