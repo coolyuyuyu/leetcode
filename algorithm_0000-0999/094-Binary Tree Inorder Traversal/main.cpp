@@ -11,39 +11,34 @@
  */
 class Solution {
 public:
-    void recursive(TreeNode* root, vector<int>& nums) {
-        if (!root) {
-            return;
-        }
-
-        recursive(root->left, nums);
-        nums.push_back(root->val);
-        recursive(root->right, nums);
-    }
-
     vector<int> recursive(TreeNode* root) {
         vector<int> nums;
-        recursive(root, nums);
+        std::function<void(TreeNode*)> f = [&](TreeNode* root) {
+            if (!root) { return; }
+            f(root->left);
+            nums.push_back(root->val);
+            f(root->right);
+        };
+        f(root);
+
         return nums;
     }
 
     vector<int> iterative1(TreeNode* root) {
         vector<int> nums;
         for (stack<pair<TreeNode*, bool>> stk({{root, false}}); !stk.empty();) {
-            auto [root, visited] = stk.top();
+            auto [node, visited] = stk.top();
             stk.pop();
 
-            if (!root) {
-                continue;
-            }
+            if (!node) { continue; }
 
             if (visited) {
-                nums.push_back(root->val);
+                nums.push_back(node->val);
             }
             else {
-                stk.emplace(root->right, false);
-                stk.emplace(root, true);
-                stk.emplace(root->left, false);
+                stk.emplace(node->right, false);
+                stk.emplace(node, true);
+                stk.emplace(node->left, false);
             }
         }
 
@@ -53,17 +48,16 @@ public:
     vector<int> iterative2(TreeNode* root) {
         vector<int> nums;
         for (stack<TreeNode*> stk; root || !stk.empty();) {
-            if (root) {
-                while (root) {
-                    stk.push(root);
-                    root = root->left;
-                }
+            while (root) {
+                stk.push(root);
+                root = root->left;
             }
-            else {
+            if (!stk.empty()) {
                 root = stk.top();
                 stk.pop();
 
                 nums.push_back(root->val);
+
                 root = root->right;
             }
         }
@@ -77,4 +71,3 @@ public:
         return iterative2(root);
     }
 };
-
