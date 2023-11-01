@@ -26,17 +26,16 @@ int kDepth = 5e4;
 class BinaryLift : public Strategy {
 public:
     BinaryLift(int n, vector<int>& parent)
-        : m_parent(n, vector<int>(log2(kDepth) + 1, -1)) {
+        : m_parent(n, vector<int>(ceil(log2(kDepth)), -1)) {
         for (int i = 0; i < n; ++i) {
             m_parent[i][0] = parent[i];
         }
 
-        for (int j = 1, m = log2(kDepth); j <= m; ++j) {
+        for (int j = 1, m = ceil(log2(kDepth)); j < m; ++j) {
             for (int i = 0; i < n; ++i) {
                 if (m_parent[i][j - 1] == -1) { continue; }
                 m_parent[i][j] = m_parent[m_parent[i][j - 1]][j - 1];
             }
-
         }
     }
 
