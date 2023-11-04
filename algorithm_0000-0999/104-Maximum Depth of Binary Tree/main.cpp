@@ -12,23 +12,19 @@
 class Solution {
 public:
     int recursive(TreeNode* root) {
-        if (!root) {
-            return 0;
-        }
-
-        return 1 + std::max(recursive(root->left), recursive(root->right));
+        if (!root) { return 0; }
+        return 1 + max(recursive(root->left), recursive(root->right));
     }
 
     int iterative(TreeNode* root) {
         int depth = -1;
         for (queue<TreeNode*> q({root}); !q.empty(); ++depth) {
-            for (int i = q.size(); 0 < i--;) {
+            for (int n = q.size(); 0 < n--;) {
                 root = q.front();
                 q.pop();
 
-                if (!root) {
-                    continue;
-                }
+                if (!root) { continue; }
+
                 q.push(root->left);
                 q.push(root->right);
             }
