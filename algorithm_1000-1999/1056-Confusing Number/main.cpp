@@ -2,30 +2,18 @@ class Solution {
 public:
     bool confusingNumber(int n) {
         int x = 0;
-        for (int tmp = n; 0 < tmp; tmp /= 10) {
+        for (int tmp = n; tmp; tmp /= 10) {
             x *= 10;
-
-            int d = tmp % 10;
-            switch (d) {
-                case 2:
-                case 3:
-                case 4:
-                case 5:
-                case 7:
-                    return false;
-                case 6:
-                    d = 9;
-                    break;
-                case 9:
-                    d = 6;
-                    break;
-                default:
-                    break;
+            switch (tmp % 10) {
+                case 0: x += 0; break;
+                case 1: x += 1; break;
+                case 6: x += 9; break;
+                case 8: x += 8; break;
+                case 9: x += 6; break;
+                default: return false;
             }
-
-            x += d;
         }
 
-        return n != x;
+        return x != n;
     }
 };
