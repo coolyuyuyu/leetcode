@@ -9,22 +9,19 @@ public:
     bool addCar(int carType) {
         switch (carType) {
         case 1:
-            if (m_cntB == 0) {
+            if (m_cntB-- <= 0) {
                 return false;
             }
-            --m_cntB;
             break;
         case 2:
-            if (m_cntM == 0) {
+            if (m_cntM-- <= 0) {
                 return false;
             }
-            --m_cntM;
             break;
         case 3:
-            if (m_cntS == 0) {
+            if (m_cntS-- <= 0) {
                 return false;
             }
-            --m_cntS;
             break;
         }
 
@@ -32,7 +29,9 @@ public:
     }
 
 private:
-    int m_cntB, m_cntM, m_cntS;
+    int m_cntB;
+    int m_cntM;
+    int m_cntS;
 };
 
 /**
