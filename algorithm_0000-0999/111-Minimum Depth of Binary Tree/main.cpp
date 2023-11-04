@@ -12,52 +12,37 @@
 class Solution {
 public:
     int recursive(TreeNode* root) {
-        if (!root) {
-            return 0;
-        }
+        if (!root) { return 0; }
 
         int ret = INT_MAX;
-        std::function<void(TreeNode*, int)> f = [&](TreeNode* root, int depth) {
-            if (ret <= depth) {
-                return;
-            }
-
+        std::function<void(TreeNode*, int)> f = [&](TreeNode* root, int d) {
+            if (ret <= d) { return; }
+            if (!root) { return; }
             if (root->left == nullptr && root->right == nullptr) {
-                ret = depth;
-                return;
+                ret = std::min(ret, d);
             }
-
-            if (root->left) {
-                f(root->left, depth + 1);
-            }
-            if (root->right) {
-                f(root->right, depth + 1);
-            }
+            f(root->left, d + 1);
+            f(root->right, d + 1);
         };
         f(root, 1);
+
         return ret;
     }
 
     int iterative(TreeNode* root) {
-        queue<TreeNode*> q;
-        if (root) {
-            q.push(root);
-        }
-        for (int depth = 1; !q.empty(); ++depth) {
+        queue<TreeNode*> q({root});
+        for (int d = 1; !q.empty(); ++d) {
             for (int i = q.size(); 0 < i--;) {
                 root = q.front();
                 q.pop();
 
-                if (root->left == nullptr && root->right == nullptr) {
-                    return depth;
-                }
+                if (!root) { continue; }
 
-                if (root->left) {
-                    q.push(root->left);
+                if (root->left == nullptr && root->right == nullptr) {
+                    return d;
                 }
-                if (root->right) {
-                    q.push(root->right);
-                }
+                q.push(root->left);
+                q.push(root->right);
             }
         }
 
