@@ -1,31 +1,30 @@
 class Solution {
 public:
     bool lemonadeChange(vector<int>& bills) {
-        int fiveCnt = 0;
-        int tenCnt = 0;
+        int cnt5 = 0, cnt10 = 0;
         for (int bill : bills) {
             switch (bill) {
             case 5:
-                ++fiveCnt;
+                ++cnt5;
                 break;
             case 10:
-                if (fiveCnt == 0) {
+                if (cnt5-- == 0) {
                     return false;
                 }
-                --fiveCnt;
-                ++tenCnt;
+                ++cnt10;
                 break;
             case 20:
-                if (tenCnt > 0 && fiveCnt > 0) {
-                    --tenCnt;
-                    --fiveCnt;
+                if (cnt10 > 0 && cnt5 > 0) {
+                    --cnt10, --cnt5;
                 }
-                else if (fiveCnt >= 3) {
-                    fiveCnt -= 3;
+                else if (cnt5 >= 3){
+                    cnt5 -= 3;
                 }
                 else {
                     return false;
                 }
+                break;
+            default:
                 break;
             }
         }
