@@ -6,10 +6,10 @@ public:
         }
 
         bool carry = false;
-        for (int i = a.size() - 1, j = b.size() - 1; (0 <= i) && (0 <= j || carry); --i, --j) {
-            int v = (a[i] - '0') + (0 <= j ? (b[j] - '0') : 0) + (carry ? 1 : 0);
-            carry = (2 <= v);
-            a[i] = '0' + v % 2;
+        for (int i = a.size() - 1, j = b.size() - 1; 0 <= i && (0 <= j || carry); --i, --j) {
+            int v = (a[i] - '0') + (0 <= j ? b[j] - '0' : 0) + (carry ? 1 : 0);
+            carry = (1 < v);
+            a[i] = '0' + (v & 1);
         }
         if (carry) {
             a.insert(a.begin(), '1');
