@@ -1,64 +1,39 @@
 class Solution {
 public:
-    bool buddyStrings(string A, string B) {
-        if (A.size() != B.size()) {
+    bool buddyStrings(string s, string goal) {
+        if (s.size() != goal.size()) {
             return false;
         }
+        int n = s.size();
 
-        size_t len = A.size();
-        size_t i = 0;
-
-        size_t index1 = string::npos; {
-            for (; i < len; ++i) {
-                if (A.at(i) != B.at(i)) {
-                    index1 = i;
-                    ++i;
-                    break;
+        vector<int> indexes;
+        for (int i = 0; i < n; ++i) {
+            if (s[i] != goal[i]) {
+                indexes.push_back(i);
+                if (indexes.size() >= 3) {
+                    return false;
                 }
             }
         }
-        if (index1 == string::npos) {
-            unordered_set<char> seen;
-            for (char c : A) {
-                auto p = seen.insert(c);
-                if (p.second == false) {
+        if (indexes.size() == 1) {
+            return false;
+        }
+
+        if (indexes.size() == 0) {
+            vector<bool> dup(26, 0);
+            for (int i = 0; i < n; ++i) {
+                if (dup[s[i] - 'a']) {
                     return true;
                 }
-            }
-
-            return false;
-        }
-
-        size_t index2 = string::npos; {
-            for (; i < len; ++i) {
-                if (A.at(i) != B.at(i)) {
-                    index2 = i;
-                    ++i;
-                    break;
-                }
+                dup[s[i] - 'a'] =  true;
             }
         }
-        if (index2 == string::npos) {
-            return false;
-        }
-
-        if (A[index1] != B[index2] || A[index2] != B[index1]) {
-            return false;
-        }
-
-        size_t index3 = string::npos; {
-            for (; i < len; ++i) {
-                if (A.at(i) != B.at(i)) {
-                    index3 = i;
-                    ++i;
-                    break;
-                }
+        else {
+            if (s[indexes[0]] == goal[indexes[1]] && s[indexes[1]] == goal[indexes[0]]) {
+                return true;
             }
         }
-        if (index3 != string::npos) {
-            return false;
-        }
 
-        return true;
+        return false;
     }
 };
