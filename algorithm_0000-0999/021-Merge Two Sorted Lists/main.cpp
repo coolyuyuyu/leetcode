@@ -12,15 +12,14 @@ class Solution {
 public:
     ListNode* mergeTwoLists(ListNode* list1, ListNode* list2) {
         ListNode* head = nullptr;
-        ListNode** ppCur = &head;
+        ListNode** ppNode = &head;
         while (list1 && list2) {
-            ListNode*& node = (list1->val < list2->val ? list1 : list2);
-            *ppCur = node;
-
-            ppCur = &(node->next);
-            node = node->next;
+            auto& list = (list1->val < list2->val ? list1 : list2);
+            *ppNode = list;
+            list = list->next;
+            ppNode = &((*ppNode)->next);
         }
-        *ppCur = list1 ? list1 : list2;
+        *ppNode = (list1 ? list1 : list2);
 
         return head;
     }
