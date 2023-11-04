@@ -1,14 +1,10 @@
 class MyCircularQueue {
 public:
-    MyCircularQueue(size_t capacity)
-        : m_size(0)
-        , m_capacity(capacity)
+    MyCircularQueue(int k)
+        : m_data(new int[k])
         , m_index(0)
-        , m_data(new int[m_capacity]) {
-    }
-
-    ~MyCircularQueue() {
-        delete[] m_data;
+        , m_size(0)
+        , m_capacity(k) {
     }
 
     bool enQueue(int value) {
@@ -16,8 +12,7 @@ public:
             return false;
         }
         else {
-            m_data[(m_index + m_size) % m_capacity] = value;
-            ++m_size;
+            m_data[(m_index + m_size++) % m_capacity] = value;
             return true;
         }
     }
@@ -34,26 +29,26 @@ public:
     }
 
     int Front() {
-        return (isEmpty() ? -1 : m_data[m_index]);
+        return isEmpty() ? -1 : m_data[m_index];
     }
 
     int Rear() {
-        return (isEmpty() ? -1 : m_data[(m_index + m_size - 1) % m_capacity]);
+        return isEmpty() ? -1 : m_data[(m_index + m_size - 1) % m_capacity];
     }
 
     bool isEmpty() {
-        return (m_size == 0);
+        return (m_size ==  0);
     }
 
     bool isFull() {
-        return (m_size == m_capacity);
+        return (m_size ==  m_capacity);
     }
 
 private:
-    size_t m_size;
-    size_t m_capacity;
-    size_t m_index;
     int* m_data;
+    int m_index;
+    int m_size;
+    int m_capacity;
 };
 
 /**
