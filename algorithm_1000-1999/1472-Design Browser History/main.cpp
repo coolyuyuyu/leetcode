@@ -1,37 +1,37 @@
 class BrowserHistory {
 public:
     BrowserHistory(string homepage) {
-        m_stk1.push(homepage);
+        m_stkBwd.push(homepage);
     }
 
     void visit(string url) {
-        m_stk1.push(url);
-        while (!m_stk2.empty()) {
-           m_stk2.pop();
+        m_stkBwd.push(url);
+        while (!m_stkFwd.empty()) {
+            m_stkFwd.pop();
         }
     }
 
     string back(int steps) {
-        for (; 0 < steps && 1 < m_stk1.size(); steps--) {
-            m_stk2.push(m_stk1.top());
-            m_stk1.pop();
+        for (; steps && 1 < m_stkBwd.size(); --steps) {
+            m_stkFwd.push(m_stkBwd.top());
+            m_stkBwd.pop();
         }
 
-        return m_stk1.top();
+        return m_stkBwd.top();
     }
 
     string forward(int steps) {
-        for (; 0 < steps && 0 < m_stk2.size(); steps--) {
-            m_stk1.push(m_stk2.top());
-            m_stk2.pop();
+        for (; steps && !m_stkFwd.empty(); --steps) {
+            m_stkBwd.push(m_stkFwd.top());
+            m_stkFwd.pop();
         }
 
-        return m_stk1.top();
+        return m_stkBwd.top();
     }
 
 private:
-    stack<string> m_stk1;
-    stack<string> m_stk2;
+    stack<string> m_stkBwd;
+    stack<string> m_stkFwd;
 };
 
 /**
