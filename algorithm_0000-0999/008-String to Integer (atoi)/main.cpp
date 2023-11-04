@@ -1,38 +1,33 @@
 class Solution {
 public:
-    int myAtoi(string str) {
-        string::iterator it = str.begin();
-        while (it != str.end() && *it == ' ') {
-            ++it;
+    int myAtoi(string s) {
+        int i = 0, n = s.size();
+        while (i < n && isspace(s[i])) {
+            ++i;
         }
 
         int indicator = 1;
-        if (it != str.end()) {
-            if (*it == '+') {
-                ++it;
+        if (i < n) {
+            if (s[i] == '+') {
+                ++i;
             }
-            else if (*it == '-') {
+            else if (s[i] == '-') {
                 indicator = -1;
-                ++it;
+                ++i;
             }
         }
 
         long num = 0;
-        while (it != str.end()) {
-            if (!isdigit(*it)) {
-                break;
-            }
-            num = num * 10 + (*it - '0');
-            if (num * indicator >= INT_MAX) {
+        for (; i < n && isdigit(s[i]); ++i) {
+            num = num * 10 + s[i] - '0';
+            if (num * indicator > INT_MAX) {
                 return INT_MAX;
             }
-            else if (num * indicator <= INT_MIN) {
+            else if (num * indicator < INT_MIN) {
                 return INT_MIN;
             }
-            ++it;
         }
 
-        num *= indicator;
-        return num;
+        return num * indicator;
     }
 };
