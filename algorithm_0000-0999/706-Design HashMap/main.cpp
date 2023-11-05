@@ -33,7 +33,7 @@ public:
 
     void remove(int key) {
         auto& bucket = m_buckets[hash(key)];
-        for (auto pre = bucket.before_begin(), cur = bucket.begin(); cur != bucket.end(); pre = cur, ++cur) {
+        for (auto pre = bucket.before_begin(), cur = bucket.begin(); cur != bucket.end(); ++pre, ++cur) {
             if (cur->first == key) {
                 bucket.erase_after(pre);
                 --m_size;
@@ -54,10 +54,9 @@ private:
         vector<forward_list<pair<const int, int>>> buckets = std::move(m_buckets);
 
         m_buckets.resize(n);
-        for (const auto& bucket : buckets) {
+        for (const forward_list<pair<const int, int>>& bucket : buckets) {
             for (const auto& [k, v] : bucket) {
-                size_t h = hash(k);
-                m_buckets[h].emplace_front(k, v);
+                m_buckets[hash(k)].emplace_front(k, v);
             }
         }
     }
