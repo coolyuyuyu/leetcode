@@ -1,123 +1,96 @@
 class MyLinkedList {
+public:
+    MyLinkedList()
+        : m_head(new Node())
+        , m_tail(new Node())
+        , m_size(0) {
+        m_head->next = m_tail;
+        m_tail->prev = m_head;
+    }
+
+    int get(int index) {
+        Node* node = getNode(index);
+        return (node ? node->val : -1);
+    }
+
+    void addAtHead(int val) {
+        insertBefore(m_head->next, val);
+    }
+
+    void addAtTail(int val) {
+        insertBefore(m_tail, val);
+    }
+
+    void addAtIndex(int index, int val) {
+        Node* next = (index == m_size ? m_tail : getNode(index));
+        if (next) {
+            insertBefore(next, val);
+        }
+    }
+
+    void deleteAtIndex(int index) {
+        Node* node = getNode(index);
+        if (node) {
+            erase(node);
+        }
+    }
+
 private:
     struct Node {
+        int val;
+        Node* next;
+        Node* prev;
+
         Node()
             : val(0)
-            , pPrev(nullptr)
-            , pNext(nullptr) {
+            , next(nullptr)
+            , prev(nullptr) {
         }
-        Node(int val_, Node* pPrev_, Node* pNext_)
-            : val(val_)
-            , pPrev(pPrev_)
-            , pNext(pNext_) {
+        Node(int v, Node* n, Node* p)
+            : val(v)
+            , next(n)
+            , prev(p) {
         }
-        int val;
-        Node* pPrev;
-        Node* pNext;
     };
 
-public:
-    /** Initialize your data structure here. */
-    MyLinkedList()
-        : m_pHead(new Node())
-        , m_pTail(new Node())
-        , m_len(0) {
-        m_pHead->pNext = m_pTail;
-        m_pTail->pPrev = m_pHead;
-    }
-    
-    ~MyLinkedList() {
-        while (m_pHead->pNext != m_pTail) {
-            erase(m_pHead->pNext);
-        }
-        
-        delete m_pHead;
-        delete m_pTail;
-    }
-
-    /** Get the value of the index-th node in the linked list. If the index is invalid, return -1. */
-    int get(int index) {
-        Node* pNode = getNode(index);
-        return (pNode ? pNode->val : -1);
-    }
-
-    /** Add a node of value val before the first element of the linked list. After the insertion, the new node will be the first node of the linked list. */
-    void addAtHead(int val) {
-        insert(m_pHead->pNext, val);
-    }
-
-    /** Append a node of value val to the last element of the linked list. */
-    void addAtTail(int val) {
-        insert(m_pTail, val);
-    }
-
-    /** Add a node of value val before the index-th node in the linked list. If index equals to the length of linked list, the node will be appended to the end of linked list. If index is greater than the length, the node will not be inserted. */
-    void addAtIndex(int index, int val) {
-        if (index == m_len) {
-            addAtTail(val);
-        }
-        else {
-            Node* pNode = getNode(index);
-            if (pNode) {
-                insert(pNode, val);
-            }
-        }
-    }
-
-    /** Delete the index-th node in the linked list, if the index is valid. */
-    void deleteAtIndex(int index) {
-        Node* pNode = getNode(index);
-        if (pNode) {
-            erase(pNode);
-        }
-    }
-
-private:
     Node* getNode(int index) {
-        if (index < 0 || m_len <= index) {
-            return nullptr;
-        }
+        if (m_size <= index) { return nullptr; }
 
-        Node* pNode;
-        if (index < (m_len / 2)) {
-            pNode = m_pHead->pNext;
-            while (index--) {
-                pNode = pNode->pNext;
+        Node* node;
+        if (index < m_size / 2) {
+            node = m_head->next;
+            while (0 < index--) {
+                node = node->next;
             }
         }
         else {
-            index = m_len - index;
-            pNode = m_pTail;
-            while (index--) {
-                pNode = pNode->pPrev;
+            index = m_size - index - 1;
+            node = m_tail->prev;
+            while (0 < index--) {
+                node = node->prev;
             }
         }
-        return pNode;
+
+        return node;
     }
 
-    void insert(Node* pNode, int val) {
-        assert(pNode);
-
-        Node* pTmp = new Node(val, pNode->pPrev, pNode);
-        pTmp->pPrev->pNext = pTmp;
-        pTmp->pNext->pPrev = pTmp;
-
-        ++m_len;
-    }
-    
-    void erase(Node* pNode) {
-        assert(pNode);
-
-        pNode->pPrev->pNext = pNode->pNext;
-        pNode->pNext->pPrev = pNode->pPrev;
-        delete pNode;
-
-        --m_len;
+    void insertBefore(Node* node, int val) {
+        Node* inserted = new Node(val, node, node->prev);
+        inserted->next->prev = inserted;
+        inserted->prev->next = inserted;
+        ++m_size;
     }
 
-    Node* m_pHead;
-    Node* m_pTail;
-    int m_len;
+    void erase(Node* node) {
+        node->prev->next = node->next;
+        node->next->prev = node->prev;
+        delete node;
+        --m_size;
+    }
+
+    Node* m_head;
+    Node* m_tail;
+    int m_size;
 };
 
 /**
