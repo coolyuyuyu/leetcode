@@ -18,29 +18,27 @@ public:
     }
 
     int shortestPath(int src, int dst) {
-        vector<bool> visited(m_graph.size(), false);
+        int n = m_graph.size();
 
-        priority_queue<pair<int, int>, vector<pair<int, int>>, std::greater<>> pq;
+        bool visited[n];
+        std::fill(visited, visited + n, false);
+
+        priority_queue<pair<int, int>, vector<pair<int, int>>, std::greater<pair<int, int>>> pq;
         pq.emplace(0, src);
         while (!pq.empty()) {
-            auto [dist, node] = pq.top();
+            auto [dist, cur] = pq.top();
             pq.pop();
 
-            if (visited[node]) {
-                continue;
-            }
-            visited[node] = true;
+            if (visited[cur]) { continue; }
+            visited[cur] = true;
 
-            if (node == dst) {
+            if (cur == dst) {
                 return dist;
             }
 
-            for (auto [next, cost] : m_graph[node]) {
-                if (visited[next]) {
-                    continue;
-                }
-
-                pq.emplace(dist + cost, next);
+            for (const auto& [nxt, cost] : m_graph[cur]) {
+                if (visited[nxt]) { continue; }
+                pq.emplace(dist + cost, nxt);
             }
         }
 
@@ -54,44 +52,48 @@ private:
 class Floyd : public Strategy {
 public:
     Floyd(int n, const vector<vector<int>>& edges)
-        : m_dp(n, vector<int>(n, INT_MAX / 3)) {
+        : m_dists(n, vector<int>(n, INT_MAX / 3)) {
         for (int i = 0; i < n; ++i) {
-            m_dp[i][i] = 0;
+            m_dists[i][i] = 0;
         }
         for (const auto& edge : edges) {
-            m_dp[edge[0]][edge[1]] = edge[2];
+            m_dists[edge[0]][edge[1]] = edge[2];
         }
         for (int k = 0; k < n; ++k) {
             for (int i = 0; i < n; ++i) {
                 for (int j = 0; j < n; ++j) {
-                    m_dp[i][j] = std::min(m_dp[i][j], m_dp[i][k] + m_dp[k][j]);
+                    m_dists[i][j] = std::min(m_dists[i][j], m_dists[i][k] + m_dists[k][j]);
                 }
             }
         }
     }
 
     void addEdge(const vector<int>& edge) {
-        int n = m_dp.size();
+        if (m_dists[edge[0]][edge[1]] <= edge[2]) {
+            return;
+        }
+
+        int n = m_dists.size();
         for (int i = 0; i < n; ++i) {
             for (int j = 0; j < n; ++j) {
-                m_dp[i][j] = std::min(m_dp[i][j], m_dp[i][edge[0]] + edge[2] + m_dp[edge[1]][j]);
+                m_dists[i][j] = std::min(m_dists[i][j], m_dists[i][edge[0]] + edge[2] + m_dists[edge[1]][j]);
             }
         }
     }
 
     int shortestPath(int src, int dst) {
-        return ((INT_MAX / 3) <= m_dp[src][dst] ? -1 : m_dp[src][dst]);
+        return (m_dists[src][dst] < INT_MAX / 3 ? m_dists[src][dst] : -1);
     }
 
 private:
-    vector<vector<int>> m_dp;
+    vector<vector<int>> m_dists;
 };
 
 class Graph {
 public:
     Graph(int n, const vector<vector<int>>& edges)
-        //: m_strategy(new Dijkastra(n, edges)) {
-        : m_strategy(new Floyd(n, edges)) {
+        : m_strategy(new Dijkastra(n, edges)) {
+        //: m_strategy(new Floyd(n, edges)) {
     }
 
     void addEdge(const vector<int>& edge) {
