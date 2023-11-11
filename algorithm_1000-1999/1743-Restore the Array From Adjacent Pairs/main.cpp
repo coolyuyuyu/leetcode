@@ -9,10 +9,8 @@ public:
             else {
                 neighbor[p[0]].second = p[1];
             }
-
             if (neighbor.find(p[1]) == neighbor.end()) {
                 neighbor[p[1]] = {p[0], INT_MIN};
-
             }
             else {
                 neighbor[p[1]].second = p[0];
@@ -31,7 +29,7 @@ public:
         ret[0] = src, ret[1] = neighbor[src].first;
         for (int i = 2; i < ret.size(); ++i) {
             int pre = ret[i - 1];
-            ret[i] = (neighbor[pre].first == ret[i - 2] ? neighbor[ret[i - 1]].second : neighbor[ret[i - 1]].first);
+            ret[i] = (neighbor[pre].first == ret[i - 2] ? neighbor[pre].second : neighbor[pre].first);
         }
 
         return ret;
