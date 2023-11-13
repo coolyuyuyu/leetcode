@@ -1,5 +1,6 @@
 class Solution {
 public:
+    // Time: O(n^2)
     int dynamicProgramming(string s) {
         int n = s.size();
 
@@ -28,6 +29,7 @@ public:
         return ret;
     }
 
+    // Time: O(nlogn)
     int rollingHash(string s) {
         int n = s.size();
 
