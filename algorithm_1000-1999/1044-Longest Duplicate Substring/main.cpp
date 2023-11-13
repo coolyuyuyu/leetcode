@@ -6,7 +6,6 @@ public:
         typedef uint64_t ULL;
 
         ULL base = 29;
-        ULL modulo = LLONG_MAX;
         std::function<int(int)> findRepeatingSubstringOfLen = [&](int len) {
             ULL powOfHiBit = 1;
             for (int i = 1; i < len; ++i) {
