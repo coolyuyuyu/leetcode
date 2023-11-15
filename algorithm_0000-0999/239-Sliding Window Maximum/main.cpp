@@ -1,58 +1,58 @@
 class Solution {
 public:
-    // Time: O(NK)
-    vector<int> bruteForce(vector<int>& nums, int k) {
-        vector<int> ret;
-        for (int i = 0; (i + k) <= nums.size(); ++i) {
-            ret.push_back(*std::max_element(nums.begin() + i, nums.begin() + i + k));
+    // Time: O(nk), TLE
+    vector<int> byBruteForce(vector<int>& nums, int k) {
+        vector<int> ret(nums.size() - k + 1);
+        for (int i = 0; i + k <= nums.size(); ++i) {
+            ret[i] = *std::max_element(nums.begin() + i, nums.begin() + i + k);
         }
 
         return ret;
     }
 
-    // TimeL O(NlogK)
-    vector<int> orderedTree(vector<int>& nums, int k) {
+    // Time: O(nlogk)
+    vector<int> byMultiSet(vector<int>& nums, int k) {
         multiset<int> ms;
 
-        vector<int> ret;
+        vector<int> ret(nums.size() - k + 1);
         for (int i = 0; i < nums.size(); ++i) {
-            ms.insert(nums[i]);
-            if (k < ms.size()) {
+            if (k <= i) {
                 ms.erase(ms.find(nums[i - k]));
             }
-
-            if (ms.size() == k) {
-                ret.push_back(*ms.rbegin());
+            ms.insert(nums[i]);
+            if (k - 1 <= i) {
+                ret[i - k + 1] = *ms.rbegin();
             }
         }
 
         return ret;
     }
 
-    // Time: O(N)
-    vector<int> monoQueue(vector<int>& nums, int k) {
+    // Time: O(n)
+    vector<int> byDeque(vector<int>& nums, int k) {
         deque<int> dq;
 
-        vector<int> ret;
+        vector<int> ret(nums.size() - k + 1);
         for (int i = 0; i < nums.size(); ++i) {
+            if (!dq.empty() && dq.front() <= i - k) {
+                dq.pop_front();
+            }
             while (!dq.empty() && nums[dq.back()] <= nums[i]) {
                 dq.pop_back();
             }
             dq.push_back(i);
-            while (!dq.empty() && dq.front() <= (i - k)) {
-                dq.pop_front();
-            }
 
-            if (k <= (i + 1)) {
-                ret.push_back(nums[dq.front()]);
+            if (k - 1 <= i) {
+                ret[i - k + 1] = nums[dq.front()];
             }
         }
+
         return ret;
     }
 
     vector<int> maxSlidingWindow(vector<int>& nums, int k) {
-        //return bruteForce(nums, k);
-        //return orderedTree(nums, k);
-        return monoQueue(nums, k);
+        //return byBruteForce(nums, k);
+        //return byMultiSet(nums, k);
+        return byDeque(nums, k);
     }
 };
