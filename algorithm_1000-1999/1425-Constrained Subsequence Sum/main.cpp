@@ -1,15 +1,15 @@
 class Solution {
 public:
-    // Time: O(n * logk)
-    int byMultiset(vector<int>& nums, int k) {
+    // Time: O(nlogk)
+    int byMultiSet(vector<int>& nums, int k) {
         int n = nums.size();
 
         multiset<int> ms;
 
-        // dp[i]: the maximum sum of a non-empty subsequence ending at nums[i]
+        // dp[i]: the maximum sum of a non-empty subsequence of nums[0:i] and ending at nums[i]
         int dp[n];
         for (int i = 0; i < n; ++i) {
-            if (ms.size() > k) {
+            if (i - k - 1 >= 0) {
                 ms.erase(ms.find(dp[i - k - 1]));
             }
 
@@ -33,24 +33,24 @@ public:
     int byDeque(vector<int>& nums, int k) {
         int n = nums.size();
 
-        deque<int> q;
+        deque<int> dq;
 
-        // dp[i]: the maximum sum of a non-empty subsequence ending at nums[i]
+        // dp[i]: the maximum sum of a non-empty subsequence of nums[0:i] and ending at nums[i]
         int dp[n];
         for (int i = 0; i < n; ++i) {
-            if (!q.empty() && i - q.front() > k) {
-                q.pop_front();
+            if (!dq.empty() && i - k - 1 == dq.front()) {
+                dq.pop_front();
             }
 
             dp[i] = nums[i];
-            if (!q.empty()) {
-                dp[i] = std::max(dp[i], dp[i] + dp[q.front()]);
+            if (!dq.empty()) {
+                dp[i] = std::max(dp[i], dp[i] + dp[dq.front()]);
             }
 
-            while (!q.empty() && dp[q.back()] <= dp[i]) {
-                q.pop_back();
+            while (!dq.empty() && dp[dq.back()] <= dp[i]) {
+                dq.pop_back();
             }
-            q.push_back(i);
+            dq.push_back(i);
         }
 
         int ret = INT_MIN;
@@ -62,7 +62,7 @@ public:
     }
 
     int constrainedSubsetSum(vector<int>& nums, int k) {
-        //return byMultiset(nums, k);
+        //return byMultiSet(nums, k);
         return byDeque(nums, k);
     }
 };
