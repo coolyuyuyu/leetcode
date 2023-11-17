@@ -20,7 +20,7 @@ public:
         return ret;
     }
 
-    // Time: O(nlogn)
+    // Time: O(n)
     int byDeque(vector<int>& nums, int limit) {
         int n = nums.size();
 
