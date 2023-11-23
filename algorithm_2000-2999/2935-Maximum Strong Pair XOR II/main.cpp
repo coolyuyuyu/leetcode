@@ -26,31 +26,24 @@ public:
     }
 
     int maximumXor(int num) {
-        std::function<int(Node*, int)> dfs = [&](Node* node, int i) {
-            if (i < 0) { return 0; }
+        Node* node = m_root;
+
+        int ret = 0;
+        for (int i = 20; 0 < i--;) {
             int b = (num >> i) & 1;
-            if (b == 0) {
-                if (node->next[1] && node->next[1]->cnt > 0) {
-                    return dfs(node->next[1], i - 1) + (1 << i);
-                }
-                else if (node->next[0] && node->next[0]->cnt > 0) {
-                    return dfs(node->next[0], i - 1);
-                }
+            if (node->next[b ^ 1] && node->next[b ^ 1]->cnt > 0) {
+                ret += (1 << i);
+                node = node->next[b ^ 1];
+            }
+            else if (node->next[b] && node->next[b]->cnt > 0) {
+                node = node->next[b];
             }
             else {
-                if (node->next[0] && node->next[0]->cnt > 0) {
-                    return dfs(node->next[0], i - 1) + (1 << i);
-                }
-                else if (node->next[1] && node->next[1]->cnt > 0) {
-                    return dfs(node->next[1], i - 1);
-                }
+                return 0;
             }
+        }
 
-            return INT_MIN;
-        };
-
-        return dfs(m_root, 20 - 1);
-
+        return ret;
     }
 
 private:
