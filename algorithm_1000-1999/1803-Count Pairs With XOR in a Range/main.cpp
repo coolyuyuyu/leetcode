@@ -8,47 +8,53 @@ public:
         Node* node = m_root;
         for (int i = 15; 0 < i--;) {
             int b = (num >> i) & 1;
-            if (node->next[b] == nullptr) {
-                node->next[b] = new Node();
+            if (node->nexts[b] == nullptr) {
+                node->nexts[b] = new Node();
             }
-            node = node->next[b];
+            node = node->nexts[b];
             node->cnt += 1;
         }
     }
 
-    int countPairsGE(int num, int target) {
+    int countPairsLT(int num, int target) {
+        Node* node = m_root;
+
         int ret = 0;
-        std::function<void(Node*, int, int)> dfs = [&](Node* node, int i, int xxor) {
-            if (i < 0 || xxor + (1 << i) + (1 << i) - 1 < target) {
-                return;
-            }
-
-            int b = (num >> i) & 1;
-            if (node->next[b ^ 1]) {
-                if (xxor + (1 << i) >= target) {
-                    ret += node->next[b ^ 1]->cnt;
+        for (int i = 15; 0 < i--;) {
+            if ((target >> i) & 1) {
+                if ((num >> i) & 1) {
+                    ret += (node->nexts[1] ? node->nexts[1]->cnt : 0);
+                    if (node->nexts[0]) { node = node->nexts[0]; }
+                    else { break; }
                 }
-                else if (node->next[b ^ 1]->cnt){
-                    dfs(node->next[b ^ 1], i - 1, xxor +(1 << i));
+                else {
+                    ret += (node->nexts[0] ? node->nexts[0]->cnt : 0);
+                    if (node->nexts[1]) { node = node->nexts[1]; }
+                    else { break; }
                 }
             }
-
-            if (node->next[b] && node->next[b]->cnt) {
-                dfs(node->next[b], i - 1, xxor);
+            else {
+                if ((num >> i) & 1) {
+                    if (node->nexts[1]) { node = node->nexts[1]; }
+                    else { break; }
+                }
+                else {
+                    if (node->nexts[0]) { node = node->nexts[0]; }
+                    else { break; }
+                }
             }
-        };
-        dfs(m_root, 14, 0);
+        }
 
         return ret;
     }
 
 private:
     struct Node {
-        Node* next[2];
+        Node* nexts[2];
         int cnt;
 
         Node() {
-            next[0] = next[1] = nullptr;
+            nexts[0] = nexts[1] = nullptr;
             cnt = 0;
         }
     };
@@ -63,11 +69,42 @@ public:
 
         int ret = 0;
         for (int num : nums) {
-            ret += trie.countPairsGE(num, low);
-            ret -= trie.countPairsGE(num, high + 1);
+            ret += trie.countPairsLT(num, high + 1);
+            ret -= trie.countPairsLT(num, low);
             trie.add(num);
         }
 
         return ret;
     }
 };
+
+/*
+Input: nums = [1,4,2,7], low = 2, high = 6
+Output: 6
+Explanation: All nice pairs (i, j) are as follows:
+    - (0, 1): nums[0] XOR nums[1] = 5
+
+    - (0, 2): nums[0] XOR nums[2] = 3
+    - (1, 2): nums[1] XOR nums[2] = 6
+
+    - (0, 3): nums[0] XOR nums[3] = 6
+    - (1, 3): nums[1] XOR nums[3] = 3
+    - (2, 3): nums[2] XOR nums[3] = 5
+
+Input: nums = [9,8,4,2,1], low = 5, high = 14
+Output: 8
+Explanation: All nice pairs (i, j) are as follows:
+    - (0, 1): nums[0] XOR nums[1] = 1
+
+    - (0, 2): nums[0] XOR nums[2] = 13
+    - (1, 2): nums[1] XOR nums[2] = 12
+​​​​​
+    - (0, 3): nums[0] XOR nums[3] = 11
+    - (1, 3): nums[1] XOR nums[3] = 10
+    - (2, 3): nums[2] XOR nums[3] = 6
+
+    - (0, 4): nums[0] XOR nums[4] = 8
+    - (1, 4): nums[1] XOR nums[4] = 9
+    - (2, 4): nums[2] XOR nums[4] = 5
+    - (3, 4): nums[3] XOR nums[4] = 3
+*/
