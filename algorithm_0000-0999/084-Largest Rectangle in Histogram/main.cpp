@@ -44,21 +44,22 @@ public:
     }
 
     // Time: O(n)
-    int v2(vector<int>& heights) {
+    int monotonicStack(vector<int>& heights) {
         heights.push_back(0);
-        heights.insert(heights.begin(), 0);
-
+        
         int n = heights.size();
 
         stack<int> stk;
 
         int ret = 0;
         for (int i = 0; i < n; ++i) {
-            while (!stk.empty() && heights[stk.top()] > heights[i]) {
+            while (!stk.empty() && heights[stk.top()] >= heights[i]) {
                 int h = heights[stk.top()];
                 stk.pop();
-                int area = h * (i - stk.top() - 1);
-                ret = std::max(ret, area);
+
+                int rht = i - 1;
+                int lft = stk.empty() ? 0 : (stk.top() + 1);
+                ret = std::max(ret, h * (rht - lft + 1));
             }
 
             stk.push(i);
@@ -69,6 +70,6 @@ public:
 
     int largestRectangleArea(vector<int>& heights) {
         //return v1(heights);
-        return v2(heights);
+        return monotonicStack(heights);
     }
 };
