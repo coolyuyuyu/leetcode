@@ -1,21 +1,31 @@
 class Solution {
 public:
-    //bool isPerfectSquare(int num) {
-    //    int n = 1;
-    //    while (num > 0) {
-    //        num -= n;
-    //        n += 2;
-    //    }
-    //
-    //    return num == 0;
-    //}
-    
-    bool isPerfectSquare(int num) {
-        long root = num;
-        while (root * root > num) {
-            root = (root + num / root) / 2;
+    bool binarySearch(int x) {
+        int lo = 0, hi = x;
+        while (lo < hi) {
+            int mid = hi - (hi - lo) / 2;
+            if (1LL * mid * mid > x) {
+                hi = mid - 1;
+            }
+            else {
+                lo = mid;
+            }
         }
-    
-        return root * root == num;
+
+        return lo * lo == x;
+    }
+
+    bool newtonMethod(int x) {
+        int root = x;
+        while (1LL * root * root > x) {
+            root = (0LL + root + x / root) / 2;
+        }
+
+        return root * root == x;
+    }
+
+    bool isPerfectSquare(int num) {
+        //return binarySearch(num);
+        return newtonMethod(num);
     }
 };
