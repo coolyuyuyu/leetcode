@@ -1,29 +1,33 @@
 class SnapshotArray {
 public:
     SnapshotArray(int length)
-        : m_snapId(0)
-        , m_snaps(length, {{-1, 0}}) {
+        : m_id(0)
+        , m_arrs(length, {{-1, 0}}){
     }
 
     void set(int index, int val) {
-        if (m_snaps[index].back().second != val) {
-            m_snaps[index].emplace_back(m_snapId, val);
+        auto& arr = m_arrs[index];
+        if (arr.back().first == m_id) {
+            arr.back().second = val;
+        }
+        else if (arr.back().second != val) {
+            arr.emplace_back(m_id, val);
         }
     }
 
     int snap() {
-        return m_snapId++;
+        return m_id++;
     }
 
-    int get(int index, int snapId) {
-        const vector<pair<int, int>>& pairs = m_snaps[index];
-        auto itr = std::upper_bound(pairs.begin(), pairs.end(), make_pair(snapId, INT_MAX));
+    int get(int index, int snap_id) {
+        const auto& arr = m_arrs[index];
+        auto itr = std::upper_bound(arr.begin(), arr.end(), pair<int, int>{snap_id, INT_MAX});
         return std::prev(itr)->second;
     }
 
 private:
-    int m_snapId;
-    vector<vector<pair<int, int>>> m_snaps;
+    int m_id;
+    vector<vector<pair<int, int>>> m_arrs;
 };
 
 /**
