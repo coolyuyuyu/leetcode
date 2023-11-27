@@ -18,11 +18,11 @@ public:
 
     // Time: O(logN)
     int stdlib(const vector<int>& nums, int target) {
-        return std::lower_bound(nums.begin(), nums.end(), target) - nums.begin();
+        return std::distance(nums.begin(), std::lower_bound(nums.begin(), nums.end(), target));
     }
 
     int searchInsert(vector<int>& nums, int target) {
-        return bsearch(nums, target);
-        //return stdlib(nums, target);
+        //return bsearch(nums, target);
+        return stdlib(nums, target);
     }
 };
