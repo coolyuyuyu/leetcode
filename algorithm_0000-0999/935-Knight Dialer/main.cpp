@@ -5,7 +5,7 @@ public:
     int knightDialer(int n) {
         if (n == 1) { return 10; }
 
-        // dp[i][10]: how many distinct phone numbers of length i
+        // dp[i][j]: how many distinct phone numbers of length i and last digit is j
         int dp[10];
         std::fill(dp, dp + 10, 1);
         dp[5] = 0;
