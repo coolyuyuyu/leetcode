@@ -1,49 +1,62 @@
 class Solution {
 public:
-    // Time: O(M + N)
-    int linearSearch(vector<vector<int>>& grid) {
-        size_t m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
+    // Time: O(m + n)
+    int lsearch(vector<vector<int>>& grid) {
+        int m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
 
-        size_t ret = 0;
-        for (size_t r = m, c = 0; 0 < r--;) {
-            while (c < n && 0 <= grid[r][c]) {
-                ++c;
+        int ret = 0;
+        for (int i = m, j = 0; 0 < i--;) {
+            for (; j < n && grid[i][j] >= 0; ++j) {
+                ;
             }
-            ret += (n - c);
+
+            ret += (n - j);
         }
 
         return ret;
     }
 
-    // Time: W(MlogN)
-    int binarySearch(vector<vector<int>>& grid) {
-        size_t m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
+    // Time: O(m * logn)
+    int bsearch(vector<vector<int>>& grid) {
+        int m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
 
-        std::function<size_t(const vector<int>&, size_t)> firstNegative = [&](const vector<int>& nums, size_t lo) {
-            for (size_t hi = n; lo < hi;) {
-                size_t mid = lo + (hi - lo) / 2;
-                if (nums[mid] < 0) {
+        int ret = 0;
+        for (int i = m, j = 0; 0 < i--;) {
+            int lo = j, hi = n;
+            while (lo < hi) {
+                int mid = lo + (hi - lo) / 2;
+                if (grid[i][mid] < 0) {
                     hi = mid;
                 }
                 else {
                     lo = mid + 1;
                 }
             }
+            j = lo;
 
-            return lo;
-        };
+            ret += (n - j);
+        }
 
-        size_t ret = 0;
-        for (size_t r = m, c = 0; 0 < r--;) {
-            c = firstNegative(grid[r], c);
-            ret += (n - c);
+        return ret;
+    }
+
+    // Time: O(m * logn)
+    int bsearch_stdlib(vector<vector<int>>& grid) {
+        int m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
+
+        int ret = 0;
+        for (int i = m, j = 0; 0 < i--;) {
+            j = std::distance(grid[i].begin(), std::upper_bound(grid[i].begin() + j, grid[i].end(), 0, std::greater<int>()));
+
+            ret += (n - j);
         }
 
         return ret;
     }
 
     int countNegatives(vector<vector<int>>& grid) {
-        //return linearSearch(grid);
-        return binarySearch(grid);
+        //return lsearch(grid);
+        //return bsearch(grid);
+        return bsearch_stdlib(grid);
     }
 };
