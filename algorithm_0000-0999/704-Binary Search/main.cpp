@@ -1,10 +1,8 @@
 class Solution {
 public:
     int search(vector<int>& nums, int target) {
-        assert(!nums.empty());
-
-        for (size_t lo = 0, hi = nums.size() - 1; lo <= hi;) {
-            size_t mid = lo + (hi - lo) / 2;
+        for (int lo = 0, hi = nums.size() - 1; lo <= hi;) {
+            int mid = lo + (hi - lo) / 2;
             if (nums[mid] < target) {
                 lo = mid + 1;
             }
@@ -12,9 +10,6 @@ public:
                 return mid;
             }
             else {
-                if (mid == 0) {
-                    break;
-                }
                 hi = mid - 1;
             }
         }
