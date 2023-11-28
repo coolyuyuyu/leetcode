@@ -5,14 +5,14 @@ public:
 
         nums.insert(nums.begin(), 0);
 
-        vector<int> presum(n + 1);
-        std::partial_sum(nums.begin(), nums.end(), presum.begin());
+        int presum[n + 1];
+        std::partial_sum(nums.begin(), nums.end(), presum);
         std::function<int(int, int)> sum = [&](int lo, int hi) {
             return presum[hi] - presum[lo - 1];
         };
-
-        // dp[i][numParts]: the minimized largest sum of the numParts split of nums[1:i]
-        vector<vector<int>> dp(n + 1, vector<int>(k + 1));
+        
+        //dp[i][numParts]: the minimized largest sum of the numParts split of nums[:i]
+        int dp[n + 1][k + 1];
         dp[0][0] = 0;
         for (int i = 1; i <= n; ++i) {
             dp[i][0] = INT_MAX;
@@ -67,7 +67,7 @@ public:
     }
 
     int splitArray(vector<int>& nums, int k) {
-        //return byDp(nums, k);
-        return byBinarySearch(nums, k);
+        return byDp(nums, k); 
+        //return byBinarySearch(nums, k);
     }
 };
