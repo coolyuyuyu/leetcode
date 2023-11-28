@@ -16,11 +16,11 @@ public:
             case -1:
                 hi = mid - 1;
                 break;
-            case 0:
-                return mid;
             case 1:
                 lo = mid + 1;
                 break;
+            case 0:
+                return mid;
             }
         }
 
