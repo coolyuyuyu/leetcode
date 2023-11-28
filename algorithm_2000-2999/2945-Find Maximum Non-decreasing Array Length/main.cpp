@@ -61,7 +61,7 @@ public:
 
             dp[i] = presum[i] - presum[j];
             len[i] = len[j] + 1;
-            
+
             while (!m.empty() && m.rbegin()->first >= presum[i] + dp[i]) {
                 m.erase(std::prev(m.end()));
             }
