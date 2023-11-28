@@ -32,24 +32,27 @@ public:
     int byBinarySearch(vector<int>& nums, int k) {
         std::function<bool(int)> fitLargestSumOfSplit = [&](int target) {
             int cnt = 0;
-            for (int i = 0; i < nums.size(); ++i) {
-                if (target < nums[i]) {
-                    return false;
+            for (int lft = 0; lft < nums.size();) {
+                int rht = lft;
+                for (int sum = 0; rht < nums.size(); ++rht) {
+                    sum += nums[rht];
+                    if (sum > target) {
+                        break;
+                    }
                 }
+                if (++cnt > k) { return false; }
 
-                int j = i, sum = 0;
-                for (; j < nums.size() && (sum + nums[j]) <= target; ++j) {
-                    sum += nums[j];
-                }
-
-                ++cnt;
-                i = j - 1;
+                lft = rht;
             }
 
-            return cnt <= k;
+            return true;
         };
 
-        int lo = 0, hi = 1e9;
+        int lo = 0, hi = 0;
+        for (int num : nums) {
+            lo = std::max(lo, num);
+            hi += num;
+        }
         while (lo < hi) {
             int mid = lo + (hi - lo) / 2;
             if (fitLargestSumOfSplit(mid)) {
