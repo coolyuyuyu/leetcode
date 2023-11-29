@@ -3,7 +3,7 @@
  * // You should not implement it, or speculate about its implementation
  * class ArrayReader {
  *   public:
- *     // Compares the sum of arr[l..r] with the sum of arr[x..y] 
+ *     // Compares the sum of arr[l..r] with the sum of arr[x..y]
  *     // return 1 if sum(arr[l..r]) > sum(arr[x..y])
  *     // return 0 if sum(arr[l..r]) == sum(arr[x..y])
  *     // return -1 if sum(arr[l..r]) < sum(arr[x..y])
@@ -17,33 +17,37 @@
 class Solution {
 public:
     int getIndex(ArrayReader &reader) {
-        int lft = 0, rht = reader.length() - 1;
-        while (lft < rht) {
-            int mid = lft + (rht - lft) / 2;
-            if ((rht - lft) % 2) { // even number of elements
-                int result = reader.compareSub(lft, mid, mid + 1, rht);
-                if (result == 1) {
-                    rht = mid;
-                }
-                else {
-                    assert(result == -1);
-                    lft = mid + 1;
+        int lo = 0, hi = reader.length() - 1;
+        while (lo < hi) {
+            int mid = lo + (hi - lo) / 2;
+            if ((hi - lo + 1) & 1) {
+                switch (reader.compareSub(lo, mid, mid, hi)) {
+                case 1:
+                    hi = mid - 1;
+                    break;
+                case 0:
+                    lo = hi = mid;
+                    break;
+                case -1:
+                    lo = mid + 1;
+                    break;
                 }
             }
             else {
-                int result = reader.compareSub(lft, mid - 1, mid + 1, rht);
-                if (result == 1) {
-                    rht = mid - 1;
-                }
-                else if (result == 0) {
-                    lft = rht = mid;
-                }
-                else {
-                    lft = mid + 1;
+                switch (reader.compareSub(lo, mid, mid + 1, hi)) {
+                case 1:
+                    hi = mid;
+                    break;
+                case 0:
+                    assert(false);
+                    break;
+                case -1:
+                    lo = mid + 1;
+                    break;
                 }
             }
         }
 
-        return lft;
+        return lo;
     }
 };
