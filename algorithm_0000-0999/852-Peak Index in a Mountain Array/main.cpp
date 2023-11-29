@@ -1,22 +1,20 @@
 class Solution {
 public:
-    // Time: O(N), linear search
-    int linearSearch(vector<int>& arr) {
-        for (size_t i = 1; i < arr.size(); ++i) {
-            if (arr[i - 1] > arr[i]) {
-                return i - 1;
-            }
+    // Time: O(n)
+    int lsearch(vector<int>& arr) {
+        int i = 0;
+        while (arr[i] < arr[i + 1]) {
+            ++i;
         }
 
-        assert(false);
-        return -1;
+        return i;
     }
 
-    // Time: O(N), binary search
-    int binarySearch(vector<int>& arr) {
-        size_t lo = 0, hi = arr.size() - 1;
+    // Time: O(logn)
+    int bsearch(vector<int>& arr) {
+        int lo = 0, hi = arr.size() - 1;
         while (lo < hi) {
-            size_t mid = lo + (hi - lo) / 2;
+            int mid = lo + (hi - lo) / 2;
             if (arr[mid] < arr[mid + 1]) {
                 lo = mid + 1;
             }
@@ -29,7 +27,7 @@ public:
     }
 
     int peakIndexInMountainArray(vector<int>& arr) {
-        //return linearSearch(arr);
-        return binarySearch(arr);
+        return lsearch(arr);
+        //return bsearch(arr);
     }
 };
