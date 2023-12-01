@@ -1,6 +1,7 @@
 class Solution {
 public:
-    int minimumOneBitOperations(int n) {
+
+    int recursion(int n) {
         // int f1(int n): minimum number of operations to transform n to 0
         // assume n = 1[xxxx]
         // => 1[xxxx]           => 1[1000] => 0[1000] => 0[0000]
@@ -29,13 +30,13 @@ public:
             }
 
             // index of most significant bit of 1
-            int ms1 = 31 - __builtin_clz(n);
+            int msb = 31 - __builtin_clz(n);
 
             int& ret = cache1[n];
             ret = 0;
-            ret += f2(n & ~(1 << ms1), 1 << (ms1 - 1));
+            ret += f2(n & ~(1 << msb), 1 << (msb - 1));
             ret += 1;
-            ret += f1(1 << (ms1 - 1));
+            ret += f1(1 << (msb - 1));
 
             return ret;
         };
@@ -68,5 +69,28 @@ public:
         };
 
         return f1(n);
+    }
+
+    int math(int n) {
+        if (n == 0) { return 0; }
+
+        // index of most significant bit of 1
+        int msb = 31 - __builtin_clz(n);
+
+        // graycode
+        // graycode[i]: i ^ (i >> 1)
+        // given gray[i] = n, find i
+
+        int ret = 1 << msb;
+        for (int i = msb; 0 < i--;) {
+            ret |= ((ret >> 1) & (1 << i)) ^ (n & (1 << i));
+        }
+
+        return ret;
+    }
+
+    int minimumOneBitOperations(int n) {
+        //return recursion(n);
+        return math(n);
     }
 };
