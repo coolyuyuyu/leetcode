@@ -1,29 +1,29 @@
 class Solution {
 public:
     int countCharacters(vector<string>& words, string chars) {
-        vector<char> counts(26);
+        int cnts[26];
+        std::fill(cnts, cnts + 26, 0);
         for (char c : chars) {
-            ++counts[c - 'a'];
+            ++cnts[c - 'a'];
         }
 
-        int count = 0;
+        int ret = 0;
         for (const string& word : words) {
-            vector<char> countsTmp(counts);
+            int tmp[26];
+            std::copy(cnts, cnts + 26, tmp);
 
             bool good = true;
             for (char c : word) {
-                if (countsTmp[c - 'a'] == 0) {
+                if (--tmp[c - 'a'] < 0) {
                     good = false;
                     break;
                 }
-                --countsTmp[c - 'a'];
             }
-
             if (good) {
-                count += word.size();
+                ret += word.size();
             }
         }
 
-        return count;
+        return ret;
     }
 };
