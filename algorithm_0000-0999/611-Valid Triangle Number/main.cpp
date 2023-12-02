@@ -1,32 +1,44 @@
 class Solution {
 public:
-    size_t searchInsert(vector<int>& nums, int target, size_t lo, size_t hi) {
-        while (lo < hi) {
-            size_t mid = lo + (hi - lo) / 2;
-            if (target <= nums[mid]) {
-                hi = mid;
-            }
-            else {
-                assert(nums[mid] < target);
-                lo = mid + 1;
+    // Time: O(n^2 * logn)
+    int bsearch(vector<int>& nums) {
+        std::sort(nums.begin(), nums.end());
+        int n = nums.size();
+
+        int ret = 0;
+        for (int i = 0; i < n; ++i) {
+            for (int j = i + 1, lo = j + 1, hi = n; j < nums.size(); ++j, lo = std::max(lo, j + 1)) {
+                lo = std::distance(nums.begin(), std::lower_bound(nums.begin() + lo, nums.begin() + hi, nums[i] + nums[j]));
+                ret += (lo - j - 1);
             }
         }
 
-        assert(lo == hi);
-        return lo;
+        return ret;
+    }
+
+    // Time: O(n^2)
+    int twopointer(vector<int>& nums) {
+        std::sort(nums.begin(), nums.end());
+        int n = nums.size();
+
+        int ret = 0;
+        for (int k = n; 0 < k--;) {
+            for (int i = 0, j = k - 1; i < j;) {
+                if (nums[i] + nums[j] > nums[k]) {
+                    ret += (j - i);
+                    --j;
+                }
+                else {
+                    ++i;
+                }
+            }
+        }
+
+        return ret;
     }
 
     int triangleNumber(vector<int>& nums) {
-        sort(nums.begin(), nums.end());
-
-        int count = 0;
-        for (size_t i = 0; i < nums.size(); ++i) {
-            for (size_t j = i + 1, lo = j + 1; j + 1 < nums.size(); ++j, lo = max(j + 1, lo)) {
-                lo = searchInsert(nums, nums[i] + nums[j], lo, nums.size());
-                count += (lo - j - 1);
-            }
-        }
-
-        return count;
+        //return bsearch(nums);
+        return twopointer(nums);
     }
 };
