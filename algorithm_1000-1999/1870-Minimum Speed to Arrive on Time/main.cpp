@@ -1,7 +1,7 @@
 class Solution {
 public:
     int minSpeedOnTime(vector<int>& dist, double hour) {
-        if (dist.size() > 1 && hour <= dist.size() - 1) { return -1; }
+        if (hour <= dist.size() - 1) { return -1; }
 
         std::function<bool(int)> arriveInTime = [&](int speed) {
             double h = 0;
