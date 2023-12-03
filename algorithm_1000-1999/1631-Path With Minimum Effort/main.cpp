@@ -34,72 +34,48 @@ private:
 
 class Solution {
 public:
-    int greedy(vector<vector<int>>& heights) {
-        int m = heights.size(), n = heights.empty() ? 0 : heights[0].size();
-
-        vector<tuple<int, int, int>> edges;
-        for (int r = 0; r < m; ++r) {
-            for (int c = 0; c < n; ++c) {
-                if ((r + 1) < m) {
-                    edges.emplace_back(abs(heights[r][c] - heights[r + 1][c]), r * n + c, (r + 1) * n + c);
-                }
-                if ((c + 1) < n) {
-                    edges.emplace_back(abs(heights[r][c] - heights[r][c + 1]), r * n + c, r * n + c + 1);
-                }
-            }
-        }
-        std::sort(
-            edges.begin(), edges.end(),
-            [](const auto& edge1, const auto& edge2) {
-                return std::get<0>(edge1) < std::get<0>(edge2);
-            });
-
-        DisjointSets ds(m * n);
-        int srcId = 0, dstId = m * n - 1;
-        for (const auto& [cost, id1, id2] : edges) {
-            ds.merge(id1, id2);
-            if (ds.connected(srcId, dstId)) {
-                return cost;
-            }
-        }
-
-        return 0;
-    }
-
     int bsearch(vector<vector<int>>& heights) {
-        int m = heights.size(), n = heights.empty() ? 0 : heights[0].size();
         vector<pair<int, int>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
 
+        int m = heights.size(), n = heights.empty() ? 0 : heights[0].size();
+        if (m == 1 && n == 1) { return 0; }
 
-        std::function<bool(int)> isOk = [&](int maxDiff) -> bool {
-            queue<pair<int, int>> stk;
-            vector<vector<bool>> visited(m, vector<bool>(n, false));
+        std::function<bool(int)> canReach = [&](int maxDiff) {
+            bool visited[m][n];
+            for (int r = 0; r < m; ++r) {
+                for (int c = 0; c < n; ++c) {
+                    visited[r][c] = false;
+                }
+            }
+            queue<pair<int, int>> q;
 
-            stk.emplace(0, 0);
             visited[0][0] = true;
+            q.emplace(0, 0);
 
-            while (!stk.empty()) {
-                auto [r, c] = stk.front();
-                stk.pop();
+            while (!q.empty()) {
+                auto [r, c] = q.front();
+                q.pop();
 
-                for (auto [dr, dc] : dirs) {
+                for (const auto& [dr, dc] : dirs) {
                     int x = r + dr, y = c + dc;
-                    if (x < 0 || m <= x || y < 0 || n <= y) { continue; }
+                    if (x < 0 || x >= m || y < 0 || y >= n) { continue; }
                     if (visited[x][y]) { continue; }
-                    if (abs(heights[x][y] - heights[r][c]) > maxDiff) { continue; }
+                    if (abs(heights[r][c] - heights[x][y]) > maxDiff) { continue; }
 
-                    stk.emplace(x, y);
+                    if (x == m - 1 && y == n - 1) { return true; }
+
+                    q.emplace(x, y);
                     visited[x][y] = true;
                 }
             }
 
-            return visited[m - 1][n - 1];
+            return false;
         };
 
-        int lo = 0, hi = 1e6;
+        int lo = 0, hi = 1e6 - 1;
         while (lo < hi) {
             int mid = lo + (hi - lo) / 2;
-            if (isOk(mid)) {
+            if (canReach(mid)) {
                 hi = mid;
             }
             else {
@@ -110,8 +86,44 @@ public:
         return lo;
     }
 
+    int greedy(vector<vector<int>>& heights) {
+        int m = heights.size(), n = heights.empty() ? 0 : heights[0].size();
+        if (m == 1 && n == 1) { return 0; }
+
+        std::function<int(int, int)> getId = [&](int r, int c) {
+            return r * n + c;
+        };
+
+        priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, std::greater<>> pq;
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                int id = getId(r, c);
+                if (r + 1 < m) {
+                    pq.emplace(abs(heights[r][c] - heights[r + 1][c]), id, getId(r + 1, c));
+                }
+                if (c + 1 < n) {
+                    pq.emplace(abs(heights[r][c] - heights[r][c + 1]), id, getId(r, c + 1));
+                }
+            }
+        }
+
+        int src = getId(0, 0), dst = getId(m - 1, n - 1);
+        DisjointSets ds(m * n);
+        while (!pq.empty()) {
+            auto [diff, id1, id2] = pq.top();
+            pq.pop();
+
+            ds.merge(id1, id2);
+            if (ds.connected(src, dst)) {
+                return diff;
+            }
+        }
+
+        return 0;
+    }
+
     int minimumEffortPath(vector<vector<int>>& heights) {
-        return greedy(heights);
         //return bsearch(heights);
+        return greedy(heights);
     }
 };
