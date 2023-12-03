@@ -1,23 +1,23 @@
 class Solution {
 public:
     int minSpeedOnTime(vector<int>& dist, double hour) {
-        std::function<bool(int)> makeIt = [&](int speed) -> bool {
-            double h = 0.0;
-            for (int i = 0; (i + 1) < dist.size(); ++i) {
-                h += ((dist[i] - 1) / speed + 1);
-                if (hour < h) {
-                    return false;
-                }
-            }
-            h += dist.back() * 1.0 / speed;
+        if (dist.size() > 1 && hour <= dist.size() - 1) { return -1; }
 
-            return (h <= hour);
+        std::function<bool(int)> arriveInTime = [&](int speed) {
+            double h = 0;
+            for (int i = 0; i + 1 < dist.size(); ++i) {
+                h += (dist[i] + (speed - 1)) / speed;
+                if (h > hour) { return false; }
+            }
+            h += 1.0 * dist.back() / speed;
+
+            return h <= hour;
         };
 
-        int lo = 1, hi = 1e7 + 1;
+        int lo = 1, hi = 1e7;
         while (lo < hi) {
             int mid = lo + (hi - lo) / 2;
-            if (makeIt(mid)) {
+            if (arriveInTime(mid)) {
                 hi = mid;
             }
             else {
@@ -25,6 +25,6 @@ public:
             }
         }
 
-        return (lo < (1e7 + 1)) ? lo : -1;
+        return lo;
     }
 };
