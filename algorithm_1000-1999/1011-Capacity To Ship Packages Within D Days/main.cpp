@@ -1,35 +1,28 @@
 class Solution {
 public:
-    // binary search
-    // O(nlogK)
     int shipWithinDays(vector<int>& weights, int days) {
-        auto shippable = [&weights, days](int capacity) -> bool {
-            int load = capacity + 1;
+        std::function<bool(int)> canFinish = [&](int capacity) {
+            int load = capacity;
             int d = 0;
             for (int weight : weights) {
-                if (capacity < weight) {
-                    return false;
-                }
-
-                if ((load + weight) <= capacity) {
-                    load += weight;
-                }
-                else if (d < days){
+                load += weight;
+                if (load > capacity) {
+                    if (++d > days) { return false; }
                     load = weight;
-                    ++d;
-                }
-                else {
-                    return false;
                 }
             }
 
             return true;
         };
 
-        int lo = 0, hi = 1e4 * 5 * 500;
+        int lo = INT_MIN, hi = 0;
+        for (int weight : weights) {
+            lo = std::max(lo, weight);
+            hi = hi + weight;
+        }
         while (lo < hi) {
             int mid = lo + (hi - lo) / 2;
-            if (shippable(mid)) {
+            if (canFinish(mid)) {
                 hi = mid;
             }
             else {
