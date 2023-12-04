@@ -1,7 +1,7 @@
 class Solution {
 public:
     // Time: O(N)
-    int linearSearch(const vector<int>& nums, int k) {
+    int lsearch(const vector<int>& nums, int k) {
         for (int num : nums) {
             if (num <= k) {
                 ++k;
@@ -15,28 +15,23 @@ public:
     }
 
     // Time: O(logN)
-    int binarySearch(const vector<int>& nums, int k) {
-        // S: [0, 1, 2, ..., mid-1], len(S): mid
-        // T: number of nums less than mid
-
-        int lo = 0, hi = nums.back() + (k - nums.front() + 1);
+    int bsearch(const vector<int>& nums, int k) {
+        int lo = 0, hi = nums.size();
         while (lo < hi) {
-            int mid = hi - (hi - lo) / 2;
-            int s = mid;
-            int t = std::distance(nums.begin(), std::lower_bound(nums.begin(), nums.end(), mid));
-            if ((s - t) <= k) {
-                lo = mid;
+            int mid = lo + (hi - lo) / 2;
+            if (nums[mid] - mid - 1 < k) {
+                lo = mid + 1;
             }
             else {
-                hi = mid - 1;
+                hi = mid;
             }
         }
 
-        return lo;
+        return lo + k;
     }
 
     int missingElement(vector<int>& nums, int k) {
-        //return linearSearch(nums, nums.front() + k - 1);
-        return binarySearch(nums, nums.front() + k - 1);
+        //return lsearch(nums, nums.front() + k - 1);
+        return bsearch(nums, nums.front() + k - 1);
     }
 };
