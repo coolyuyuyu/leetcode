@@ -10,18 +10,16 @@ public:
             }
         }
         std::function<int(int, int)> f = [&](int k, int n) {
-            if (k == 0) { return 0;}
-            else if (k == 1) { return n; }
+            if (k == 1) { return n; }
             else if (n <= 1) { return n; }
 
             int& ret = dp[k][n];
-            if (ret != INT_MAX) {
-                return ret;
+            if (ret != INT_MAX) { return ret; }
+
+            for (int i = 1; i < n; ++i) {
+                ret = std::min(ret, 1 + std::max(f(k - 1, i - 1), f(k, n - i)));
             }
 
-            for (int i = 1; i <= n; ++i) {
-                ret = std::min(ret, 1 + std::max(f(k - 1, i - 1),  f(k, n - i)));
-            }
             return ret;
         };
 
@@ -38,23 +36,19 @@ public:
             }
         }
         std::function<int(int, int)> f = [&](int k, int n) {
-            if (k == 0) { return 0;}
-            else if (k == 1) { return n; }
+            if (k == 1) { return n; }
             else if (n <= 1) { return n; }
 
             int& ret = dp[k][n];
-            if (ret != INT_MAX) {
-                return ret;
-            }
+            if (ret != INT_MAX) { return ret; }
 
-            // for (int i = 1; i <= n; ++i) {
+            // for (int i = 1; i < n; ++i) {
             //     ret = std::min(ret, 1 + std::max(f(k - 1, i - 1),  f(k, n - i)));
             // }
             // => assume fa(i) = f(k - 1, i - 1), fb(i): f(k, n - i)
             // => fa is monotonically increasing, fb is monotonically decreasing
             // => binary search find first i such that fa(i) >= fb(i)
-
-            int lo = 1, hi = n;
+            int lo = 1, hi = n - 1;
             while (lo < hi) {
                 int i = lo + (hi - lo) / 2;
                 int fa = f(k - 1, i - 1), fb = f(k, n - i);
@@ -65,7 +59,7 @@ public:
                     lo = i + 1;
                 }
             }
-            ret = std::min(ret, 1 + std::max(f(k - 1, lo - 1),  f(k, n - lo)));
+            ret = 1 + std::max(f(k - 1, lo - 1), f(k, n - lo));
 
             return ret;
         };
@@ -74,7 +68,7 @@ public:
     }
 
     int superEggDrop(int k, int n) {
-        //return topdnDFS1(k, n);
-        return topdnDFS2(k, n);
+        return topdnDFS1(k, n);
+        //return topdnDFS2(k, n);
     }
 };
