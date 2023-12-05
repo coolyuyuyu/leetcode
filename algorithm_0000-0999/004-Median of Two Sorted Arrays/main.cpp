@@ -1,6 +1,42 @@
 class Solution {
 public:
-    double binarySearch(vector<int>& nums1, vector<int>& nums2) {
+    // Time: O(m + n)
+    double lsearch(vector<int>& nums1, vector<int>& nums2) {
+        size_t len1 = nums1.size(), len2 = nums2.size();
+        std::function<int(size_t)> findKth = [&](size_t k) {
+            size_t i = 0, j = 0;
+            while (i < len1 && j < len2 && i + j < k) {
+                if (nums1[i] < nums2[j]) {
+                    ++i;
+                }
+                else {
+                    ++j;
+                }
+            }
+
+            if (i == len1) {
+                return nums2[k - len1];
+            }
+            else if (j == len2) {
+                return nums1[k - len2];
+            }
+            else {
+                return std::min(nums1[i], nums2[j]);
+            }
+        };
+
+        size_t len = len1 + len2;
+        double ret = findKth(len / 2);
+        if (len % 2 == 0) {
+            ret = (ret + findKth(len / 2 - 1)) / 2.0;
+        }
+
+        return ret;
+    }
+
+    // Time: O(log(m + n))
+    double bsearch(vector<int>& nums1, vector<int>& nums2) {
+        size_t len1 = nums1.size(), len2 = nums2.size();
         std::function<int(size_t, size_t, size_t, size_t, size_t)> findKth = [&](size_t lo1, size_t hi1, size_t lo2, size_t hi2, size_t k) {
             if (lo1 >= hi1) {
                 return nums2[lo2 + k];
@@ -28,54 +64,17 @@ public:
             }
         };
 
-        size_t len1 = nums1.size(), len2 = nums2.size();
         size_t len = len1 + len2;
         double ret = findKth(0, len1, 0, len2, len / 2);
         if (len % 2 == 0) {
-            ret += findKth(0, len1, 0, len2, len / 2 - 1);
-            ret /= 2.0;
-        }
-
-        return ret;
-    }
-
-    double linearScan(vector<int>& nums1, vector<int>& nums2) {
-        std::function<int(size_t)> findKth = [&](size_t k) {
-            size_t i = 0, j = 0;
-            size_t len1 = nums1.size(), len2 = nums2.size();
-            while (i < len1 && j < len2 && i + j < k) {
-                if (nums1[i] < nums2[j]) {
-                    ++i;
-                }
-                else {
-                    ++j;
-                }
-            }
-
-            if (i == len1) {
-                return nums2[k - len1];
-            }
-            else if (j == len2) {
-                return nums1[k - len2];
-            }
-            else {
-                return std::min(nums1[i], nums2[j]);
-            }
-        };
-
-        size_t len1 = nums1.size(), len2 = nums2.size();
-        size_t len = len1 + len2;
-        double ret = findKth(len / 2);
-        if (len % 2 == 0) {
-            ret += findKth(len / 2 - 1);
-            ret /= 2.0;
+            ret = (ret + findKth(0, len1, 0, len2, len / 2 - 1)) / 2.0;
         }
 
         return ret;
     }
 
     double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
-        //return binarySearch(nums1, nums2);
-        return linearScan(nums1, nums2);
+        return lsearch(nums1, nums2);
+        //return bsearch(nums1, nums2);
     }
 };
