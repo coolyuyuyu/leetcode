@@ -91,24 +91,26 @@ public:
     }
 
     vector<int> byDivideAndConquer(const vector<int>& nums) {
-        vector<int> ret(nums.size(), 0);
-        vector<int> sorted(nums);
+        int n = nums.size();
+
+        int sorted[n];
+        std::copy(nums.begin(), nums.end(), sorted);
+
+        vector<int> ret(n, 0);
         std::function<void(int, int)> f = [&](int lo, int hi) {
-            if (hi <= lo) {
-                return;
-            }
+            if (lo >= hi) { return; }
 
             int mid = lo + (hi - lo) / 2;
             f(lo, mid);
             f(mid + 1, hi);
 
             for (int i = lo; i <= mid; ++i) {
-                ret[i] += std::distance(sorted.begin() + mid + 1, std::lower_bound(sorted.begin() + mid + 1, sorted.begin() + hi + 1, nums[i]));
+                ret[i] += std::distance(sorted + mid + 1, std::lower_bound(sorted + mid + 1, sorted + hi + 1, nums[i]));
             }
 
-            std::inplace_merge(sorted.begin() + lo, sorted.begin() + mid + 1, sorted.begin() + hi + 1);
+            std::inplace_merge(sorted + lo, sorted + mid + 1, sorted + hi + 1);
         };
-        f(0, nums.size() - 1);
+        f(0, n - 1);
 
         return ret;
     }
