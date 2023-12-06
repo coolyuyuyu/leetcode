@@ -95,35 +95,33 @@ public:
     int byDivideAndConquer(const vector<int>& instructions) {
         int n = instructions.size();
 
-        vector<int> cntLE(n, 0);
-        vector<int> sorted(instructions);
+        int sorted[n];
+        std::copy(instructions.begin(), instructions.end(), sorted);
 
+        int cntLT[n];
+        std::fill(cntLT, cntLT + n, 0);
         std::function<void(int, int)> f = [&](int lo, int hi) {
-            if (hi <= lo) {
-                return;
-            }
+            if (lo >= hi) { return; }
 
             int mid = lo + (hi - lo) / 2;
             f(lo, mid);
             f(mid + 1, hi);
 
             for (int i = mid + 1; i <= hi; ++i) {
-                auto itr = std::lower_bound(sorted.begin() + lo, sorted.begin() + mid + 1, instructions[i]);
-                cntLE[i] += std::distance(sorted.begin() + lo, itr);
-                cntLE[i] %= M;
+                cntLT[i] += std::distance(sorted + lo, std::lower_bound(sorted + lo, sorted + mid + 1, instructions[i]));
             }
 
-            std::inplace_merge(sorted.begin() + lo, sorted.begin() + mid + 1, sorted.begin() + hi + 1);;
+            std::inplace_merge(sorted + lo, sorted + mid + 1, sorted + hi + 1);
         };
         f(0, n - 1);
 
-        unordered_map<int, int> cntE;
+        unordered_map<int, int> cnt;
         int ret = 0;
         for (int i = 0; i < n; ++i) {
-            ret += std::min(cntLE[i], i - cntLE[i] - cntE[instructions[i]]);
+            ret += std::min(cntLT[i], i - cntLT[i] - cnt[instructions[i]]);
             ret %= M;
 
-            ++cntE[instructions[i]];
+            ++cnt[instructions[i]];
         }
 
         return ret;
