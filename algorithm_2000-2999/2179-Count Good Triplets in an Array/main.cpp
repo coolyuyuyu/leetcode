@@ -94,7 +94,7 @@ public:
         }
 
         vector<int> cntGreaterAftSelf(n);
-        BinaryIndexedTree bit2(n);\
+        BinaryIndexedTree bit2(n);
         for (int i = n; 0 < i--;) {
             cntGreaterAftSelf[i] = bit2.sum(nums2[i], n - 1);
             bit2.set(nums2[i], 1);
@@ -108,7 +108,51 @@ public:
         return ret;
     }
 
+    long long byDivideAndConquer(vector<int>& nums1, vector<int>& nums2) {
+        int n = nums1.size();
+
+        unordered_map<int, int> indexes;
+        for (int i = 0; i < n; ++i) {
+            indexes[nums1[i]] = i;
+        }
+        for (int i = 0; i < n; ++i) {
+            nums2[i] = indexes[nums2[i]];
+        }
+
+        int sorted2[n];
+        std::copy(nums2.begin(), nums2.end(), sorted2);
+
+        int cntSmallerBefSelf[n];
+        std::fill(cntSmallerBefSelf, cntSmallerBefSelf + n, 0);
+        int cntGreaterAftSelf[n];
+        std::fill(cntGreaterAftSelf, cntGreaterAftSelf + n, 0);
+        std::function<void(int, int)> f = [&](int lo, int hi) {
+            if (lo >= hi) { return; }
+
+            int mid = lo + (hi - lo) / 2;
+            f(lo, mid);
+            f(mid + 1, hi);
+
+            for (int i = mid + 1; i <= hi; ++i) {
+                cntSmallerBefSelf[i] += std::distance(sorted2 + lo, std::lower_bound(sorted2 + lo, sorted2 + mid + 1, nums2[i]));
+            }
+            for (int i = lo; i <= mid; ++i) {
+                cntGreaterAftSelf[i] += std::distance(std::upper_bound(sorted2 + mid + 1, sorted2 + hi + 1, nums2[i]), sorted2 + hi + 1);
+            }
+
+            std::inplace_merge(sorted2 + lo, sorted2 + mid + 1, sorted2 + hi + 1);
+        };
+        f(0, n - 1);
+
+        long long ret = 0;
+        for (int i = 1; i + 1 < n; ++i) {
+            ret += 1LL * cntSmallerBefSelf[i] * cntGreaterAftSelf[i];
+        }
+        return ret;
+    }
+
     long long goodTriplets(vector<int>& nums1, vector<int>& nums2) {
-        return byBit(nums1, nums2);
+        //return byBit(nums1, nums2);
+        return byDivideAndConquer(nums1, nums2);
     }
 };
