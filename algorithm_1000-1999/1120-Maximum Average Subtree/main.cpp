@@ -11,57 +11,51 @@
  */
 class Solution {
 public:
-    double maximumAverageSubtree_Recursive(TreeNode* root, pair<int, int>& sumAndCnt) {
-        if (!root) {
-            sumAndCnt = {0, 0};
-            return 0;
-        }
+    double recursive(TreeNode* root) {
+        double maxAvg = 0.0;
+        std::function<pair<int, int>(TreeNode*)> f = [&](TreeNode* root) {
+            if (!root) { return pair<int, int>{0, 0}; }
 
-        pair<int, int> lftSumAndCnt, rhtSumAndCnt;
-        double lftMaxAvg = maximumAverageSubtree_Recursive(root->left, lftSumAndCnt);
-        double rhtMaxAvg = maximumAverageSubtree_Recursive(root->right, rhtSumAndCnt);
+            auto [lftSum, lftCnt] = f(root->left);
+            auto [rhtSum, rhtCnt] = f(root->right);
 
-        sumAndCnt = {lftSumAndCnt.first + root->val + rhtSumAndCnt.first, lftSumAndCnt.second + 1 + rhtSumAndCnt.second};
+            int sum = root->val + lftSum + rhtSum;
+            int cnt = 1 + lftCnt + rhtCnt;
 
-        double avg = static_cast<double>(sumAndCnt.first) / sumAndCnt.second;
-        return max(avg, max(lftMaxAvg, rhtMaxAvg));
+            maxAvg = std::max(maxAvg, 1.0 * sum / cnt);
+
+            return pair<int, int>{sum, cnt};
+        };
+        f(root);
+
+        return maxAvg;
     }
 
-    double maximumAverageSubtree_Iterative(TreeNode* root) {
+    double iterative(TreeNode* root) {
         double maxAvg = 0.0;
-
-        unordered_map<TreeNode*, pair<int, int>> m; // <node, <sum, cnt>>
-
-        // postorder traversal
-        stack<pair<TreeNode*, bool>> stk;
-        if (root) {
-            stk.emplace(root, false);
-        }
-        while (!stk.empty()) {
-            TreeNode* node = stk.top().first;
-            bool visited = stk.top().second;
+        unordered_map<TreeNode*, pair<int, int>> m;
+        m[nullptr] = pair<int, int>{0, 0};
+        for (stack<pair<TreeNode*, bool>> stk({{root, false}}); !stk.empty();) {
+            auto [node, visited] = stk.top();
             stk.pop();
 
+            if (!node) { continue; }
+
             if (visited) {
-                pair<int, int> lftSumAndCnt = (node->left ? m[node->left] : make_pair(0, 0));
-                pair<int, int> rhtSumAndCnt = (node->right ? m[node->right] : make_pair(0, 0));
-                pair<int, int> sumAndCnt = {lftSumAndCnt.first + node->val + rhtSumAndCnt.first, lftSumAndCnt.second + 1 + rhtSumAndCnt.second};
+                auto [lftSum, lftCnt] = m[node->left];
+                auto [rhtSum, rhtCnt] = m[node->right];
 
-                double avg = static_cast<double>(sumAndCnt.first) / sumAndCnt.second;
-                if (maxAvg < avg) {
-                    maxAvg = avg;
-                }
+                int sum = node->val + lftSum + rhtSum;
+                int cnt = 1 + lftCnt + rhtCnt;
 
-                m[node] = sumAndCnt;
+                maxAvg = std::max(maxAvg, 1.0 * sum / cnt);
+
+                m[node] = {sum, cnt};
             }
             else {
                 stk.emplace(node, true);
-                if (node->right) {
-                    stk.emplace(node->right, false);
-                }
-                if (node->left) {
-                    stk.emplace(node->left, false);
-                }
+                stk.emplace(node->right, false);
+                stk.emplace(node->left, false);
             }
         }
 
@@ -69,9 +63,7 @@ public:
     }
 
     double maximumAverageSubtree(TreeNode* root) {
-        pair<int, int> sumAndCnt;
-        return maximumAverageSubtree_Recursive(root, sumAndCnt);
-
-        //return maximumAverageSubtree_Iterative(root);
+        //return recursive(root);
+        return iterative(root);
     }
 };
