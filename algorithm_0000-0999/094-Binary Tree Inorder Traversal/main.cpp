@@ -12,20 +12,20 @@
 class Solution {
 public:
     vector<int> recursive(TreeNode* root) {
-        vector<int> nums;
+        vector<int> ret;
         std::function<void(TreeNode*)> f = [&](TreeNode* root) {
             if (!root) { return; }
             f(root->left);
-            nums.push_back(root->val);
+            ret.push_back(root->val);
             f(root->right);
         };
         f(root);
 
-        return nums;
+        return ret;
     }
 
     vector<int> iterative1(TreeNode* root) {
-        vector<int> nums;
+        vector<int> ret;
         for (stack<pair<TreeNode*, bool>> stk({{root, false}}); !stk.empty();) {
             auto [node, visited] = stk.top();
             stk.pop();
@@ -33,7 +33,7 @@ public:
             if (!node) { continue; }
 
             if (visited) {
-                nums.push_back(node->val);
+                ret.push_back(node->val);
             }
             else {
                 stk.emplace(node->right, false);
@@ -42,32 +42,31 @@ public:
             }
         }
 
-        return nums;
+        return ret;
     }
 
     vector<int> iterative2(TreeNode* root) {
-        vector<int> nums;
+        vector<int> ret;
         for (stack<TreeNode*> stk; root || !stk.empty();) {
             while (root) {
-                stk.push(root);
+                stk.emplace(root);
                 root = root->left;
             }
-            if (!stk.empty()) {
-                root = stk.top();
-                stk.pop();
 
-                nums.push_back(root->val);
+            root = stk.top();
+            stk.pop();
 
-                root = root->right;
-            }
+            ret.push_back(root->val);
+            root = root->right;
         }
 
-        return nums;
+        return ret;
     }
 
     vector<int> inorderTraversal(TreeNode* root) {
         //return recursive(root);
-        //return iterative1(root);
-        return iterative2(root);
+        return iterative1(root);
+
+        //return iterative2(root);
     }
 };
