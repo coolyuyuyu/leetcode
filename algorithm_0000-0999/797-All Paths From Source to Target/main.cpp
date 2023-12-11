@@ -1,23 +1,24 @@
 class Solution {
 public:
-    void dfs(const vector<vector<int>>& graph, vector<int>& path, vector<vector<int>>& paths) {
-        int node = path.back();
-        for (int neighbor : graph[node]) {
-            path.push_back(neighbor);
-            dfs(graph, path, paths);
-            path.pop_back();
-        }
+    vector<vector<int>> dfs(vector<vector<int>>& graph) {
+        vector<vector<int>> ret;
+        std::function<void(vector<int>&)>dfs = [&](vector<int>& path) {
+            if (path.back() == graph.size() - 1) {
+                ret.push_back(path);
+                return;
+            }
 
-        if ((path.back() + 1) == graph.size()) {
-            paths.push_back(path);
-        }
-    }
+            for (int nxt : graph[path.back()]) {
+                path.push_back(nxt);
+                dfs(path);
+                path.pop_back();
+            }
+        };
 
-    vector<vector<int>> dfs(const vector<vector<int>>& graph) {
         vector<int> path = {0};
-        vector<vector<int>> paths;
-        dfs(graph, path, paths);
-        return paths;
+        dfs(path);
+
+        return ret;
     }
 
     vector<vector<int>> allPathsSourceTarget(vector<vector<int>>& graph) {
