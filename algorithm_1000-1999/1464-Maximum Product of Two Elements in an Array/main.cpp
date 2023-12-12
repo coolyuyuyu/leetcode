@@ -1,18 +1,17 @@
 class Solution {
 public:
     int maxProduct(vector<int>& nums) {
-        int val1 = numeric_limits<int>::min(), val2 = numeric_limits<int>::min();
-        auto fn = [&val1, &val2](int num) {
-            if (val1 < num) {
-                val2 = val1;
-                val1 = num;
+        int max1 = INT_MIN, max2 = INT_MIN;
+        for (int num : nums) {
+            if (max1 < num) {
+                max2 = max1;
+                max1 = num;
             }
-            else if (val2 < num) {
-                val2 = num;
+            else if (max2 < num) {
+                max2 = num;
             }
-        };
-        for_each(nums.begin(), nums.end(), fn);
+        }
 
-        return (val1 - 1) * (val2 - 1);
+        return (max1 - 1) * (max2 - 1);
     }
 };
