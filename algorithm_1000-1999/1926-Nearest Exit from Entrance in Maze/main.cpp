@@ -22,9 +22,9 @@ public:
                 q.pop();
                 for (const auto& [dr, dc] : dirs) {
                     int x = r + dr, y = c + dc;
-                    if (x < 0 || m <= x || y < 0 || n <= y) { cout << "\t1" << endl; continue; }
-                    if (maze[x][y] == '+') { cout << "\t2" << endl;  continue; }
-                    if (visited[x][y]) { cout << "\t3" << endl;  continue; }
+                    if (x < 0 || m <= x || y < 0 || n <= y) { continue; }
+                    if (maze[x][y] == '+') { continue; }
+                    if (visited[x][y]) { continue; }
 
                     if ((x == 0 || x + 1 == m || y == 0 || y + 1 == n) && (x != entrance[0] || y != entrance[1])) {
                         return step + 1;
