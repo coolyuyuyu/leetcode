@@ -3,68 +3,60 @@ public:
     vector<pair<int, int>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
 
     int shortestBridge(vector<vector<int>>& grid) {
-        int n = grid.size();
+        int m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
 
-        queue<pair<int, int>> q;
-        auto collectSurrounding = [&](int r, int c) {
-            for (stack<pair<int, int>> stk({{r,c}}); !stk.empty();) {
-                auto [r, c] = stk.top();
-                stk.pop();
-
-                if (grid[r][c] == 0) {
-                    q.emplace(r, c);
-                    continue;
-                }
-                else if (grid[r][c] == 2) {
-                    continue;
-                }
-                else {
-                    grid[r][c] = 2; // mark 2 as visited
-                }
-
-                for (const auto& [dr, dc] : dirs) {
-                    int x = r + dr, y = c + dc;
-                    if (x < 0 || n <= x || y < 0 || n <= y) {
-                        continue;
-                    }
-                    stk.emplace(x, y);
-                }
-            }
-        };
-        bool found = false;
-        for (int r = 0; r < n && !found; ++r) {
+        pair<int, int> src;
+        for (int r = 0, found = 0; r < m && !found; ++r) {
             for (int c = 0; c < n && !found; ++c) {
                 if (grid[r][c] == 1) {
-                    collectSurrounding(r, c);
-                    found = true;
+                    found = 1;
+                    src = {r, c};
+                    break;
                 }
             }
         }
-        
-        for (int steps = 0; !q.empty(); ++steps) {
-            for (int i = q.size(); 0 < i--;) {
-                auto [r, c] = q.front();
-                q.pop();
 
-                if (grid[r][c] == 1) {
-                    return steps;
+        grid[src.first][src.second] = 3;
+        queue<pair<int, int>> q1({src});
+        queue<pair<int, int>> q2;
+        while (!q1.empty()) {
+            auto [r, c] = q1.front();
+            q1.pop();
+            for (const auto& [dr, dc] : dirs) {
+                int x = r + dr, y = c + dc;
+                if (x < 0 || m <= x || y < 0 || n <= y) { continue; }
+
+                if (grid[x][y] == 0) {
+                    grid[x][y] = 2;
+                    q2.emplace(x, y);
                 }
-
-                if (grid[r][c] == 2) {
-                    continue;
+                else if (grid[x][y] == 1) {
+                    grid[x][y] = 3;
+                    q1.emplace(x, y);
                 }
-                grid[r][c] = 2; // mark 2 as visited
+            }
+        }
 
+        for (int ret = 1; !q2.empty(); ++ret) {
+            for (int i = q2.size(); 0 < i--;) {
+                auto [r, c] = q2.front();
+                q2.pop();
                 for (const auto& [dr, dc] : dirs) {
                     int x = r + dr, y = c + dc;
-                    if (x < 0 || n <= x || y < 0 || n <= y) {
-                        continue;
+                    if (x < 0 || m <= x || y < 0 || n <= y) { continue; }
+
+                    if (grid[x][y] == 1) {
+                        return ret;
                     }
-                    q.emplace(x, y);
+
+                    if (grid[x][y] == 0) {
+                        grid[x][y] = 2;
+                        q2.emplace(x, y);
+                    }
                 }
             }
         }
 
-        return -1;;
+        return -1;
     }
 };
