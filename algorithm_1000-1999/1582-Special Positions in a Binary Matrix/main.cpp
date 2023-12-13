@@ -1,27 +1,29 @@
 class Solution {
 public:
     int numSpecial(vector<vector<int>>& mat) {
-        size_t rowCnt = mat.size(), colCnt = mat.empty() ? 0 : mat.front().size();
+        int m = mat.size(), n = mat.empty() ? 0 : mat[0].size();
 
-        vector<int> rowSpecial(rowCnt, 0), colSpecial(colCnt, 0);
-        for (size_t row = 0; row < rowCnt; ++row) {
-            for (size_t col = 0; col < colCnt; ++col) {
-                if (mat[row][col]) {
-                    ++rowSpecial[row];
-                    ++colSpecial[col];
+        int rowCnt[m], colCnt[n];
+        std::fill(rowCnt, rowCnt + m, 0);
+        std::fill(colCnt, colCnt + n, 0);
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                if (mat[r][c] == 1) {
+                    ++rowCnt[r];
+                    ++colCnt[c];
                 }
             }
         }
 
-        int numSpecial = 0;
-        for (size_t row = 0; row < rowCnt; ++row) {
-            for (size_t col = 0; col < colCnt; ++col) {
-                if (mat[row][col] && rowSpecial[row] == 1 && colSpecial[col] == 1) {
-                    ++numSpecial;
+        int ret = 0;
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                if (mat[r][c] == 1 && rowCnt[r] == 1 && colCnt[c] == 1) {
+                    ++ret;
                 }
             }
         }
 
-        return numSpecial;
+        return ret;
     }
 };
