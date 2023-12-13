@@ -1,146 +1,72 @@
 class Solution {
 public:
-    bool transformable(const string& s1, const string& s2) {
-        size_t diff = 0;
-        for (size_t i = 0; i < s1.size(); ++i) {
-            if (s1[i] != s2[i]) {
-                ++diff;
-            }
-            if (diff > 1) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    size_t ladderLengthBfsV1(const string& beginWord, const string& endWord, vector<string>& wordList) {
+    int byBfsOneEnd(string beginWord, string endWord, vector<string>& wordList) {
         unordered_set<string> words(wordList.begin(), wordList.end());
         words.erase(beginWord);
 
-        unordered_set<string> reachable;
-        reachable.emplace(beginWord);
-
-        size_t len = 1;
-        while (!reachable.empty() && reachable.count(endWord) == 0) {
-            unordered_set<string> toAdd;
-            for (const string& word1 : reachable) {
-                for (const string& word2 : words) {
-                    if (transformable(word1, word2)) {
-                        toAdd.emplace(word2);
-                    }
-                }
-            }
-
-            for (const string& word2: toAdd) {
-                words.erase(word2);
-            }
-            reachable.swap(toAdd);
-
-            len++;
-        }
-
-        return 0 < reachable.count(endWord) ? len : 0;
-    }
-
-    // Time: O(wordLen * wordList.size())
-    size_t ladderLengthBfsV2(const string& beginWord, const string& endWord, vector<string>& wordList) {
-        unordered_set<string> candidates(wordList.begin(), wordList.end());
-        candidates.erase(beginWord);
-        if (candidates.find(endWord) == candidates.end()) {
-            return 0;
-        }
-
-        size_t ladderLen = 1;
-
-        unordered_set<string> check;
-        check.emplace(beginWord);
-        while (!check.empty()) {
-            ++ladderLen;
-
-            unordered_set<string> checkTmp;
-            for (string word : check) {
-                for (size_t j = 0; j < word.size(); ++j) {
-                    char letter = word[j];
+        queue<string> q({beginWord});
+        for (int ret = 1; !q.empty(); ++ret) {
+            for (int x = q.size(); 0 < x--;) {
+                string word = q.front();
+                q.pop();
+                for (int i = 0; i < word.size(); ++i) {
+                    char letter = word[i];
                     for (char c = 'a'; c <= 'z'; ++c) {
-                        if (c == letter) {
-                            continue;
-                        }
-                        
-                        word[j] = c;
-                        if (candidates.find(word) != candidates.end()) {
+                        word[i] = c;
+                        if (words.find(word) != words.end()) {
                             if (word == endWord) {
-                                return ladderLen;
+                                return ret + 1;
                             }
 
-                            checkTmp.emplace(word);
-                            candidates.erase(word);
+                            q.push(word);
+                            words.erase(word);
                         }
                     }
-                    word[j] = letter;
+                    word[i] = letter;
                 }
             }
-            check.swap(checkTmp);
         }
 
         return 0;
     }
 
-    size_t ladderLengthBfsTwoEnd(const string& beginWord, const string& endWord, vector<string>& wordList) {
-        unordered_set<string> candidates(wordList.begin(), wordList.end());
-        if (candidates.find(endWord) == candidates.end()) {
-            return 0;
-        }
+    int byBfsTwoEnd(string beginWord, string endWord, vector<string>& wordList) {
+        unordered_set<string> words(wordList.begin(), wordList.end());
+        if (words.find(endWord) == words.end()) { return 0; }
+        words.erase(beginWord);
+        words.erase(endWord);
 
-        size_t ladderLen = 1;
-        unordered_set<string> end1 = {beginWord};
-        unordered_set<string> end2 = {endWord};
-        while (!end1.empty()) {
-            ++ladderLen;
-
-            for (const string& word : end1) {
-                candidates.erase(word);
-            }
-
-            unordered_set<string> neighbors;
-            for (string word : end1) {
-                for (size_t j = 0; j < word.size(); ++j) {
-                    char letter = word[j];
+        unordered_set<string> self({beginWord}), other({endWord});
+        for (int ret = 1; !self.empty(); ++ret) {
+            unordered_set<string> next;
+            for (string word : self) {
+                for (int i = 0; i < word.size(); ++i) {
+                    char letter = word[i];
                     for (char c = 'a'; c <= 'z'; ++c) {
-                        if (c == letter) {
-                            continue;
+                        word[i] = c;
+                        if (other.find(word) != other.end()) {
+                            return ret + 1;
                         }
-
-                        word[j] = c;
-                        if (end2.find(word) != end2.end()) {
-                            return ladderLen;
-                        }
-
-                        if (candidates.find(word) != candidates.end()) {
-                            neighbors.emplace(word);
+                        if (words.find(word) != words.end()) {
+                            next.insert(word);
+                            words.erase(word);
                         }
                     }
-                    word[j] = letter;
+                    word[i] = letter;
                 }
             }
-            end1.swap(neighbors);
+            std::swap(self, next);
 
-            // KEY: Expand one end with fewer nodes.
-            if (end1.size() > end2.size()) {
-                end1.swap(end2);
+            if (other.size() < self.size()) {
+                std::swap(self, other);
             }
         }
 
         return 0;
     }
 
-    size_t ladderLength(string beginWord, string endWord, vector<string>& wordList) {
-        assert(beginWord != endWord);
-
-        //return ladderLengthBfsV1(beginWord, endWord, wordList);
-
-        //return ladderLengthBfsV2(beginWord, endWord, wordList);
-
-        return ladderLengthBfsTwoEnd(beginWord, endWord, wordList);
+    int ladderLength(string beginWord, string endWord, vector<string>& wordList) {
+        //return byBfsOneEnd(beginWord, endWord, wordList);
+        return byBfsTwoEnd(beginWord, endWord, wordList);
     }
 };
