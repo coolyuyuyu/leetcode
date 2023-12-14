@@ -1,32 +1,27 @@
 class Solution {
 public:
     vector<vector<int>> onesMinusZeros(vector<vector<int>>& grid) {
-        size_t rowCnt = grid.size(), colCnt = grid.empty() ? 0 : grid.front().size();
+        int m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
 
-        vector<int> onesRow(rowCnt, 0);
-        for (size_t r = 0; r < rowCnt; ++r) {
-            for (size_t c = 0; c < colCnt; ++c) {
-                if (grid[r][c]) {
-                    ++onesRow[r];
+        int rowOneCnt[m], colOneCnt[n];
+        std::fill(rowOneCnt, rowOneCnt + m, 0);
+        std::fill(colOneCnt, colOneCnt + n, 0);
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                if (grid[r][c] == 1) {
+                    ++rowOneCnt[r];
+                    ++colOneCnt[c];
                 }
             }
         }
 
-        vector<int> onesCol(colCnt, 0);
-        for (size_t c = 0; c < colCnt; ++c) {
-            for (size_t r = 0; r < rowCnt; ++r) {
-                if (grid[r][c]) {
-                    ++onesCol[c];
-                }
+        vector<vector<int>> ret(m, vector<int>(n));
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                ret[r][c] = (rowOneCnt[r] + colOneCnt[c]) * 2 - m - n;
             }
         }
 
-        for (size_t r = 0; r < rowCnt; ++r) {
-            for (size_t c = 0; c < colCnt; ++c) {
-                grid[r][c] = (onesRow[r] + onesCol[c]) * 2 - rowCnt - colCnt;
-            }
-        }
-
-        return grid;
+        return ret;
     }
 };
