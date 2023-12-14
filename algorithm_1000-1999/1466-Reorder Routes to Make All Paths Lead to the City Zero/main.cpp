@@ -1,27 +1,28 @@
 class Solution {
 public:
     int minReorder(int n, vector<vector<int>>& connections) {
-        vector<vector<pair<int, bool>>> graph(n); // <next, foreward>
-        for (const auto& conn : connections) {
-            graph[conn[0]].emplace_back(conn[1], true);
-            graph[conn[1]].emplace_back(conn[0], false);
+        vector<pair<int, bool>> graph[n];
+        for (const auto& connection : connections) {
+            graph[connection[0]].emplace_back(connection[1], true);
+            graph[connection[1]].emplace_back(connection[0], false);
         }
 
+        queue<pair<int, int>> q;
+        q.emplace(0, -1);
+
         int ret = 0;
-        queue<tuple<int, int, bool>> q({{0, -1, false}});
         while (!q.empty()) {
-            auto [node, parent, forward] = q.front();
+            auto [cur, pre] = q.front();
             q.pop();
 
-            if (forward) {
-                ++ret;
-            }
+            for (const auto& [nxt, forward] : graph[cur]) {
+                if (nxt == pre) { continue; }
 
-            for (const auto[next, forward] : graph[node]) {
-                if (next == parent) {
-                    continue;
+                if (forward) {
+                    ++ret;
                 }
-                q.emplace(next, node, forward);
+
+                q.emplace(nxt, cur);
             }
         }
 
