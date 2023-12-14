@@ -1,46 +1,51 @@
 class Solution {
 public:
-    vector<int> shortestAlternatingPaths(int n, vector<vector<int>>& redEdges, vector<vector<int>>& blueEdges) {
-        vector<vector<int>> rNexts(n), bNexts(n);
+    vector<int> byBFS(int n, vector<vector<int>>& redEdges, vector<vector<int>>& blueEdges) {
+        // color 0: red, color 1: blue
+
+        bool visited[n][2];
+        for (int i = 0; i < n; ++i) {
+            visited[i][0] = visited[i][1] = false;
+        }
+
+        vector<int> next[n][2];
         for (const auto& edge : redEdges) {
-            rNexts[edge[0]].push_back(edge[1]);
+            next[edge[0]][0].push_back(edge[1]);
         }
         for (const auto& edge : blueEdges) {
-            bNexts[edge[0]].push_back(edge[1]);
+            next[edge[0]][1].push_back(edge[1]);
         }
 
-        vector<int> rDists(n, INT_MAX), bDists(n, INT_MAX);
-        rDists[0] = bDists[0] = 0;
+        int src = 0;
+        vector<int> ret(n, -1);
+        ret[src] = 0;
 
-        enum class Color {
-            R = 0,
-            B = 1,
-        };
-        queue<pair<int, Color>> q({ {0, Color::R}, {0, Color::B} });
+        queue<pair<int, int>> q;
+        q.emplace(src, 0);
+        q.emplace(src, 1);
         for (int dist = 1; !q.empty(); ++dist) {
-            for (size_t j = q.size(); 0 < j--;) {
-                auto [node, color] = q.front();
+            for (int x = q.size(); 0 < x--;) {
+                auto [curNode, curColor] = q.front();
                 q.pop();
 
-                auto& nexts = (color == Color::R ? rNexts : bNexts);
-                auto& dists = (color == Color::R ? rDists : bDists);
-                for (int next : nexts[node]) {
-                    if (dist < dists[next]) {
-                        dists[next] = dist;
-                        q.emplace(next, (color == Color::R ? Color::B : Color::R));
+                int nxtColor = curColor ? 0 : 1;
+                for (int nxtNode : next[curNode][curColor]) {
+                    if (visited[nxtNode][nxtColor]) { continue; }
+                    visited[nxtNode][nxtColor] = true;
+
+                    if (ret[nxtNode] == -1) {
+                        ret[nxtNode] = dist;
                     }
+
+                    q.emplace(nxtNode, nxtColor);
                 }
             }
         }
 
-        vector<int> dists(n);
-        for (int i = 0; i < n; ++i) {
-            dists[i] = std::min(rDists[i], bDists[i]);
-            if (dists[i] == INT_MAX) {
-                dists[i] = -1;
-            }
-        }
+        return ret;
+    }
 
-        return dists;
+    vector<int> shortestAlternatingPaths(int n, vector<vector<int>>& redEdges, vector<vector<int>>& blueEdges) {
+        return byBFS(n, redEdges, blueEdges);
     }
 };
