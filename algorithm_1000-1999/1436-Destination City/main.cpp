@@ -1,19 +1,18 @@
 class Solution {
 public:
     string destCity(vector<vector<string>>& paths) {
-        unordered_set<string> citys;
+        unordered_map<string, int> m;
         for (const auto& path : paths) {
-            const string& from = path[0];
-            const string& to = path[1];
-            citys.insert(from);
-            citys.insert(to);
+            ++m[path[0]];
+            m.emplace(path[1], 0);
         }
 
-        for (const auto& path : paths) {
-            const string& from = path[0];
-            citys.erase(from);
+        for (const auto& [city, cnt] : m) {
+            if (cnt == 0) {
+                return city;
+            }
         }
 
-        return *(citys.begin());
+        return "";
     }
 };
