@@ -1,28 +1,30 @@
 class Solution {
 public:
-    size_t minTotalDistances1D(const vector<size_t>& positions, size_t target) {
-        size_t distance = 0;
-        for (size_t pos : positions) {
-            distance += (pos > target ? pos - target : target - pos);
-        }
-        return distance;
-    }
-
     int minTotalDistance(vector<vector<int>>& grid) {
-        vector<size_t> rows, cols;
-        size_t rowCnt = grid.size(), colCnt = grid.empty() ? 0 : grid.front().size();
-        for (size_t row = 0; row < rowCnt; ++row) {
-            for (size_t col = 0; col < colCnt; ++col) {
-                if (grid[row][col] == 1) {
-                    rows.emplace_back(row);
-                    cols.emplace_back(col);
+        int m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
+        vector<int> rows, cols;
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                if (grid[r][c] == 1) {
+                    rows.push_back(r);
+                    cols.push_back(c);
                 }
             }
         }
 
-        //sort(rows.begin(), rows.end()); row is already sorted.
-        sort(cols.begin(), cols.end());
+        // rows is already sorted
+        int rMedian = rows[rows.size() / 2];
+        std::nth_element(cols.begin(), cols.begin() + cols.size() / 2, cols.end());
+        int cMedian = cols[cols.size() / 2];
+        std::function<int(const vector<int>&, int)> computeDists = [](const vector<int>& nums, int target) {
+            int ret = 0;
+            for (int num : nums) {
+                ret += abs(target - num);
+            }
 
-        return minTotalDistances1D(rows, rows[rows.size() / 2]) + minTotalDistances1D(cols, cols[cols.size() / 2]);
+            return ret;
+        };
+
+        return computeDists(rows, rMedian) + computeDists(cols, cMedian);
     }
 };
