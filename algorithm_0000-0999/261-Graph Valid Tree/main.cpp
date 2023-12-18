@@ -28,38 +28,39 @@ private:
 
 class Solution {
 public:
-    bool bfs(int n, const vector<vector<int>>& edges) {
-        if ((edges.size() + 1) != n) {
+    bool bfs(int n, vector<vector<int>>& edges) {
+        if (edges.size() + 1 != n) {
             return false;
         }
 
-        vector<vector<int>> nexts(n);
-        vector<int> degree(n, 0);
+        int degree[n];
+        std::fill(degree, degree + n, 0);
+        vector<int> next[n];
         for (const auto& edge : edges) {
-            nexts[edge[0]].push_back(edge[1]);
-            nexts[edge[1]].push_back(edge[0]);
-            ++degree[edge[0]];
-            ++degree[edge[1]];
+            int a = edge[0], b = edge[1];
+            ++degree[a];
+            ++degree[b];
+            next[a].push_back(b);
+            next[b].push_back(a);
         }
 
         int cnt = 0;
 
         queue<int> q;
-        for (int v = 0; v < n; ++v) {
-            if (degree[v] <= 1) {
-                q.push(v);
+        for (int i = 0; i < n; ++i) {
+            if (degree[i] <= 1) {
                 ++cnt;
+                q.push(i);
             }
         }
-
         while (!q.empty()) {
-            int v = q.front();
+            int cur = q.front();
             q.pop();
 
-            for (int next : nexts[v]) {
-                if (--degree[next] == 1) {
-                    q.push(next);
+            for (int nxt : next[cur]) {
+                if (--degree[nxt] == 1) {
                     ++cnt;
+                    q.push(nxt);
                 }
             }
         }
@@ -67,64 +68,59 @@ public:
         return cnt == n;
     }
 
-    bool dfs(int n, const vector<vector<int>>& edges) {
-        if ((edges.size() + 1) != n) {
+    bool dfs(int n, vector<vector<int>>& edges) {
+        if (edges.size() + 1 != n) {
             return false;
         }
 
-        vector<vector<int>> nexts(n);
+        vector<int> next[n];
         for (const auto& edge : edges) {
-            nexts[edge[0]].push_back(edge[1]);
-            nexts[edge[1]].push_back(edge[0]);
+            int a = edge[0], b = edge[1];
+            next[a].push_back(b);
+            next[b].push_back(a);
         }
 
-        enum class State {
+        enum class State : unsigned char {
             kNone,
             kProcessing,
             kProcessed,
         };
-        vector<State> states(n, State::kNone);
-        std::function<bool(int, int)> checkCycle = [&nexts, &states, &checkCycle](int node, int parent) {
-            if (states[node] == State::kProcessing) {
-                return true;
-            }
-            if (states[node] == State::kProcessed) {
-                return false;
+        State states[n];
+        std::fill(states, states + n, State::kNone);
+        std::function<bool(int, int)> checkCycle = [&](int cur, int pre) {
+            switch (states[cur]) {
+                case State::kProcessing: return true;
+                case State::kProcessed: return false;
             }
 
-
-            states[node] = State::kProcessing;
-            for (int next : nexts[node]) {
-                if (next == parent) {
-                    continue;
-                }
-                if (checkCycle(next, node)) {
+            states[cur] = State::kProcessing;
+            for (int nxt : next[cur]) {
+                if (nxt == pre) { continue; }
+                if (checkCycle(nxt, cur)) {
                     return true;
                 }
             }
+            states[cur] = State::kProcessed;
 
-            states[node] = State::kProcessed;
             return false;
         };
-
-
-        for (int v = 0; v < n; ++v) {
-            if (checkCycle(v, -1)) {
+        for (int i = 0; i < n; ++i) {
+            if (checkCycle(i, -1)) {
                 return false;
             }
         }
-
         return true;
     }
 
-    bool unionfind(int n, const vector<vector<int>>& edges) {
-        if ((edges.size() + 1) != n) {
+    bool dsu(int n, vector<vector<int>>& edges) {
+        if (edges.size() + 1 != n) {
             return false;
         }
 
         DisjointSets ds(n);
         for (const auto& edge : edges) {
-            if (!ds.merge(edge[0], edge[1])) {
+            int a = edge[0], b = edge[1];
+            if (!ds.merge(a, b)) {
                 return false;
             }
         }
@@ -135,6 +131,6 @@ public:
     bool validTree(int n, vector<vector<int>>& edges) {
         //return bfs(n, edges);
         //return dfs(n, edges);
-        return unionfind(n, edges);
+        return dsu(n, edges);
     }
 };
