@@ -1,22 +1,27 @@
 class Solution {
 public:
     int maximalNetworkRank(int n, vector<vector<int>>& roads) {
-        vector<int> cnts(n);
-        set<pair<int, int>> connected;
-        for (const auto& road : roads) {
-            int a = road[0], b = road[1];
-            if (a > b) {
-                std::swap(a, b);
+        int cnt[n];
+        std::fill(cnt, cnt + n, 0);
+
+        bool connected[n][n];
+        for (int i = 0; i < n; ++i) {
+            for (int j = i + 1; j < n; ++j) {
+                connected[i][j] = false;
             }
-            ++cnts[a];
-            ++cnts[b];
-            connected.emplace(a, b);
+        }
+
+        for (const auto& road : roads) {
+            auto [a, b] = std::minmax(road[0], road[1]);
+            ++cnt[a];
+            ++cnt[b];
+            connected[a][b] = true;
         }
 
         int ret = 0;
         for (int i = 0; i < n; ++i) {
             for (int j = i + 1; j < n; ++j) {
-                int rank = cnts[i] + cnts[j] - (connected.find({i, j}) == connected.end() ? 0 : 1);
+                int rank = cnt[i] + cnt[j] - (connected[i][j] ? 1 : 0);
                 ret = std::max(ret, rank);
             }
         }
