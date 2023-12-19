@@ -1,16 +1,16 @@
 class DisjointSets {
 public:
-    DisjointSets(size_t n)
-        : m_size(n)
-        , m_parents(n)  {
+    DisjointSets(int n)
+        : m_parents(n)
+        , m_size(n) {
         std::iota(m_parents.begin(), m_parents.end(), 0);
     }
 
     void merge(int elem1, int elem2) {
         int root1 = root(elem1), root2 = root(elem2);
         if (root1 != root2) {
-            --m_size;
             m_parents[root1] = root2;
+            --m_size;
         }
     }
 
@@ -18,7 +18,7 @@ public:
         return root(elem1) == root(elem2);
     }
 
-    size_t size() const {
+    int size() const {
         return m_size;
     }
 
@@ -27,11 +27,12 @@ private:
         if (m_parents[elem] != elem) {
             m_parents[elem] = root(m_parents[elem]);
         }
+
         return m_parents[elem];
     }
 
-    size_t m_size;
     mutable vector<int> m_parents;
+    int m_size;
 };
 
 class Solution {
