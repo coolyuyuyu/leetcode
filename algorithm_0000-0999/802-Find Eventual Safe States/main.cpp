@@ -1,34 +1,35 @@
 class Solution {
 public:
-    vector<int> bfs(const vector<vector<int>>& graph) {
+    vector<int> bfs(vector<vector<int>>& graph) {
         int n = graph.size();
 
-        vector<int> oDegrees(n, 0);
-        vector<vector<int>> pres(n);
-        for (int from = 0; from < n; ++from) {
-            for (int to : graph[from]) {
-                pres[to].push_back(from);
-                ++oDegrees[from];
+        int out[n];
+        std::fill(out, out + n, 0);
+        vector<int> pre[n];
+        for (int u = 0; u < n; ++u) {
+            for (int v : graph[u]) {
+                ++out[u];
+                pre[v].push_back(u);
             }
         }
 
         queue<int> q;
         for (int i = 0; i < n; ++i) {
-            if (oDegrees[i] == 0) {
+            if (out[i] == 0) {
                 q.push(i);
             }
         }
 
         vector<int> ret;
         while (!q.empty()) {
-            int cur = q.front();
+            int v = q.front();
             q.pop();
 
-            ret.push_back(cur);
+            ret.push_back(v);
 
-            for (int pre : pres[cur]) {
-                if (--oDegrees[pre] == 0) {
-                    q.push(pre);
+            for (int u : pre[v]) {
+                if (--out[u] == 0) {
+                    q.push(u);
                 }
             }
         }
@@ -40,19 +41,17 @@ public:
     vector<int> dfs(vector<vector<int>>& graph) {
         int n = graph.size();
 
-        enum class State {
+        enum class State : unsigned char {
             kNone,
             kProcessing,
-            kVisited,
+            kProcessed,
         };
-        vector<State> states(n, State::kNone);
-
+        State states[n];
+        std::fill(states, states + n, State::kNone);
         std::function<bool(int)> checkCycle = [&](int cur) {
-            if (states[cur] == State::kProcessing) {
-                return true;
-            }
-            else if (states[cur] == State::kVisited) {
-                return false;
+            switch (states[cur]) {
+                case State::kProcessing: return true;
+                case State::kProcessed: return false;
             }
 
             states[cur] = State::kProcessing;
@@ -61,7 +60,7 @@ public:
                     return true;
                 }
             }
-            states[cur] = State::kVisited;
+            states[cur] = State::kProcessed;
 
             return false;
         };
@@ -77,7 +76,7 @@ public:
     }
 
     vector<int> eventualSafeNodes(vector<vector<int>>& graph) {
-        //return bfs(graph);
-        return dfs(graph);
+        return bfs(graph);
+        //return dfs(graph);
     }
 };
