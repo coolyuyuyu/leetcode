@@ -1,25 +1,32 @@
 class Solution {
 public:
     vector<vector<int>> imageSmoother(vector<vector<int>>& img) {
-        size_t rowCnt = img.size(), colCnt = img.empty() ? 0 : img.front().size();
+        int m = img.size(), n = img.empty() ? 0 : img[0].size();
 
-        vector<vector<int>> ans(rowCnt, vector<int>(colCnt));
-        for (size_t r = 0; r < rowCnt; ++r) {
-            size_t rb = (0 < r) ? (r - 1) : r;
-            size_t re = ((r + 1) < rowCnt) ? (r + 2) : (r + 1);
-            for (size_t c = 0; c < colCnt; ++c) {
-                size_t cb = (0 < c) ? (c - 1) : c;
-                size_t ce = ((c + 1) < colCnt) ? (c + 2) : (c + 1);
-
-                int sum = 0;
-                for (size_t ri = rb; ri < re; ++ri) {
-                    for (size_t ci = cb; ci < ce; ++ci) {
-                        sum += img[ri][ci];
-                    }
-                }
-                ans[r][c] = sum / (re - rb) / (ce - cb);
+        int presum[m][n];
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                presum[r][c] = img[r][c]
+                    + (r > 0 ? presum[r - 1][c] : 0)
+                    + (c > 0 ? presum[r][c - 1] : 0)
+                    - (r > 0 && c > 0 ? presum[r - 1][c - 1] : 0);
             }
         }
-        return ans;
+
+        vector<vector<int>> ret(m, vector<int>(n));
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                int rt = std::max(r - 1, 0), rb = std::min(r + 1, m - 1);
+                int cl = std::max(c - 1, 0), cr = std::min(c + 1, n - 1);
+                int sum = presum[rb][cr]
+                    - (rt > 0 ? presum[rt - 1][cr] : 0)
+                    - (cl > 0 ? presum[rb][cl - 1] : 0)
+                    + (rt > 0 && cl > 0 ? presum[rt - 1][cl - 1] : 0);
+                int cnt = (rb - rt + 1) * (cr - cl + 1);
+                ret[r][c] = sum / cnt;
+            }
+        }
+
+        return ret;
     }
 };
