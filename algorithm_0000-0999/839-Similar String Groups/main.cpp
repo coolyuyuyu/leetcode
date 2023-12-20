@@ -1,6 +1,6 @@
 class DisjointSets {
 public:
-    DisjointSets(size_t n)
+    DisjointSets(int n)
         : m_parents(n)
         , m_size(n) {
         std::iota(m_parents.begin(), m_parents.end(), 0);
@@ -14,7 +14,11 @@ public:
         }
     }
 
-    size_t size() const {
+    bool connected(int elem1, int elem2) const {
+        return root(elem1) == root(elem2);
+    }
+
+    int size() const {
         return m_size;
     }
 
@@ -23,31 +27,35 @@ private:
         if (m_parents[elem] != elem) {
             m_parents[elem] = root(m_parents[elem]);
         }
+
         return m_parents[elem];
     }
 
     mutable vector<int> m_parents;
-    size_t m_size;
+    int m_size;
 };
 
 class Solution {
 public:
-    bool checkSimilar(const string& s, const string& t) {
-        int cntDiff = 0;
-        for (size_t i = 0; i < s.size(); ++i) {
-            if (s[i] != t[i] && 2 < ++cntDiff) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     int numSimilarGroups(vector<string>& strs) {
-        DisjointSets ds(strs.size());
-        for (int i = 0; (i + 1) < strs.size(); ++i) {
-            for (int j = i + 1; j < strs.size(); ++j) {
-                if (checkSimilar(strs[i], strs[j])) {
+        int n = strs.size();
+
+        std::function<bool(int, int)> checkSimilar = [&](int i, int j) {
+            for (int idx = 0, len = strs[0].size(), cnt = 0; idx < len; ++idx) {
+                if (strs[i][idx] != strs[j][idx]) {
+                    if (++cnt > 2) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        };
+
+        DisjointSets ds(n);
+        for (int i = 0; i < n; ++i) {
+            for (int j = i + 1; j < n; ++j) {
+                if (checkSimilar(i, j)) {
                     ds.merge(i, j);
                 }
             }
