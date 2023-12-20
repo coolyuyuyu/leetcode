@@ -38,25 +38,16 @@ private:
 class Solution {
 public:
     bool equationsPossible(vector<string>& equations) {
-        unordered_map<char, int> var2id;
-        for (const auto& equation : equations) {
-            char var1 = equation[0], var2 = equation[3];
-            var2id.emplace(var1, var2id.size());
-            var2id.emplace(var2, var2id.size());
-        }
-
-        DisjointSets ds(var2id.size());
+        DisjointSets ds(26);
         for (const auto& equation : equations) {
             if (equation[1] == '=') {
-                int id1 = var2id[equation[0]], id2 = var2id[equation[3]];
-                ds.merge(id1, id2);
+                ds.merge(equation[0] - 'a', equation[3] - 'a');
             }
         }
 
         for (const auto& equation : equations) {
             if (equation[1] == '!') {
-                int id1 = var2id[equation[0]], id2 = var2id[equation[3]];
-                if (ds.connected(id1, id2)) {
+                if (ds.connected(equation[0] - 'a', equation[3] - 'a')) {
                     return false;
                 }
             }
