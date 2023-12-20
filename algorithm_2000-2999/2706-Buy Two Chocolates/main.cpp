@@ -4,11 +4,11 @@ public:
         std::partial_sort(prices.begin(), prices.begin() + 2, prices.end());
 
         int sum = prices[0] + prices[1];
-        if (money < sum) {
-            return money;
+        if (sum <= money) {
+            return money - sum;
         }
         else {
-            return money - sum;
+            return money;
         }
     }
 };
