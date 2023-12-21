@@ -1,133 +1,49 @@
 class Solution {
 public:
     string findShortestWay(vector<vector<int>>& maze, vector<int>& ball, vector<int>& hole) {
-        size_t rowCnt = maze.size(), colCnt = maze.empty() ? 0 : maze.front().size();
-        vector<vector<size_t>> distances(rowCnt, vector<size_t>(colCnt, numeric_limits<size_t>::max()));
-        State optimal({ hole[0], hole[1] }, numeric_limits<size_t>::max(), "impossible");
+        int m = maze.size(), n = maze.empty() ? 0 : maze[0].size();
+        vector<tuple<char, int, int>> dirs = {{'l', 0, -1}, {'u', -1, 0}, {'r', 0, 1}, {'d', 1, 0}};
 
-        auto comp = [&](const State& lft, const State& rht) {
-            return optimal.getPosition().distance(rht.getPosition()) < optimal.getPosition().distance(lft.getPosition());
-        };
-        priority_queue<State, vector<State>, decltype(comp)> states(comp);
-        states.emplace(Point(ball[0], ball[1]));
-        while (!states.empty()) {
-            State state = states.top();
-            states.pop();
-
-            const Point& pos = state.getPosition();
-            if (optimal <= state) {
-                continue;
-            }
-            else if (distances[pos.x][pos.y] < state.getDistance()) {
-                continue;
-            }
-            else if (pos == optimal.getPosition()) {
-                distances[pos.x][pos.y] = state.getDistance();
-                optimal = state;
-            }
-            else {
-                distances[pos.x][pos.y] = state.getDistance();
-
-                Point posTmp;
-
-                // lft
-                posTmp = pos;
-                while (0 < posTmp.y && maze[posTmp.x][posTmp.y - 1] == 0 && posTmp != optimal.getPosition()) {
-                    --(posTmp.y);
-                }
-                if (posTmp != pos) {
-                    states.emplace(posTmp, state.getDistance() + posTmp.distance(pos), state.getDirections() + "l");
-                }
-
-                // upr
-                posTmp = pos;
-                while (0 < posTmp.x && maze[posTmp.x - 1][posTmp.y] == 0 && posTmp != optimal.getPosition()) {
-                    --(posTmp.x);
-                }
-                if (posTmp != pos) {
-                    states.emplace(posTmp, state.getDistance() + posTmp.distance(pos), state.getDirections() + "u");
-                }
-
-                // rht
-                posTmp = pos;
-                while (posTmp.y + 1 < colCnt && maze[posTmp.x][posTmp.y + 1] == 0 && posTmp != optimal.getPosition()) {
-                    ++(posTmp.y);
-                }
-                if (posTmp != pos) {
-                    states.emplace(posTmp, state.getDistance() + posTmp.distance(pos), state.getDirections() + "r");
-                }
-
-                // btm
-                posTmp = pos;
-                while (posTmp.x + 1 < rowCnt && maze[posTmp.x + 1][posTmp.y] == 0 && posTmp != optimal.getPosition()) {
-                    ++(posTmp.x);
-                }
-                if (posTmp != pos) {
-                    states.emplace(posTmp, state.getDistance() + posTmp.distance(pos), state.getDirections() + "d");
-                }
+        bool visited[m][n];
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                visited[r][c] = false;
             }
         }
 
-        return optimal.getDirections();
+        priority_queue<tuple<int, string, int, int>, vector<tuple<int, string, int, int>>, std::greater<tuple<int, string, int, int>>> pq;
+        pq.emplace(0, "", ball[0], ball[1]);
+        while (!pq.empty()) {
+            auto [d, i, r, c] = pq.top();
+            pq.pop();
+
+            if (visited[r][c]) { continue;}
+            visited[r][c] = true;
+
+            if (r == hole[0] && c == hole[1]) {
+                return i;
+            }
+
+            for (const auto& [mark, dr, dc] : dirs) {
+                int z = d;
+                string t = i + mark;
+                int x = r, y = c;
+                while (
+                    !(x == hole[0] && y == hole[1]) &&
+                    0 <= x + dr &&
+                    x + dr < m&&
+                    0 <= y + dc &&
+                    y + dc < n &&
+                    maze[x + dr][y + dc] == 0) {
+                    z += 1;
+                    x += dr, y += dc;
+                }
+                if (visited[x][y]) { continue; }
+
+                pq.emplace(z, t, x, y);
+            }
+        }
+
+        return "impossible";
     }
-private:
-    class Point {
-    public:
-        Point(int x_ = 0, int y_ = 0)
-            : x(x_)
-            , y(y_) {
-        }
-
-        bool operator==(const Point& rht) const {
-            return x == rht.x && y == rht.y;
-        }
-
-        bool operator!=(const Point& rht) const {
-            return !(*this == rht);
-        }
-
-        inline size_t distance(const Point& rht) const {
-            size_t d = 0;
-            d += (x < rht.x ? rht.x - x : x - rht.x);
-            d += (y < rht.y ? rht.y - y : y - rht.y);
-            return d;
-        }
-
-        int x, y;
-    };
-
-    class State {
-    public:
-        State(const Point& pos, size_t distance = 0, const string& directions = "")
-            : m_pos(pos)
-            , m_distance(distance)
-            , m_directions(directions) {
-        }
-
-        bool operator<=(const State& rht) const {
-            if (m_distance == rht.m_distance) {
-                return m_directions <= rht.m_directions;
-            }
-            else {
-                return m_distance <= rht.m_distance;
-            }
-        }
-
-        inline const Point& getPosition() const {
-            return m_pos;
-        }
-
-        inline size_t getDistance() const {
-            return m_distance;
-        }
-
-        inline const string& getDirections() const {
-            return m_directions;
-        }
-
-    private:
-        Point m_pos;
-        size_t m_distance;
-        string m_directions;
-    };
 };
