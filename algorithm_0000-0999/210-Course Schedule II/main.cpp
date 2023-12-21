@@ -1,88 +1,90 @@
 class Solution {
 public:
-    enum State {NONE, TEMPORARY, VISITED};
+    vector<int> bfs(int n, vector<vector<int>>& prerequisites) {
+        vector<int> graph[n];
+        int in[n];
+        std::fill(in, in + n, 0);
+        for (const auto& prerequisite : prerequisites) {
+            int a = prerequisite[0], b = prerequisite[1];
+            graph[b].push_back(a);
+            ++in[a];
+        }
 
-    bool findOrderDfsHelper(int i, const vector<vector<int>>& adjLists, vector<State>& states, vector<int>& ans) {
-        switch (states[i]) {
-        case VISITED:
-            return true;
-        case TEMPORARY:
+        vector<int> ret;
+
+        queue<int> q;
+        for (int i = 0; i < n; ++i) {
+            if (in[i] == 0) {
+                q.push(i);
+            }
+        }
+        while (!q.empty()) {
+            int u = q.front();
+            q.pop();
+
+            ret.push_back(u);
+
+            for (int v : graph[u]) {
+                if (--in[v] == 0) {
+                    q.push(v);
+                }
+            }
+        }
+        if (ret.size() != n) {
+            ret.clear();
+        }
+
+        return ret;
+    }
+
+    vector<int> dfs(int n, vector<vector<int>>& prerequisites) {
+        vector<int> graph[n];
+        for (const auto& prerequisite : prerequisites) {
+            int a = prerequisite[0], b = prerequisite[1];
+            graph[b].push_back(a);
+        }
+
+        vector<int> ret;
+
+        enum class State {
+            kNone,
+            kProcessing,
+            kVisited,
+        };
+        State state[n];
+        std::fill(state, state + n, State::kNone);
+        std::function<bool(int)> checkCycle = [&](int cur) {
+            switch (state[cur]) {
+            case State::kProcessing: return true;
+            case State::kVisited: return false;
+            }
+
+            state[cur] = State::kProcessing;
+            for (int nxt : graph[cur]) {
+                if (checkCycle(nxt)) {
+                    return true;
+                }
+            }
+            state[cur] = State::kVisited;
+
+            ret.push_back(cur);
+
             return false;
-        }
+        };
 
-        states[i] = TEMPORARY;
-        for (int j : adjLists[i]) {
-            if (!findOrderDfsHelper(j, adjLists, states, ans)) {
-                return false;
+        for (int i = 0; i < n; ++i) {
+            if (checkCycle(i)) {
+                ret.clear();
+                break;
             }
         }
-        states[i] = VISITED;
+        std::reverse(ret.begin(), ret.end());
 
-        ans.push_back(i);
-        return true;
+        return ret;
     }
 
-    // Dfs algorithm
-    vector<int> findOrderDfs(int numCourses, const vector<pair<int, int>>& prerequisites) {
-        vector<vector<int>> adjLists(numCourses);
-        for (const pair<int, int>& prerequisite : prerequisites) {
-            adjLists[prerequisite.second].push_back(prerequisite.first);
-        }
-
-        vector<int> ans;
-        vector<State> states(numCourses, NONE);
-        for (size_t i = 0; i < numCourses; ++i) {
-            if (states[i] == NONE) {
-                if (!findOrderDfsHelper(i, adjLists, states, ans)) {
-                    ans.clear();
-                    break;
-                }
-            }
-        }
-        reverse(ans.begin(), ans.end());
-
-        return ans;
-    }
-
-    // Kahn algorithm
-    vector<int> findOrderKahn(int numCourses, const vector<pair<int, int>>& prerequisites) {
-        vector<vector<int>> adjLists(numCourses);
-        vector<size_t> inDegrees(numCourses, 0);
-        for (const pair<int, int>& prerequisite : prerequisites) {
-            adjLists[prerequisite.second].push_back(prerequisite.first);
-            ++inDegrees[prerequisite.first];
-        }
-
-        vector<int> ans;
-        queue<int> nodes;
-        for (int u = 0; u < numCourses; ++u) {
-            if (inDegrees[u] == 0) {
-                nodes.push(u);
-            }
-        }
-        while (!nodes.empty()) {
-            int u = nodes.front();
-            nodes.pop();
-
-            ans.push_back(u);
-
-            for (int v : adjLists[u]) {
-                if (--inDegrees[v] == 0) {
-                    nodes.push(v);
-                }
-            }
-        }
-
-        if(any_of(inDegrees.begin(), inDegrees.end(), [](int d){return d != 0;})) {
-            ans.clear();
-        }
-
-        return ans;
-    }
-
-    vector<int> findOrder(int numCourses, vector<pair<int, int>>& prerequisites) {
-        //return findOrderDfs(numCourses, prerequisites);
-
-        return findOrderKahn(numCourses, prerequisites);
+    vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites) {
+        //return bfs(numCourses, prerequisites);
+        return dfs(numCourses, prerequisites);
     }
 };
