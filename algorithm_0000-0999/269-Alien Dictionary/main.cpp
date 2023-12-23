@@ -1,4 +1,3 @@
-
 class Solution {
 public:
     std::pair<bool, unordered_map<char, unordered_set<char>>> constructGraph(vector<string>& words) {
