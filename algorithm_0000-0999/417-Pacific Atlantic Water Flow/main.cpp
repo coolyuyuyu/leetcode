@@ -1,34 +1,37 @@
 class Solution {
 public:
     vector<vector<int>> pacificAtlantic(vector<vector<int>>& heights) {
-        size_t m = heights.size(), n = heights.empty() ? 0 : heights[0].size();
-
+        vector<pair<int, int>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
+        int m = heights.size(), n = heights.empty() ? 0 : heights[0].size();
         vector<vector<bool>> pac(m, vector<bool>(n, false)), atl(m, vector<bool>(n, false));
-        vector<pair<int, int>> dirs = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
-        std::function<void(int, int, vector<vector<bool>>&)> dfs = [m, n, &heights, &dirs, &dfs](int r, int c, vector<vector<bool>>& sea) {
-            if (sea[r][c]) {
-                return;
-            }
+        std::function<void(vector<vector<bool>>&, int, int)> bfs = [&](vector<vector<bool>>& sea, int r, int c) {
+            if (sea[r][c]) { return; }
 
+            queue<pair<int, int>> q;
             sea[r][c] = true;
-            for (const auto& [dR, dC] : dirs) {
-                int rNew = r + dR, cNew = c + dC;
-                if (rNew < 0 || m <= rNew || cNew < 0 || n <= cNew) {
-                    continue;
+            q.emplace(r, c);
+            while (!q.empty()) {
+                const auto [r, c] = q.front();
+                q.pop();
+
+                for (const auto& [dr, dc] : dirs) {
+                    int x = r + dr, y = c + dc;
+                    if (x < 0 || m <= x || y < 0 || n <= y) { continue; }
+                    if (sea[x][y]) { continue; }
+                    if (heights[x][y] < heights[r][c]) { continue; }
+
+                    sea[x][y] = true;
+                    q.emplace(x, y);
                 }
-                if (heights[rNew][cNew] < heights[r][c]) {
-                    continue;
-                }
-                dfs(rNew, cNew, sea);
             }
         };
         for (int r = 0; r < m; ++r) {
-            dfs(r, 0, pac);
-            dfs(r, n - 1, atl);
+            bfs(pac, r, 0);
+            bfs(atl, r, n - 1);
         }
         for (int c = 0; c < n; ++c) {
-            dfs(0, c, pac);
-            dfs(m - 1, c, atl);
+            bfs(pac, 0, c);
+            bfs(atl, m - 1, c);
         }
 
         vector<vector<int>> ret;
@@ -38,7 +41,6 @@ public:
                     ret.push_back({r, c});
                 }
             }
-
         }
 
         return ret;
