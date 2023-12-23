@@ -1,71 +1,36 @@
 class Solution {
 public:
-    double bfs(int n, vector<vector<int>>& edges, vector<double>& succProb, int start, int end) {
-        vector<vector<pair<int, double>>> graph(n);
+    double dijkstra(int n, vector<vector<int>>& edges, vector<double>& succProb, int start_node, int end_node) {
+        vector<pair<int, double>> graph[n];
         for (int i = 0; i < edges.size(); ++i) {
-            graph[edges[i][0]].emplace_back(edges[i][1], succProb[i]);
-            graph[edges[i][1]].emplace_back(edges[i][0], succProb[i]);
+            int a = edges[i][0], b = edges[i][1];
+            graph[a].emplace_back(b, succProb[i]);
+            graph[b].emplace_back(a, succProb[i]);
         }
 
-        vector<double> probs(n, 0.0);
-        probs[start] = 1.0;
-        for (queue<int> q({start}); !q.empty();) {
-            int cur = q.front();
-            q.pop();
+        double probs[n];
+        std::fill(probs, probs + n, 0.0);
 
-            for (const auto& [nxt, weight]: graph[cur]) {
-                if (probs[cur] * weight <= probs[nxt]) {
-                    continue;
-                }
-
-                probs[nxt] = probs[cur] * weight;
-                q.push(nxt);
-            }
-        }
-
-
-        return probs[end];
-    }
-
-    double dijkstra(int n, vector<vector<int>>& edges, vector<double>& succProb, int start, int end) {
-        vector<vector<pair<double, int>>> graph(n);
-        for (int i = 0; i < edges.size(); ++i) {
-            double cost = -std::log(succProb[i]);
-            graph[edges[i][0]].emplace_back(cost, edges[i][1]);
-            graph[edges[i][1]].emplace_back(cost, edges[i][0]);
-        }
-
-        vector<bool> visited(n, false);
-
-        priority_queue<pair<double, int>, vector<pair<double, int>>, std::greater<>> pq;
-        pq.emplace(0, start);
+        priority_queue<pair<double, int>> pq;
+        pq.emplace(1.0, start_node);
         while (!pq.empty()) {
-            const auto [dist, cur] = pq.top();
+            auto [prob, cur] = pq.top();
             pq.pop();
 
-            if (visited[cur] == true) {
-                continue;
-            }
-            visited[cur] = true;
+            if (probs[cur] != 0) { continue; }
+            probs[cur] = prob;
+            if (cur == end_node) { break; }
 
-            if (cur == end) {
-                return std::exp(-dist);
-            }
-
-            for (const auto& [cost, nxt] : graph[cur]) {
-                if (visited[nxt]) {
-                    continue;
-                }
-
-                pq.emplace(dist + cost, nxt);
+            for (const auto& [nxt, p] : graph[cur]) {
+                if (probs[nxt] != 0) { continue; }
+                pq.emplace(prob * p, nxt);
             }
         }
 
-        return 0;
+        return probs[end_node];
     }
 
-    double maxProbability(int n, vector<vector<int>>& edges, vector<double>& succProb, int start, int end) {
-        //return bfs(n, edges, succProb, start, end);
-        return dijkstra(n, edges, succProb, start, end);
+    double maxProbability(int n, vector<vector<int>>& edges, vector<double>& succProb, int start_node, int end_node) {
+        return dijkstra(n, edges, succProb, start_node, end_node);
     }
 };
