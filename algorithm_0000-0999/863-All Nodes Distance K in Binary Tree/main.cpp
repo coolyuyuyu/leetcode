@@ -10,31 +10,28 @@
 class Solution {
 public:
     vector<int> bfs(TreeNode* root, TreeNode* target, int k) {
-        unordered_map<TreeNode*, TreeNode*> backs;
-        std::function<bool(TreeNode*, TreeNode*)> collectBacks = [&](TreeNode* root, TreeNode* target) {
-            if (!root) {
-                return false;
-            }
-            if (root == target) {
-                return true;
-            }
+        unordered_map<TreeNode*, TreeNode*> back;
+        std::function<bool(TreeNode*)> collectBack = [&](TreeNode* root) {
+            if (!root) { return false; }
+            if (root == target) { return true; }
 
-            if (collectBacks(root->left, target)) {
-                backs[root->left] = root;
+            if (collectBack(root->left)) {
+                back[root->left] = root;
                 return true;
             }
-            else if (collectBacks(root->right, target)) {
-                backs[root->right] = root;
+            else if (collectBack(root->right)) {
+                back[root->right] = root;
                 return true;
             }
             else {
                 return false;
             }
         };
-        collectBacks(root, target);
+        collectBack(root);
 
-        queue<pair<TreeNode*, TreeNode*>> q({{target, nullptr}});
-        for (; !q.empty() && 0 < k; --k) {
+        queue<pair<TreeNode*, TreeNode*>> q;
+        q.emplace(target, nullptr);
+        for (int d = 0; !q.empty() && d < k; ++d) {
             for (int i = q.size(); 0 < i--;) {
                 auto [cur, pre] = q.front();
                 q.pop();
@@ -45,15 +42,16 @@ public:
                 if (cur->right && cur->right != pre) {
                     q.emplace(cur->right, cur);
                 }
-                if (backs[cur] && backs[cur] != pre) {
-                    q.emplace(backs[cur], cur);
+                if (back.find(cur) != back.end() && back[cur] != pre) {
+                    q.emplace(back[cur], cur);
                 }
             }
         }
 
-        vector<int> ret(q.size());
-        for (int i = q.size(); 0 < i--; q.pop()) {
-            ret[i] = q.front().first->val;
+        vector<int> ret;
+        for (; !q.empty(); q.pop()) {
+            const auto& [cur, _] = q.front();
+            ret.push_back(cur->val);
         }
 
         return ret;
@@ -61,56 +59,58 @@ public:
 
     vector<int> dfs(TreeNode* root, TreeNode* target, int k) {
         vector<int> ret;
-
         std::function<void(TreeNode*, int)> fetch = [&](TreeNode* root, int k) {
-            if (!root) {
-                return;
+            if (!root) { return; }
+            if (k < 0) { return; }
+
+            queue<TreeNode*> q;
+            q.push(root);
+            for(int i = 0; i < k; ++i) {
+                for (int j = q.size(); 0 < j--;) {
+                    auto node = q.front();
+                    q.pop();
+
+                    if (node->left) { q.push(node->left); }
+                    if (node->right) { q.push(node->right); }
+                }
             }
 
-            if (k == 0) {
-                ret.push_back(root->val);
-            }
-            else {
-                fetch(root->left, k - 1);
-                fetch(root->right, k - 1);
+            for (; !q.empty(); q.pop()) {
+                ret.push_back(q.front()->val);
             }
         };
-
-        std::function<int(TreeNode*, TreeNode*, int)> f = [&](TreeNode* root, TreeNode* target, int k) {
-            if (!root) {
-                return -1;
-            }
-
-            if (root == target) {
-                fetch(target, k);
+        std::function<int(TreeNode*)> f = [&](TreeNode* root) {
+            if (!root) { return INT_MAX; }
+            else if (root == target) {
+                fetch(root, k);
                 return 0;
             }
 
-            int lftDepth = f(root->left, target, k);
-            if (0 <= lftDepth) {
-                if (lftDepth + 1 == k) {
+            int lftDepth = f(root->left);
+            if (lftDepth != INT_MAX) {
+                if (lftDepth == k - 1) {
                     ret.push_back(root->val);
                 }
-                else if ((lftDepth + 2) <= k) {
+                else {
                     fetch(root->right, k - lftDepth - 2);
                 }
                 return lftDepth + 1;
             }
 
-            int rhtDepth = f(root->right, target, k);
-            if (0 <= rhtDepth) {
-                if (rhtDepth + 1 == k) {
+            int rhtDepth = f(root->right);
+            if (rhtDepth != INT_MAX) {
+                if (rhtDepth == k - 1) {
                     ret.push_back(root->val);
                 }
-                else if ((rhtDepth + 2) <= k) {
+                else {
                     fetch(root->left, k - rhtDepth - 2);
                 }
                 return rhtDepth + 1;
             }
 
-            return -1;
+            return INT_MAX;
         };
-        f(root, target, k);
+        f(root);
 
         return ret;
     }
