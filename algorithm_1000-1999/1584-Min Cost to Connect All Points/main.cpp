@@ -45,17 +45,16 @@ public:
     int kruskal(vector<vector<int>>& points) {
         int n = points.size();
 
-        priority_queue<array<int, 3>, vector<array<int, 3>>, greater<array<int, 3>>> pq; // {cost, i, j}
+        priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, std::greater<tuple<int, int, int>>> pq;
         for (int i = 0; i < n; ++i) {
-            for (int j = 0; j < i; ++j) {
-                int cost = abs(points[i][0] - points[j][0]) + abs(points[i][1] - points[j][1]);
-                pq.push({cost, i, j});
+            for (int j = i + 1; j < n; ++j) {
+                int cost = std::abs(points[i][0] - points[j][0]) + std::abs(points[i][1] - points[j][1]);
+                pq.emplace(cost, i, j);
             }
         }
 
-        DisjointSets ds(n);
         int ret = 0;
-        while (1 < ds.size()) {
+        for (DisjointSets ds(n); 1 < ds.size();) {
             auto [cost, i, j] = pq.top();
             pq.pop();
 
@@ -71,37 +70,35 @@ public:
     int prim(vector<vector<int>>& points) {
         int n = points.size();
 
-        vector<vector<pair<int, int>>> graph(n);
+        vector<pair<int, int>> graph[n];
         for (int i = 0; i < n; ++i) {
-            for (int j = 0; j < i; ++j) {
-                int cost = abs(points[i][0] - points[j][0]) + abs(points[i][1] - points[j][1]);
+            for (int j = i + 1; j < n; ++j) {
+                int cost = std::abs(points[i][0] - points[j][0]) + std::abs(points[i][1] - points[j][1]);
                 graph[i].emplace_back(cost, j);
                 graph[j].emplace_back(cost, i);
             }
         }
 
-        vector<int> visited(n, false);
-        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq; // {cost, j}
-
-        int src = 0;
-        visited[src] = true;
-        for (const auto& elem : graph[src]) {
-            pq.push(elem);
-        }
+        bool visited[n];
+        std::fill(visited, visited + n, false);
+        priority_queue<pair<int, int>, vector<pair<int, int>>, std::greater<pair<int, int>>> pq;
 
         int ret = 0;
-        for (int cnt = 1; cnt < n;) {
-            auto [cost, to] = pq.top();
+        pq.emplace(0, 0);
+        for (int cnt = 0; cnt < n && !pq.empty();) {
+            auto [cost, i] = pq.top();
             pq.pop();
 
-            if (!visited[to]) {
-                visited[to] = true;
-                for (const auto& elem : graph[to]) {
-                    pq.push(elem);
-                }
+            if (visited[i]) {
+                continue;
+            }
+            visited[i] = true;
 
-                ret += cost;
-                ++cnt;
+            ret += cost;
+            ++cnt;
+
+            for (const auto [c, j] : graph[i]) {
+                pq.emplace(c, j);
             }
         }
 
