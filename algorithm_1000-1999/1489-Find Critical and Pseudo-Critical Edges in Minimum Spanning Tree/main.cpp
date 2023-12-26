@@ -47,40 +47,36 @@ public:
         for (int i = 0; i < m; ++i) {
             edges[i].push_back(i);
         }
-        std::sort(edges.begin(), edges.end(), [](const auto& e1, const auto& e2) { return e1[2] < e2[2]; });
+        std::sort(edges.begin(), edges.end(), [](const auto& e1, const auto& e2){ return e1[2] < e2[2]; });
         edges.insert(edges.begin(), vector<int>());
 
-        auto kruskal = [](int n, auto eFirst, auto eLast, int skip = -1) {
+        std::function<int(int, int, int)> kruskal = [&](int bgnIdx, int endIdx, int skipIdx) {
+            int ret = 0;
             DisjointSets ds(n);
-            int cost = 0;
-            for (auto itr = eFirst; itr != eLast; ++itr) {
-                const vector<int>& edge = *itr;
-                if (edge[3] == skip) {
-                    continue;
+            for (int i = bgnIdx; i < endIdx && 1 < ds.size(); ++i) {
+                if (i == skipIdx) { continue; }
+                int u = edges[i][0], v = edges[i][1];
+                int cost = edges[i][2];
+                if (!ds.connected(u, v)) {
+                    ds.merge(u, v);
+                    ret += cost;
                 }
-                if (ds.connected(edge[0], edge[1])) {
-                    continue;
-                }
-
-                ds.merge(edge[0], edge[1]);
-                cost += edge[2];
-
             }
 
-            return ds.size() == 1 ? cost : INT_MAX;
+            return 1 < ds.size() ? INT_MAX : ret;
         };
 
         vector<int> ret1; // critical
         vector<int> ret2; // pseudo-critical
 
-        int costMST = kruskal(n, edges.begin() + 1, edges.end());
+        int minMST = kruskal(1, m + 1, -1);
         for (int i = 1; i <= m; ++i) {
-            if (kruskal(n, edges.begin() + 1, edges.end(), edges[i][3]) > costMST) {
+            if (kruskal(1, m + 1, i) > minMST) {
                 ret1.push_back(edges[i][3]);
             }
             else {
                 edges[0] = edges[i];
-                if (kruskal(n, edges.begin(), edges.end(), -1) == costMST) {
+                if (kruskal(0, m + 1, i) == minMST) {
                     ret2.push_back(edges[i][3]);
                 }
             }
