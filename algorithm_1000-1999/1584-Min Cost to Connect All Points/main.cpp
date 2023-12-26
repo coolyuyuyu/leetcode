@@ -54,7 +54,8 @@ public:
         }
 
         int ret = 0;
-        for (DisjointSets ds(n); 1 < ds.size();) {
+        DisjointSets ds(n);
+        while (1 < ds.size() && !pq.empty()) {
             auto [cost, i, j] = pq.top();
             pq.pop();
 
@@ -81,23 +82,24 @@ public:
 
         bool visited[n];
         std::fill(visited, visited + n, false);
+
         priority_queue<pair<int, int>, vector<pair<int, int>>, std::greater<pair<int, int>>> pq;
+        pq.emplace(0, 0);
 
         int ret = 0;
-        pq.emplace(0, 0);
-        for (int cnt = 0; cnt < n && !pq.empty();) {
+        int cnt = 0;
+        while (cnt < n && !pq.empty()) {
             auto [cost, i] = pq.top();
             pq.pop();
 
-            if (visited[i]) {
-                continue;
-            }
+            if (visited[i]) { continue; }
             visited[i] = true;
 
-            ret += cost;
             ++cnt;
+            ret += cost;
 
             for (const auto [c, j] : graph[i]) {
+                if (visited[j]) { continue; }
                 pq.emplace(c, j);
             }
         }
