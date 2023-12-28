@@ -8,7 +8,7 @@ public:
 
         // dp[i][j]: minimum time needed to make the colors[1:i] colorful and the remaining ending color is j
         int dp[n + 1][27];
-        dp[0][0] = 0;
+        dp[0][26] = 0;
         for (int j = 1; j <= 26; ++j) {
             dp[0][j] = INT_MAX / 2;
         }
@@ -17,7 +17,7 @@ public:
                 dp[i][c] = INT_MAX / 2;
 
                 dp[i][c] = std::min(dp[i][c], dp[i - 1][c] + neededTime[i]); // delete colors[i]
-                if (colors[i] == 'a' + c - 1) { // keep colors[i]
+                if (colors[i] == 'a' + c) { // keep colors[i]
                     for (int d = 0; d <= 26; ++d) {
                         if (c == d) { continue; }
                         dp[i][c] = std::min(dp[i][c], dp[i - 1][d]);
