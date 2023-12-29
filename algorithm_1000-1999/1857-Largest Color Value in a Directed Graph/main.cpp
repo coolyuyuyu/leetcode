@@ -1,6 +1,7 @@
 class Solution {
 public:
-    int largestPathValue(string colors, vector<vector<int>>& edges) {
+    // check a color at a time
+    int f1(string colors, vector<vector<int>>& edges) {
         int n = colors.size();
 
         vector<int> graph[n];
@@ -47,5 +48,65 @@ public:
         }
 
         return ret;
+    }
+
+    // check all colors altogether
+    int f2(string colors, vector<vector<int>>& edges) {
+        int n = colors.size();
+
+        vector<int> colorIndexes;
+        for (char color : unordered_set<char>(colors.begin(), colors.end())) {
+            colorIndexes.push_back(color - 'a');
+        }
+
+        vector<int> graph[n];
+        vector<int> in(n, 0);
+        for (const auto& edge : edges) {
+            int a = edge[0], b = edge[1];
+            graph[a].push_back(b);
+            ++in[b];
+        }
+
+        int cnts[n][26];
+        for (int i = 0; i < n; ++i) {
+            for (int j : colorIndexes) {
+                cnts[i][j] = 0;
+            }
+        }
+
+        int ret = 0;
+
+        queue<int> q;
+        for (int i = 0; i < n; ++i) {
+            if (in[i] == 0) {
+                ++cnts[i][colors[i] - 'a'];
+                ret = 1;
+                q.push(i);
+            }
+        }
+
+        int visited = 0;
+        for (; !q.empty(); ++visited) {
+            int cur = q.front();
+            q.pop();
+
+            for (int nxt : graph[cur]) {
+                for (int j : colorIndexes) {
+                    cnts[nxt][j] = std::max(cnts[nxt][j], cnts[cur][j] + ('a' + j == colors[nxt] ? 1 : 0));
+                    ret = std::max(ret, cnts[nxt][j]);
+                }
+
+                if (--in[nxt] == 0) {
+                    q.push(nxt);
+                }
+            }
+        }
+
+        return visited == n ? ret : -1;
+    }
+
+    int largestPathValue(string colors, vector<vector<int>>& edges) {
+        return f1(colors, edges);
+        //return f2(colors, edges);
     }
 };
