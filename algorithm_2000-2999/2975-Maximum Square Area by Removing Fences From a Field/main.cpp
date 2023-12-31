@@ -18,16 +18,16 @@ public:
         vFences.insert(vFences.begin(), 1);
         vFences.insert(vFences.end(), n);
 
-        long long ret = -1;
+        int maxSide = -1;
         for (int i = 0; i < vFences.size(); ++i) {
             for (int j = i + 1; j < vFences.size(); ++j) {
                 int side = vFences[j] - vFences[i];
                 if (sides.find(side) != sides.end()) {
-                    ret = std::max<long long>(ret, (1LL * (side) * (side )));
+                    maxSide = std::max(maxSide, side);
                 }
             }
         }
 
-        return ret % M;
+        return maxSide == -1 ? -1 : (1LL * maxSide * maxSide) % M;
     }
 };
