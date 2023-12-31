@@ -6,11 +6,12 @@ public:
 
         int ret = -1;
         for (int i = 0; i < s.size(); ++i) {
-            if (indexes[s[i] - 'a'] == -1) {
-                indexes[s[i] - 'a'] = i;
+            int& index = indexes[s[i] - 'a'];
+            if (index == -1) {
+                index = i;
             }
             else {
-                ret = std::max(ret, i - indexes[s[i] - 'a'] - 1);
+                ret = std::max(ret, i - index - 1);
             }
         }
 
