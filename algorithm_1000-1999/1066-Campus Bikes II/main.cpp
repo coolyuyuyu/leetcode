@@ -1,61 +1,107 @@
 class Solution {
 public:
-    int dist(const vector<vector<int>>& workers, size_t i, const vector<vector<int>>& bikes, size_t j) {
-        return abs(bikes[j][0] - workers[i][0]) + abs(bikes[j][1] - workers[i][1]);
-    }
+    int byDijkstra(vector<vector<int>>& workers, vector<vector<int>>& bikes) {
+        int m = workers.size(), n = bikes.size();
 
-    void dfs1(const vector<vector<int>>& workers, const vector<vector<int>>& bikes, size_t i, vector<bool>& used, int sumDist, int& ans) {
-        if (workers.size() <= i) {
-            ans = std::min(ans, sumDist);
-            return;
-        }
-        if (ans <= sumDist) {
-            return;
-        }
+        std::function<int(int, int)> dist = [&](int i, int j) {
+            return abs(workers[i][0] - bikes[j][0]) + abs(workers[i][1] - bikes[j][1]);
+        };
 
-        for (size_t j = 0; j < bikes.size(); ++j) {
-            if (used[j]) {
-                continue;
-            }
+        bool visited[1 << n];
+        std::fill(visited, visited + (1 << n), false);
 
-            used[j] = true;
-            dfs1(workers, bikes, i + 1, used, sumDist + dist(workers, i, bikes, j), ans);
-            used[j] = false;
-        }
-    }
+        // state: binary representation of the bike assignment.
+        //        if i-th bit is set, i-th bike is assigned to a worker.
+        //        state of n bits are set, n bikes are assigned to the first n workers.
+        priority_queue<pair<int, int>, vector<pair<int, int>>, std::greater<pair<int, int>>> pq; // <cost, state>
+        pq.emplace(0, 0);
+        while (!pq.empty()) {
+            auto [cost, state] = pq.top();
+            pq.pop();
 
-    int dfs1(const vector<vector<int>>& workers, const vector<vector<int>>& bikes) {
-        vector<bool> used(bikes.size(), false);
-        int ans = INT_MAX;
-        dfs1(workers, bikes, 0, used, 0, ans);
-        return ans;
-    }
+            if (visited[state]) { continue; }
+            visited[state] = true;
 
-    int dfs2(const vector<vector<int>>& workers, const vector<vector<int>>& bikes, size_t i, size_t state, vector<int>& cache) {
-        if (workers.size() <= i) {
-            return 0;
-        }
-        if (cache[state] != 0) {
-            return cache[state];
-        }
+            int i = __builtin_popcount(state);
+            if (i == m) { return cost; }
+            for (int j = 0; j < n; ++j) {
+                if ((state >> j) & 1) { continue; }
+                int newCost = cost + dist(i, j);
+                int newState = state | (1 << j);
+                if (visited[newState]) { continue; }
 
-        int minDist = INT_MAX;
-        for (size_t j = 0; j < bikes.size(); ++j) {
-            if ((state & (1 << j)) == 0) {
-                minDist = std::min(minDist, dist(workers, i, bikes, j) + dfs2(workers, bikes, i + 1, state | (1 << j), cache));
+                pq.emplace(newCost, newState);
             }
         }
 
-        return cache[state] = minDist;
+        return INT_MAX;
     }
 
-    int dfs2(const vector<vector<int>>& workers, const vector<vector<int>>& bikes) {
-        vector<int> cache(1 << bikes.size(), 0);
-        return dfs2(workers, bikes, 0, 0, cache);
+    int byDp(vector<vector<int>>& workers, vector<vector<int>>& bikes) {
+        int m = workers.size(), n = bikes.size();
+
+        std::function<int(int, int)> dist = [&](int i, int j) {
+            return abs(workers[i][0] - bikes[j][0]) + abs(workers[i][1] - bikes[j][1]);
+        };
+
+        // dp[state]: binary representation of the bike assignment.
+        int dp[1 << n];
+        std::fill(dp, dp + (1 << n), INT_MAX);
+        dp[0] = 0;
+        int ret = INT_MAX;
+        for (int i = 0; i < m; ++i) {
+            // Gosper's hack
+            int state = (1 << (i + 1)) - 1;
+            while (state < (1 << n)) {
+                for (int j = 0; j < n; ++j) {
+                    if ((state >> j) & 1) {
+                        dp[state] = std::min(dp[state], dp[state - (1 << j)] + dist(i, j));
+                    }
+                }
+
+                if (i == m - 1) {
+                    ret = std::min(ret, dp[state]);
+                }
+
+                int c = state & - state;
+                int r = state + c;
+                state = (((r ^ state) >> 2) / c) | r;
+            }
+        }
+
+        return ret;
+    }
+
+    int byDfs(vector<vector<int>>& workers, vector<vector<int>>& bikes) {
+        int m = workers.size(), n = bikes.size();
+
+        std::function<int(int, int)> dist = [&](int i, int j) {
+            return abs(workers[i][0] - bikes[j][0]) + abs(workers[i][1] - bikes[j][1]);
+        };
+
+        int cache[1 << n];
+        std::fill(cache, cache + (1 << n), INT_MAX);
+
+        std::function<int(int, int)> f = [&](int i, int state) {
+            if (i == m) { return 0; }
+            if (cache[state] != INT_MAX) { return cache[state]; }
+
+            int& ret = cache[state];
+            for (int j = 0; j < n; ++j) {
+                if (((state >> j) & 1) == 0) {
+                    ret = std::min(ret, dist(i, j) + f(i + 1, state | (1 << j)));
+                }
+            }
+
+            return ret;
+        };
+
+        return f(0, 0);
     }
 
     int assignBikes(vector<vector<int>>& workers, vector<vector<int>>& bikes) {
-        //return dfs1(workers, bikes);
-        return dfs2(workers, bikes);
+        //return byDfs(workers, bikes);
+        //return byDijkstra(workers, bikes);
+        return byDp(workers, bikes);
     }
 };
