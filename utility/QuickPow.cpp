@@ -36,6 +36,20 @@ public:
         return ret;
     }
 
+    int quickPow(int base, int exp) {
+        int M = 1e9 + 7;
+
+        int ret = 1;
+        for (; exp; exp >>= 1) {
+            if (exp & 1) {
+                ret = (1L * ret * base) % M;
+            }
+            base = (1L * base * base) % M;
+        }
+
+        return ret;
+    };
+
     double myPow(double x, int n) {
         //return recursive(x, n);
         return iterative(x, n);
