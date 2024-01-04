@@ -19,7 +19,6 @@ public:
 
             ret += (cnt / 6) * 2;
             cnt -= (cnt / 6) * 6;
-
             ret += cnt / 2;
         }
 
