@@ -11,11 +11,11 @@
 class Solution {
 public:
     int leftMostColumnWithOne(BinaryMatrix &binaryMatrix) {
-        vector<int> dimensions = binaryMatrix.dimensions();
-        int rowCnt = dimensions[0], colCnt = dimensions[1];
+        auto dimensions = binaryMatrix.dimensions();
+        int m = dimensions[0], n = dimensions[1];
 
         int ret = INT_MAX;
-        for (int r = 0, c = colCnt - 1; r < rowCnt && 0 <= c;) {
+        for (int r = 0, c = n - 1; r < m && c >= 0;) {
             if (binaryMatrix.get(r, c)) {
                 ret = std::min(ret, c);
                 --c;
@@ -26,6 +26,5 @@ public:
         }
 
         return ret == INT_MAX ? -1 : ret;
-
     }
 };
