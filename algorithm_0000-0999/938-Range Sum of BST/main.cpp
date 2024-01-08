@@ -12,43 +12,32 @@
 class Solution {
 public:
     int recursive(TreeNode* root, int low, int high) {
-        if (!root) {
-            return 0;
-        }
+        std::function<int(TreeNode*, int, int)> f = [&](TreeNode* root, int l, int h) {
+            if (!root || h < low || high < l) { return 0; }
 
-        int ret = 0;
-        if (low <= root->val && root->val <= high) {
-            ret += root->val;
-        }
-        if (low < root->val) {
-            ret += rangeSumBST(root->left, low, high);
-        }
-        if (root->val < high) {
-            ret += rangeSumBST(root->right, low, high);
-        }
-        return ret;
+            int ret = 0;
+            if (low <= root->val && root->val <= high) {
+                ret += root->val;
+            }
+            return ret + f(root->left, l, root->val - 1) + f(root->right, root->val + 1, h);
+        };
+
+        return f(root, INT_MIN, INT_MAX);
     }
 
     int iterative(TreeNode* root, int low, int high) {
-        queue<TreeNode*> q;
-        if (root) {
-            q.emplace(root);
-        }
-
         int ret = 0;
-        while (!q.empty()) {
-            root = q.front();
+        for (queue<tuple<TreeNode*, int, int>> q({{root, INT_MIN, INT_MAX}}); !q.empty();) {
+            auto [root, l, h] = q.front();
             q.pop();
+
+            if (!root || h < low || high < l) { continue; }
 
             if (low <= root->val && root->val <= high) {
                 ret += root->val;
             }
-            if (low < root->val && root->left) {
-                q.emplace(root->left);
-            }
-            if (root->val < high && root->right) {
-                q.emplace(root->right);
-            }
+            q.emplace(root->left, l, root->val - 1);
+            q.emplace(root->right, root->val + 1, h);
         }
 
         return ret;
