@@ -60,26 +60,25 @@ private:
 
 class LeafIterator {
 public:
-    LeafIterator(Node* root) {
+    LeafIterator(TreeNode* root) {
         if (root) {
             m_stk.push(root);
         }
     }
 
-    Node* next() {
-        assert(!m_stk.empty());
-        assert(!m_stk.top()->left && !m_stk.top()->right);
+    TreeNode* next() {
+        assert(hasNext());
 
-        Node* node = m_stk.top();
+        TreeNode* ret = m_stk.top();
         m_stk.pop();
 
-        return node;
+        return ret;
     }
 
     bool hasNext() const {
         while (!m_stk.empty()) {
-            Node* node = m_stk.top();
-            if (!node->left && !node->right) {
+            TreeNode* node = m_stk.top();
+            if (node->left == nullptr && node->right == nullptr) {
                 return true;
             }
 
@@ -97,7 +96,7 @@ public:
     }
 
 private:
-    mutable stack<Node*> m_stk;
+    mutable stack<TreeNode*> m_stk;
 };
 
 class BSTIterator {
