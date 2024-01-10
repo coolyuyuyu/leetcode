@@ -16,7 +16,6 @@ public:
             for (int nxt : graph[cur]) {
                 if (nxt == pre) { continue; }
 
-
                 auto childCnt = dfs(nxt, cur);
                 if (colors[nxt] == colors[cur] && cnt > 0 && childCnt > 0) {
                     cnt += childCnt;
