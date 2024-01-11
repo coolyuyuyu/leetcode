@@ -11,51 +11,39 @@
  */
 class Solution {
 public:
-    int recursive(TreeNode* root, int minVal, int maxVal) {
-        if (!root) {
-            return 0;
-        }
+    int recursive(TreeNode* root) {
+        std::function<int(TreeNode*, int, int)> f = [&](TreeNode* root, int mn, int mx) {
+            if (!root) { return 0; }
 
-        int maxDiff = std::max(abs(root->val - minVal), abs(root->val - maxVal));
-        minVal = std::min(minVal, root->val);
-        maxVal = std::max(maxVal, root->val);
-        int lftMaxDiff = recursive(root->left, minVal, maxVal);
-        int rhtMaxDiff = recursive(root->right, minVal, maxVal);
+            mn = std::min(mn, root->val);
+            mx = std::max(mx, root->val);
+            return std::max({mx - mn, f(root->left, mn, mx), f(root->right, mn, mx)});
+        };
 
-        return std::max({maxDiff, lftMaxDiff, rhtMaxDiff});
+        return f(root, root->val, root->val);
     }
 
     int iterative(TreeNode* root) {
-        assert(root);
-
-        queue<tuple<TreeNode*, int, int>> q;
-        q.emplace(root, root->val, root->val);
-
         int ret = 0;
-        while (!q.empty()) {
-            root = std::get<0>(q.front());
-            int minVal = std::get<1>(q.front());
-            int maxVal = std::get<2>(q.front());
+        for (queue<tuple<TreeNode*, int, int>> q({{root, root->val, root->val}}); !q.empty();) {
+            auto [root, mn, mx] = q.front();
             q.pop();
 
-            ret = std::max({ret, abs(root->val - minVal), abs(root->val - maxVal)});
-            minVal = std::min(minVal, root->val);
-            maxVal = std::max(maxVal, root->val);
-            if (root->left) {
-                q.emplace(root->left, minVal, maxVal);
-            }
-            if (root->right) {
-                q.emplace(root->right, minVal, maxVal);
-            }
+            if (!root) { continue; }
+
+            mn = std::min(mn, root->val);
+            mx = std::max(mx, root->val);
+            ret = std::max(ret, mx - mn);
+
+            q.emplace(root->left, mn, mx);
+            q.emplace(root->right, mn, mx);
         }
 
         return ret;
     }
 
     int maxAncestorDiff(TreeNode* root) {
-        assert(root);
-
-        //return recursive(root, root->val, root->val);
+        //return recursive(root);
         return iterative(root);
     }
 };
