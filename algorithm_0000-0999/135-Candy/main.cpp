@@ -3,18 +3,24 @@ public:
     int candy(vector<int>& ratings) {
         int n = ratings.size();
 
-        vector<int> candies(n, 1);
-        for (int i = 1; i < n; ++i) { // look left
+        int cnts[n];
+
+        cnts[0] = 1;
+        for (int i = 1; i < n; ++i) { // compare left
             if (ratings[i - 1] < ratings[i]) {
-                candies[i] = candies[i - 1] + 1;
+                cnts[i] = cnts[i - 1] + 1;
             }
-        }
-        for (int i = n - 2; 0 <= i; --i) { // look right
-            if (ratings[i] > ratings[i + 1]) {
-                candies[i] = std::max(candies[i], candies[i + 1] + 1);
+            else {
+                cnts[i] = 1;
             }
         }
 
-        return std::accumulate(candies.begin(), candies.end(), 0);
+        for (int i = n - 1; 0 < i--;) { // compare right
+            if (ratings[i] > ratings[i + 1]) {
+                cnts[i] = std::max(cnts[i], cnts[i + 1] + 1);
+            }
+        }
+
+        return std::accumulate(cnts, cnts + n, 0);
     }
 };
