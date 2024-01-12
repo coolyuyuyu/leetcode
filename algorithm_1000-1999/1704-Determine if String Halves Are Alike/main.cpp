@@ -1,18 +1,33 @@
 class Solution {
 public:
     bool halvesAreAlike(string s) {
-        std::set<char> vowels = {'a', 'e', 'i', 'o', 'u'};
-        auto countVowel = [&vowels](string::const_iterator bgn, string::const_iterator end) {
-            int cnt = 0;
-            for (auto itr = bgn; itr != end; ++itr) {
-                char c = tolower(*itr);
-                if (vowels.find(c) != vowels.end()) {
-                    ++cnt;
-                }
+        int n = s.size();
+
+        std::function<bool(char)> isvowel = [](char c) {
+            switch (std::toupper(c)) {
+            case 'A':
+            case 'E':
+            case 'I':
+            case 'O':
+            case 'U':
+                return true;
+            default:
+                return false;
             }
-            return cnt;
         };
 
-        return countVowel(s.begin(), s.begin() + s.size() / 2) == countVowel(s.begin() + s.size() / 2, s.end());
+        int cnt = 0;
+        for (int i = 0; i < n / 2; ++i) {
+            if (isvowel(s[i])) {
+                ++cnt;
+            }
+        }
+        for (int i = n / 2; i < n; ++i) {
+            if (isvowel(s[i])) {
+                --cnt;
+            }
+        }
+
+        return cnt == 0;
     }
 };
