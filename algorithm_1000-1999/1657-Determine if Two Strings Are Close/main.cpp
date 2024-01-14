@@ -5,30 +5,26 @@ public:
             return false;
         }
 
+        int n = word1.size();
+
         vector<int> cnts1(26, 0), cnts2(26, 0);
-        for (size_t i = 0; i < word1.size(); ++i) {
+        for (int i = 0; i < n; ++i) {
             ++cnts1[word1[i] - 'a'];
             ++cnts2[word2[i] - 'a'];
         }
-        for (size_t i = 0; i < 26; ++i) {
-            if (cnts1[i] == 0 ^ cnts2[i] == 0) {
+
+        for (int i = 0; i < 26; ++i) {
+            if ((cnts1[i] == 0) ^ (cnts2[i] == 0)) {
                 return false;
             }
         }
 
-        priority_queue<int> pq1, pq2;
-        for (size_t i = 0; i < 26; ++i) {
-            if (cnts1[i] == 0) {
-                continue;
-            }
-            pq1.push(cnts1[i]);
-            pq2.push(cnts2[i]);
-        }
-
+        priority_queue<int> pq1(cnts1.begin(), cnts1.end()), pq2(cnts2.begin(), cnts2.end());
         while (!pq1.empty()) {
             if (pq1.top() != pq2.top()) {
                 return false;
             }
+
             pq1.pop();
             pq2.pop();
         }
