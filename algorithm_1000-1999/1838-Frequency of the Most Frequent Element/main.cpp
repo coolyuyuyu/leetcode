@@ -9,7 +9,7 @@ public:
 
         long cnt = 0;
         for (int lft = 0, rht = 1; rht < n; ++rht) {
-            cnt += (rht - lft) * 1L * (nums[rht] - nums[rht - 1]);
+            cnt += 1L * (rht - lft) * (nums[rht] - nums[rht - 1]);
             while (cnt > k) {
                 cnt -= (nums[rht] - nums[lft]);
                 ++lft;
