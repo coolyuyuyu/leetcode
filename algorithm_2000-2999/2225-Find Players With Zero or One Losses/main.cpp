@@ -3,20 +3,23 @@ public:
     vector<vector<int>> findWinners(vector<vector<int>>& matches) {
         map<int, int> inDegrees;
         for (const auto& match : matches) {
-            inDegrees.emplace(match[0], 0);
-            ++inDegrees[match[1]];
+            int winner = match[0], loser = match[1];
+            inDegrees.emplace(winner, 0);
+            ++inDegrees[loser];
         }
 
-        vector<vector<int>> ans(2);
-        for (const auto& p : inDegrees) {
-            if (p.second == 0) {
-                ans[0].push_back(p.first);
-            }
-            else if (p.second == 1) {
-                ans[1].push_back(p.first);
+        vector<vector<int>> ret(2);
+        for (const auto& [player, inDegree] : inDegrees) {
+            switch (inDegree) {
+            case 0:
+                ret[0].push_back(player);
+                break;
+            case 1:
+                ret[1].push_back(player);
+                break;
             }
         }
 
-        return ans;
+        return ret;
     }
 };
