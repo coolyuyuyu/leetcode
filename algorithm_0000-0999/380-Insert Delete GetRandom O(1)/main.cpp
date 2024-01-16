@@ -3,13 +3,12 @@ public:
     RandomizedSet() {}
 
     bool insert(int val) {
-        if (m_indexes.emplace(val, m_indexes.size()).second) {
-            m_vals.emplace_back(val);
-            return true;
+        auto [_, inserted] = m_indexes.emplace(val, m_indexes.size());
+        if (inserted) {
+            m_vals.push_back(val);
         }
-        else {
-            return false;
-        }
+
+        return inserted;
     }
 
     bool remove(int val) {
@@ -18,8 +17,8 @@ public:
             return false;
         }
 
+        m_vals[itr->second] = m_vals.back();
         m_indexes[m_vals.back()] = itr->second;
-        std::swap(m_vals[itr->second], m_vals.back());
         m_vals.pop_back();
         m_indexes.erase(itr);
         return true;
@@ -30,9 +29,8 @@ public:
     }
 
 private:
-    map<int, size_t> m_indexes;
+    unordered_map<int, int> m_indexes;
     vector<int> m_vals;
-
 };
 
 /**
