@@ -1,14 +1,14 @@
 class Solution {
 public:
     bool uniqueOccurrences(vector<int>& arr) {
-        unordered_map<int, int> cnts;
+        unordered_map<int, int> m;
         for (int num : arr) {
-            ++cnts[num];
+            ++m[num];
         }
 
         unordered_set<int> s;
-        for (const auto& p : cnts) {
-            if (s.emplace(p.second).second == false) {
+        for (const auto& [_, cnt] : m) {
+            if (s.insert(cnt).second == false) {
                 return false;
             }
         }
