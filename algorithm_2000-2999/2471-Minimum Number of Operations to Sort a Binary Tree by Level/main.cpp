@@ -11,47 +11,43 @@
  */
 class Solution {
 public:
-    // cycle sort
-    int minSwaps(vector<int>& nums) {
-        vector<size_t> indexes(nums.size());
-        std::iota(indexes.begin(), indexes.end(), (size_t)0);
-        std::sort(indexes.begin(), indexes.end(), [&](size_t i1, size_t i2) { return nums[i1] < nums[i2]; });
+    int minSwap(vector<int>& nums) {
+        int n = nums.size();
+        if (n == 0) { return 0; }
 
-        int cnt = 0;
-        for (size_t i = 0; i < indexes.size(); ++i) {
+        int indexes[n];
+        std::iota(indexes, indexes + n, 0);
+        std::sort(indexes, indexes + n, [&](int i1, int i2) { return nums[i1] < nums[i2]; });
+
+        int ret = 0;
+        for (int i = 0; i < n; ++i) {
             while (indexes[i] != indexes[indexes[i]]) {
                 std::swap(indexes[i], indexes[indexes[i]]);
-                ++cnt;
+                ++ret;
             }
         }
 
-        return cnt;
+        return ret;
     }
 
     int minimumOperations(TreeNode* root) {
-        queue<TreeNode*> nodes;
-        if (root) {
-            nodes.push(root);
-        }
+        int ret = 0;
+        for (queue<TreeNode*> q({root}); !q.empty();) {
+            vector<int> nums;
+            for (int i = q.size(); 0 < i--;) {
+                auto node = q.front();
+                q.pop();
 
-        int cnt = 0;
-        while (!nodes.empty()) {
-            vector<int> vals;
-            for (size_t i = 0, n = nodes.size(); i < n; ++i) {
-                TreeNode* node = nodes.front();
-                nodes.pop();
-                if (node->left) {
-                    nodes.push(node->left);
-                }
-                if (node->right) {
-                    nodes.push(node->right);
-                }
+                if (!node) { continue; }
+                nums.push_back(node->val);
 
-                vals.push_back(node->val);
+                q.emplace(node->left);
+                q.emplace(node->right);
             }
-            cnt += minSwaps(vals);
+
+            ret += minSwap(nums);
         }
 
-        return cnt;
+        return ret;
     }
 };
