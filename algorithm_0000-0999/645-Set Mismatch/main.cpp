@@ -1,24 +1,24 @@
 class Solution {
 public:
-    // Time: O(N), Space: O(1)
+    // Time: O(N), Space: O(1), index sort
     vector<int> findErrorNums(vector<int>& nums) {
         int n = nums.size();
+        nums.insert(nums.begin(), 0);
 
-        int dup;
-        int x = n * (n + 1) / 2; // 1 + 2 + ... + n
-        int y = 0; // sum of nums
-        for (int i = 0; i < n; ++i) {
-            int val = abs(nums[i]);
-            if (0 < nums[val - 1]) {
-                nums[val - 1] = -nums[val - 1];
+        for (int i = 1; i <= n; ++i) {
+            while (nums[i] != i && nums[i] != nums[nums[i]]) {
+                std::swap(nums[i], nums[nums[i]]);
             }
-            else {
-                dup = val;
-            }
-
-            y += val;
         }
 
-        return {dup, dup + x - y};
+        vector<int> ret;
+        for (int i = 0; i <= n; ++i) {
+            if (nums[i] != i) {
+                ret = {nums[i], i};
+                break;
+            }
+        }
+
+        return ret;
     }
 };
