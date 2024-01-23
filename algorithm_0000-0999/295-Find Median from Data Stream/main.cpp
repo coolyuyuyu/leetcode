@@ -17,11 +17,12 @@ public:
     }
 
     double findMedian() {
-        double m = m_lo.top();
+        double ret = m_lo.top();
         if (m_lo.size() == m_hi.size()) {
-            m = (m + m_hi.top()) / 2;
+            ret = (ret + m_hi.top()) / 2.0;
         }
-        return m;
+
+        return ret;
     }
 
 private:
@@ -32,33 +33,34 @@ private:
 class SetStrategy : public Strategy {
 public:
     void addNum(int num) {
-        m_nums.insert(num);
-        if (m_nums.size() == 1) {
-            m_itr = m_nums.begin();
+        m_ms.insert(num);
+        if (m_ms.size() == 1) {
+            m_itr = m_ms.begin();
         }
-        else if (m_nums.size() & 1) {
-            if (*m_itr <= num) {
-                m_itr = std::next(m_itr);
+        else if (m_ms.size() & 1) {
+            if (num >= *m_itr) {
+                ++m_itr;
             }
         }
         else {
             if (num < *m_itr) {
-                m_itr = std::prev(m_itr);
+                --m_itr;
             }
         }
     }
 
     double findMedian() {
-        double m = *m_itr;
-        if (m_nums.size() % 2 == 0) {
-            m = (m + *std::next(m_itr)) / 2;
+        double ret = *m_itr;
+        if (m_ms.size() % 2 == 0) {
+            ret = (ret + *(std::next(m_itr))) / 2.0;
         }
-        return m;
+
+        return ret;
     }
 
 private:
-   multiset<int> m_nums;
-   multiset<int>::const_iterator m_itr;
+    multiset<int> m_ms;
+    multiset<int>::const_iterator m_itr;
 };
 
 class MedianFinder {
