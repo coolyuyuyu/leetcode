@@ -1,10 +1,11 @@
 class Solution {
 public:
     vector<int> byBucket(const vector<int>& nums, int k, int x) {
-        vector<int> ret;
+        int n = nums.size();
 
-        vector<int> cnts(102, 0);
-        auto findSmallest = [&cnts, x]() {
+        int cnts[101];
+        std::fill(cnts, cnts + 101, 0);
+        std::function<int()> findKthSmallest = [&]() {
             int cnt = 0;
             for (int i = 0; i < 50; ++i) {
                 cnt += cnts[i];
@@ -12,16 +13,18 @@ public:
                     return i - 50;
                 }
             }
+
             return 0;
         };
-        for (int i = 0; i < nums.size(); ++i) {
-            if (k <= i) {
-                --cnts[nums[i - k] + 50];
-            }
+
+        vector<int> ret(n - k + 1);
+        for (int i = 0; i < n; ++i) {
             ++cnts[nums[i] + 50];
 
-            if (k <= i + 1) {
-                ret.push_back(findSmallest());
+            if (i >= k - 1) {
+                ret[i - k + 1] = findKthSmallest();
+
+                --cnts[nums[i - k + 1] + 50];
             }
         }
 
@@ -29,45 +32,44 @@ public:
     }
 
     vector<int> byMultiset(const vector<int>& nums, int k, int x) {
-        vector<int> ret;
+        int n = nums.size();
 
         multiset<int> ms1, ms2;
-        auto findSmallest = [&ms1, &ms2, x]() {
-            return std::min(*ms1.rbegin(), 0);
-        };
-        for (int i = 0; i < nums.size(); ++i) {
-            if (k <= i) {
-                int v = nums[i - k];
-                auto itr1 = ms1.find(v);
-                if (itr1 != ms1.end()) {
-                    ms1.erase(itr1);
+
+        vector<int> ret(n - k + 1);
+        for (int i = 0; i < n; ++i) {
+            ms1.insert(nums[i]);
+            if (ms1.size() > x) {
+                auto itr1 = std::prev(ms1.end());
+                ms2.insert(*itr1);
+                ms1.erase(itr1);
+            }
+
+            if (i >= k - 1) {
+                ret[i - k + 1] = std::min(*ms1.rbegin(), 0);
+
+                int toErase = nums[i - k + 1];
+                auto itr2 = ms2.find(toErase);
+                if (itr2 != ms2.end()) {
+                    ms2.erase(itr2);
                 }
                 else {
-                    ms2.erase(ms2.find(v));
+                    auto itr1 = ms1.find(toErase);
+                    ms1.erase(itr1);
+                    if (ms1.size() < k && !ms2.empty()) {
+                        itr2 = ms2.begin();
+                        ms1.insert(*itr2);
+                        ms2.erase(itr2);
+                    }
                 }
-
-                if (ms1.size() < x && !ms2.empty()) {
-                    ms1.insert(*ms2.begin());
-                    ms2.erase(ms2.begin());
-                }
-            }
-            ms1.insert(nums[i]);
-            if (x < ms1.size()) {
-                ms2.insert(*ms1.rbegin());
-                ms1.erase(std::prev(ms1.end()));
-            }
-
-            if (k <= i + 1) {
-                ret.push_back(findSmallest());
             }
         }
 
         return ret;
     }
 
-
     vector<int> getSubarrayBeauty(vector<int>& nums, int k, int x) {
-        //return byBucket(nums, k, x);
-        return byMultiset(nums, k, x);
+        return byBucket(nums, k, x);
+        //return byMultiset(nums, k, x);
     }
 };
