@@ -11,56 +11,41 @@
  */
 class Solution {
 public:
-    int pseudoPalindromicPaths_Recursive(TreeNode* root, bitset<10> flags = bitset<10>()) {
-        if (!root) {
-            return 0;
-        }
+    int recursive(TreeNode* root) {
+        std::function<int(TreeNode*, int)> f = [&](TreeNode* root, int parity) {
+            if (!root) { return 0; }
 
-        flags[root->val].flip();
-        if (!root->left && !root->right) {
-            return (flags.count() <= 1 ? 1 : 0);
-        }
-        else {
-            return pseudoPalindromicPaths_Recursive(root->left, flags) + pseudoPalindromicPaths_Recursive(root->right, flags);
-        }
+            parity ^= (1 << root->val);
+            if (root->left == nullptr && root->right == nullptr) {
+                return __builtin_popcount(parity) <= 1 ? 1 : 0;
+            }
+            return f(root->left, parity) + f(root->right, parity);
+        };
+
+        return f(root, 0);
     }
 
-    int pseudoPalindromicPaths_Iterative(TreeNode* root) {
-        int numPaths = 0;
-        bitset<10> flags(0);
+    int iterative(TreeNode* root) {
+        int ret = 0;
+        for (queue<pair<TreeNode*, int>> q({{root, 0}}); !q.empty();) {
+            auto [node, parity] = q.front();
+            q.pop();
 
-        stack<pair<TreeNode*, bool>> stk({{root, false}});
-        while (!stk.empty()) {
-            TreeNode* node = stk.top().first;
-            bool visited = stk.top().second;
-            stk.pop();
-
-            if (visited) {
-                flags[node->val].flip();
+            if (!node) { continue; }
+            parity ^= (1 << node->val);
+            if (node->left == nullptr && node->right == nullptr) {
+                ret += (__builtin_popcount(parity) <= 1 ? 1 : 0);
             }
-            else {
-                flags[node->val].flip();
-                if (!node->left && !node->right) {
-                    if (flags.count() <= 1) {
-                        ++numPaths;
-                    }
-                }
 
-                stk.emplace(node, true);
-                if (node->right) {
-                    stk.emplace(node->right, false);
-                }
-                if (node->left) {
-                    stk.emplace(node->left, false);
-                }
-            }
+            q.emplace(node->left, parity);
+            q.emplace(node->right, parity);
         }
 
-        return numPaths;
+        return ret;
     }
 
-    int pseudoPalindromicPaths(TreeNode* root) {
-        //return pseudoPalindromicPaths_Recursive(root);
-        return pseudoPalindromicPaths_Iterative(root);
+    int pseudoPalindromicPaths (TreeNode* root) {
+        //return recursive(root);
+        return iterative(root);
     }
 };
