@@ -1,12 +1,12 @@
 class Solution {
 public:
-    int btmup_dp(string& s1, string& s2) {
-        int m = s1.size(), n = s2.size();
-        s1 = "#" + s1;
-        s2 = "#" + s2;
+    int btmup_dp(string text1, string text2) {
+        int m = text1.size(), n = text2.size();
+        text1 = "#" + text1;
+        text2 = "#" + text2;
 
-        // dp[i][j]: the length of longest common subsequence of s1[1:i] and s2[1:j]
-        vector<vector<int>> dp(m + 1, vector<int>(n + 1));
+        // dp[i][j]: the length of their longest common subsequence of text1[:i] and text2[:j]
+        int dp[m + 1][n + 1];
         dp[0][0] = 0;
         for (int i = 1; i <= m; ++i) {
             dp[i][0] = 0;
@@ -16,7 +16,7 @@ public:
         }
         for (int i = 1; i <= m; ++i) {
             for (int j = 1; j <= n; ++j) {
-                if (s1[i] == s2[j]) {
+                if (text1[i] == text2[j]) {
                     dp[i][j] = dp[i - 1][j - 1] + 1;
                 }
                 else {
@@ -28,27 +28,32 @@ public:
         return dp[m][n];
     }
 
-    int topdn_dp(string& s1, string& s2) {
-        int m = s1.size(), n = s2.size();
-        s1 = "#" + s1;
-        s2 = "#" + s2;
+    int topdn_dp(string text1, string text2) {
+        int m = text1.size(), n = text2.size();
+        text1 = "#" + text1;
+        text2 = "#" + text2;
 
-        vector<vector<int>> cache(m + 1, vector<int>(n + 1, -1));
-        cache[0][0] = 0;
+        int dp[m + 1][n + 1];
+        for (int i = 0; i <= m; ++i) {
+            for (int j = 0; j <= n; ++j) {
+                dp[i][j] = -1;
+            }
+        }
+        dp[0][0] = 0;
         for (int i = 1; i <= m; ++i) {
-            cache[i][0] = 0;
+            dp[i][0] = 0;
         }
         for (int j = 1; j <= n; ++j) {
-            cache[0][j] = 0;
+            dp[0][j] = 0;
         }
         std::function<int(int, int)> f = [&](int i, int j) {
-            int& ret = cache[i][j];
-            if (0 <= ret) {
+            int& ret = dp[i][j];
+            if (ret >= 0) {
                 return ret;
             }
 
-            if (s1[i] == s2[j]) {
-                ret = 1 + f(i - 1, j - 1);
+            if (text1[i] == text2[j]) {
+                ret = f(i - 1, j - 1) + 1;
             }
             else {
                 ret = std::max(f(i - 1, j), f(i, j - 1));
@@ -65,3 +70,4 @@ public:
         return topdn_dp(text1, text2);
     }
 };
+
