@@ -68,8 +68,9 @@ public:
         for (int i = 0, diff = 0; i < s.size(); ++i) {
             diff += (checkVowel(s[i]) ? 1 : -1);
 
-            ret += m[{diff, i % x}];
-            m[{diff, i % x}] += 1;
+            //ret += m[{diff, i % x}];
+            //++m[{diff, i % x}];
+            ret += m[{diff, i % x}]++;
         }
 
         return ret;
