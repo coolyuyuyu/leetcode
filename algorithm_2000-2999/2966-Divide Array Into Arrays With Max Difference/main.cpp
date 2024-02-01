@@ -7,13 +7,12 @@ public:
 
         vector<vector<int>> ret(n / 3, vector<int>(3));
         for (int i = 0; i < n; i += 3) {
-            auto& triplet = ret[i / 3];
-            triplet[0] = nums[i];
-            triplet[1] = nums[i + 1];
-            triplet[2] = nums[i + 2];
-            if (triplet[2] - triplet[0] > k) {
+            if (nums[i + 2] - nums[i] > k) {
                 return {};
             }
+
+            vector<int>& triplet = ret[i / 3];
+            std::copy(nums.begin() + i, nums.begin() + i + 3, triplet.begin());
         }
 
         return ret;
