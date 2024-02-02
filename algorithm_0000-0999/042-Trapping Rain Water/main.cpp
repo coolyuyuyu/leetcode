@@ -1,0 +1,57 @@
+class Solution {
+public:
+    // Time: O(3n)
+    int f1(vector<int>& height) {
+        int n = height.size();
+        int lftMax[n]; // lftMax[i]: the maximum height of height[0:i]
+        int rhtMax[n]; // rhtMax[i]: the maximum height of height[i:]
+
+        lftMax[0] = height[0];
+        for (int i = 1; i < n; ++i) {
+            lftMax[i] = std::max(lftMax[i - 1], height[i]);
+        }
+
+        rhtMax[n - 1] = height[n - 1];
+        for (int i = n - 1; 0 < i--;) {
+            rhtMax[i] = std::max(rhtMax[i + 1], height[i]);
+        }
+
+        int ret = 0;
+        for (int i = 1; i + 1 < n; ++i) {
+            ret += std::max(std::min(lftMax[i - 1], rhtMax[i + 1]) - height[i], 0);
+        }
+
+        return ret;
+    }
+
+    // Time: O(n)
+    int f2(vector<int>& height) {
+        int n = height.size();
+
+        int ret = 0;
+        stack<int> stk;
+        for (int i = 0; i < n; ++i) {
+            while (!stk.empty() && height[stk.top()] <= height[i]) {
+                int baseH = height[stk.top()];
+                stk.pop();
+
+                if (stk.empty()) {
+                    continue;
+                }
+
+                int w = i - stk.top() - 1;
+                int h = std::min(height[stk.top()], height[i]) - baseH;
+                ret += w * h;
+            }
+
+            stk.push(i);
+        }
+
+        return ret;
+    }
+
+    int trap(vector<int>& height) {
+        //return f1(height);
+        return f2(height);
+    }
+};
