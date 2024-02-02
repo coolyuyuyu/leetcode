@@ -1,15 +1,15 @@
 class Solution {
 public:
-    vector<string> generatePossibleNextMoves(string s) {
-        vector<string> ans;
-        for (size_t i = 0; i < s.size(); ++i) {
-            if (i + 1 <= s.size() && s[i] == '+' && s[i + 1] == '+') {
-                ans.push_back(s);
-                ans.back()[i] = '-';
-                ans.back()[i + 1] = '-';
+    vector<string> generatePossibleNextMoves(string currentState) {
+        vector<string> ret;
+        for (int i = 1; i < currentState.size(); ++i) {
+            if (currentState[i - 1] == '-' || currentState[i] == '-') {
+                continue;
             }
+            ret.push_back(currentState);
+            std::fill_n(ret.back().begin() + i - 1, 2, '-');
         }
 
-        return ans;
+        return ret;
     }
 };
