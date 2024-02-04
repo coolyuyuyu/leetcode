@@ -1,31 +1,31 @@
 class Solution {
 public:
     string minWindow(string s, string t) {
-        vector<int> freqs(128, 0);
+        int freq[128];
+        std::fill(freq, freq + 128, 0);
         for (char c : t) {
-            ++freqs[c];
+            ++freq[c - 'A'];
         }
+        int uniqCnt = std::count_if(freq, freq + 128, [](int f){ return f != 0; });
 
-        size_t index = 0;
-        size_t minLen = std::numeric_limits<size_t>::max();
-        for (size_t bgn = 0, end = 0, cnt = t.size(); end < s.size(); ++end) {
-            if (0 < freqs[s[end]]--) {
-                --cnt;
-            }
-
-            for (; cnt == 0; ++bgn) {
-                size_t len = end - bgn + 1;
-                if (len < minLen) {
-                    minLen = len;
-                    index = bgn;
-                }
-
-                if (0 == freqs[s[bgn]]++) {
-                    ++cnt;
+        int n = s.size();
+        int bgn = 0, end = INT_MAX;
+        for (int lft = 0, rht = 0; lft < n; ++lft) {
+            for (; rht < n && uniqCnt > 0; ++rht) {
+                if (--freq[s[rht] - 'A'] == 0) {
+                    --uniqCnt;
                 }
             }
+
+            if (uniqCnt == 0 && (rht - lft < end - bgn)) {
+                bgn = lft, end = rht;
+            }
+
+            if (freq[s[lft] - 'A']++ == 0) {
+                ++uniqCnt;
+            }
         }
 
-        return minLen == std::numeric_limits<size_t>::max() ? "" : s.substr(index, minLen);
+        return end == INT_MAX ? "" : s.substr(bgn, end - bgn);
     }
 };
