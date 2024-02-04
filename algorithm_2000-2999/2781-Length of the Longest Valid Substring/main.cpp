@@ -7,42 +7,38 @@ public:
         ULL base = 26;
 
         unordered_set<ULL> hashs[11];
-        for (const string& str: forbidden) {
+        for (const string& s : forbidden) {
             ULL hash = 0;
-            for (char c : str) {
-                hash = hash * base + c - 'a';
+            for (char c : s) {
+                hash = hash * base + (c - 'a');
             }
-
-            hashs[str.size()].insert(hash);
+            hashs[s.size()].insert(hash);
         }
 
-        unordered_map<int, vector<int>> m;
+        unordered_map<int, vector<int>> intervals;
 
         ULL power = 1;
         for (int len = 1; len <= 10; ++len, power *= base) {
-            if (hashs[len].empty()) { continue; }
-
             ULL hash = 0;
-            for (int i = 0; i < word.size(); ++i) {
-                if (len <= i) {
-                    hash -= (word[i - len] - 'a') * power;
+            for (int i = 0; i < n; ++i) {
+                if (i >= len) {
+                    hash = hash - (word[i - len] - 'a') * power;
                 }
-                hash = hash * base + word[i] - 'a';
+                hash = hash * base + (word[i] - 'a');
 
-                if (len - 1 <= i && hashs[len].find(hash) != hashs[len].end()) {
-                    m[i - len + 1].push_back(i);
+                if (i >= len - 1 && hashs[len].find(hash) != hashs[len].end()) {
+                    intervals[i - len + 1].push_back(i);
                 }
             }
         }
 
-        int ret = 0, rhtBound = n;
-        for (int i = n; 0 < i--;) {
-            if (m.find(i) != m.end()) {
-                for (int rht : m[i]) {
+        int ret = 0;
+        for (int i = n, rhtBound = n; 0 < i--;) {
+            if (intervals.find(i) != intervals.end()) {
+                for (int rht : intervals[i]) {
                     rhtBound = std::min(rhtBound, rht);
                 }
             }
-
             ret = std::max(ret, rhtBound - i);
         }
 
