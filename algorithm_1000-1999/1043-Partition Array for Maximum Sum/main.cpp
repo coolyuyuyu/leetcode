@@ -4,7 +4,7 @@ public:
         int n = arr.size();
         arr.insert(arr.begin(), 0);
 
-        //dp[i]: the largest sum of arr[0:i] after partitioned into subarrys of length at most k
+        // dp[i]: the largest sum of arr[0:i] after partitioned into subarrys of length at most k
         int dp[n + 1];
         std::fill(dp, dp + n + 1, INT_MIN);
         dp[0] = 0;
