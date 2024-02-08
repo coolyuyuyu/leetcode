@@ -1,13 +1,14 @@
 class Solution {
 public:
     string stdsort(string& s) {
-        vector<int> cnts(128, 0);
+        int cnts[128];
+        std::fill(cnts, cnts + 128, 0);
         for (char c : s) {
             ++cnts[c];
         }
 
-        auto comp = [&cnts](char c1, char c2) {
-            return (cnts[c1] > cnts[c2]) || (cnts[c1] == cnts[c2] && c1 < c2) ;
+        auto comp = [&](char c1, char c2) {
+            return (cnts[c1] > cnts[c2]) || (cnts[c1] == cnts[c2] && c1 < c2);
         };
         std::sort(s.begin(), s.end(), comp);
 
@@ -64,8 +65,8 @@ public:
     }
 
     string frequencySort(string s) {
-        //return stdsort(s);
+        return stdsort(s);
         //return bucketsort(s);
-        return stdheap(s);
+        //return stdheap(s);
     }
 };
