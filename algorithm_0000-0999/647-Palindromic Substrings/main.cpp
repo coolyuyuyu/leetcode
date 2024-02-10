@@ -2,14 +2,20 @@ class Solution {
 public:
     // Time: O(n^2), Space: O(n^2)
     int dp1(const string& s) {
-        size_t n = s.size();
+        int n = s.size();
 
-        size_t ret = n;
-        vector<vector<bool>> dp(n, vector<bool>(n, true));
-        for (size_t len = 2; len <= n; ++len) {
-            for (size_t i = 0, j = i + len - 1; j < n; ++i, ++j) {
-                dp[i][j] = dp[i + 1][j - 1] && s[i] == s[j];
-                if (dp[i][j]) {
+        // dp[i][j]: is s[i:j] a palindrome?
+        bool dp[n][n];
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                dp[i][j] = true;
+            }
+        }
+
+        int ret = n;
+        for (int len = 2; len <= n; ++len) {
+            for (int i = 0, j = i + len - 1; j < n; ++i, ++j) {
+                if (dp[i][j] = (dp[i + 1][j - 1] && s[i] == s[j])) {
                     ++ret;
                 }
             }
@@ -20,15 +26,18 @@ public:
 
     // Time: O(n^2), Space: O(n)
     int dp2(const string& s) {
-        size_t n = s.size();
+        int n = s.size();
 
-        size_t ret = n;
-        vector<bool> dp0(n, true), dp1(n, true);
-        for (size_t len = 2; len <= n; ++len) {
-            for (size_t i = 0, j = i + len - 1; j < n; ++i, ++j) {
-                auto& dp = (len & 1 ? dp1 : dp0);
-                dp[i] = dp[i + 1] && s[i] == s[j];
-                if (dp[i]) {
+        bool dp0[n], dp1[n];
+        for (int i = 0; i < n; ++i) {
+            dp0[i] = dp1[i] = true;
+        }
+
+        int ret = n;
+        for (int len = 2; len <= n; ++len) {
+            for (int i = 0, j = i + len - 1; j < n; ++i, ++j) {
+                bool* dp = (len & 1 ? dp1 : dp0);
+                if (dp[i] = (dp[i + 1] && s[i] == s[j])) {
                     ++ret;
                 }
             }
@@ -74,8 +83,8 @@ public:
 
     int countSubstrings(string s) {
         //return dp1(s);
-        //return dp2(s);
+        return dp2(s);
 
-        return manacher(s);
+        //return manacher(s);
     }
 };
