@@ -50,32 +50,31 @@ public:
     int manacher(const string& s) {
         string t = "#";
         for (char c : s) {
-            t.append(1, c).append("#");
+            t.append(1, c).append(1, '#');
         }
 
         int n = t.size();
 
-        int ret = 0;
-        vector<int> p(n); // p[i]: the longest extended radius of palindromic substring centered at i
-        for (int i = 0, maxCtr = -1, maxRht = -1; i < n; ++i) {
-            int r = 0;
-            if (i < maxRht) {
-                int j = maxCtr * 2 - i;
-                r = std::min(p[j], maxRht - i);
-            }
-            while (0 <= (i - r - 1) && (i + r + 1) < n && t[i - r - 1] == t[i + r + 1]) {
-                ++r;
-            }
-            p[i] = r;
+        // p[i]: the longest extend radius of palindromic substring center at i
+        int p[n];
 
-            if (maxRht < (i + p[i])) {
+        int ret = 0;
+        for (int i = 0, maxRht = -1, maxCtr = -1; i < n; ++i) {
+            p[i] = 0;
+            if (i < maxRht) {
+                int j = 2 * maxCtr - i;
+                p[i] = std::min(p[j], maxRht - i);
+            }
+            while (0 <= i - p[i] - 1 && i + p[i] + 1 < n && t[i - p[i] - 1] == t[i + p[i] + 1]) {
+                ++p[i];
+            }
+
+            if (i + p[i] > maxRht) {
                 maxCtr = i;
                 maxRht = i + p[i];
             }
 
-            if (0 < p[i]) {
-                ret += ((p[i] + 1) / 2);
-            }
+            ret += (p[i] + 1) / 2;
         }
 
         return ret;
