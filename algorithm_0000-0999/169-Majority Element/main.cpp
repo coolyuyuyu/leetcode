@@ -15,19 +15,15 @@ public:
 
     // Boyer-Moore majority vote algorithm
     int majorityElement_Linear(vector<int>& nums) {
-        int majority, cnt = 0;
+        int maj = 0, cnt = 1;
         for (int num : nums) {
+            cnt += (num == maj ? 1 : -1);
             if (cnt == 0) {
-                majority = num;
-                cnt = 1;
+                maj = num, cnt = 1;
             }
-            else {
-                majority == num ? ++cnt : --cnt;
-            }
-
         }
 
-        return majority;
+        return maj;
     }
 
     int majorityElement(vector<int>& nums) {
