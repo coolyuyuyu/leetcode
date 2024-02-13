@@ -10,7 +10,7 @@ public:
             }
 
             auto itr = ms.lower_bound(nums[i] - valueDiff);
-            if (itr != ms.end() && abs(nums[i] - *itr) <= valueDiff) {
+            if (itr != ms.end() && *itr - nums[i] <= valueDiff) {
                 return true;
             }
 
