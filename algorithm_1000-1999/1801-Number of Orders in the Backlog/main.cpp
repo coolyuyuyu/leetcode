@@ -1,70 +1,59 @@
 class Solution {
 public:
+    int M = 1e9 + 7;
+
     int getNumberOfBacklogOrders(vector<vector<int>>& orders) {
-        typedef pair<int, int> Order; // <price, amount>
+        priority_queue<pair<int, int>, vector<pair<int, int>>, std::less<pair<int, int>>> buyPQ; // <price, amount>
+        priority_queue<pair<int, int>, vector<pair<int, int>>, std::greater<pair<int, int>>> sellPQ; // <price, amount>
 
-        auto compBuy = [](const Order& o1, const Order& o2) {
-            return less<int>()(o1.first, o2.first);
-        };
-        auto compSell = [](const Order& o1, const Order& o2) {
-            return greater<int>()(o1.first, o2.first);
-        };
-        priority_queue<Order, vector<Order>, decltype(compBuy)> pqBuy(compBuy); // max_heap
-        priority_queue<Order, vector<Order>, decltype(compSell)> pqSell(compSell); // min_heap
+        for (const auto& order : orders) {
+            int price = order[0], amount = order[1], type = order[2];
+            if (type == 0) { // buy
+                while (!sellPQ.empty() && price >= sellPQ.top().first && amount > 0) {
+                    auto [sellPrice, sellAmount] = sellPQ.top();
+                    sellPQ.pop();
 
-        for (vector<int>& o : orders) {
-            int price = o[0];
-            int amount = o[1];
-            if (o[2] == 0) { // buy
-                while (!pqSell.empty() && pqSell.top().first <= price && 0 < amount) {
-                    Order order = pqSell.top();
-                    pqSell.pop();
-
-                    int decAmount = min(order.second, amount);
-                    order.second -= decAmount;
-                    amount -= decAmount;
-
-                    if (0 < order.second) {
-                        pqSell.push(order);
+                    int tradeAmount = std::min(sellAmount, amount);
+                    sellAmount -= tradeAmount;
+                    amount -= tradeAmount;
+                    if (sellAmount) {
+                        sellPQ.emplace(sellPrice, sellAmount);
                     }
                 }
-                if (0 < amount) {
-                    pqBuy.emplace(price, amount);
+                if (amount) {
+                    buyPQ.emplace(price, amount);
                 }
             }
-            else { // sell
-                while (!pqBuy.empty() && price <= pqBuy.top().first && 0 < amount) {
-                    Order order = pqBuy.top();
-                    pqBuy.pop();
+            else {
+                while (!buyPQ.empty() && amount > 0 && price <= buyPQ.top().first) {
+                    auto [buyPrice, buyAmount] = buyPQ.top();
+                    buyPQ.pop();
 
-                    int decAmount = min(order.second, amount);
-                    order.second -= decAmount;
-                    amount -= decAmount;
-
-                    if (0 < order.second) {
-                        pqBuy.push(order);
+                    int tradeAmount = std::min(buyAmount, amount);
+                    buyAmount -= tradeAmount;
+                    amount -= tradeAmount;
+                    if (buyAmount) {
+                        buyPQ.emplace(buyPrice, buyAmount);
                     }
                 }
-                if (0 < amount) {
-                    pqSell.emplace(price, amount);
+                if (amount) {
+                    sellPQ.emplace(price, amount);
                 }
             }
-
         }
 
-        int amount = 0;
-        for (; !pqBuy.empty(); pqBuy.pop()) {
-            //amount += pqBuy.top().second;
-
-            amount += (pqBuy.top().second % 1000000007);
-            amount %= (1000000007);
+        int ret = 0;
+        while (!buyPQ.empty()) {
+            ret += buyPQ.top().second;
+            ret %= M;
+            buyPQ.pop();
         }
-        for (; !pqSell.empty(); pqSell.pop()) {
-            //amount += pqSell.top().second ;
-
-            amount += (pqSell.top().second % 1000000007);
-            amount %= (1000000007);
+        while (!sellPQ.empty()) {
+            ret += sellPQ.top().second;
+            ret %= M;
+            sellPQ.pop();
         }
-        return amount;
+
+        return ret;
     }
 };
