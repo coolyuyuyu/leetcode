@@ -4,30 +4,30 @@ public:
     int math(const vector<int>& nums) {
         int n = nums.size();
 
-        int sum = (1 + n) * n / 2;
+        int ret = n * (n + 1) / 2;
         for (int num : nums) {
-            sum -= num;
+            ret -= num;
         }
 
-        return sum;
+        return ret;
     }
 
     // Time: O(n), Space: O(1)
     int bit(const vector<int>& nums) {
         int n = nums.size();
 
-        int x = 0;
+        int ret = 0;
         for (int i = 1; i <= n; ++i) {
-            x ^= i;
+            ret ^= i;
         }
         for (int num : nums) {
-            x ^= num;
+            ret ^= num;
         }
 
-        return x;
+        return ret;
     }
 
-    // Time: O(n), Space: O(1)
+    // Time: O(nlogn), Space: O(n)
     int cyclesort(vector<int>& nums) {
         int n = nums.size();
 
@@ -52,3 +52,4 @@ public:
         return cyclesort(nums);
     }
 };
+
