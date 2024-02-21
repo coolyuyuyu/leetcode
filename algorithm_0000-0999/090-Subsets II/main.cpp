@@ -1,35 +1,28 @@
 class Solution {
 public:
-    void subsetsWithDup(const vector<pair<int, size_t>>& elems, size_t level, vector<int>& result, vector<vector<int>>& results) {
-        if (elems.size() <= level) {
-            results.push_back(result);
-            return;
-        }
-
-        subsetsWithDup(elems, level + 1, result, results);
-
-        int num = elems[level].first;
-        size_t count = elems[level].second;
-        for (size_t i = 0; i < count; ++i) {
-            result.push_back(num);
-            subsetsWithDup(elems, level + 1, result, results);
-        }
-        for (size_t i = 0; i < count; ++i) {
-            result.pop_back();
-        }
-    }
-
     vector<vector<int>> subsetsWithDup(vector<int>& nums) {
-        unordered_map<int, size_t> counts; {
-            for (int num : nums) {
-                ++counts[num];
-            }
-        }
-        vector<pair<int, size_t>> elems(counts.begin(), counts.end());
+        int n = nums.size();
 
-        vector<int> result;
-        vector<vector<int>> results;
-        subsetsWithDup(elems, 0, result, results);
-        return results;
+        std::sort(nums.begin(), nums.end());
+
+        vector<vector<int>> ret;
+        std::function<void(vector<int>& , int i)> dfs = [&](vector<int>& comb, int i) {
+            if (i >= n) {
+                ret.push_back(comb);
+                return;
+            }
+
+            comb.push_back(nums[i]);
+            dfs(comb, i + 1);
+            comb.pop_back();
+
+            if (comb.empty() || comb.back() != nums[i]) {
+                dfs(comb, i + 1);
+            }
+        };
+        vector<int> comb;
+        dfs(comb, 0);
+
+        return ret;
     }
 };
