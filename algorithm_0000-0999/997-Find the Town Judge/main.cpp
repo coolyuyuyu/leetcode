@@ -6,8 +6,8 @@ public:
         std::fill(out, out + n + 1, 0);
 
         for (const auto& t : trust) {
-            ++out[t[0]];
             ++in[t[1]];
+            ++out[t[0]];
         }
 
         for (int i = 1; i <= n; ++i) {
