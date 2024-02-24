@@ -47,7 +47,73 @@ public:
         return ret == INT_MAX ? -1 : ret;
     }
 
+    int byDP(vector<int>& nums, int k) {
+        int n = nums.size();
+
+        std::function<bool(int, int&)> checkDup = [&](int state, int& value) {
+            vector<int> subsetNums;
+            for (int i = 0; i < n; ++i) {
+                if ((state >> i) & 1) {
+                    subsetNums.push_back(nums[i]);
+                }
+            }
+            sort(subsetNums.begin(),subsetNums.end());
+            for (int i = 1; i < subsetNums.size(); ++i) {
+                if (subsetNums[i - 1] == subsetNums[i]) {
+                    return true;
+                }
+            }
+            value = subsetNums.back() - subsetNums.front();
+            return false;
+        };
+
+        // <state, value>
+        // state: the binary representation of 1 subset, which is containing (n/k) 1-bits
+        // value: incompatibility of the state
+        vector<pair<int, int>> pairs;
+        // Gosper's hack: Iterate all the n-bit state where there are (n/k)) 1-bits.
+        for (int state = (1 << (n / k)) - 1; state < (1 << n);) {
+            int value;
+            if (!checkDup(state, value)) {
+                pairs.emplace_back(state, value);
+            }
+
+            int c = state & - state;
+            int r = state + c;
+            state = (((r ^ state) >> 2) / c) | r;
+        }
+
+        // result: binary representation of used nums
+        vector<int> results;
+        for (int state = 0; state < (1 << n); ++state) {
+            if (__builtin_popcount(state) % (n / k) == 0) {
+                results.push_back(state);
+            }
+        }
+        std::reverse(results.begin(), results.end());
+
+        // dp[i][result]: considering states[0:i], the incompatibility of result
+        int dp[1 << n];
+        std::fill(dp, dp + (1 << n), INT_MAX / 2);
+        dp[0] = 0;
+        for (const auto& [state, value] : pairs) {
+            for (int result : results) {
+                if ((result & state) != state) {
+                    continue;
+                }
+                dp[result] = std::min(dp[result], dp[result - state] + value);
+            }
+        }
+
+        int ret = dp[(1 << n) - 1];
+        if (ret == INT_MAX / 2) {
+            ret = -1;
+        }
+        return ret;
+    }
+
     int minimumIncompatibility(vector<int>& nums, int k) {
-        return byDFS(nums, k);
+        //return byDFS(nums, k);
+        return byDP(nums, k);
     }
 };
