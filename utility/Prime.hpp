@@ -1,4 +1,4 @@
-vector<int> findPrinesLT(int n) {
+vector<int> findPrimesLT(int n) {
     vector<int> primes;
 
     bool isPrimes[n];
