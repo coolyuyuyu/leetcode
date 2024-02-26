@@ -1,21 +1,30 @@
 class Solution {
 public:
     // Time: O(2^n)
-    int dfs(const vector<int>& nums, int index, int k, vector<int>& cnts) {
-        if (index == nums.size()) {
-            return 1;
-        }
-        int num = nums[index];
+    int dfs(vector<int>& nums, int k) {
+        int n = nums.size();
 
-        int takeN = dfs(nums, index + 1, k, cnts);
-        if ((k <= num && cnts[num - k]) || (num + k < cnts.size() && cnts[num + k])) {
-            return takeN;
-        }
+        int cnts[1001];
+        std::fill(cnts, cnts + 1001, 0);
+        std::function<int(int)> f = [&](int cur) {
+            if (cur >= n) {
+                return 1;
+            }
 
-        ++cnts[num];
-        int takeY = dfs(nums, index + 1, k, cnts);
-        --cnts[num];
-        return takeN + takeY;
+            int num = nums[cur];
+            int takeN = f(cur + 1);
+            if ((num - k >= 0 && cnts[nums[cur] - k]) || (num + k <= 1000 && cnts[num + k])) {
+                return takeN;
+            }
+            else {
+                ++cnts[num];
+                int takeY = f(cur + 1);
+                --cnts[num];
+                return takeN + takeY;
+            }
+        };
+
+        return f(0) - 1;
     }
 
     // Time: O(nlogn)
@@ -56,9 +65,7 @@ public:
     }
 
     int beautifulSubsets(vector<int>& nums, int k) {
-        //vector<int> cnts(1001, 0);
-        //return dfs(nums, 0, k, cnts) - 1;
-
-        return groupAndCount(nums, k);
+        return dfs(nums, k);
+        //return groupAndCount(nums, k);
     }
 };
