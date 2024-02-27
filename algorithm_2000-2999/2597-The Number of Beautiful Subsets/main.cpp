@@ -28,36 +28,37 @@ public:
     }
 
     // Time: O(nlogn)
-    int groupAndCount(const vector<int>& nums, int k) {
-        unordered_map<int, vector<pair<int, int>>> reminder2numcnt; { // reminder -> vector<pair<num, cnt>>
+    int dp(vector<int>& nums, int k) {
+        unordered_map<int, vector<pair<int, int>>> reminder2numcnts; {
             unordered_map<int, int> num2cnt;
             for (int num : nums) {
                 ++num2cnt[num];
             }
-
-            for (const auto [num, cnt] : num2cnt) {
-                reminder2numcnt[num % k].emplace_back(num, cnt);
+            for (const auto& [num, cnt] : num2cnt) {
+                reminder2numcnts[num % k].emplace_back(num, cnt);
             }
         }
 
         int ret = 1;
-        for (auto& [_, arr] : reminder2numcnt) {
-            std::sort(
-                arr.begin(), arr.end(),
-                [](const pair<int, int>& p1, const pair<int, int>& p2){ return p1.first < p2.first; });
+        for (auto& [_, numcnts] : reminder2numcnts) {
+            std::sort(numcnts.begin(), numcnts.end(), [](auto& nc1, auto& nc2){ return nc1.first < nc2.first; });
 
+            // house robber
+            // takeN[i]: the number of combinations from numcnts[0:i], and numcnts[i] is included in the combinations
+            // takeY[i]: the number of combinations from numcnts[0:i], and numcnts[i] is NOT included in the combinations
             int takeN = 1, takeY = 0;
-            for (int i = 0; i < arr.size(); ++i) {
-                int tmpTakeN = takeN, tmpTakeY = takeY;
-                if (0 < i && (arr[i].first - arr[i - 1].first) == k) {
-                    takeN = tmpTakeN + tmpTakeY;
-                    takeY = tmpTakeN * (pow(2, arr[i].second) - 1);
+            for (int i = 0; i < numcnts.size(); ++i) {
+                int tmpN = takeN, tmpY = takeY;
+                if (i > 0 && numcnts[i].first - numcnts[i - 1].first == k) {
+                    takeN = tmpN + tmpY;
+                    takeY = tmpN * ((1 << numcnts[i].second) - 1);
                 }
                 else {
-                    takeN = tmpTakeN + tmpTakeY;
-                    takeY = (tmpTakeN + tmpTakeY) * (pow(2, arr[i].second) - 1);
+                    takeN = tmpN + tmpY;
+                    takeY = (tmpN + tmpY) * ((1 << numcnts[i].second) - 1);
                 }
             }
+
             ret *= (takeN + takeY);
         }
 
@@ -65,7 +66,7 @@ public:
     }
 
     int beautifulSubsets(vector<int>& nums, int k) {
-        return dfs(nums, k);
-        //return groupAndCount(nums, k);
+        //return dfs(nums, k);
+        return dp(nums, k);
     }
 };
