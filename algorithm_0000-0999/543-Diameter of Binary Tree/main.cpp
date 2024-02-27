@@ -18,10 +18,9 @@ public:
 
             int lftH = dfs(root->left);
             int rhtH = dfs(root->right);
-            ret = std::max(ret, lftH+ rhtH);
+            ret = std::max(ret, lftH + rhtH);
             return std::max(lftH, rhtH) + 1;
         };
-
         dfs(root);
 
         return ret;
