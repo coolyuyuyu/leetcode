@@ -13,16 +13,15 @@ class Solution {
 public:
     int maxPathSum(TreeNode* root) {
         int maxTurnPathSum = INT_MIN;
+
         std::function<int(TreeNode*)> maxDownPathSum = [&](TreeNode* root) {
-            if (!root) {
-                return 0;
-            }
+            if (!root) { return 0; }
 
             int lftDownPathSum = maxDownPathSum(root->left);
             int rhtDownPathSum = maxDownPathSum(root->right);
-            maxTurnPathSum = std::max(maxTurnPathSum, root->val + std::max(0, lftDownPathSum) + std::max(0, rhtDownPathSum));
+            maxTurnPathSum = std::max(maxTurnPathSum, root->val + std::max(lftDownPathSum, 0) + std::max(rhtDownPathSum, 0));
 
-            return root->val + std::max({0, lftDownPathSum, rhtDownPathSum});
+            return root->val + std::max({lftDownPathSum, rhtDownPathSum, 0});
         };
         maxDownPathSum(root);
 
