@@ -11,47 +11,47 @@
  */
 class Solution {
 public:
-    void findBottomLeftValue_Recursive(TreeNode* root, int depth, int& outDepth, int& outVal) {
-        if (!root) {
-            return;
-        }
+    int recursive(TreeNode* root) {
+        int maxLvl = -1;
+        int ret;
+        std::function<void(TreeNode*, int)> f = [&](TreeNode* root, int lvl) {
+            if (!root) { return; }
 
-        if (outDepth < depth) {
-            outDepth = depth;
-            outVal = root->val;
-        }
+            if (lvl > maxLvl) {
+                maxLvl = lvl;
+                ret = root->val;
+            }
+            f(root->left, lvl + 1);
+            f(root->right, lvl + 1);
+        };
+        f(root, 0);
 
-        findBottomLeftValue_Recursive(root->left, depth + 1, outDepth, outVal);
-        findBottomLeftValue_Recursive(root->right, depth + 1, outDepth, outVal);
+        return ret;
     }
 
-    int findBottomLeftValue_Iterative(TreeNode* root) {
-        // reverse level-order traversal
+    int iterative(TreeNode* root) {
         queue<TreeNode*> q;
         if (root) {
-            q.push(root);
+            q.emplace(root);
         }
+
         while (!q.empty()) {
             root = q.front();
             q.pop();
 
             if (root->right) {
-                q.push(root->right);
+                q.emplace(root->right);
             }
             if (root->left) {
-                q.push(root->left);
-            }
+                q.emplace(root->left);
+            }  
         }
 
         return root->val;
     }
 
     int findBottomLeftValue(TreeNode* root) {
-        //int outDepth = -1;
-        //int outVal;
-        //findBottomLeftValue_Recursive(root, 0, outDepth, outVal);
-        //return outVal;
-
-        return findBottomLeftValue_Iterative(root);
+        //return recursive(root);
+        return iterative(root);
     }
 };
