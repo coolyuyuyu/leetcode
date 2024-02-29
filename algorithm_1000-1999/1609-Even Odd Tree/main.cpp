@@ -12,35 +12,29 @@
 class Solution {
 public:
     bool isEvenOddTree(TreeNode* root) {
-        queue<TreeNode*> q;
-        if (root) {
-            q.push(root);
-        }
-
-        for (bool isEven = true; !q.empty(); isEven = !isEven) {
-            int* pPreVal = nullptr;
-            for (size_t i = q.size(); 0 < i; --i) {
+        queue<TreeNode*> q({root});
+        for (int lvl = 0; !q.empty(); ++lvl) {
+            int eoBit = lvl & 1;
+            std::function<bool(int, int)> cmp;
+            int pre = lvl & 1 ? INT_MAX : INT_MIN;
+            if (lvl & 1) {
+                cmp = std::less<int>();
+            }
+            else {
+                cmp = std::greater<int>();
+            }
+            for (int i = q.size(); 0 < i--;) {
                 TreeNode* node = q.front();
                 q.pop();
+                if (!node) { continue; }
 
-                if (isEven) {
-                    if (node->val % 2 == 0 || (pPreVal && (node->val <= *pPreVal))) {
-                        return false;
-                    }
+                if ((node->val & 1) ^ eoBit == 0 || !cmp(node->val, pre)) {
+                    return false;
                 }
-                else {
-                    if (node->val % 2 == 1 || (pPreVal && (*pPreVal <= node->val))) {
-                        return false;
-                    }
-                }
-                pPreVal = &(node->val);
+                pre = node->val;
 
-                if (node->left) {
-                    q.push(node->left);
-                }
-                if (node->right) {
-                    q.push(node->right);
-                }
+                q.push(node->left);
+                q.push(node->right);
             }
         }
 
