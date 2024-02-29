@@ -21,12 +21,12 @@ public:
         }
         else {
             int index = *m_val2indexes[val].begin();
-            int val2 = m_vals.back();
-            int index2 = m_vals.size() - 1;
+            int valMoved = m_vals.back();
+            int indexMoved = m_vals.size() - 1;
             m_vals.pop_back();
-            m_vals[index] = val2;
-            m_val2indexes[val2].erase(index2);
-            m_val2indexes[val2].insert(index);
+            m_vals[index] = valMoved;
+            m_val2indexes[valMoved].erase(indexMoved);
+            m_val2indexes[valMoved].insert(index);
             m_val2indexes[val].erase(index);
         }
         if (m_val2indexes[val].empty()) {
