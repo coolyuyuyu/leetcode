@@ -1,38 +1,21 @@
 class Solution {
 public:
-    // Time: O(NlogN)
-    vector<int> sortAndSquare(vector<int>& nums) {
-        auto comp = [](int lft, int rht) {
-            return abs(lft) < abs(rht);
-        };
-        std::sort(nums.begin(), nums.end(), comp);
+    // Time: O(n)
+    vector<int> sortedSquares(vector<int>& nums) {
+        int n = nums.size();
 
-        for (int& num : nums) {
-            num *= num;
-        }
-
-        return nums;
-    }
-
-    // Time: O(N)
-    vector<int> linearConverge(vector<int>& nums) {
-        vector<int> ans(nums.size());
-        for (size_t lft = 0, rht = nums.size(), i = nums.size(); 0 < i--;) {
-            if (abs(nums[lft]) < abs(nums[--rht])) {
-                ans[i] = nums[rht] * nums[rht];
+        vector<int> ret(n);
+        for (int lft = 0, rht = n - 1, i = n - 1; lft <= rht; --i) {
+            if (abs(nums[lft]) <= abs(nums[rht])) {
+                ret[i] = nums[rht] * nums[rht];
+                --rht;
             }
             else {
-                ans[i] = nums[lft] * nums[lft];
+                ret[i] = nums[lft] * nums[lft];
                 ++lft;
-                ++rht;
             }
         }
 
-        return ans;
-    }
-
-    vector<int> sortedSquares(vector<int>& nums) {
-        //return sortAndSquare(nums);
-        return linearConverge(nums);
+        return ret;
     }
 };
