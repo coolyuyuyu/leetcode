@@ -1,23 +1,13 @@
 class Solution {
 public:
-    struct CustomLess{
-    public:
-        CustomLess(const string& s)
-            : m_vals(26, 0) {
-            for (size_t i = 0; i < s.size(); ++i) {
-                m_vals[s[i] - 'a'] = i + 1;
-            }
+    string customSortString(string order, string s) {
+        int weights[26];
+        std::fill(weights, weights + 26, INT_MAX);
+        for (int i = 0; i < order.size(); ++i) {
+            weights[order[i] - 'a'] = i;
         }
 
-        bool operator() (const char x, const char y) const{
-            return m_vals[x - 'a'] < m_vals[y - 'a'];
-        }
-    private:
-        vector<int> m_vals;
-    };
-
-    string customSortString(string S, string T) {
-        sort(T.begin(), T.end(), CustomLess(S));
-        return T;
+        std::sort(s.begin(), s.end(), [&](char c1, char c2){ return weights[c1 - 'a'] < weights[c2 - 'a']; });
+        return s;
     }
 };
