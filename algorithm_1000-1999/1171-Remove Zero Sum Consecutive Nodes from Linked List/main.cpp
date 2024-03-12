@@ -11,33 +11,30 @@
 class Solution {
 public:
     ListNode* removeZeroSumSublists(ListNode* head) {
-        unordered_map<int, ListNode**> m;
+        head = new ListNode(0, head);
 
-        int sum = 0;
-        for (ListNode** ppCur = &head; *ppCur; ppCur = &((*ppCur)->next)) {
-            auto itr = m.find(sum);
-            if (itr != m.end()) {
-                ListNode** ppPrev = itr->second;
-                int tmpSum = sum + (*ppPrev)->val;
-                for (ListNode** ppDel = &((*ppPrev)->next); ppDel != ppCur; ppDel = &((*ppDel)->next)) {
-                    m.erase(tmpSum);
-                    tmpSum += (*ppDel)->val;
-                }
-                *ppPrev = *ppCur;
+        int presum = 0;
+        unordered_map<int, ListNode*> presum2node;
+        for (ListNode* cur = head; cur; cur = cur->next) {
+            presum += cur->val;
+
+            auto itr = presum2node.find(presum);
+            if (itr == presum2node.end()) {
+                presum2node.emplace(presum, cur);
             }
             else {
-                m.emplace(sum, ppCur);
+                auto [_, pre] = *itr;
+
+                int sum = presum;
+                for (ListNode* node = pre->next; node != cur; node = node->next) {
+                    sum += node->val;
+                    presum2node.erase(sum);
+                }
+
+                pre->next = cur->next;
             }
-
-            sum += (*ppCur)->val;
         }
 
-        auto itr = m.find(sum);
-        if (itr != m.end()) {
-            ListNode** ppPrev = itr->second;
-            *ppPrev = nullptr;
-        }
-
-        return head;
+        return head->next;
     }
 };
