@@ -63,7 +63,6 @@ public:
                 if (r + 1 < m) {
                     numEnemy += btm[r + 1][c];
                 }
-                cout << r << " " << c << "->" << numEnemy << endl;
                 ret = std::max(ret, numEnemy);
             }
         }
