@@ -6,7 +6,7 @@ public:
     }
 
     int pickIndex() {
-        int i = std::rand() % m_presum.back();
+        int i = rand() % m_presum.back();
         return std::distance(m_presum.begin(), std::upper_bound(m_presum.begin(), m_presum.end(), i));
     }
 
