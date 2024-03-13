@@ -1,18 +1,22 @@
 class Solution {
 public:
     vector<int> diStringMatch(string s) {
-        vector<int> ans(s.size() + 1);
-        int lo = 0, hi = s.size();
-        for (size_t i = 0; i < s.size(); ++i) {
-            if (s[i] == 'I') {
-                ans[i] = lo++;
-            }
-            else {
-                ans[i] = hi--;
-            }
-        }
-        ans.back() = lo++;
+        s = "I" + s;
+        int n = s.size();
 
-        return ans;
+        vector<int> ret(n);
+        for (int i = 0; i < n;) {
+            int cnt = 1;
+            while (i + cnt < n && s[i + cnt] == 'D') {
+                ++cnt;
+            }
+            for (int j = 0; j < cnt; ++j) {
+                ret[i + j] = i + cnt - j - 1;
+            }
+
+            i += cnt;
+        }
+
+        return ret;
     }
 };
