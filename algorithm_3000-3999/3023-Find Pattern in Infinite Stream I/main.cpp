@@ -29,13 +29,8 @@ public:
         int n = pattern.size();
         vector<int> lps = computeLPS(pattern);
 
-        int j = (stream->next() == pattern[0] ? 1 : 0);
-        if (j == n) {
-            return 0;
-        }
-
-        int i = 1;
-        for (; j < n; ++i) {
+        int i = 0;
+        for (int j = 0; j < n; ++i) {
             int b = stream->next();
             while (0 < j && b != pattern[j]) {
                 j = lps[j - 1];
