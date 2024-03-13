@@ -14,11 +14,8 @@ public:
             lps[i] = j + (needle[j] == needle[i] ? 1 : 0);
         }
 
-        int j = (haystack[0] == needle[0] ? 1 : 0);
-        if (j == n) {
-            return 0;
-        }
-        for (int i = 1; i < m; ++i) {
+        int j = 0;
+        for (int i = 0; i < m; ++i) {
             while (0 < j && haystack[i] != needle[j]) {
                 j = lps[j - 1];
             }
