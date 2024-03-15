@@ -1,21 +1,23 @@
 #include <cassert>
 #include <vector>
 
+template<typename T, typename Alloc = std::allocator<T>>
 class BinaryIndexedTree {
 public:
-    BinaryIndexedTree(std::size_t size)
+    explicit BinaryIndexedTree(std::size_t size)
         : m_size(size)
         , m_nums(m_size + 1)
         , m_sums(m_size + 1) {
     }
 
-    BinaryIndexedTree(const std::vector<int>& nums)
-        : m_size(nums.size())
+    template<typename InputIterator>
+    explicit BinaryIndexedTree(InputIterator first, InputIterator last)
+        : m_size(std::distance(first, last))
         , m_nums(m_size + 1)
         , m_sums(m_size + 1) {
         std::size_t n = size();
-        for (std::size_t i = 0; i < n; ++i) {
-            set(i, nums[i]);
+        for (std::size_t i = 0; first != last; ++i, ++first) {
+            set(i, first);
         }
     }
 
@@ -23,27 +25,27 @@ public:
         return m_size;
     }
 
-    void set(std::size_t i, int val) {
+    void set(std::size_t i, T val) {
         setByIdx(i + 1, val);
     }
 
-    int get(std::size_t i) const {
+    T get(std::size_t i) const {
         return getByIdx(i + 1);
     }
 
-    int sum(std::size_t i) const {
+    T sum(std::size_t i) const {
        return sumByIdx(i + 1);
     }
 
-    int sum(std::size_t lo, std::size_t hi) const {
+    T sum(std::size_t lo, std::size_t hi) const {
         return sumByIdx(hi + 1) - sumByIdx(lo);
     }
 
 private:
-    void setByIdx(std::size_t i, int val) {
+    void setByIdx(std::size_t i, T val) {
         assert(0 < i && i <= size());
 
-        int diff = val - m_nums[i];
+        T diff = val - m_nums[i];
         m_nums[i] = val;
 
         std::size_t n = size();
@@ -52,14 +54,14 @@ private:
         }
     }
 
-    int getByIdx(std::size_t i) const {
+    T getByIdx(std::size_t i) const {
         assert(0 < i && i <= size());
 
         return m_nums[i];
     }
 
-    int sumByIdx(std::size_t i) const {
-        int ret = 0;
+    T sumByIdx(std::size_t i) const {
+        T ret = 0;
         for (; i; i -= lowbit(i)) {
             ret += m_sums[i];
         }
@@ -72,8 +74,8 @@ private:
     }
 
     std::size_t m_size;
-    std::vector<int> m_nums;
-    std::vector<int> m_sums;
+    std::vector<T, Alloc> m_nums;
+    std::vector<T, Alloc> m_sums;
 };
 
 class BinaryIndexedTree2D {
