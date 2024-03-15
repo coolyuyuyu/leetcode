@@ -25,19 +25,19 @@ public:
         return m_size;
     }
 
-    void set(std::size_t i, T val) {
+    inline void set(std::size_t i, T val) {
         setByIdx(i + 1, val);
     }
 
-    T get(std::size_t i) const {
+    inline T get(std::size_t i) const {
         return getByIdx(i + 1);
     }
 
-    T sum(std::size_t i) const {
+    inline T sum(std::size_t i) const {
        return sumByIdx(i + 1);
     }
 
-    T sum(std::size_t lo, std::size_t hi) const {
+    inline T sum(std::size_t lo, std::size_t hi) const {
         return sumByIdx(hi + 1) - sumByIdx(lo);
     }
 
