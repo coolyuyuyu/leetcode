@@ -41,7 +41,7 @@ public:
         return {bgn, end};
     }
 
-    vector<vector<int>> insert(vector<vector<int>>& intervals, vector<int>& newInterval) {
+    vector<vector<int>> byBinarySearch(vector<vector<int>>& intervals, vector<int>& newInterval) {
         //auto [bgn, end] = searchInsert1(intervals, newInterval);
         auto [bgn, end] = searchInsert2(intervals, newInterval);
         if (bgn == end) {
@@ -54,5 +54,31 @@ public:
         }
 
         return intervals;
+    }
+
+    vector<vector<int>> byLinearSearch(vector<vector<int>>& intervals, vector<int>& newInterval) {
+        vector<vector<int>> ret;
+
+        int i = 0, n = intervals.size();
+        for (; i < n && intervals[i][1] < newInterval[0]; ++i) {
+            ret.push_back(intervals[i]);
+        }
+
+        for (; i < n && intervals[i][0] <= newInterval[1]; ++i) {
+            newInterval[0] = std::min(newInterval[0], intervals[i][0]);
+            newInterval[1] = std::max(newInterval[1], intervals[i][1]);
+        }
+        ret.push_back(newInterval);
+
+        for (; i < n; ++i) {
+            ret.push_back(intervals[i]);
+        }
+
+        return ret;
+    }
+
+    vector<vector<int>> insert(vector<vector<int>>& intervals, vector<int>& newInterval) {
+        //return byBinarySearch(intervals, newInterval);
+        return byLinearSearch(intervals, newInterval);
     }
 };
