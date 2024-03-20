@@ -11,28 +11,23 @@
 class Solution {
 public:
     ListNode* mergeInBetween(ListNode* list1, int a, int b, ListNode* list2) {
-        ListNode** ppForeward;
-        ListNode** ppBackward;
-        {
-            ListNode** ppFast = &list1;
-            for (int i = 0; i < a; ++i) {
-                ppFast = &((*ppFast)->next);
-            }
-            ppForeward = ppFast;
-
-            for (int i = 0, diff = b - a + 1; i < diff; ++i) {
-                ppFast = &((*ppFast)->next);
-            }
-            ppBackward = ppFast;
+        ListNode **ppNode1 = &list1;
+        for (int i = a; 0 < i--;) {
+            ppNode1 = &((*ppNode1)->next);
         }
-
-        *ppForeward = list2;
+        ListNode **ppBgn1 = ppNode1;
+        for (int i = b - a + 1; 0 < i--;) {
+            ppNode1 = &((*ppNode1)->next);
+        }
+        ListNode **ppEnd1 = ppNode1;
 
         ListNode** ppNode2 = &list2;
         while (*ppNode2) {
             ppNode2 = &((*ppNode2)->next);
         }
-        *ppNode2 = *ppBackward;
+
+        *ppBgn1 = list2;
+        *ppNode2 = *ppEnd1;
 
         return list1;
     }
