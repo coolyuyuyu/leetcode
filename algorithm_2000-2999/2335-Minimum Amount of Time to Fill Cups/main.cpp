@@ -1,33 +1,51 @@
 class Solution {
 public:
-    int fillCups(vector<int>& amounts) {
-        int secs = 0;
-
+    int byPQ(vector<int>& nums) {
         priority_queue<int> pq;
-        for (int amount : amounts) {
-            if (0 < amount) {
-                pq.push(amount);
+        for (int num : nums) {
+            if (num > 0) {
+                pq.emplace(num);
             }
         }
-        while (2 < pq.size()) {
-            int a1 = pq.top();
-            pq.pop();
-            int a2 = pq.top();
-            pq.pop();
 
-            if (1 < a1) {
-                pq.push(a1 - 1);
-            }
-            if (1 < a2) {
-                pq.push(a2 - 1);
+        int ret = 0;
+        while (pq.size() >= 2) {
+            vector<int> tmps;
+            for (int i = 0; i < 2; ++i) {
+                auto num = pq.top(); pq.pop();
+                tmps.emplace_back(num);
             }
 
-            ++secs;
+            ret += 1;
+
+            for (int num : tmps) {
+                if (num - 1 > 0) {
+                    pq.emplace(num - 1);
+                }
+            }
         }
         if (!pq.empty()) {
-            secs += pq.top();
+            assert(pq.size() == 1);
+            int num = pq.top(); pq.pop();
+            ret += num;
         }
 
-        return secs;
+        return ret;
+    }
+
+    int byGreedy(vector<int>& nums) {
+        int sum = accumulate(nums.begin(), nums.end(), 0);
+        int max = *std::max_element(nums.begin(), nums.end());
+        if (max <= (sum + 1) / 2) {
+            return (sum + 1) / 2;
+        }
+        else {
+            return max;
+        }
+    }
+
+    int fillCups(vector<int>& amount) {
+        //return byPQ(amount);
+        return byGreedy(amount);
     }
 };
