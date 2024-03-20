@@ -1,36 +1,65 @@
 class Solution {
 public:
-    vector<int> rearrangeBarcodes_Heap(vector<int>& barcodes) {
-        typedef pair<int, int> NumCount;
-        auto comp = [](const NumCount& nc1, const NumCount& nc2) {
-            return (nc1.second < nc2.second);
-        };
-        priority_queue<NumCount, vector<NumCount>, decltype(comp)> pq(comp); { // max_heap
-            unordered_map<int, int> counts;
-            for (int barcode : barcodes) {
-                ++counts[barcode];
-            }
-
-            for (const auto& p : counts) {
-                pq.push(p);
-            }
+    vector<int> byPQ(vector<int>& barcodes) {
+        unordered_map<int, int> cnts;
+        for (int code : barcodes) {
+            ++cnts[code];
         }
 
-        for (size_t index = 0; !pq.empty(); pq.pop()) {
-            const NumCount& nc = pq.top();
-            for (int i = 0; i < nc.second; ++i) {
-                if (barcodes.size() <= index) {
-                    index = 1;
+        priority_queue<pair<int, int>> pq;
+        for (const auto& [code, cnt] : cnts) {
+            pq.emplace(cnt, code);
+        }
+
+        assert(pq.top().first <= (barcodes.size() + 1) / 2);
+
+        vector<int> ret;
+        while (pq.size() >= 2) {
+            auto [cnt1, code1] = pq.top(); pq.pop();
+            auto [cnt2, code2] = pq.top(); pq.pop();
+            ret.push_back(code1);
+            ret.push_back(code2);
+            if (cnt1 - 1 > 0) { pq.emplace(cnt1 - 1, code1); }
+            if (cnt2 - 1 > 0) { pq.emplace(cnt2 - 1, code2); }
+        }
+        if (!pq.empty()) {
+            assert(pq.top().first == 1);
+            ret.push_back(pq.top().second);
+        }
+
+        return ret;
+    }
+
+    vector<int> byGreedy(vector<int>& barcodes) {
+        unordered_map<int, int> cnts;
+        for (int code : barcodes) {
+            ++cnts[code];
+        }
+
+        priority_queue<pair<int, int>> pq;
+        for (const auto& [code, cnt] : cnts) {
+            pq.emplace(cnt, code);
+        }
+
+        assert(pq.top().first <= (barcodes.size() + 1) / 2);
+
+        vector<int> ret(barcodes.size());
+        for (int i = 0; !pq.empty();) {
+            auto [cnt, code] = pq.top(); pq.pop();
+            for (; 0 < cnt--; ) {
+                ret[i] = code;
+                i += 2;
+                if (i >= ret.size()) {
+                    i = 1;
                 }
-                barcodes[index] = nc.first;
-                index += 2;
             }
         }
 
-        return barcodes;
+        return ret;
     }
 
     vector<int> rearrangeBarcodes(vector<int>& barcodes) {
-        return rearrangeBarcodes_Heap(barcodes);
+        //return byPQ(barcodes);
+        return byGreedy(barcodes);
     }
 };
