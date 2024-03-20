@@ -9,31 +9,34 @@ public:
         for (char c : s) {
             ++cnts[c];
         }
+
         priority_queue<pair<int, char>> pq;
         for (const auto& [c, cnt] : cnts) {
             pq.emplace(cnt, c);
         }
 
         string ret;
-        while (!pq.empty()) {
-            if (pq.size() < k && 1 < pq.top().first) {
-                return "";
+        while (pq.size() >= k) {
+            vector<pair<int, char>> tmps;
+            for (int i = 0; i < k; ++i) {
+                auto [cnt, c] = pq.top(); pq.pop();
+                ret.push_back(c);
+                tmps.emplace_back(cnt, c);
             }
 
-            vector<pair<int, char>> tmp;
-            int n = std::min<int>(k, pq.size());
-            for (int i = 0; i < n; ++i) {
-                auto [cnt, c] = pq.top();
-                pq.pop();
-
-                ret.push_back(c);
-                if (1 < cnt) {
-                    tmp.emplace_back(cnt - 1, c);
+            for (const auto& [cnt, c] : tmps) {
+                if (cnt - 1 > 0) {
+                    pq.emplace(cnt - 1, c);
                 }
             }
-
-            for (const auto& [cnt, c] : tmp) {
-                pq.emplace(cnt, c);
+        }
+        if (!pq.empty()) {
+            if (pq.top().first > 1) {
+                return "";
+            }
+            while (!pq.empty()) {
+                auto [_, c] = pq.top(); pq.pop();
+                ret.push_back(c);
             }
         }
 
