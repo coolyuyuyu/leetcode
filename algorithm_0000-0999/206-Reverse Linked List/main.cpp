@@ -35,7 +35,7 @@ public:
     }
 
     ListNode* reverseList(ListNode* head) {
-        return reverseList_v1(head);
-        //return reverseList_v2(head);
+        //return reverseList_v1(head);
+        return reverseList_v2(head);
     }
 };
