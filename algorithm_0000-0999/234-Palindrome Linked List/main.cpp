@@ -37,18 +37,12 @@ public:
     }
 
     bool isPalindrome(ListNode* head) {
-        if (!head) {
-            return true;
-        }
-
-        ListNode* pNode1 = head;
-        ListNode* pNode2 = reverseList(middleNode(head));
-        while (pNode2) {
-            if (pNode1->val != pNode2->val) {
+        ListNode* node1 = head;
+        ListNode* node2 = reverseList(middleNode(head));
+        for (; node2; node1 = node1->next, node2 = node2->next) {
+            if (node1->val != node2->val) {
                 return false;
             }
-            pNode1 = pNode1->next;
-            pNode2 = pNode2->next;
         }
 
         return true;
