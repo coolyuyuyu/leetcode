@@ -28,6 +28,12 @@ public:
         build(l.begin, l.end());
     }
 
+    const T& top() const {
+        assert(!empty());
+
+        return m_vals[0];
+    }
+
     T query(size_t lo, size_t hi) const {
         if (hi < lo || size() <= hi) {
             throw std::out_of_range("invalid range");
@@ -41,6 +47,33 @@ public:
             throw std::out_of_range("invalid subscript");
         }
         set(0, size() - 1, 0, idx, val);
+    }
+
+    const T& operator[](size_t idx) const {
+        assert(idx < size());
+
+        size_t l = 0, h = size() - 1, i = 0;
+        while (l < h) {
+            size_t m = l + (h - l) / 2;
+            if (idx <= m) {
+                h = m;
+                i = lft(i);
+            }
+            else {
+                l = m + 1;
+                i = rht(i);
+            }
+        }
+
+        return m_vals[i];
+    }
+
+    const T& at(size_t idx) const {
+        if (size() <= idx) {
+            throw std::out_of_range("invalid subscript");
+        }
+
+        return (*this)[idx];
     }
 
     size_t size() const { return m_size; }
@@ -161,6 +194,12 @@ public:
         m_root = build(l.begin, l.end());
     }
 
+    const T& top() const {
+        assert(!empty());
+
+        return m_root->val;
+    }
+
     T query(size_t lo, size_t hi) const {
         if (hi < lo || size() <= hi) {
             throw std::out_of_range("invalid range");
@@ -174,6 +213,34 @@ public:
             throw std::out_of_range("invalid subscript");
         }
         set(0, size() - 1, m_root, idx, val);
+    }
+
+    const T& operator[](size_t idx) const {
+        assert(idx < size());
+
+        size_t l = 0, h = size() - 1;
+        Node* node = m_root;
+        while (l < h) {
+            size_t m = l + (h - l) / 2;
+            if (idx <= m) {
+                h = m;
+                node = node->lft;
+            }
+            else {
+                l = m + 1;
+                node = node->rht;
+            }
+        }
+
+        return node->val;
+    }
+
+    const T& at(size_t idx) const {
+        if (size() <= idx) {
+            throw std::out_of_range("invalid subscript");
+        }
+
+        return (*this)[idx];
     }
 
     size_t size() const { return m_size; }
