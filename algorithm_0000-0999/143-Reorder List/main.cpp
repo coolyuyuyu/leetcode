@@ -11,33 +11,27 @@
 class Solution {
 public:
     pair<ListNode*, ListNode*> splitList(ListNode* head) {
-        ListNode *pFast = head, **ppSlow = &head;
-        while (pFast) {
-            pFast = pFast->next;
-            if (pFast) {
-                pFast = pFast->next;
+        ListNode **ppFast = &head, **ppSlow = &head;
+        while (*ppFast) {
+            ppFast = &((*ppFast)->next);
+            if (*ppFast) {
+                ppFast = &((*ppFast)->next);
             }
             ppSlow = &((*ppSlow)->next);
         }
 
-        ListNode *head1 = head;
-        ListNode* head2 = *ppSlow;
+        ListNode *head1 = head, *head2 = *ppSlow;
         *ppSlow = nullptr;
-
         return {head1, head2};
     }
 
     ListNode* reverseList(ListNode* head) {
-        if (!head) {
-            return nullptr;
-        }
-
-        ListNode** ppHead = &head;
-        for (ListNode* pCur = *ppHead; pCur->next;) {
-            ListNode* pNxt = pCur->next;
-            pCur->next = pNxt->next;
-            pNxt->next = *ppHead;
-            *ppHead = pNxt;
+        ListNode **ppHead = &head;
+        for (ListNode *cur = *ppHead; cur && cur->next;) {
+            ListNode* nxt = cur->next;
+            cur->next = nxt->next;
+            nxt->next = *ppHead;
+            *ppHead = nxt;
         }
 
         return head;
@@ -45,17 +39,18 @@ public:
 
     ListNode* interleaveList(ListNode* head1, ListNode* head2) {
         ListNode *head = nullptr;
-        ListNode **ppCur = &head;
-        while(head1) {
-            *ppCur = head1;
-            ppCur = &(head1->next);
+        ListNode **ppNode = &head;
+        while (head1) {
+            *ppNode = head1;
             head1 = head1->next;
+            ppNode = &((*ppNode)->next);
             if (head2) {
-                *ppCur = head2;
-                ppCur = &(head2->next);
+                *ppNode = head2;
                 head2 = head2->next;
+                ppNode = &((*ppNode)->next);
             }
         }
+
         return head;
     }
 
