@@ -1,342 +1,308 @@
-class RangeSumStrategy {
+namespace heap {
+template<typename T, typename BinaryOperation = std::plus<T>>
+class SegmentTree {
 public:
-    virtual void update(size_t i, int val) = 0;
-    virtual int sum(size_t lo, size_t hi) const = 0;
-};
+    template<typename InputIterator>
+    explicit SegmentTree(InputIterator first, InputIterator last)
+        : m_op()
+        , m_size(std::distance(first, last)) {
+        build(first, last);
+    }
 
-class RangeSumPrefixSum : public RangeSumStrategy {
-public:
-    RangeSumPrefixSum(vector<int>& nums)
-        : m_nums(nums)
-        , m_sums(nums) {
-        for (size_t i = 1; i < m_sums.size(); ++i) {
-            m_sums[i] += m_sums[i - 1];
+    template<typename InputIterator>
+    explicit SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op)
+        : m_op(op)
+        , m_size(std::distance(first, last)) {
+        build(first, last);
+    }
+
+    explicit SegmentTree(std::initializer_list<T> l)
+        : m_op()
+        , m_size(l.size()) {
+        build(l.begin, l.end());
+    }
+
+    T query(size_t lo, size_t hi) const {
+        if (hi < lo || size() <= hi) {
+            throw std::out_of_range("invalid range");
         }
+
+        return query(0, size() - 1, 0, lo, hi);
     }
 
-    void update(size_t i, int val) {
-        int diff = val - m_nums[i];
-        m_nums[i] = val;
-
-        for (; i < m_sums.size(); ++i) {
-            m_sums[i] += diff;
+    void set(size_t idx, const T& val) {
+        if (size() <= idx) {
+            throw std::out_of_range("invalid subscript");
         }
+        set(0, size() - 1, 0, idx, val);
     }
 
-    int sum(size_t lo, size_t hi) const {
-        return m_sums[hi] - (0 < lo ? m_sums[lo - 1] : 0);
-    }
+    size_t size() const { return m_size; }
+    bool empty() const { return m_size == 0; }
 
 private:
-    vector<int>& m_nums;
-    vector<int> m_sums;
-};
+    inline size_t lft(size_t i) const { return i * 2 + 1; }
+    inline size_t rht(size_t i) const { return i * 2 + 2; }
 
-class RangeSumSegmentTreeByHeap : public RangeSumStrategy {
-public:
-    RangeSumSegmentTreeByHeap(vector<int>& nums)
-        : m_size(nums.size()) {
-        if (0 < m_size) {
-            build(0, m_size - 1, 0, nums);
+    template<typename InputIterator>
+    void build(InputIterator first, InputIterator last) {
+        if (first != last) {
+            build(0, m_size - 1, 0, first);
         }
     }
 
-    void update(size_t i, int val) {
-        update(0, m_size - 1, 0, i, val);
-    }
+    template<typename InputIterator>
+    void build(size_t l, size_t h, size_t i, InputIterator& itr) {
+        assert(l <= h);
 
-    int sum(size_t lo, size_t hi) const {
-        return query(0, m_size - 1, 0, lo , hi);
-    }
-
-private:
-    inline size_t lftChildIndex(size_t parent) const {
-        return parent * 2 + 1;
-    }
-
-    inline size_t rhtChildIndex(size_t parent) const {
-        return parent * 2 + 2;
-    }
-
-    void build(size_t lo, size_t hi, size_t parent, const vector<int>& nums) {
-        assert(lo <= hi);
-
-        if (lo == hi) {
-            if (m_sums.size() <= parent) {
-                m_sums.resize(parent + 1);
+        if (l == h) {
+            if (m_vals.size() <= i) {
+                m_vals.resize(i + 1);
             }
-            m_sums[parent] = nums[lo];
+            m_vals[i] = *itr++;
+        }
+        else {
+            size_t m = l + (h - l) / 2;
+            build(l, m, lft(i), itr);
+            build(m + 1, h, rht(i), itr);
+            m_vals[i] = m_op(m_vals[lft(i)], m_vals[rht(i)]);
+        }
+    }
+
+    void set(size_t l, size_t h, size_t i, size_t idx, const T& val) {
+        assert(l <= h);
+
+        if (idx < l || h < idx) {
             return;
         }
 
-        size_t mid = lo + (hi - lo) / 2;
-        size_t lftChild = lftChildIndex(parent), rhtChild = rhtChildIndex(parent);
-        build(lo, mid, lftChild, nums);
-        build(mid + 1, hi, rhtChild, nums);
-        m_sums[parent] = m_sums[lftChild] + m_sums[rhtChild];
-    }
-
-    void update(size_t lo, size_t hi, size_t parent, size_t i, int val) {
-        assert(lo <= hi);
-
-        if (i < lo || hi < i) {
-            return;
-        }
-
-        if (lo == hi) {
-            assert(i == lo);
-            m_sums[parent] = val;
+        if (l == h) {
+            m_vals[i] = val;
         }
         else {
-            size_t mid = lo + (hi - lo) / 2;
-            size_t lftChild = lftChildIndex(parent), rhtChild = rhtChildIndex(parent);
-            update(lo, mid, lftChild, i, val);
-            update(mid + 1, hi, rhtChild, i, val);
-            m_sums[parent] = m_sums[lftChild] + m_sums[rhtChild];
+            size_t m = l + (h - l) / 2;
+            set(l, m, lft(i), idx, val);
+            set(m + 1, h, rht(i), idx, val);
+            m_vals[i] = m_op(m_vals[lft(i)], m_vals[rht(i)]);
         }
     }
 
-    int query(size_t lo, size_t hi, size_t parent, size_t i, size_t j) const {
-        assert(lo <= hi);
+    T query(size_t l, size_t h, size_t i, size_t lo, size_t hi) const {
+        assert(l <= h);
 
-        if (j < lo || hi < i) {
-            return 0;
-        }
-
-        if (i <= lo && hi <= j) {
-            return m_sums[parent];
+        if (lo <= l && h <= hi) {
+            return m_vals[i];
         }
         else {
-            size_t mid = lo + (hi - lo) / 2;
-            return query(lo, mid, lftChildIndex(parent), i, j) + query(mid + 1, hi, rhtChildIndex(parent), i, j);
+            size_t m = l + (h - l) / 2;
+            if (hi < l || m < lo) {
+                return query(m + 1, h, rht(i), lo, hi);
+            }
+            else if (hi < m + 1 || h < lo) {
+                return query(l, m, lft(i), lo, hi);
+            }
+            else {
+                return m_op(query(l, m, lft(i), lo, hi), query(m + 1, h, rht(i), lo, hi));
+            }
         }
     }
 
+    std::vector<T> m_vals;
+    BinaryOperation m_op;
     size_t m_size;
-    vector<int> m_sums;
 };
+}
 
-class RangeSumSegmentTreeByTree : public RangeSumStrategy {
-public:
-    RangeSumSegmentTreeByTree(vector<int>& nums)
-        : m_root(nums.empty() ? nullptr : build(0, nums.size() - 1, nums)) {
-    }
-
-    ~RangeSumSegmentTreeByTree() {
-        queue<TreeNode*> q;
-        if (m_root) {
-            q.push(m_root);
-        }
-        while (!q.empty()) {
-            TreeNode* node = q.front();
-            q.pop();
-
-            if (node->lft) {
-                q.push(node->lft);
-            }
-            if (node->rht) {
-                q.push(node->rht);
-            }
-
-            delete node;
-        }
-    }
-
-    void update(size_t i, int val) {
-        update(m_root, i, val);
-    }
-
-    int sum(size_t lo, size_t hi) const {
-        return query(m_root, lo, hi);
-    }
-
+namespace llist {
+template<typename T, typename BinaryOperation = std::plus<T>>
+class SegmentTree {
 private:
-    class TreeNode {
-    public:
-        TreeNode(size_t l, size_t h)
-            : lo(l)
-            , hi(h)
-            , sum(0)
+    struct Node {
+        T val;
+        Node *lft, *rht;
+
+        Node(const T& v)
+            : val(v)
             , lft(nullptr)
             , rht(nullptr) {
         }
 
-        size_t lo, hi;
-        int sum;
-
-        TreeNode* lft;
-        TreeNode* rht;
+        Node(const T& v, Node* l, Node* r)
+            : val(v)
+            , lft(l)
+            , rht(r) {
+        }
     };
 
-    TreeNode* build(size_t lo, size_t hi, const vector<int>& nums) {
-        assert(lo <= hi);
-
-        TreeNode* parent = new TreeNode(lo, hi);
-        if (lo == hi) {
-            parent->sum = nums[lo];
-        }
-        else {
-            size_t mid = lo + (hi - lo) / 2;
-            parent->lft = build(lo, mid, nums);;
-            parent->rht = build(mid + 1, hi, nums);;
-            parent->sum = parent->lft->sum + parent->rht->sum;
-        }
-
-        return parent;
+public:
+    template<typename InputIterator>
+    explicit SegmentTree(InputIterator first, InputIterator last)
+        : m_op()
+        , m_size(std::distance(first, last)) {
+        m_root = build(first, last);
     }
 
-    void update(TreeNode* parent, size_t i, int val) {
-        if (i < parent->lo || parent->hi < i) {
+    template<typename InputIterator>
+    explicit SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op)
+        : m_op(op)
+        , m_size(std::distance(first, last)) {
+        m_root = build(first, last);
+    }
+
+    explicit SegmentTree(std::initializer_list<T> l)
+        : m_op()
+        , m_size(l.size()) {
+        m_root = build(l.begin, l.end());
+    }
+
+    T query(size_t lo, size_t hi) const {
+        if (hi < lo || size() <= hi) {
+            throw std::out_of_range("invalid range");
+        }
+
+        return query(0, size() - 1, m_root, lo, hi);
+    }
+
+    void set(size_t idx, const T& val) {
+        if (size() <= idx) {
+            throw std::out_of_range("invalid subscript");
+        }
+        set(0, size() - 1, m_root, idx, val);
+    }
+
+    size_t size() const { return m_size; }
+    bool empty() const { return m_size == 0; }
+
+private:
+    template<typename InputIterator>
+    Node* build(InputIterator first, InputIterator last) {
+        return first == last ? nullptr : build(0, m_size - 1, first);
+    }
+
+    template<typename InputIterator>
+    Node* build(size_t l, size_t h, InputIterator& itr) {
+        assert(l <= h);
+        if (l == h) {
+            return new Node(*itr++);
+        }
+        else {
+            size_t m = l + (h - l) / 2;
+            Node* lftChild = build(l, m, itr);
+            Node* rhtChild = build(m + 1, h, itr);
+            return new Node(m_op(lftChild->val, rhtChild->val), lftChild, rhtChild);
+        }
+    }
+
+    void set(size_t l, size_t h, Node* node, size_t idx, const T& val) {
+        assert(l <= h);
+
+        if (idx < l || h < idx) {
             return;
         }
 
-        if (parent->lo == parent->hi) {
-            assert(parent->lo == i);
-            parent->sum = val;
+        if (l == h) {
+            node->val = val;
         }
         else {
-            update(parent->lft, i, val);
-            update(parent->rht, i, val);
-            parent->sum = parent->lft->sum + parent->rht->sum;
+            size_t m = l + (h - l) / 2;
+            set(l, m, node->lft, idx, val);
+            set(m + 1, h, node->rht, idx, val);
+            node->val = m_op(node->lft->val, node->rht->val);
         }
     }
 
-    int query(TreeNode* parent, size_t lo, size_t hi) const {
-        if (!parent || hi < parent->lo || parent->hi < lo) {
-            return 0;
-        }
+    T query(size_t l, size_t h, Node* node, size_t lo, size_t hi) const {
+        assert(l <= h);
 
-        if (lo <= parent->lo && parent->hi <= hi) {
-            return parent->sum;
+        if (lo <= l && h <= hi) {
+            return node->val;
         }
         else {
-            return query(parent->lft, lo, hi) + query(parent->rht, lo, hi);
+            size_t m = l + (h - l) / 2;
+            if (hi < l || m < lo) {
+                return query(m + 1, h, node->rht, lo, hi);
+            }
+            else if (hi < m + 1 || h < lo) {
+                return query(l, m, node->lft, lo, hi);
+            }
+            else {
+                return m_op(query(l, m, node->lft, lo, hi), query(m + 1, h, node->rht, lo, hi));
+            }
         }
     }
 
-    TreeNode* m_root;
+    Node* m_root;
+    BinaryOperation m_op;
+    size_t m_size;
+};
+}
+
+class Strategy {
+public:
+    virtual void update(int index, int val) = 0;
+    virtual int query(int lo, int hi) = 0;
 };
 
-class BinaryIndexedTree {
+template<typename InputIterator>
+class SegmentTreeByHeap : public Strategy {
 public:
-    BinaryIndexedTree(const std::vector<int>& nums)
-        : m_size(nums.size())
-        , m_nums(m_size + 1)
-        , m_sums(m_size + 1) {
-        std::size_t n = size();
-        for (std::size_t i = 0; i < n; ++i) {
-            set(i, nums[i]);
-        }
+    SegmentTreeByHeap(InputIterator first, InputIterator last)
+        : m_tree(first, last) {
     }
 
-    inline std::size_t size() const {
-        return m_size;
+    void update(int i, int val) {
+        m_tree.set(i, val);
     }
 
-    void set(std::size_t i, int val) {
-        setByIdx(i + 1, val);
-    }
-
-    int get(std::size_t i) const {
-        return getByIdx(i + 1);
-    }
-
-    int sum(std::size_t i) const {
-       return sumByIdx(i + 1);
-    }
-
-    int sum(std::size_t lo, std::size_t hi) const {
-        return sumByIdx(hi + 1) - sumByIdx(lo);
+    int query(int lo, int hi) {
+        return m_tree.query(lo, hi);
     }
 
 private:
-    void setByIdx(std::size_t i, int val) {
-        assert(0 < i && i <= size());
-
-        int diff = val - m_nums[i];
-        m_nums[i] = val;
-
-        std::size_t n = size();
-        for (; i <= n; i += lowbit(i)) {
-            m_sums[i] += diff;
-        }
-    }
-
-    int getByIdx(std::size_t i) const {
-        assert(0 < i && i <= size());
-
-        return m_nums[i];
-    }
-
-    int sumByIdx(std::size_t i) const {
-        int ret = 0;
-        for (; i; i -= lowbit(i)) {
-            ret += m_sums[i];
-        }
-
-        return ret;
-    }
-
-    inline std::size_t lowbit(std::size_t i) const {
-        return i & ~(i - 1);
-    }
-
-    std::size_t m_size;
-    std::vector<int> m_nums;
-    std::vector<int> m_sums;
+    heap::SegmentTree<int> m_tree;
 };
 
-class RangeSumBinaryIndexedTree : public BinaryIndexedTree, public RangeSumStrategy {
+template<typename InputIterator>
+class SegmentTreeByList : public Strategy {
 public:
-    RangeSumBinaryIndexedTree(vector<int>& nums)
-        : BinaryIndexedTree(nums) {
+    SegmentTreeByList(InputIterator first, InputIterator last)
+        : m_tree(first, last) {
     }
 
-    void update(size_t i, int val) {
-        BinaryIndexedTree::set(i, val);
+    void update(int i, int val) {
+        m_tree.set(i, val);
     }
 
-    int sum(size_t lo, size_t hi) const {
-        return BinaryIndexedTree::sum(lo, hi);
+    int query(int lo, int hi) {
+        return m_tree.query(lo, hi);
     }
+
+private:
+    llist::SegmentTree<int> m_tree;
 };
 
 class NumArray {
 public:
-    NumArray(vector<int> nums)
-        : m_nums(nums) {
-        //m_strategy = new RangeSumPrefixSum(m_nums);
-
-        //m_strategy = new RangeSumSegmentTreeByHeap(m_nums);
-
-        //m_strategy = new RangeSumSegmentTreeByTree(m_nums);
-
-        m_strategy = new RangeSumBinaryIndexedTree(m_nums);
+    NumArray(vector<int>& nums) {
+        // m_strategy = new SegmentTreeByHeap(nums.begin(), nums.end());
+        m_strategy = new SegmentTreeByList(nums.begin(), nums.end());
     }
 
-    ~NumArray() {
-        delete m_strategy;
+    void update(int index, int val) {
+        m_strategy->update(index, val);
     }
 
-    void update(size_t i, int val) {
-        return m_strategy->update(i, val);
-    }
-
-    int sumRange(size_t lo, size_t hi) const{
-        if (hi < lo) {
-            swap(lo, hi);
-        }
-        return m_strategy->sum(lo, hi);
+    int sumRange(int left, int right) {
+        return m_strategy->query(left, right);
     }
 
 private:
-    RangeSumStrategy* m_strategy;
-
-    vector<int> m_nums;
+    Strategy* m_strategy;
 };
 
 /**
  * Your NumArray object will be instantiated and called as such:
- * NumArray obj = new NumArray(nums);
- * int param_1 = obj.sumRange(i,j);
+ * NumArray* obj = new NumArray(nums);
+ * obj->update(index,val);
+ * int param_2 = obj->sumRange(left,right);
  */
