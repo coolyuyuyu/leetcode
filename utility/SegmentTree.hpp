@@ -2,6 +2,7 @@
 #include <functional>
 #include <iterator>
 #include <stdexcept>
+#include <type_traits>
 #include <vector>
 
 namespace heap {
@@ -13,33 +14,35 @@ public:
     template<typename InputIterator>
     explicit SegmentTree(InputIterator first, InputIterator last)
         : m_op() {
-        build(first, last);
+        typedef typename std::is_integral<InputIterator>::type isIntegral;
+        build(first, last, isIntegral());
     }
 
     template<typename InputIterator>
     explicit SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op)
         : m_op(op) {
-        build(first, last);
+        typedef typename std::is_integral<InputIterator>::type isIntegral;
+        build(first, last, isIntegral());
     }
 
     explicit SegmentTree(std::initializer_list<T> l)
         : m_op() {
-        build(l.begin(), l.end());
+        build(l.begin(), l.end(), std::false_type());
     }
 
     explicit SegmentTree(std::initializer_list<T> l, const BinaryOperation& op)
         : m_op(op) {
-        build(l.begin(), l.end());
+        build(l.begin(), l.end(), std::false_type());
     }
 
     explicit SegmentTree(size_type n, const T& val = T())
         : m_op() {
-        build(n, val);
+        build(n, val, std::true_type());
     }
 
     explicit SegmentTree(size_type n, const T& val, const BinaryOperation& op)
         : m_op(op) {
-        build(n, val);
+        build(n, val, std::true_type());
     }
 
     const T& top() const {
@@ -87,7 +90,7 @@ private:
     inline size_type rht(size_type i) const { return i * 2 + 2; }
 
     template<typename InputIterator>
-    void build(InputIterator first, InputIterator last) {
+    void build(InputIterator first, InputIterator last, std::false_type) {
         m_size = std::distance(first, last);
         if (m_size) {
             build(0, m_size - 1, 0, first);
@@ -112,7 +115,7 @@ private:
         }
     }
 
-    void build(size_t n, const T& val) {
+    void build(size_t n, const T& val, std::true_type) {
         m_size = n;
         if (m_size) {
             build(0, m_size - 1, 0, val);
@@ -207,33 +210,35 @@ public:
     template<typename InputIterator>
     explicit SegmentTree(InputIterator first, InputIterator last)
         : m_op() {
-        m_root = build(first, last);
+        typedef typename std::is_integral<InputIterator>::type isIntegral;
+        m_root = build(first, last, isIntegral());
     }
 
     template<typename InputIterator>
     explicit SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op)
         : m_op(op) {
-        m_root = build(first, last);
+        typedef typename std::is_integral<InputIterator>::type isIntegral;
+        m_root = build(first, last, isIntegral());
     }
 
     explicit SegmentTree(std::initializer_list<T> l)
         : m_op() {
-        m_root = build(l.begin(), l.end());
+        m_root = build(l.begin(), l.end(), std::false_type());
     }
 
     explicit SegmentTree(std::initializer_list<T> l, const BinaryOperation& op)
         : m_op(op) {
-        m_root = build(l.begin(), l.end());
+        m_root = build(l.begin(), l.end(), std::false_type());
     }
 
     explicit SegmentTree(size_type n, const T& val = T())
         : m_op() {
-        m_root = build(n, val);
+        m_root = build(n, val, std::true_type());
     }
 
     explicit SegmentTree(size_type n, const T& val, const BinaryOperation& op)
         : m_op(op) {
-        m_root = build(n, val);
+        m_root = build(n, val, std::true_type());
     }
 
     const T& top() const {
@@ -279,7 +284,7 @@ public:
 
 private:
     template<typename InputIterator>
-    Node* build(InputIterator first, InputIterator last) {
+    Node* build(InputIterator first, InputIterator last, std::false_type) {
         m_size = std::distance(first, last);
         return m_size ? build(0, m_size - 1, first) : nullptr;
     }
@@ -298,9 +303,9 @@ private:
         }
     }
 
-    Node* build(size_type n, const T& val) {
+    Node* build(size_type n, const T& val, std::true_type) {
         m_size = n;
-        return m_size ? nullptr : build(0, m_size - 1, val);
+        return m_size ? build(0, m_size - 1, val) : nullptr;
     }
 
     Node* build(size_type l, size_type h, const T& val) {
@@ -358,4 +363,25 @@ private:
     BinaryOperation m_op;
     size_type m_size;
 };
+}
+
+#include <iostream>
+
+int main() {
+    std::vector<int> nums = { 1,2,3 };
+    llist::SegmentTree<int> st1(nums.begin(), nums.end());
+    std::cout << st1.top() << std::endl;
+
+    llist::SegmentTree<int> st2({4, 5, 6});
+    std::cout << st2.top() << std::endl;
+
+    int n = 5;
+    int v = 10;
+    llist::SegmentTree<int> st3(n, v);
+    std::cout << st3.top() << std::endl;
+
+    llist::SegmentTree<int> st4(nums.data(), nums.data() + nums.size());
+    std::cout << st4.top() << std::endl;
+
+    return 0;
 }
