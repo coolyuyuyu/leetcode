@@ -42,7 +42,7 @@ public:
     }
 
     T query(size_type lo, size_type hi) const {
-        assert(lo < hi && hi < size());
+        assert(lo <= hi && hi < size());
 
         return query(0, size() - 1, 0, lo, hi);
     }
