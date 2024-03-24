@@ -8,26 +8,38 @@ namespace heap {
 template<typename T, typename BinaryOperation = std::plus<T>>
 class SegmentTree {
 public:
-    typedef std::vector<T>::size_type size_type;
+    typedef typename std::vector<T>::size_type size_type;
 
     template<typename InputIterator>
     explicit SegmentTree(InputIterator first, InputIterator last)
-        : m_op()
-        , m_size(std::distance(first, last)) {
+        : m_op() {
         build(first, last);
     }
 
     template<typename InputIterator>
     explicit SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op)
-        : m_op(op)
-        , m_size(std::distance(first, last)) {
+        : m_op(op) {
         build(first, last);
     }
 
     explicit SegmentTree(std::initializer_list<T> l)
-        : m_op()
-        , m_size(l.size()) {
-        build(l.begin, l.end());
+        : m_op() {
+        build(l.begin(), l.end());
+    }
+
+    explicit SegmentTree(std::initializer_list<T> l, const BinaryOperation& op)
+        : m_op(op) {
+        build(l.begin(), l.end());
+    }
+
+    explicit SegmentTree(size_type n, const T& val = T())
+        : m_op() {
+        build(n, val);
+    }
+
+    explicit SegmentTree(size_type n, const T& val, const BinaryOperation& op)
+        : m_op(op) {
+        build(n, val);
     }
 
     const T& top() const {
@@ -37,9 +49,7 @@ public:
     }
 
     T query(size_type lo, size_type hi) const {
-        if (hi < lo || size() <= hi) {
-            throw std::out_of_range("invalid range");
-        }
+        assert(lo <= hi && hi < size());
 
         return query(0, size() - 1, 0, lo, hi);
     }
@@ -78,7 +88,8 @@ private:
 
     template<typename InputIterator>
     void build(InputIterator first, InputIterator last) {
-        if (first != last) {
+        m_size = std::distance(first, last);
+        if (m_size) {
             build(0, m_size - 1, 0, first);
         }
     }
@@ -97,6 +108,30 @@ private:
             size_type m = l + (h - l) / 2;
             build(l, m, lft(i), itr);
             build(m + 1, h, rht(i), itr);
+            m_vals[i] = m_op(m_vals[lft(i)], m_vals[rht(i)]);
+        }
+    }
+
+    void build(size_t n, const T& val) {
+        m_size = n;
+        if (m_size) {
+            build(0, m_size - 1, 0, val);
+        }
+    }
+
+    void build(size_type l, size_type h, size_type i, const T& val) {
+        assert(l <= h);
+
+        if (l == h) {
+            if (m_vals.size() <= i) {
+                m_vals.resize(i + 1);
+            }
+            m_vals[i] = val;
+        }
+        else {
+            size_type m = l + (h - l) / 2;
+            build(l, m, lft(i), val);
+            build(m + 1, h, rht(i), val);
             m_vals[i] = m_op(m_vals[lft(i)], m_vals[rht(i)]);
         }
     }
@@ -167,24 +202,38 @@ private:
     };
 
 public:
+    typedef typename std::vector<T>::size_type size_type;
+
     template<typename InputIterator>
     explicit SegmentTree(InputIterator first, InputIterator last)
-        : m_op()
-        , m_size(std::distance(first, last)) {
+        : m_op() {
         m_root = build(first, last);
     }
 
     template<typename InputIterator>
     explicit SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op)
-        : m_op(op)
-        , m_size(std::distance(first, last)) {
+        : m_op(op) {
         m_root = build(first, last);
     }
 
     explicit SegmentTree(std::initializer_list<T> l)
-        : m_op()
-        , m_size(l.size()) {
-        m_root = build(l.begin, l.end());
+        : m_op() {
+        m_root = build(l.begin(), l.end());
+    }
+
+    explicit SegmentTree(std::initializer_list<T> l, const BinaryOperation& op)
+        : m_op(op) {
+        m_root = build(l.begin(), l.end());
+    }
+
+    explicit SegmentTree(size_type n, const T& val = T())
+        : m_op() {
+        m_root = build(n, val);
+    }
+
+    explicit SegmentTree(size_type n, const T& val, const BinaryOperation& op)
+        : m_op(op) {
+        m_root = build(n, val);
     }
 
     const T& top() const {
@@ -194,9 +243,7 @@ public:
     }
 
     T query(size_type lo, size_type hi) const {
-        if (hi < lo || size() <= hi) {
-            throw std::out_of_range("invalid range");
-        }
+        assert(lo <= hi && hi < size());
 
         return query(0, size() - 1, m_root, lo, hi);
     }
@@ -233,7 +280,8 @@ public:
 private:
     template<typename InputIterator>
     Node* build(InputIterator first, InputIterator last) {
-        return first == last ? nullptr : build(0, m_size - 1, first);
+        m_size = std::distance(first, last);
+        return m_size ? build(0, m_size - 1, first) : nullptr;
     }
 
     template<typename InputIterator>
@@ -246,6 +294,24 @@ private:
             size_type m = l + (h - l) / 2;
             Node* lftChild = build(l, m, itr);
             Node* rhtChild = build(m + 1, h, itr);
+            return new Node(m_op(lftChild->val, rhtChild->val), lftChild, rhtChild);
+        }
+    }
+
+    Node* build(size_type n, const T& val) {
+        m_size = n;
+        return m_size ? nullptr : build(0, m_size - 1, val);
+    }
+
+    Node* build(size_type l, size_type h, const T& val) {
+        assert(l <= h);
+        if (l == h) {
+            return new Node(val);
+        }
+        else {
+            size_type m = l + (h - l) / 2;
+            Node* lftChild = build(l, m, val);
+            Node* rhtChild = build(m + 1, h, val);
             return new Node(m_op(lftChild->val, rhtChild->val), lftChild, rhtChild);
         }
     }
