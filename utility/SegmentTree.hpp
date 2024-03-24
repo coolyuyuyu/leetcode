@@ -8,6 +8,8 @@ namespace heap {
 template<typename T, typename BinaryOperation = std::plus<T>>
 class SegmentTree {
 public:
+    typedef std::vector<T>::size_type size_type;
+
     template<typename InputIterator>
     explicit SegmentTree(InputIterator first, InputIterator last)
         : m_op()
@@ -34,7 +36,7 @@ public:
         return m_vals[0];
     }
 
-    T query(size_t lo, size_t hi) const {
+    T query(size_type lo, size_type hi) const {
         if (hi < lo || size() <= hi) {
             throw std::out_of_range("invalid range");
         }
@@ -42,19 +44,18 @@ public:
         return query(0, size() - 1, 0, lo, hi);
     }
 
-    void set(size_t idx, const T& val) {
-        if (size() <= idx) {
-            throw std::out_of_range("invalid subscript");
-        }
+    void set(size_type idx, const T& val) {
+        assert(idx < size());
+
         set(0, size() - 1, 0, idx, val);
     }
 
-    const T& operator[](size_t idx) const {
+    const T& get(size_type idx) const {
         assert(idx < size());
 
-        size_t l = 0, h = size() - 1, i = 0;
+        size_type l = 0, h = size() - 1, i = 0;
         while (l < h) {
-            size_t m = l + (h - l) / 2;
+            size_type m = l + (h - l) / 2;
             if (idx <= m) {
                 h = m;
                 i = lft(i);
@@ -68,20 +69,12 @@ public:
         return m_vals[i];
     }
 
-    const T& at(size_t idx) const {
-        if (size() <= idx) {
-            throw std::out_of_range("invalid subscript");
-        }
-
-        return (*this)[idx];
-    }
-
-    size_t size() const { return m_size; }
+    size_type size() const { return m_size; }
     bool empty() const { return m_size == 0; }
 
 private:
-    inline size_t lft(size_t i) const { return i * 2 + 1; }
-    inline size_t rht(size_t i) const { return i * 2 + 2; }
+    inline size_type lft(size_type i) const { return i * 2 + 1; }
+    inline size_type rht(size_type i) const { return i * 2 + 2; }
 
     template<typename InputIterator>
     void build(InputIterator first, InputIterator last) {
@@ -91,7 +84,7 @@ private:
     }
 
     template<typename InputIterator>
-    void build(size_t l, size_t h, size_t i, InputIterator& itr) {
+    void build(size_type l, size_type h, size_type i, InputIterator& itr) {
         assert(l <= h);
 
         if (l == h) {
@@ -101,14 +94,14 @@ private:
             m_vals[i] = *itr++;
         }
         else {
-            size_t m = l + (h - l) / 2;
+            size_type m = l + (h - l) / 2;
             build(l, m, lft(i), itr);
             build(m + 1, h, rht(i), itr);
             m_vals[i] = m_op(m_vals[lft(i)], m_vals[rht(i)]);
         }
     }
 
-    void set(size_t l, size_t h, size_t i, size_t idx, const T& val) {
+    void set(size_type l, size_type h, size_type i, size_type idx, const T& val) {
         assert(l <= h);
 
         if (idx < l || h < idx) {
@@ -119,21 +112,21 @@ private:
             m_vals[i] = val;
         }
         else {
-            size_t m = l + (h - l) / 2;
+            size_type m = l + (h - l) / 2;
             set(l, m, lft(i), idx, val);
             set(m + 1, h, rht(i), idx, val);
             m_vals[i] = m_op(m_vals[lft(i)], m_vals[rht(i)]);
         }
     }
 
-    T query(size_t l, size_t h, size_t i, size_t lo, size_t hi) const {
+    T query(size_type l, size_type h, size_type i, size_type lo, size_type hi) const {
         assert(l <= h);
 
         if (lo <= l && h <= hi) {
             return m_vals[i];
         }
         else {
-            size_t m = l + (h - l) / 2;
+            size_type m = l + (h - l) / 2;
             if (hi < l || m < lo) {
                 return query(m + 1, h, rht(i), lo, hi);
             }
@@ -148,7 +141,7 @@ private:
 
     std::vector<T> m_vals;
     BinaryOperation m_op;
-    size_t m_size;
+    size_type m_size;
 };
 }
 
@@ -200,7 +193,7 @@ public:
         return m_root->val;
     }
 
-    T query(size_t lo, size_t hi) const {
+    T query(size_type lo, size_type hi) const {
         if (hi < lo || size() <= hi) {
             throw std::out_of_range("invalid range");
         }
@@ -208,20 +201,19 @@ public:
         return query(0, size() - 1, m_root, lo, hi);
     }
 
-    void set(size_t idx, const T& val) {
-        if (size() <= idx) {
-            throw std::out_of_range("invalid subscript");
-        }
+    void set(size_type idx, const T& val) {
+        assert(idx < size());
+
         set(0, size() - 1, m_root, idx, val);
     }
 
-    const T& operator[](size_t idx) const {
+    const T& get(size_type idx) const {
         assert(idx < size());
 
-        size_t l = 0, h = size() - 1;
+        size_type l = 0, h = size() - 1;
         Node* node = m_root;
         while (l < h) {
-            size_t m = l + (h - l) / 2;
+            size_type m = l + (h - l) / 2;
             if (idx <= m) {
                 h = m;
                 node = node->lft;
@@ -235,15 +227,7 @@ public:
         return node->val;
     }
 
-    const T& at(size_t idx) const {
-        if (size() <= idx) {
-            throw std::out_of_range("invalid subscript");
-        }
-
-        return (*this)[idx];
-    }
-
-    size_t size() const { return m_size; }
+    size_type size() const { return m_size; }
     bool empty() const { return m_size == 0; }
 
 private:
@@ -253,20 +237,20 @@ private:
     }
 
     template<typename InputIterator>
-    Node* build(size_t l, size_t h, InputIterator& itr) {
+    Node* build(size_type l, size_type h, InputIterator& itr) {
         assert(l <= h);
         if (l == h) {
             return new Node(*itr++);
         }
         else {
-            size_t m = l + (h - l) / 2;
+            size_type m = l + (h - l) / 2;
             Node* lftChild = build(l, m, itr);
             Node* rhtChild = build(m + 1, h, itr);
             return new Node(m_op(lftChild->val, rhtChild->val), lftChild, rhtChild);
         }
     }
 
-    void set(size_t l, size_t h, Node* node, size_t idx, const T& val) {
+    void set(size_type l, size_type h, Node* node, size_type idx, const T& val) {
         assert(l <= h);
 
         if (idx < l || h < idx) {
@@ -277,21 +261,21 @@ private:
             node->val = val;
         }
         else {
-            size_t m = l + (h - l) / 2;
+            size_type m = l + (h - l) / 2;
             set(l, m, node->lft, idx, val);
             set(m + 1, h, node->rht, idx, val);
             node->val = m_op(node->lft->val, node->rht->val);
         }
     }
 
-    T query(size_t l, size_t h, Node* node, size_t lo, size_t hi) const {
+    T query(size_type l, size_type h, Node* node, size_type lo, size_type hi) const {
         assert(l <= h);
 
         if (lo <= l && h <= hi) {
             return node->val;
         }
         else {
-            size_t m = l + (h - l) / 2;
+            size_type m = l + (h - l) / 2;
             if (hi < l || m < lo) {
                 return query(m + 1, h, node->rht, lo, hi);
             }
@@ -306,6 +290,6 @@ private:
 
     Node* m_root;
     BinaryOperation m_op;
-    size_t m_size;
+    size_type m_size;
 };
 }
