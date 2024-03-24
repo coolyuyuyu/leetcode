@@ -81,33 +81,35 @@ public:
     template<typename InputIterator>
     explicit SegmentTree(InputIterator first, InputIterator last)
         : m_op() {
-        build(first, last);
+        typedef typename std::is_integral<InputIterator>::type isIntegral;
+        build(first, last, isIntegral());
     }
 
     template<typename InputIterator>
     explicit SegmentTree(InputIterator first, InputIterator last, const BinaryOperation& op)
         : m_op(op) {
-        build(first, last);
+        typedef typename std::is_integral<InputIterator>::type isIntegral;
+        build(first, last, isIntegral());
     }
 
     explicit SegmentTree(std::initializer_list<T> l)
         : m_op() {
-        build(l.begin(), l.end());
+        build(l.begin(), l.end(), std::false_type());
     }
 
     explicit SegmentTree(std::initializer_list<T> l, const BinaryOperation& op)
         : m_op(op) {
-        build(l.begin(), l.end());
+        build(l.begin(), l.end(), std::false_type());
     }
 
     explicit SegmentTree(size_type n, const T& val = T())
         : m_op() {
-        build(n, val);
+        build(n, val, std::true_type());
     }
 
     explicit SegmentTree(size_type n, const T& val, const BinaryOperation& op)
         : m_op(op) {
-        build(n, val);
+        build(n, val, std::true_type());
     }
 
     const T& top() const {
@@ -155,7 +157,7 @@ private:
     inline size_type rht(size_type i) const { return i * 2 + 2; }
 
     template<typename InputIterator>
-    void build(InputIterator first, InputIterator last) {
+    void build(InputIterator first, InputIterator last, std::false_type) {
         m_size = std::distance(first, last);
         if (m_size) {
             build(0, m_size - 1, 0, first);
@@ -180,7 +182,7 @@ private:
         }
     }
 
-    void build(size_t n, const T& val) {
+    void build(size_t n, const T& val, std::true_type) {
         m_size = n;
         if (m_size) {
             build(0, m_size - 1, 0, val);
@@ -267,7 +269,7 @@ public:
     }
 
     int bySegmentTree(const vector<int>& instructions) {
-        SegmentTree<int>::size_type maxNum = *std::max_element(instructions.begin(), instructions.end()) + 1;
+        int maxNum = *std::max_element(instructions.begin(), instructions.end()) + 1;
         SegmentTree<int> st(maxNum + 1, 0);
 
         int ret = 0;
@@ -319,6 +321,6 @@ public:
     int createSortedArray(vector<int>& instructions) {
         //return byBinaryIndexedTree(instructions);
         return bySegmentTree(instructions);
-        return byDivideAndConquer(instructions);
+        //return byDivideAndConquer(instructions);
     }
 };
