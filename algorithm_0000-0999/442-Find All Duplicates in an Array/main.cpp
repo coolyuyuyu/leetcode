@@ -12,7 +12,7 @@ public:
         }
 
         vector<int> ret;
-        for (int i = 0; i <= n; ++i) {
+        for (int i = 1; i <= n; ++i) {
             if (nums[i] != i) {
                 ret.push_back(nums[i]);
             }
