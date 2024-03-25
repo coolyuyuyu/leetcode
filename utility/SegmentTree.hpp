@@ -115,7 +115,7 @@ private:
         }
     }
 
-    void build(size_t n, const T& val, std::true_type) {
+    void build(size_type n, const T& val, std::true_type) {
         m_size = n;
         if (m_size) {
             build(0, m_size - 1, 0, val);
