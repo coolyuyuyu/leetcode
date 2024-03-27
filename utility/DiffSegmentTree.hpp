@@ -71,20 +71,20 @@ private:
         m_vals[i] = 0;
     }
 
-    void update(size_type l, size_type h, size_type i, size_type lo, size_type hi, const T& diff) {
+    void update(size_type l, size_type h, size_type i, size_type lo, size_type hi, const T& val) {
         if (hi < l || h < lo) {
             return;
         }
 
         if (lo <= l && h <= hi) {
-            m_vals[i] += diff;
+            m_vals[i] += val;
         }
         else {
             pushDown(l, h, i);
 
             size_type m = l + (h - l) / 2;
-            update(l, m, lft(i), lo, hi, diff);
-            update(m + 1, h, rht(i), lo, hi, diff);
+            update(l, m, lft(i), lo, hi, val);
+            update(m + 1, h, rht(i), lo, hi, val);
         }
     }
 
