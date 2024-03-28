@@ -171,7 +171,38 @@ public:
         return ret;
     }
 
+    vector<vector<int>> byDiffArray(vector<vector<int>>& buildings) {
+        map<int, vector<int>> x2heights;
+        for (const auto& building : buildings) {
+            int lft = building[0], rht = building[1], h = building[2];
+            x2heights[lft].push_back(h);
+            x2heights[rht].push_back(-h);
+        }
+
+        vector<vector<int>> ret;
+
+        multiset<int> ms;
+        for (const auto& [x, heights] : x2heights) {
+            for (int h : heights) {
+                if (h > 0) {
+                    ms.emplace(h);
+                }
+                else {
+                    ms.erase(ms.find(-h));
+                }
+            }
+
+            int maxH = ms.empty() ? 0 : *(ms.rbegin());
+            if (ret.empty() || maxH != ret.back()[1]) {
+                ret.push_back({x, maxH});
+            }
+        }
+
+        return ret;
+    }
+
     vector<vector<int>> getSkyline(vector<vector<int>>& buildings) {
-        return bySegmentTree(buildings);
+        //return bySegmentTree(buildings);
+        return byDiffArray(buildings);
     }
 };
