@@ -1,23 +1,22 @@
 class Solution {
 public:
     long long countSubarrays(vector<int>& nums, int k) {
-        int n = nums.size();
         int mx = *std::max_element(nums.begin(), nums.end());
 
         long long ret = 0;
-        for (int i = 0, j = 0, cnt = 0; i < n; ++i) {
-            for (; j < n && cnt < k; ++j) {
-                if (nums[j] == mx) {
-                    ++cnt;
+        for (int lft = 0, rht = 0, n = nums.size(), mxCnt = 0; lft < n; ++lft) {
+            for (; rht < n && mxCnt < k; ++rht) {
+                if (nums[rht] == mx) {
+                    ++mxCnt;
                 }
             }
 
-            if (cnt >= k) {
-                ret += n - j + 1;
+            if (mxCnt >= k) {
+                ret += n - rht + 1;
             }
 
-            if (nums[i] == mx) {
-                --cnt;
+            if (nums[lft] == mx) {
+                --mxCnt;
             }
         }
 
