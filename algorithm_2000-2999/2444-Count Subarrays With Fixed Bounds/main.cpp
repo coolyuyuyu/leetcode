@@ -4,22 +4,20 @@ public:
         // For each index i, count number of subarray ending at i.
 
         long long ret = 0;
-        for (int i = 0, preMin = -1, preMax = -1, boundary = -1; i < nums.size(); ++i) {
+        for (int i = 0, preMin = -1, preMax = -1, bound = -1; i < nums.size(); ++i) {
             if (nums[i] < minK || maxK < nums[i]) {
-                boundary = i;
+                bound = i;
                 continue;
             }
-            else if (nums[i] == minK) {
+
+            if (nums[i] == minK) {
                 preMin = i;
-                if (nums[i] == maxK) {
-                    preMax = i;
-                }
             }
-            else if (nums[i] == maxK) {
+            if (nums[i] == maxK) {
                 preMax = i;
             }
 
-            ret += (std::max(0, std::min(preMin, preMax) - boundary));
+            ret += std::max(std::min(preMin, preMax) - bound, 0);
         }
 
         return ret;
