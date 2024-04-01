@@ -1,20 +1,21 @@
 class Solution {
 public:
     int lengthOfLongestSubstringTwoDistinct(string s) {
-        vector<int> cnts(128, 0);
+        vector<int> freq(256, 0);
+        int distinctCnt = 0;
 
         int ret = 0;
-        for (int lft = 0, rht = 0, n = s.size(), cntDistinct = 0; rht < n; ++lft) {
-            for (;rht < n && (cntDistinct < 2 || (cntDistinct == 2 && cnts[s[rht]] > 0)); ++rht) {
-                if (cnts[s[rht]]++ == 0) {
-                    ++cntDistinct;
+        for (int lft = 0, rht = 0, n = s.size(), distinctCnt = 0; rht < n; ++lft) {
+            for (; rht < n && (distinctCnt < 2 || (distinctCnt == 2 && freq[s[rht]] > 0)); ++rht) {
+                if (++freq[s[rht]] == 1) {
+                    ++distinctCnt;
                 }
             }
 
             ret = std::max(ret, rht - lft);
 
-            if (--cnts[s[lft]] == 0) {
-                --cntDistinct;
+            if (--freq[s[lft]] == 0) {
+                --distinctCnt;
             }
         }
 
