@@ -56,7 +56,7 @@ public:
     }
 
     int earliestFullBloom(vector<int>& plantTime, vector<int>& growTime) {
-        return byBinarySearch(plantTime, growTime);
-        //return byGreedy(plantTime, growTime);
+        //return byBinarySearch(plantTime, growTime);
+        return byGreedy(plantTime, growTime);
     }
 };
