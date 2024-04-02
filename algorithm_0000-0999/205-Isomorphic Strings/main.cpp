@@ -1,24 +1,23 @@
 class Solution {
 public:
     bool isIsomorphic(string s, string t) {
-        vector<bool> used(256, false);
-        vector<unsigned char> table(256, 0);
-        string::const_iterator iterA, iterB;
-        for (iterA = s.begin(), iterB = t.begin(); iterA != s.end() && iterB != t.end(); ++iterA, ++iterB) {
-            if (table[*iterA] == 0) {
-                table[*iterA] = *iterB + 1;
-                if (used[*iterB]) {
+        vector<char> table(256, 0);
+        vector<bool> done(256, false);
+        for (int i = 0; i < s.size(); ++i) {
+            if (table[s[i]]) {
+                if (table[s[i]] != t[i]) {
                     return false;
                 }
-                used[*iterB] = true;
             }
             else {
-                if (table[*iterA] != *iterB + 1) {
+                if (done[t[i]]) {
                     return false;
                 }
+                done[t[i]] = true;
+                table[s[i]] = t[i];
             }
         }
 
-        return (iterA == s.end() && iterB == t.end());
+        return true;
     }
 };
