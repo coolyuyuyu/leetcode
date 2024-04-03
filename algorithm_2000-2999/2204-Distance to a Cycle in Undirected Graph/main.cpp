@@ -1,6 +1,5 @@
 class Solution {
 public:
-
     vector<int> detectCycles(int n, vector<int> graph[]) {
         vector<int> degrees(n, 0);
         for (int u = 0; u < n; ++u) {
@@ -48,15 +47,13 @@ public:
         }
         vector<int> cycles = detectCycles(n, graph);
 
-        vector<int> ret(n);
+        vector<int> ret(n, -1);
 
         queue<int> q;
-        vector<bool> visited(n, false);
         for (int cycle : cycles) {
-            visited[cycle] = true;
+            ret[cycle] = 0;
             q.push(cycle);
         }
-
         for (int dist = 0; !q.empty(); ++dist) {
             for (int i = q.size(); 0 < i--;) {
                 int u = q.front();
@@ -65,12 +62,10 @@ public:
                 ret[u] = dist;
 
                 for (int v : graph[u]) {
-                    if (visited[v]) { continue; }
-                    visited[v] = true;
+                    if (ret[v] != -1) { continue; }
                     q.push(v);
                 }
             }
-            
         }
 
         return ret;
