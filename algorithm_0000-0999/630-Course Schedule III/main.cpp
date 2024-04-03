@@ -1,23 +1,21 @@
 class Solution {
 public:
     int scheduleCourse(vector<vector<int>>& courses) {
-        std::sort(
-            courses.begin(), courses.end(),
-            [](const auto& course1, const auto& course2) {
-                return course1[1] < course2[1];
-            });
+        std::sort(courses.begin(), courses.end(), [](const auto& course1, const auto& course2){ return course1[1] < course2[1]; });
 
-        int days = 0;
-        priority_queue<int> pq;
+        int day = 0;
+        priority_queue<int> maxPQ;
         for (const auto& course : courses) {
-            days += course[0];
-            pq.push(course[0]);
-            if (course[1] < days) {
-                days -= pq.top();
-                pq.pop();
+            int duration = course[0], lastDay = course[1];
+
+            day += duration;
+            maxPQ.push(duration);
+            if (day > lastDay) {
+                day -= maxPQ.top();
+                maxPQ.pop();
             }
         }
 
-        return pq.size();
+        return maxPQ.size();
     }
 };
