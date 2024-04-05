@@ -1,42 +1,22 @@
 class Solution {
 public:
-    string makeGood_Stack(const string& s) {
-        stack<char> stk;
-        for (auto c : s) {
-            if (!stk.empty() && abs(stk.top() - c) == 32) {
-                stk.pop();
-            }
-            else {
-                stk.push(c);
-            }
-        }
-
-        string result(stk.size(), '\0');
-        for (size_t i = stk.size(); 0 < i--;) {
-            result[i] = stk.top();
-            stk.pop();
-        }
-
-        return result;
-    }
-
-    string makeGood_Linear(const string& s) {
-        string result;
-        result.reserve(s.size());
-        for (auto c : s) {
-            if (!result.empty() && abs(result.back() - c) == 32) {
-                result.pop_back();
-            }
-            else {
-                result.push_back(c);
-            }
-        }
-
-        return result;
-    }
-
     string makeGood(string s) {
-        //return makeGood_Stack(s);
-        return makeGood_Linear(s);
+        string ret;
+        for (char c : s) {
+            if (ret.empty()) {
+                ret.push_back(c);
+            }
+            else if (isupper(ret.back()) && tolower(ret.back()) == c) {
+                ret.pop_back();
+            }
+            else if (islower(ret.back()) && toupper(ret.back()) == c) {
+                ret.pop_back();
+            }
+            else {
+                ret.push_back(c);
+            }
+        }
+
+        return ret;
     }
 };
