@@ -15,7 +15,7 @@ public:
                 }
 
                 if (--freqs[s[i - k + 1] - 'a'] == 0) {
-                --diffCnt;
+                    --diffCnt;
                 }
             }
         }
