@@ -1,22 +1,22 @@
 class Solution {
 public:
     int countStudents(vector<int>& students, vector<int>& sandwiches) {
-        vector<int> counts(2, 0);
-        for (auto student : students) {
-            ++counts[student];
+        vector<int> cnts(2, 0);
+        for (int student : students) {
+            ++cnts[student];
         }
 
-        int remaining = sandwiches.size();
-        for (auto sandwich : sandwiches) {
-            if (0 < counts[sandwich]) {
-                --counts[sandwich];
-                --remaining;
+        int ret = students.size();
+        for (int sandwich : sandwiches) {
+            if (cnts[sandwich] > 0) {
+                --cnts[sandwich];
+                --ret;
             }
             else {
                 break;
             }
         }
 
-        return remaining;
+        return ret;
     }
 };
