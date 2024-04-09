@@ -1,51 +1,54 @@
 class Solution {
 public:
-    bool verifyPreorder_Recursive(vector<int>::const_iterator first, vector<int>::const_iterator last) {
-        assert(first <= last);
-        if (distance(first, last) <= 2) {
-            return true;
-        }
 
-        int root = *first;
+    // Time: O(NlogN)
+    bool dfs(vector<int>& preorder) {
+        std::function<bool(int, int)> f = [&](int lft, int rht) {
+            if (lft >= rht) {
+                return true;
+            }
 
-        vector<int>::const_iterator lftFirst = ++first, lftLast = lftFirst;
-        for (; lftLast != last && *lftLast < root; ++lftLast) {
-        }
+            int root = preorder[lft];
+            int mid;
+            for (mid = lft + 1; mid <= rht; ++mid) {
+                if (preorder[mid] > root) {
+                    break;
+                }
+            }
 
-        vector<int>::const_iterator rhtFirst = lftLast, rhtLast = rhtFirst;
-        for (; rhtLast != last && root < *rhtLast; ++rhtLast) {
-        }
+            for (int i = mid; i <= rht; ++i) {
+                if (preorder[i] < root) {
+                    return false;;
+                }
+            }
 
-        return rhtLast == last && verifyPreorder_Recursive(lftFirst, lftLast) && verifyPreorder_Recursive(rhtFirst, rhtLast);
+            return f(lft + 1, mid - 1) && f(mid, rht);
+        };
+
+        return f(0, preorder.size() - 1);
     }
 
-    bool verifyPreorder_Iterative(vector<int>& preorder) {
-        int tmp;
-        int* pRootVal = nullptr;
-
+    // Time: O(N)
+    bool linear(vector<int>& preorder) {
+        int root = INT_MIN;
         stack<int> stk;
-        for (int num : preorder) {
-            if (pRootVal && num < *pRootVal) {
+        for (int val : preorder) {
+            if (val < root) {
                 return false;
             }
 
-            while (!stk.empty() && stk.top() < num) {
-                if (!pRootVal) {
-                    pRootVal = &tmp;
-                }
-                *pRootVal = stk.top();
-
+            while (!stk.empty() && val > stk.top()) {
+                root = stk.top();
                 stk.pop();
             }
-
-            stk.push(num);
+            stk.push(val);
         }
 
         return true;
     }
 
     bool verifyPreorder(vector<int>& preorder) {
-        //return verifyPreorder_Recursive(preorder.begin(), preorder.end());
-        return verifyPreorder_Iterative(preorder);
+        //return dfs(preorder);
+        return linear(preorder);
     }
 };
