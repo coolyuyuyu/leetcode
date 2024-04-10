@@ -1,23 +1,23 @@
 class Solution {
 public:
     vector<int> deckRevealedIncreasing(vector<int>& deck) {
-        list<size_t> indexes;
-        for (size_t i = 0; i < deck.size(); ++i) {
-            indexes.emplace_back(i);
+        queue<int> q;
+        for (int i = 0; i < deck.size(); ++i) {
+            q.push(i);
         }
 
-        sort(deck.begin(), deck.end());
+        std::sort(deck.begin(), deck.end());
 
-        vector<int> ans(deck.size());
-        for (size_t i = 0; i < deck.size(); ++i) {
-            size_t index = indexes.front();
-            indexes.pop_front();
-            ans[index] = deck[i];
-            if (!indexes.empty()) {
-                indexes.push_back(indexes.front());
-                indexes.pop_front();
+        vector<int> ret(deck.size());
+        for (int i = 0; !q.empty();) {
+            ret[q.front()] = deck[i++];
+            q.pop();
+            if (!q.empty()) {
+                q.push(q.front());
+                q.pop();
             }
         }
-        return ans;
+
+        return ret;
     }
 };
