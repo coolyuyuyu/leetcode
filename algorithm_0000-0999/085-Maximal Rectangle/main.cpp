@@ -2,32 +2,31 @@ class Solution {
 public:
     int dp(const vector<vector<char>>& matrix) {
         int m = matrix.size(), n = matrix.empty() ? 0 : matrix[0].size();
-
-        // dpL(i, j): left bound of the rectangle containing  (i, j)
-        vector<int> dpL(n, 0);
-        // dpR(i, j): right bound of the rectangle containing  (i, j)
-        vector<int> dpR(n, n);
-        // dpU(i, j): height bound of the rectangle containing  (i, j)
-        vector<int> dpH(n, 0);
+        int dpL[n]; // dpL[r][c]: the lft bound of the maximal rect covering point (r,c)
+        std::fill(dpL, dpL + n, 0);
+        int dpR[n]; // dpR[r][c]: the rht bound of the maximal rect covering point (r,c)
+        std::fill(dpR, dpR + n, n);
+        int dpH[n]; // dpH[r][c]: the height bound of the maximal rect covering point (r,c)
+        std::fill(dpH, dpH + n, 0);
 
         int ret = 0;
         for (int r = 0; r < m; ++r) {
-            for (int c = 0, mostL = 0; c < n; ++c) {
+            for (int c = 0, lftMost = 0; c < n; ++c) {
                 if (matrix[r][c] == '1') {
-                    dpL[c] = std::max(dpL[c], mostL);
+                    dpL[c] = std::max(dpL[c], lftMost);
                 }
                 else {
+                    lftMost = c + 1;
                     dpL[c] = 0;
-                    mostL = c + 1;
                 }
             }
-            for (int c = n, mostR = n; 0 < c--;) {
+            for (int c = n - 1, rhtMost = n; c >= 0; --c) {
                 if (matrix[r][c] == '1') {
-                    dpR[c] = std::min(dpR[c], mostR);
+                    dpR[c] = std::min(dpR[c], rhtMost);
                 }
                 else {
+                    rhtMost = c;
                     dpR[c] = n;
-                    mostR = c;
                 }
             }
             for (int c = 0; c < n; ++c) {
@@ -75,6 +74,7 @@ public:
         };
 
         vector<int> hist(n, 0);
+
         int ret = 0;
         for (int r = 0; r < m; ++r) {
             for (int c = 0; c < n; ++c) {
@@ -85,7 +85,6 @@ public:
                     hist[c] = 0;
                 }
             }
-
             ret = std::max(ret, largestRectangleArea(hist));
         }
 
