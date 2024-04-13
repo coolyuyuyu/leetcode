@@ -1,18 +1,21 @@
 class Solution {
 public:
-    // Time: O(3n)
+    // three-pass
+    // Time: O(N)
     int f1(vector<int>& height) {
         int n = height.size();
-        int lftMax[n]; // lftMax[i]: the maximum height of height[0:i]
-        int rhtMax[n]; // rhtMax[i]: the maximum height of height[i:]
 
+        // lftMax[i]: the max height of height[0:i]
+        int lftMax[n];
         lftMax[0] = height[0];
         for (int i = 1; i < n; ++i) {
             lftMax[i] = std::max(lftMax[i - 1], height[i]);
         }
 
+        // rhtMax[i]: the max height of height[i:n-1]
+        int rhtMax[n];
         rhtMax[n - 1] = height[n - 1];
-        for (int i = n - 1; 0 < i--;) {
+        for (int i = n - 2; i >= 0; --i) {
             rhtMax[i] = std::max(rhtMax[i + 1], height[i]);
         }
 
@@ -24,26 +27,24 @@ public:
         return ret;
     }
 
-    // Time: O(n)
+    // monotonic stack
+    // Time: O(N)
     int f2(vector<int>& height) {
-        int n = height.size();
-
         int ret = 0;
         stack<int> stk;
-        for (int i = 0; i < n; ++i) {
-            while (!stk.empty() && height[stk.top()] <= height[i]) {
-                int baseH = height[stk.top()];
+        for (int i = 0; i < height.size(); ++i) {
+            while (!stk.empty() && height[stk.top()] < height[i]) {
+                int base = height[stk.top()];
                 stk.pop();
 
                 if (stk.empty()) {
-                    continue;
+                    break;
                 }
 
                 int w = i - stk.top() - 1;
-                int h = std::min(height[stk.top()], height[i]) - baseH;
+                int h = std::min(height[stk.top()], height[i]) - base;
                 ret += w * h;
             }
-
             stk.push(i);
         }
 
