@@ -1,67 +1,55 @@
 class Solution {
 public:
-    // Time: O(3n)
-    int v1(const vector<int>& heights) {
+    // Time: O(3N)
+    int f1(vector<int>& heights) {
         int n = heights.size();
-
         stack<int> stk;
 
-        vector<int> preSmaller(n, -1);
-        while (!stk.empty()) {
-            stk.pop();
+        int nxtLT[n];
+        std::fill(nxtLT, nxtLT + n, n);
+        while (!stk.empty()) { stk.pop(); }
+        for (int i = 0; i < n; ++i) {
+            while (!stk.empty() && heights[stk.top()] > heights[i]) {
+                nxtLT[stk.top()] = i;
+                stk.pop();
+            }
+            stk.push(i);
         }
+
+        int preLT[n];
+        std::fill(preLT, preLT + n, -1);
+        while (!stk.empty()) { stk.pop(); }
         for (int i = 0; i < n; ++i) {
             while (!stk.empty() && heights[stk.top()] > heights[i]) {
                 stk.pop();
             }
             if (!stk.empty()) {
-                preSmaller[i] = stk.top();
+                preLT[i] = stk.top();
             }
-
-            stk.push(i);
-        }
-
-        vector<int> nxtSmaller(n, n);
-        while (!stk.empty()) {
-            stk.pop();
-        }
-        for (int i = 0; i < n; ++i) {
-            while (!stk.empty() && heights[stk.top()] > heights[i]) {
-                nxtSmaller[stk.top()] = i;
-                stk.pop();
-            }
-
             stk.push(i);
         }
 
         int ret = 0;
         for (int i = 0; i < n; ++i) {
-            int area = heights[i] * (nxtSmaller[i] - preSmaller[i] - 1);
-            ret = std::max(ret, area);
+            ret = std::max(ret, (nxtLT[i] - preLT[i] - 1) * heights[i]);
         }
 
         return ret;
     }
 
-    // Time: O(n)
-    int monotonicStack(vector<int>& heights) {
+    // Time: O(N)
+    int f2(vector<int>& heights) {
         heights.push_back(0);
-        
-        int n = heights.size();
-
+        heights.insert(heights.begin(), 0);
         stack<int> stk;
 
         int ret = 0;
-        for (int i = 0; i < n; ++i) {
-            while (!stk.empty() && heights[stk.top()] >= heights[i]) {
+        for (int i = 0; i < heights.size(); ++i) {
+            while (!stk.empty() && heights[stk.top()] > heights[i]) {
                 int h = heights[stk.top()];
                 stk.pop();
-
-                int rht = i - 1;
-                int lft = stk.empty() ? 0 : (stk.top() + 1);
-                ret = std::max(ret, h * (rht - lft + 1));
+                ret = std::max(ret, (i - stk.top() - 1) * h);
             }
-
             stk.push(i);
         }
 
@@ -69,7 +57,7 @@ public:
     }
 
     int largestRectangleArea(vector<int>& heights) {
-        //return v1(heights);
-        return monotonicStack(heights);
+        //return f1(heights);
+        return f2(heights);
     }
 };
