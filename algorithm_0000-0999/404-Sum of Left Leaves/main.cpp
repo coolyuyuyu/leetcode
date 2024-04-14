@@ -11,35 +11,37 @@
  */
 class Solution {
 public:
-    int recursive(TreeNode* root, bool left = false) {
-        if (!root) {
-            return 0;
-        }
+    int recursive(TreeNode* root) {
+        std::function<int(TreeNode*, bool)> f = [&](TreeNode* root, int left) {
+            if (!root) {
+                return 0;
+            }
 
-        int ret = (left && !root->left && !root->right? root->val : 0)
-            + recursive(root->left, true)
-            + recursive(root->right, false);
-        return ret;
+            return
+                (left && !root->left && !root->right ? root->val : 0)
+                + f(root->left, true)
+                + f(root->right, false);
+        };
+
+        return f(root, false);
     }
 
     int iterative(TreeNode* root) {
-        queue<pair<TreeNode*, bool>> q({{root, false}});
-
         int ret = 0;
-        while (!q.empty()) {
-            auto [node, left] = q.front();
+        for (queue<pair<TreeNode*, bool>> q({{root, false}}); !q.empty();) {
+            auto [root, left] = q.front();
             q.pop();
 
-            if (!node) {
+            if (!root) {
                 continue;
             }
 
-            if (left && !node->left && !node->right) {
-                ret += node->val;
+            if (left && !root->left && !root->right) {
+                ret += root->val;
             }
 
-            q.emplace(node->left, true);
-            q.emplace(node->right, false);
+            q.emplace(root->left, true);
+            q.emplace(root->right, false);
         }
 
         return ret;
