@@ -11,32 +11,33 @@
  */
 class Solution {
 public:
-    int recursive(TreeNode* root, int num = 0) {
-        if (!root) {
-            return 0;
-        }
-
-        num = num * 10 + root->val;
-        if (!(root->left) && !(root->right)) {
-            return num;
-        }
-        return recursive(root->left, num) + recursive(root->right, num);
-    }
-
-    int iterative(TreeNode* root) {
-        int sum = 0;
-        queue<pair<TreeNode*, int>> q({{root, 0}});
-        while (!q.empty()) {
-            auto [root, num] = q.front();
-            q.pop();
-
+    int recursive(TreeNode* root) {
+        std::function<int(TreeNode*, int)> f = [&](TreeNode* root, int num) {
             if (!root) {
-                continue;
+                return 0;
             }
 
             num = num * 10 + root->val;
-            if (!(root->left) && !(root->right)) {
-                sum += num;
+            if (!root->left && !root->right) {
+                return num;
+            }
+            return f(root->left, num) + f(root->right, num);
+        };
+
+        return f(root, 0);
+    }
+
+    int iterative(TreeNode* root) {
+        int ret = 0;
+        for (queue<pair<TreeNode*, int>> q({{root, 0}}); !q.empty();) {
+            auto [root, num] = q.front();
+            q.pop();
+
+            if (!root) { continue; }
+
+            num = num * 10 + root->val;
+            if (!root->left && !root->right) {
+                ret += num;
             }
             else {
                 q.emplace(root->left, num);
@@ -44,11 +45,11 @@ public:
             }
         }
 
-        return sum;
+        return ret;
     }
 
     int sumNumbers(TreeNode* root) {
-        //return recursive(root, 0);
+        //return recursive(root);
         return iterative(root);
     }
 };
