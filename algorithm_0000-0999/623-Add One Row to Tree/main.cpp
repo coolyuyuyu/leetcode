@@ -11,69 +11,57 @@
  */
 class Solution {
 public:
-    void addOneRow_Recursive(TreeNode* root, int val, int depth) {
-        if (!root) {
-            return;
-        }
+    TreeNode* recursive(TreeNode* root, int val, int depth) {
+        std::function<void(TreeNode**, int, bool)> f = [&](TreeNode** ppNode, int depth, bool addLft) {
+            if (depth == 1) {
+                if (addLft) {
+                    *ppNode = new TreeNode(val, *ppNode, nullptr);
+                }
+                else {
+                    *ppNode = new TreeNode(val, nullptr, *ppNode);
+                }
+            }
+            else if (*ppNode){
+                f(&((*ppNode)->left), depth - 1, true);
+                f(&((*ppNode)->right), depth - 1, false);
+            }
+        };
+        f(&root, depth, true);
 
-        if (--depth == 0) {
-            //cout << "root->val:" << root->val << endl;
-            root->left = new TreeNode(val, root->left, nullptr);
-            root->right = new TreeNode(val, nullptr, root->right);
-
-        }
-        else {
-            addOneRow_Recursive(root->left, val, depth);
-            addOneRow_Recursive(root->right, val, depth);
-        }
+        return root;
     }
 
-    void addOneRow_Iterative(TreeNode* root, int val, int depth) {
-        if (!root) {
-            return;
-        }
-
-        queue<TreeNode*> q;
-        if (root) {
-            q.push(root);
-        }
-        while (0 <--depth && !q.empty()) {
-            for (size_t i = q.size(); 0 < i; --i) {
-                TreeNode* node = q.front();
+    TreeNode* iterative(TreeNode* root, int val, int depth) {
+        queue<pair<TreeNode**, bool>> q({{&root, true}});
+        for (; !q.empty() && depth > 1; --depth) {
+            for (int i = q.size(); 0 < i--;) {
+                auto [ppNode, addLft] = q.front();
                 q.pop();
 
-                if (node->left) {
-                    q.push(node->left);
-                }
-                if (node->right) {
-                    q.push(node->right);
+                if (*ppNode) {
+                    q.emplace(&((*ppNode)->left), true);
+                    q.emplace(&((*ppNode)->right), false);
                 }
             }
         }
 
         while (!q.empty()) {
-            TreeNode* node = q.front();
+            auto [ppNode, addLft] = q.front();
             q.pop();
 
-            node->left = new TreeNode(val, node->left, nullptr);
-            node->right = new TreeNode(val, nullptr, node->right);
-        }
-    }
-
-    TreeNode* addOneRow_Helper(TreeNode* root, int val, int depth) {
-        assert(1 <= depth);
-        if (depth == 1) {
-            root = new TreeNode(val, root, nullptr);
-        }
-        else {
-            //addOneRow_Recursive(root, val, --depth);
-            addOneRow_Iterative(root, val, --depth);
+            if (addLft) {
+                *ppNode = new TreeNode(val, *ppNode, nullptr);
+            }
+            else {
+                *ppNode = new TreeNode(val, nullptr, *ppNode);
+            }
         }
 
         return root;
     }
 
     TreeNode* addOneRow(TreeNode* root, int val, int depth) {
-        return addOneRow_Helper(root, val, depth);
+        //return recursive(root, val, depth);
+        return iterative(root, val, depth);
     }
 };
