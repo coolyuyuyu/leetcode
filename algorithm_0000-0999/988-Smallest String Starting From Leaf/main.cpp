@@ -11,33 +11,30 @@
  */
 class Solution {
 public:
-    void smallestFromLeaf_Recursive(TreeNode* root, string& tmp, string& result) {
-        if (!root) {
-            return;
-        }
+    string recursive(TreeNode* root) {
+        string ret, cur;
+        std::function<void(TreeNode*)> f = [&](TreeNode* root) {
+            if (!root) { return; }
 
-        tmp.push_back('a' + root->val);
-
-        if (!root->left && !root->right) {
-            if (result.empty()) {
-                result.insert(result.begin(), tmp.rbegin(), tmp.rend());
-            }
-            else {
-                string rev(tmp.rbegin(), tmp.rend());
-                if (rev < result) {
-                    result = rev;
+            cur.push_back('a' + root->val);
+            if (!root->left && !root->right) {
+                if (ret.empty() || std::lexicographical_compare(cur.rbegin(), cur.rend(), ret.rbegin(), ret.rend())) {
+                    ret = cur;
                 }
             }
-        }
-        else {
-            smallestFromLeaf_Recursive(root->left, tmp, result);
-            smallestFromLeaf_Recursive(root->right, tmp, result);
-        }
+            f(root->left);
+            f(root->right);
+            cur.pop_back();
+        };
+        f(root);
+        std::reverse(ret.begin(), ret.end());
 
-        tmp.pop_back();
+        return ret;
     }
 
-    void smallestFromLeaf_Iterative(TreeNode* root, string& tmp, string& result) {
+    string iterative(TreeNode* root) {
+        string tmp, result;
+
         // postorder traversal
         stack<pair<TreeNode*, bool>> stk; // <node, visited>
         if (root) {
@@ -51,7 +48,7 @@ public:
             if (visited) {
                 if (!node->left && !node->right) {
                     if (result.empty()) {
-                        result.insert(result.begin(), tmp.rbegin(), tmp.rend());
+                        result.append(tmp.rbegin(), tmp.rend());
                     }
                     else {
                         string rev(tmp.rbegin(), tmp.rend());
@@ -75,15 +72,12 @@ public:
                 }
             }
         }
+
+        return result;
     }
 
     string smallestFromLeaf(TreeNode* root) {
-        string tmp;
-        string result;
-
-        //smallestFromLeaf_Recursive(root, tmp, result);
-        smallestFromLeaf_Iterative(root, tmp, result);
-
-        return result;
+        //return recursive(root);
+        return iterative(root);
     }
 };
