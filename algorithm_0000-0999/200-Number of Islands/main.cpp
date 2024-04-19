@@ -43,6 +43,38 @@ public:
         vector<pair<int, int>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
         std::function<void(int, int)> f = [&](int r, int c) {
             grid[r][c] = '0';
+            for (queue<pair<int, int>> q({{r, c}}); !q.empty();) {
+                auto [r, c] = q.front();
+                q.pop();
+                for (const auto& [dr, dc] : dirs) {
+                    int x = r + dr, y = c + dc;
+                    if (x < 0 || m <= x || y < 0 || n <= y) { continue; }
+                    if (grid[x][y] == '0') { continue; }
+                    grid[x][y] = '0';
+                    q.emplace(x, y);
+                }
+            }
+        };
+
+        int ret = 0;
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                if (grid[r][c] == '1') {
+                    f(r, c);
+                    ++ret;
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    int dfs(vector<vector<char>>& grid) {
+        int m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
+
+        vector<pair<int, int>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
+        std::function<void(int, int)> f = [&](int r, int c) {
+            grid[r][c] = '0';
             for (const auto& [dr, dc] : dirs) {
                 int x = r + dr, y = c + dc;
                 if (x < 0 || m <= x || y < 0 || n <= y) { continue; }
@@ -93,7 +125,8 @@ public:
     }
 
     int numIslands(vector<vector<char>>& grid) {
-        //return bfs(grid);
-        return dsu(grid);
+        return bfs(grid);
+        //return dfs(grid);
+        //return dsu(grid);
     }
 };
