@@ -13,7 +13,7 @@ public:
                     ++cnt;
                 }
             }
-            if (0 < cnt && cnt <= k) {
+            if (cnt <= k) {
                 ++ret[cnt - 1];
             }
             i = j;
