@@ -15,7 +15,6 @@ public:
                     break;
                 }
             }
-
             for (int i = mid; i <= rht; ++i) {
                 if (preorder[i] < root) {
                     return false;;
