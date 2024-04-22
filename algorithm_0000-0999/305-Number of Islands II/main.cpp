@@ -1,33 +1,34 @@
 class DisjointSets {
 public:
-    DisjointSets(size_t n)
-        : m_size(0)
-        , m_parents(n, -1) {
+    DisjointSets(int n)
+        : m_parents(n, -1)
+        , m_size(0) {
     }
 
-    size_t size() const {
-        return m_size;
-    }
-
-    void fill(int elem) {
-        if (filled(elem)) {
-            return;
-        }
-
-        ++m_size;
+    void enable(int elem) {
+        if (enabled(elem)) { return; }
         m_parents[elem] = elem;
+        ++m_size;
     }
 
-    bool filled(int elem) {
-        return 0 <= m_parents[elem];
+    bool enabled(int elem) const {
+        return m_parents[elem] != -1;
     }
 
     void merge(int elem1, int elem2) {
         int root1 = root(elem1), root2 = root(elem2);
         if (root1 != root2) {
-            --m_size;
             m_parents[root1] = root2;
+            --m_size;
         }
+    }
+
+    bool connected(int elem1, int elem2) const {
+        return root(elem1) == root(elem2);
+    }
+
+    int size() const {
+        return m_size;
     }
 
 private:
@@ -35,43 +36,39 @@ private:
         if (m_parents[elem] != elem) {
             m_parents[elem] = root(m_parents[elem]);
         }
+
         return m_parents[elem];
     }
 
-    size_t m_size;
     mutable vector<int> m_parents;
+    int m_size;
 };
 
 class Solution {
 public:
-    vector<array<int, 2>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
+    vector<pair<int, int>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
 
     vector<int> numIslands2(int m, int n, vector<vector<int>>& positions) {
-        auto encode = [m, n](const vector<int>& position) -> int {
-            return position[0] * n + position[1];
+        std::function<int(int, int)> encode = [&](int r, int c) {
+            return r * n + c;
         };
 
-        DisjointSets ds(m * n);
-
         vector<int> ret(positions.size());
+
+        DisjointSets ds(m * n);
         for (int i = 0; i < positions.size(); ++i) {
-            const vector<int>& position = positions[i];
+            int id1 = encode(positions[i][0], positions[i][1]);
+            ds.enable(id1);
 
-            int id = encode(position);
-            ds.fill(id);
+            for (const auto& [dr, dc] : dirs) {
+                int x = positions[i][0] + dr;
+                int y = positions[i][1] + dc;
+                if (x < 0 || m <= x || y < 0 || n <= y) { continue; }
 
-            for (const auto& dir : dirs) {
-                vector<int> neighbor = {position[0] + dir[0], position[1] + dir[1]};
-                if (neighbor[0] < 0 || m <= neighbor[0] || neighbor[1] < 0 || n <= neighbor[1]) {
-                    continue;
+                int id2 = encode(x, y);
+                if (ds.enabled(id2)) {
+                    ds.merge(id1, id2);
                 }
-
-                int neighborId = encode(neighbor);
-                if (!ds.filled(neighborId)) {
-                    continue;
-                }
-
-                ds.merge(id, neighborId);
             }
 
             ret[i] = ds.size();
