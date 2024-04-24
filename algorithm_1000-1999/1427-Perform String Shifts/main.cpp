@@ -1,23 +1,15 @@
 class Solution {
 public:
     string stringShift(string s, vector<vector<int>>& shift) {
-        int amount = 0;
-        for (const auto& s : shift) {
-            if (s[0] == 1) {
-                amount += s[1];
-            }
-            else {
-                amount -= s[1];
-            }
-        }
-        if (0 <= amount) {
-            amount %= s.size();
-        }
-        else {
-            amount = -(-amount % s.size());
-        }
+        int n = s.size();
 
-        rotate(s.begin(), s.begin()+ (0 < amount ? s.size() - amount : -amount), s.end());
+        int k = 0;
+        for (const auto& s : shift) {
+            k += (s[0] == 0 ? 1 : -1) * s[1];
+        }
+        k = ((k % n) + n) % n;
+
+        std::rotate(s.begin(), s.begin() + k, s.end());
         return s;
     }
 };
