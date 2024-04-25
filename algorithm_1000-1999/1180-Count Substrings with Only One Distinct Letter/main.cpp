@@ -1,22 +1,12 @@
 class Solution {
 public:
     int countLetters(string s) {
+        int n = s.size();
+
         int ret = 0;
-
-        char c = '\0';
-        int cnt = 0;
-        for (int i = 0, n = s.size(); i <= n; ++i) {
-            if (i == n || c != s[i]) {
-                ret += (cnt) * (cnt + 1) / 2;
-
-                if (i < n) {
-                    c = s[i];
-                    cnt = 1;
-                }
-            }
-            else {
-                ++cnt;
-            }
+        for (int i = 0, cnt = 0; i < n; ++i) {
+            cnt = ((i == 0 || s[i - 1] != s[i])? 1 : cnt + 1);
+            ret += cnt;
         }
 
         return ret;
