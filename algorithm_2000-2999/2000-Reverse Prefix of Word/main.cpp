@@ -1,9 +1,9 @@
 class Solution {
 public:
     string reversePrefix(string word, char ch) {
-        auto itr = std::find(word.begin(), word.end(), ch);
-        if (itr != word.end()) {
-            std::reverse(word.begin(), itr + 1);
+        size_t pos = word.find(ch);
+        if (pos != string::npos) {
+            std::reverse(word.begin(), word.begin() + pos + 1);
         }
 
         return word;
