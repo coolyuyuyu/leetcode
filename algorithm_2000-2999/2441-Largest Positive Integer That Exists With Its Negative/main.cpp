@@ -1,18 +1,20 @@
 class Solution {
 public:
     int findMaxK(vector<int>& nums) {
-        set<int> s(nums.begin(), nums.end());
-        for (auto itr = s.begin(); itr != s.end(); ++itr) {
-            int num = *itr;
-            if (0 <= num) {
-                break;
-            }
-
-            if (s.find(-num) != s.end()) {
-                return -num;
+        unordered_set<int> negatives;
+        for (int num : nums) {
+            if (num < 0) {
+                negatives.insert(num);
             }
         }
 
-        return -1;
+        int ret = -1;
+        for (int num : nums) {
+            if (num > 0 && negatives.find(-num) != negatives.end()) {
+                ret = std::max(ret, num);
+            }
+        }
+
+        return ret;
     }
 };
