@@ -26,7 +26,7 @@ public:
                 state ^= (1 << bidx);
             }
 
-            // All characters of substring appear even number of times
+            // All vowel characters of substring appear even number of times
             if (state2idx.find(state) != state2idx.end()) {
                 ret = std::max(ret, i - state2idx[state]);
             }
