@@ -1,15 +1,14 @@
 class Solution {
 public:
     // Time: O(nlogn)
-    int greedy(vector<int>& people, int limit) {
+    int greedy1(vector<int>& people, int limit) {
         std::sort(people.begin(), people.end());
 
         int ret = 0;
-        for (int lft = 0, rht = people.size() - 1; lft <= rht;) {
-            if ((people[lft] + people[rht]) <= limit) {
+        for (int lft = 0, rht = people.size() - 1; lft <= rht; --rht) {
+            if (people[lft] + people[rht] <= limit) {
                 ++lft;
             }
-            --rht;
             ++ret;
         }
 
@@ -17,22 +16,25 @@ public:
     }
 
     // Time: O(n + limit)
-    int counting(const vector<int>& people, int limit) {
-        vector<int> cnts(limit + 1, 0);
+    int greedy2(vector<int>& people, int limit) {
+        int cnts[limit + 1];
+        for (int i = 0; i <= limit; ++i) {
+            cnts[i] = 0;
+        }
         for (int w : people) {
             ++cnts[w];
         }
 
         int ret = 0;
-        for (int lft = 1, rht = limit; 0 < rht; --rht) {
-            while (0 < cnts[rht]) {
+        for (int lft = 0, rht = limit; 0 <= rht; --rht) {
+            while (cnts[rht] > 0) {
                 --cnts[rht];
                 ++ret;
 
                 while (lft < rht && cnts[lft] == 0) {
                     ++lft;
                 }
-                if (0 < cnts[lft] && (lft + rht) <= limit) {
+                if (cnts[lft] > 0 && lft + rht <= limit) {
                     --cnts[lft];
                 }
             }
@@ -42,7 +44,7 @@ public:
     }
 
     int numRescueBoats(vector<int>& people, int limit) {
-        //return greedy(people, limit);
-        return counting(people, limit);
+        //return greedy1(people, limit);
+        return greedy2(people, limit);
     }
 };
