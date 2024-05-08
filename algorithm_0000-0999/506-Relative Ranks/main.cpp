@@ -1,24 +1,22 @@
 class Solution {
 public:
-    vector<string> findRelativeRanks(vector<int>& scores) {
-        vector<size_t> indexes(scores.size());
-        for (size_t i = 0; i < indexes.size(); ++i){
-            indexes[i] = i;
-        }
-        std::sort(indexes.begin(), indexes.end(), [&](size_t a, size_t b){ return scores[a] < scores[b]; });
+    vector<string> findRelativeRanks(vector<int>& score) {
+        int n = score.size();
 
-        vector<string> ranks(indexes.size());
-        if (0 < indexes.size())
-            ranks[indexes[indexes.size() - 1]] = "Gold Medal";
-        if (1 < indexes.size())
-            ranks[indexes[indexes.size() - 2]] = "Silver Medal";
-        if (2 < indexes.size()) {
-            ranks[indexes[indexes.size() - 3]] = "Bronze Medal";
-            for (size_t i = indexes.size() - 3; 0 < i--;) {
-                ranks[indexes[i]] = std::to_string(indexes.size() - i);
+        int indexes[n];
+        std::iota(indexes, indexes + n, 0);
+        std::sort(indexes, indexes + n, [&](int idx1, int idx2){ return score[idx1] > score[idx2]; });
+
+        vector<string> ret(n);
+        for (int i = 0; i < n; ++i) {
+            switch(i) {
+            case 0: ret[indexes[i]] = "Gold Medal"; break;
+            case 1: ret[indexes[i]] = "Silver Medal"; break;
+            case 2: ret[indexes[i]] = "Bronze Medal"; break;
+            default: ret[indexes[i]] = std::to_string(i + 1); break;
             }
         }
 
-        return ranks;
+        return ret;
     }
 };
