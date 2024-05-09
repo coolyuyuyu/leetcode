@@ -8,8 +8,11 @@ public:
 
         long long ret = 0;
         for (int i = 0; i < k; ++i) {
-            ret += std::max(maxPQ.top() - i, 0);
+            int happy = maxPQ.top();
             maxPQ.pop();
+
+            if (happy <= i) { return ret; }
+            ret += happy - i;
         }
 
         return ret;
