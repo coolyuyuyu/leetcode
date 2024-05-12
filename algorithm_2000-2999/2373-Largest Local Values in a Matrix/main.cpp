@@ -1,20 +1,17 @@
 class Solution {
 public:
     vector<vector<int>> largestLocal(vector<vector<int>>& grid) {
-        size_t n = grid.size();
-
-        vector<vector<int>> ans(n - 2, vector<int>(n - 2));
-        for (size_t i = 0; (i + 2) < n; ++i) {
-            for (size_t j = 0; (j + 2) < n; ++j) {
-                int maxVal = 0;
-                for (size_t x = i; x < (i + 3); ++x) {
-                    for (size_t y = j; y < (j + 3); ++y) {
-                        if (maxVal < grid[x][y]) {
-                            maxVal = grid[x][y];
-                        }
+        int n = grid.size();
+        vector<vector<int>> ret(n - 2, vector<int>(n - 2));
+        for (int r = 0; r + 2 < n; ++r) {
+            for (int c = 0; c + 2 < n; ++c) {
+                int mx = INT_MIN;
+                for (int i = r; i < r + 3; ++i) {
+                    for (int j = c; j < c + 3; ++j) {
+                        mx = std::max(mx, grid[i][j]);
                     }
                 }
-                ans[i][j] = maxVal;
+                ret[r][c] = mx;
             }
         }
 
