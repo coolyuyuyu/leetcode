@@ -11,41 +11,36 @@
  */
 class Solution {
 public:
-    TreeNode* removeLeafNodes_Recursive(TreeNode* root, int target) {
-        if (root->left) {
-            root->left = removeLeafNodes_Recursive(root->left, target);
-        }
-        if (root->right) {
-            root->right = removeLeafNodes_Recursive(root->right, target);
-        }
+    TreeNode* recursive(TreeNode* root, int target) {
+        if (!root) { return nullptr; }
+
+        root->left = recursive(root->left, target);
+        root->right = recursive(root->right, target);
         if (!root->left && !root->right && root->val == target) {
             return nullptr;
         }
-
-        return root;
+        else {
+            return root;
+        }
     }
 
-    TreeNode* removeLeafNodes_Iterative(TreeNode* root, int target) {
-        //postorder traversal
+    TreeNode* iterative(TreeNode* root, int target) {
         stack<pair<TreeNode**, bool>> stk({{&root, false}});
         while (!stk.empty()) {
-            TreeNode** ppNode = stk.top().first;
-            bool visited = stk.top().second;
+            auto [ppNode, visited] = stk.top();
             stk.pop();
 
+            if (*ppNode == nullptr) { continue; }
+
             if (visited) {
-                if (!((*ppNode)->left) && !((*ppNode)->right) && (*ppNode)->val == target) {
+                if ((*ppNode)->left == nullptr && (*ppNode)->right == nullptr && (*ppNode)->val == target) {
                     *ppNode = nullptr;
                 }
             }
             else {
                 stk.emplace(ppNode, true);
-                if ((*ppNode)->right) {
-                    stk.emplace(&((*ppNode)->right), false);
-                }
-                if ((*ppNode)->left) {
-                    stk.emplace(&((*ppNode)->left), false);
-                }
+                stk.emplace(&((*ppNode)->right), false);
+                stk.emplace(&((*ppNode)->left), false);
             }
         }
 
@@ -53,7 +48,7 @@ public:
     }
 
     TreeNode* removeLeafNodes(TreeNode* root, int target) {
-        //return removeLeafNodes_Recursive(root, target);
-        return removeLeafNodes_Iterative(root, target);
+        //return recursive(root, target);
+        return iterative(root, target);
     }
 };
