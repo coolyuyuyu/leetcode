@@ -1,52 +1,41 @@
 class Solution {
 public:
-
-    void recursive(vector<int>& nums, vector<bool>& flags, size_t depth, int& xorSum) {
-        if (nums.size() <= depth) {
-            int x = 0;
-            for (size_t i = 0; i < flags.size(); ++i) {
-                if (flags[i]) {
-                    x ^= nums[i];
-                }
+    int dfs(vector<int>& nums) {
+        std::function<int(int, int)> f = [&](int i, int sum) {
+            if (i >= nums.size()) {
+                return sum;
             }
-            xorSum += x;
 
-            return;
-        }
+            return f(i + 1, sum) + f(i + 1, sum ^ nums[i]);
+        };
 
-        flags[depth] = false;
-        recursive(nums, flags, depth + 1, xorSum);
-        flags[depth] = true;
-        recursive(nums, flags, depth + 1, xorSum);
+        return f(0, 0);
     }
 
     int bitmask1(vector<int>& nums) {
-        int xorSum = 0;
-        for (int mask  = 1; mask < (1 << nums.size()); ++mask) {
-            int s = 0;
-            for (int i = 0; i < nums.size(); ++i) {
-                if (mask & (1 << i)) {
-                    s ^= nums[i];
+        int n = nums.size();
+
+        int ret = 0;
+        for (int s = 0; s < (1 << n); ++s) {
+            int sum = 0;
+            for (int state = s, i = 0; state; state >>= 1, ++i) {
+                if (state & 1) {
+                    sum ^= nums[i];
                 }
             }
-            xorSum += s;
+            ret += sum;
         }
 
-        return xorSum;
+        return ret;
     }
 
     int bitmask2(vector<int>& nums) {
-        return std::accumulate(nums.begin(), nums.end(), 0, bit_or<int>()) << (nums.size() - 1);
+        return std::accumulate(nums.begin(), nums.end(), 0, std::bit_or<int>()) << (nums.size() - 1);
     }
 
     int subsetXORSum(vector<int>& nums) {
-        //vector<bool> flags(nums.size(), false);
-        //int xorSum = 0;
-        //recursive(nums, flags, 0, xorSum);
-        //return xorSum;
-
+        //return dfs(nums);
         //return bitmask1(nums);
-
         return bitmask2(nums);
     }
 };
