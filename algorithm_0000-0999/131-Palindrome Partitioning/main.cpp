@@ -1,50 +1,46 @@
 class Solution {
 public:
-    vector<vector<bool>> computePalindrom(const string& s) {
-        size_t n = s.size();
-        vector<vector<bool>> dp(n, vector<bool>(n, false));
-        for (size_t i = 0; i < n; ++i) {
+    vector<vector<string>> partition(string s) {
+        int n = s.size();
+
+        // dp[i][j]: whether s[i:j] is palindrome or not
+        int dp[n][n];
+        for (int i = 0; i < n; ++i) {
+            for (int j = i; j < n; ++j) {
+                dp[i][j] = false;
+            }
+        }
+        for (int i = 0; i < n; ++i) {
             dp[i][i] = true;
         }
-        for (size_t i = 0; (i + 1) < n; ++i) {
-            if (s[i] == s[i + 1]) {
-                dp[i][i + 1] = true;
+        for (int i = 0; i + 1 < n; ++i) {
+            dp[i][i + 1] = s[i] == s[i + 1];
+        }
+        for (int len = 3; len <= n; ++len) {
+            for (int i = 0, j = i + len - 1; j < n; ++i, ++j) {
+                dp[i][j] = s[i] == s[j] && dp[i + 1][j - 1];
             }
         }
-        for (size_t len = 3; len <= n; ++len) {
-            for (size_t i = 0; (i + len) <= n; ++i) {
-                if (dp[i + 1][i + len - 2] && s[i] == s[i + len - 1]) {
-                    dp[i][i + len - 1] = true;
+
+        vector<vector<string>> ret;
+        std::function<void(int, vector<string>&)> dfs = [&](int i, vector<string>& partition) {
+            if (i >= n) {
+                ret.push_back(partition);
+                return;
+            }
+
+            for (int j = i; j < n; ++j) {
+                if (dp[i][j]) {
+                    partition.push_back(s.substr(i, j - i + 1));
+                    dfs(j + 1, partition);
+                    partition.pop_back();
                 }
             }
-        }
-
-        return dp;
-    }
-
-    void dfs(const string& s, vector<vector<bool>>& palidrome, int start, vector<string>& partition, vector<vector<string>>& partitions) {
-        if (palidrome.size() <= start) {
-            partitions.emplace_back(partition.begin(), partition.end());
-            return;
-        }
-
-        for (int i = start; i < palidrome.size(); ++i) {
-            if (!palidrome[start][i]) {
-                continue;
-            }
-
-            partition.emplace_back(s.begin() + start, s.begin() + i + 1);
-            dfs(s, palidrome, i + 1, partition, partitions);
-            partition.pop_back();
-        }
-    }
-
-    vector<vector<string>> partition(string s) {
-        vector<vector<bool>> palidrome = computePalindrom(s);
+        };
 
         vector<string> partition;
-        vector<vector<string>> partitions;
-        dfs(s, palidrome, 0, partition, partitions);
-        return partitions;
+        dfs(0, partition);
+
+        return ret;
     }
 };
