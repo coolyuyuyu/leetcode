@@ -3,30 +3,35 @@ public:
     int maxScoreWords(vector<string>& words, vector<char>& letters, vector<int>& score) {
         int n = words.size();
 
-        vector<int> freq(26, 0);
+        int cnts[26];
+        std::fill(cnts, cnts + 26, 0);
         for (char c : letters) {
-            ++freq[c - 'a'];
+            ++cnts[c - 'a'];
         }
 
-        std::function<int(vector<int>, int)> computeScore = [&](vector<int> freq, int state) {
-            int ret = 0;
+        std::function<int(int)> computeScore = [&](int state) {
+            int freq[26];
+            std::fill(freq, freq + 26, 0);
             for (int i = 0; i < n; ++i) {
-                if (state & (1 << i)) {
+                if ((state >> i) & 1) {
                     for (char c : words[i]) {
-                        if (--freq[c - 'a'] < 0) {
-                            return 0;
-                        }
-                        ret += score[c - 'a'];
+                        ++freq[c - 'a'];
                     }
                 }
+            }
+
+            int ret = 0;
+            for (int i = 0; i < 26; ++i) {
+                if (freq[i] > cnts[i]) { return 0; }
+                ret += score[i] * freq[i];
             }
 
             return ret;
         };
 
         int ret = 0;
-        for (int state = 0; state < (1 << n); ++state) {
-            ret = std::max(ret, computeScore(freq, state));
+        for (int s = 0; s < (1 << n); ++s) {
+            ret = std::max(ret, computeScore(s));
         }
 
         return ret;
