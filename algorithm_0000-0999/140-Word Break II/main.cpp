@@ -1,103 +1,70 @@
 class Solution {
 public:
     struct TrieNode {
-        TrieNode()
-            : childs()
-            , end(false) {
-        }
-        map<char, TrieNode*> childs;
+        array<TrieNode*, 26> childs;
         bool end;
-        size_t index;
+        TrieNode() {
+            childs.fill(nullptr);
+            end = false;
+        }
     };
 
-    TrieNode* buildTrie(const vector<string>& words) {
-        TrieNode* root = new TrieNode();
-        for (size_t j = 0; j < words.size(); ++j) {
-            TrieNode* node = root;
-            const string& word = words[j];
-            for (size_t i = 0; i < word.size(); ++i) {
-                TrieNode* child = NULL; {
-                    char c = word[i];
-                    pair<map<char, TrieNode*>::iterator, bool> p = node->childs.emplace(c, nullptr);
-                    if (p.second) {
-                        child = new TrieNode();
-                        p.first->second = child;
-                    }
-                    else {
-                        child = p.first->second;
-                    }
-
-                }
-                node = child;
+    void addWord(TrieNode* root, const string& word) {
+        TrieNode* node = root;
+        for (char c : word) {
+            if (node->childs[c - 'a'] == nullptr) {
+                node->childs[c - 'a'] = new TrieNode();
             }
-            if (node->end == false) {
-                node->end = true;
-                node->index = j;
-            }
+            node = node->childs[c - 'a'];
         }
-
-        return root;
-    }
-
-    const vector<vector<size_t>>& wordBreak(const string& s, size_t index, const TrieNode* root, vector<bool>& dones, vector<vector<vector<size_t>>>& results) {
-        size_t len = s.size();
-        assert(index < len);
-
-        if (dones[index]) {
-            return results[index];
-        }
-
-        const TrieNode* node = root;
-        vector<vector<size_t>>& result = results[index];
-        for (size_t i = index; i < len; ++i) {
-            map<char, TrieNode*>::const_iterator itr = node->childs.find(s[i]);
-            if (itr == node->childs.end()) {
-                break;
-            }
-
-            node = itr->second;
-            if (node->end) {
-                if (i + 1 < len) {
-                    const vector<vector<size_t>>& subResults = wordBreak(s, i + 1, root, dones, results);
-                    for (size_t j = 0; j < subResults.size(); ++j) {
-                        const vector<size_t>& subResult = subResults[j];
-                        result.emplace_back(subResult.begin(), subResult.end());
-                        result.back().insert(result.back().begin(), node->index);
-                    }
-                }
-                else {
-                    result.emplace_back(1, node->index);
-                }
-            }
-        }
-
-        dones[index] = true;
-        return result;
+        node->end = true;
     }
 
     vector<string> wordBreak(string s, vector<string>& wordDict) {
-        if (s.empty()) {
-            return {};
+        TrieNode* root = new TrieNode();
+        for (const string& word : wordDict) {
+            addWord(root, word);
         }
 
-        const TrieNode* root = buildTrie(wordDict);
-        vector<bool> dones(s.size(), false);
-        vector<vector<vector<size_t>>> results(s.size());
-        const vector<vector<size_t>>& result = wordBreak(s, 0, root, dones, results);
+        int n = s.size();
+        bool breakables[n];
+        std::fill(breakables, breakables + n, true);
+        vector<string> ret;
+        std::function<bool(int, vector<string>&)> dfs = [&](int start, vector<string>& words) {
+            if (start >= n) {
+                string sentence;
+                for (const string& word : words) {
+                    if (!sentence.empty()) { sentence += " "; }
+                    sentence += word;
+                }
+                ret.push_back(sentence);
+                return true;
+            }
 
-        vector<string> sentences;
-        for (size_t i = 0; i < result.size(); ++i) {
-            const vector<size_t>& indexes = result[i];
-            string sentence;
-            for (size_t j = 0; j < indexes.size(); ++j) {
-                sentence += wordDict[indexes[j]];
-                if (j + 1 < indexes.size()) {
-                    sentence += " ";
+            bool& breakable = breakables[start];
+            if (!breakable) { return false;}
+
+            TrieNode* node = root;
+            string word;
+            for (int i = start; i < n && node; ++i) {
+                node = node->childs[s[i] - 'a'];
+                word += s[i];
+                if (!node) { break; }
+                if (node->end) {
+                    words.push_back(word);
+                    if (dfs(i + 1, words)) {
+                        breakable = true;
+                    }
+                    words.pop_back();
                 }
             }
-            sentences.emplace_back(sentence);
-        }
 
-        return sentences;
+            return breakable;
+        };
+
+        vector<string> words;
+        dfs(0, words);
+
+        return ret;
     }
 };
