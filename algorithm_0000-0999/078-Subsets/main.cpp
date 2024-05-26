@@ -1,22 +1,39 @@
 class Solution {
 public:
-    vector<vector<int>> subsets(vector<int>& nums) {
-        vector<vector<int>> ans;
-        ans.reserve(pow(2, nums.size()));
-        if (!nums.empty()) {
-            ans.push_back({});
-            ans.push_back({nums[0]});
-        }
+    vector<vector<int>> recursive(vector<int>& nums) {
+        vector<int> comb;
+        vector<vector<int>> combs;
+        std::function<void(int)> f = [&](int i) {
+            if (i >= nums.size()) {
+                combs.push_back(comb);
+                return;
+            }
 
-        for (size_t i = 1; i < nums.size(); ++i) {
-            size_t n = ans.size();
-            ans.insert(ans.end(), ans.begin(), ans.end());
+            f(i + 1);
 
-            for (size_t j = 0; j < n; ++j) {
-                ans[j].push_back(nums[i]);
+            comb.push_back(nums[i]);
+            f(i + 1);
+            comb.pop_back();
+        };
+        f(0);
+
+        return combs;
+    }
+
+    vector<vector<int>> iterative(vector<int>& nums) {
+        vector<vector<int>> combs = {{}};
+        for (size_t i = 0; i < nums.size(); ++i) {
+            for (size_t j = 0, n = combs.size(); j < n; ++j) {
+                combs.push_back(combs[j]);
+                combs[j].push_back(nums[i]);
             }
         }
 
-        return ans;
+        return combs;
+    }
+
+    vector<vector<int>> subsets(vector<int>& nums) {
+        //return recursive(nums);
+        return iterative(nums);
     }
 };
