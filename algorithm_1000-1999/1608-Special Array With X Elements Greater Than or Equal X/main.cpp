@@ -1,19 +1,22 @@
 class Solution {
 public:
-    int specialArray_BruteForce(vector<int>& nums) {
-        sort(nums.begin(), nums.end());
+    // Time: O(n^2)
+    int bruteforce(vector<int>& nums) {
+        int n = nums.size();
 
-        auto check = [&nums](int x) {
-            for (int i = 0; i < nums.size(); ++i) {
-                if (x <= nums[i]) {
-                    return ((nums.size() - i) == x);
+        std::function<bool(int)> checkSpecial = [&](int x) {
+            int cnt = 0;
+            for (int num : nums) {
+                if (num >= x) {
+                    ++cnt;
                 }
             }
 
-            return false;
+            return x == cnt;
         };
-        for (int i = 0; i <= nums.size(); ++i) {
-            if (check(i)) {
+
+        for (int i = 1; i <= n; ++i) {
+            if (checkSpecial(i)) {
                 return i;
             }
         }
@@ -21,32 +24,47 @@ public:
         return -1;
     }
 
-    int specialArray_BruteForce_Search(vector<int>& nums) {
-        sort(nums.begin(), nums.end());
+    // Time: O(nlogn)
+    int bsearch(vector<int>& nums) {
+        std::function<int(int)> cntGE = [&](int x) {
+            int ret = 0;
+            for (int num : nums) {
+                if (num >= x) {
+                    ++ret;
+                }
+            }
 
-        auto check = [&nums](int x) {
-            auto itr = lower_bound(nums.begin(), nums.end(), x);
-            return (distance(itr, nums.end()) == x);
+            return ret;
         };
-        for (int i = 0; i <= nums.size(); ++i) {
-            if (check(i)) {
-                return i;
+
+        int lo = 1, hi = nums.size();
+        while (lo <hi) {
+            int mid = hi - (hi - lo) / 2;
+            int cnt = cntGE(mid);
+            if (cnt >= mid) {
+                lo = mid;
+            }
+            else {
+                hi = mid - 1;
             }
         }
 
-        return -1;
+        return cntGE(lo) == lo ? lo : -1;
     }
 
-    int specialArray_CountingSort(vector<int>& nums) {
-        vector<int> counts(102, 0);
+    // Time: O(n)
+    int countsort(vector<int>& nums) {
         int n = nums.size();
+        int cnts[n + 1];
+        std::fill(cnts, cnts + n + 1, 0);
         for (int num : nums) {
-            ++counts[min(num, n)];
+            ++cnts[std::min(num, n)];
         }
-        for (int i = n; i >= 0; --i) {
-            counts[i] += counts[i + 1];
-            if (counts[i] == i) {
-                return i;
+
+        for (int i = n, cnt = 0; i >= 0; --i) {
+            cnt += cnts[i];
+            if (cnt == i) {
+                return cnt;
             }
         }
 
@@ -54,13 +72,8 @@ public:
     }
 
     int specialArray(vector<int>& nums) {
-        // Time: O(N^2)
-        // return specialArray_BruteForce(nums);
-
-        // Time: O(NlogN)
-        // return specialArray_BruteForce_Search(nums);
-
-        // Time: O(N)
-        return specialArray_CountingSort(nums);
+        //return bruteforce(nums);
+        //return bsearch(nums);
+        return countsort(nums);
     }
 };
