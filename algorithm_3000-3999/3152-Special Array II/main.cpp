@@ -3,7 +3,7 @@ public:
     vector<bool> isArraySpecial(vector<int>& nums, vector<vector<int>>& queries) {
         int m = nums.size(), n = queries.size();
 
-        // dp[i]: the number of break points from nums[0] to nums[i];
+        // dp[i]: the number of break points from nums[0:i];
         int dp[m];
         dp[0] = 0;
         for (int i = 1; i < m; ++i) {
