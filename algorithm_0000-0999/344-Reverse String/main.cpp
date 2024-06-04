@@ -1,13 +1,8 @@
 class Solution {
 public:
-    string reverseString(string s) {
-        int lft = 0;
-        int rht = s.size() - 1;
-        while (lft < rht) {
-            swap(s[lft], s[rht]);
-            ++lft;
-            --rht;
+    void reverseString(vector<char>& s) {
+        for (int lft = 0, rht = s.size() - 1; lft < rht; ++lft, --rht) {
+            std::swap(s[lft], s[rht]);
         }
-        return s;
     }
 };
