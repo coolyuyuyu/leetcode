@@ -1,28 +1,18 @@
 class Solution {
 public:
-    bool isNStraightHand(vector<int>& hand, int W) {
-        map<int, int> counts;
+    bool isNStraightHand(vector<int>& hand, int groupSize) {
+        multiset<int> ms;
         for (int num : hand) {
-            ++counts[num];
+            ms.insert(num);
         }
 
-        while (!counts.empty()) {
-            auto itr = counts.begin();
-            int num = counts.begin()->first;
-            for (int i = 0; i < W; ++i) {
-                if (itr == counts.end()) {
-                    return false;
-                }
-                if (itr->first != num + i) {
-                    return false;
-                }
-
-                --itr->second;
-                auto itrCur = itr;
-                ++itr;
-                if (itrCur->second == 0) {
-                    counts.erase(itrCur);
-                }
+        while (!ms.empty()) {
+            int x = *ms.begin();
+            for (int i = 0; i < groupSize; ++i) {
+                int num = x + i;
+                auto itr = ms.find(num);
+                if (itr == ms.end()) { return false ;}
+                ms.erase(itr);
             }
         }
 
