@@ -1,74 +1,51 @@
 class Solution {
 public:
-    string replaceWords(vector<string>& dict, string sentence) {
-        TrieNode* pRoot = buildTrie(dict);
-
-        ostringstream oss;
-        for (size_t i = 0, wordBegin = 0; i <= sentence.size(); ++i) {
-            if (sentence.size() == i) {
-                string word = sentence.substr(wordBegin, i - wordBegin);
-                oss << searchTrieShortestAbbr(pRoot, word);
-
-            }
-            else if (isblank(sentence[i])) {
-                string word = sentence.substr(wordBegin, i - wordBegin);
-                oss << searchTrieShortestAbbr(pRoot, word);
-
-                oss << sentence[i];
-                wordBegin = i + 1;
-            }
-        }
-
-        return oss.str();
-    }
-private:
     class TrieNode {
     public:
-        TrieNode()
-            : childs(26, nullptr)
-            , end(false) {
-        }
-
-        vector<TrieNode*> childs;
+        array<TrieNode*, 26> childs;
         bool end;
+        TrieNode() {
+            childs.fill(nullptr);
+            end = false;
+        }
     };
 
-    TrieNode* buildTrie(const vector<string>& words) {
-        TrieNode* pRoot = new TrieNode();
-        for (const string& word : words) {
-            insertTrie(pRoot, word);
+    string replaceWords(vector<string>& dictionary, string sentence) {
+        TrieNode* root = new TrieNode();
+        for (const string& word : dictionary) {
+            TrieNode* node = root;
+            for (char c : word) {
+                if (node->childs[c - 'a'] == nullptr) {
+                    node->childs[c - 'a'] = new TrieNode();
+                }
+                node = node->childs[c - 'a'];
+            }
+            node->end = true;
         }
 
-        return pRoot;
-    }
-
-    void insertTrie(TrieNode* pRoot, const string& word) {
-        TrieNode** ppNode = &pRoot;
-        for (char c : word) {
-            ppNode = &((*ppNode)->childs[c - 'a']);
-            if (*ppNode == nullptr) {
-                *ppNode = new TrieNode();
+        std::function<string(const string&)> replace = [&](const string& word) {
+            TrieNode* node = root;
+            string ret;
+            for (char c : word) {
+                node = node->childs[c - 'a'];
+                if (!node) { return word; }
+                ret += c;
+                if (node->end) {
+                    return ret;
+                }
             }
+
+            return word;
+        };
+
+        istringstream iss(sentence);
+        string ret;
+        for (string token; iss >> token;) {
+            ret += replace(token);
+            ret += " ";
         }
+        ret.pop_back();
 
-        (*ppNode)->end = true;
-    }
-
-    string searchTrieShortestAbbr(TrieNode* pRoot, const string& word) {
-        string abbr;
-
-        for (char c : word) {
-            pRoot = pRoot->childs[c - 'a'];
-            if (pRoot == nullptr) {
-                break;
-            }
-            abbr.push_back(c);
-
-            if (pRoot->end) {
-                return abbr;
-            }
-        }
-
-        return word;
+        return ret;
     }
 };
