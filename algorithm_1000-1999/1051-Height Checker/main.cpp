@@ -1,16 +1,16 @@
 class Solution {
 public:
     int heightChecker(vector<int>& heights) {
-        vector<int> sorted(heights);
-        sort(sorted.begin(), sorted.end());
+        vector<int> expected(heights);
+        std::sort(expected.begin(), expected.end());
 
-        int count = 0;
-        for (size_t i = 0; i < heights.size(); ++i) {
-            if (sorted[i] != heights[i]) {
-                ++count;
+        int ret = 0;
+        for (int i = 0, n = heights.size(); i < n; ++i) {
+            if (heights[i] != expected[i]) {
+                ++ret;
             }
         }
 
-        return count;
+        return ret;
     }
 };
