@@ -3,28 +3,21 @@ public:
     int findMaximizedCapital(int k, int w, vector<int>& profits, vector<int>& capital) {
         int n = profits.size();
 
-        vector<int> indexes(n);
-        std::iota(indexes.begin(), indexes.end(), 0);
+        int indexes[n];
+        std::iota(indexes, indexes + n, 0);
+        std::sort(indexes, indexes + n, [&](int idx1, int idx2){ return capital[idx1] < capital[idx2]; });
 
-        auto comp = [&capital](int i1, int i2) {
-            return capital[i1] < capital[i2];
-        };
-        std::sort(indexes.begin(), indexes.end(), comp);
-
-        int ret = w;
-        priority_queue<int> pq;
-        for (int i = 0; 0 < k; k--) {
-            for (; i < n && capital[indexes[i]] <= ret; ++i) {
-                pq.push(profits[indexes[i]]);
+        priority_queue<int> maxPQ;
+        for (int i = 0; 0 < k--;) {
+            for (; i < n && capital[indexes[i]] <= w; ++i) {
+                maxPQ.push(profits[indexes[i]]);
             }
+            if (maxPQ.empty()) { break; }
 
-            if (pq.empty()) {
-                break;
-            }
-            ret += pq.top();
-            pq.pop();
+            w += maxPQ.top();
+            maxPQ.pop();
         }
 
-        return ret;
+        return w;
     }
 };
