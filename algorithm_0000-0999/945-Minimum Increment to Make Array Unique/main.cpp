@@ -1,31 +1,15 @@
 class Solution {
 public:
-    int minIncrementForUnique(vector<int>& numbers) {
-        const int MAX_NUMBER = 40000;
+    int minIncrementForUnique(vector<int>& nums) {
+        std::sort(nums.begin(), nums.end());
 
-        int counts[MAX_NUMBER] = {0};
-        for (int number : numbers) {
-            ++counts[number];
+        int ret = 0;
+        for (int i = 1; i < nums.size(); ++i) {
+            if (nums[i - 1] < nums[i]) { continue; }
+            ret += nums[i - 1] + 1 - nums[i];
+            nums[i] = nums[i - 1] + 1;
         }
 
-        int ans = 0;
-        int leftCount = 0;
-        for (int number = 0; number < MAX_NUMBER; ++number) {
-            if (2 <= counts[number]) {
-                leftCount += (counts[number] - 1);
-                ans -= (number * (counts[number] - 1));
-            }
-            else if (0 < leftCount && counts[number] == 0) {
-                --leftCount;
-                ans += number;
-            }
-        }
-
-        for (int number = MAX_NUMBER; 0 < leftCount; ++ number) {
-            ans += number;
-            --leftCount;
-        }
-
-        return ans;
+        return ret;
     }
 };
