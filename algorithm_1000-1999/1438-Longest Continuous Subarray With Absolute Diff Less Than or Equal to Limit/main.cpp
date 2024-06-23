@@ -2,13 +2,11 @@ class Solution {
 public:
     // Time: O(nlogn)
     int byMultiSet(vector<int>& nums, int limit) {
-        int n = nums.size();
-
         multiset<int> ms;
 
         int ret = 0;
-        for (int lft = 0, rht = 0; rht < n; ++lft) {
-            for (; rht < n && (ms.empty() || (std::max(nums[rht], *ms.rbegin()) -  std::min(nums[rht], *ms.begin())) <= limit); ++rht) {
+        for (int lft = 0, rht = 0, n = nums.size(); rht < n; ++lft) {
+            for (; rht < n && (ms.empty() || std::max(*ms.rbegin(), nums[rht]) - std::min(*ms.begin(), nums[rht]) <= limit) ; ++rht) {
                 ms.insert(nums[rht]);
             }
 
@@ -22,13 +20,11 @@ public:
 
     // Time: O(n)
     int byDeque(vector<int>& nums, int limit) {
-        int n = nums.size();
-
         deque<int> dqMax, dqMin;
 
         int ret = 0;
-        for (int lft = 0, rht = 0; rht < n; ++lft) {
-            for (; rht < n && (dqMax.empty() || (std::max(nums[rht], nums[dqMax.front()]) -  std::min(nums[rht], nums[dqMin.front()])) <= limit); ++rht) {
+        for (int lft = 0, rht = 0, n = nums.size(); rht < n; ++lft) {
+            for (; rht < n && (dqMax.empty() || std::max(nums[dqMax.front()], nums[rht]) - std::min(nums[dqMin.front()], nums[rht]) <= limit); ++rht) {
                 while (!dqMax.empty() && nums[dqMax.back()] <= nums[rht]) {
                     dqMax.pop_back();
                 }
