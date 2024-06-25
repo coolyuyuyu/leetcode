@@ -11,54 +11,50 @@
  */
 class Solution {
 public:
-    void bstToGst_Recursive(TreeNode* root, int& sum) {
-        if (!root) {
-            return;
-        }
+    TreeNode* recursive(TreeNode* root) {
+        int sum = 0;
+        std::function<void(TreeNode*)> f = [&](TreeNode* root) {
+            if (!root) { return; }
 
-        bstToGst_Recursive(root->right, sum);
+            f(root->right);
 
-        int tmp = root->val;
-        root->val += sum;
-        sum += tmp;
+            int val = root->val;
+            root->val += sum;
+            sum += val;
 
-        bstToGst_Recursive(root->left, sum);
+            f(root->left);
+        };
+        f(root);
+
+        return root;
     }
 
-    void bstToGst_Iterative(TreeNode* root, int& sum) {
-        // reverse inorder traversal
-        stack<pair<TreeNode*, bool>> stk;
-        if (root) {
-            stk.emplace(root, false);
-        }
-        while (!stk.empty()) {
-            TreeNode* node = stk.top().first;
-            bool visited = stk.top().second;
+    TreeNode* iterative(TreeNode* root) {
+        stack<pair<TreeNode*, bool>> stk({{root, false}});
+
+        for (int sum = 0; !stk.empty();) {
+            auto [node, visited] = stk.top();
             stk.pop();
 
+            if (!node) { continue; }
+
             if (visited) {
-                int tmp = node->val;
+                int val = node->val;
                 node->val += sum;
-                sum += tmp;
+                sum += val;
             }
             else {
-                if (node->left) {
-                    stk.emplace(node->left, false);
-                }
+                stk.emplace(node->left, false);
                 stk.emplace(node, true);
-                if (node->right) {
-                    stk.emplace(node->right, false);
-                }
+                stk.emplace(node->right, false);
             }
         }
+
+        return root;
     }
 
     TreeNode* bstToGst(TreeNode* root) {
-        int sum = 0;
-
-        //bstToGst_Recursive(root, sum);
-        bstToGst_Iterative(root, sum);
-
-        return root;
+        //return recursive(root);
+        return iterative(root);
     }
 };
