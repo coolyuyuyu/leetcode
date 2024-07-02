@@ -23,12 +23,12 @@ public:
 
         vector<int> ret;
         for (auto itr1 = nums1.begin(), itr2 = nums2.begin(); itr1 != nums1.end() && itr2 != nums2.end();) {
-            if (*itr1 == *itr2) {
+            if (*itr1 < *itr2) {
+                ++itr1;
+            }
+            else if (*itr1 == *itr2) {
                 ret.push_back(*itr1);
                 ++itr1, ++itr2;
-            }
-            else if (*itr1 < *itr2) {
-                ++itr1;
             }
             else {
                 ++itr2;
@@ -51,17 +51,17 @@ public:
 
     // Time: O(M + N), Space: O(N)
     vector<int> byHashCount(vector<int>& nums1, vector<int>& nums2) {
-        unordered_map<int, int> counts;
-        for (int num : nums2) {
-            ++counts[num];
+        unordered_map<int, int> cnts2;
+        for (int num2 : nums2) {
+            ++cnts2[num2];
         }
 
         vector<int> ret;
-        for (int num: nums1) {
-            auto itr = counts.find(num);
-            if (itr != counts.end() && 0 < itr->second) {
-                --(itr->second);
-                ret.push_back(num);
+        for (int num1 : nums1) {
+            auto itr2 = cnts2.find(num1);
+            if (itr2 != cnts2.end() && itr2->second > 0) {
+                --itr2->second;
+                ret.push_back(num1);
             }
         }
 
