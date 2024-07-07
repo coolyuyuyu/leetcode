@@ -2,12 +2,11 @@ class Solution {
 public:
     int numWaterBottles(int numBottles, int numExchange) {
         int ret = 0;
-        int emptyBottle = 0;
-        for  (int emptyBottle = 0; numBottles; emptyBottle %= numExchange) {
+        for (int numEmpties = 0; numBottles; numEmpties = numEmpties % numExchange) {
             ret += numBottles;
 
-            emptyBottle += numBottles;
-            numBottles = emptyBottle / numExchange;
+            numEmpties += numBottles;
+            numBottles = numEmpties / numExchange;
         }
 
         return ret;
