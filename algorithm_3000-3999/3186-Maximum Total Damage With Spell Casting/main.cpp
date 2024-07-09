@@ -5,48 +5,35 @@ public:
         for (int p : power) {
             ++num2cnt[p];
         }
+
         int n = num2cnt.size();
-        pair<int, int> arr[n];
+        pair<int, int> spells[n];
         int i = 0;
         for (const auto& [num, cnt] : num2cnt) {
-            arr[i++] = {num, cnt};
+            spells[i++] = {num, cnt};
         }
 
-        if (n == 1) {
-            return 1LL * arr[0].first * arr[0].second;
-        }
+        // dp[i]: the maximum possible total damage from spells[0:i]
+        long long dp[n];
+        for (int i = 0; i < n; ++i) {
+            const auto& [num, cnt] = spells[i];
 
-        // dp[i][0]: the maximum possible total damage from num2cnt[0:i] and num2cnt[i] is NOT taken
-        // dp[i][1]: the maximum possible total damage from num2cnt[0:i] and num2cnt[i] is taken
-        long long dp[n][2];
-
-        dp[0][0] = 0, dp[0][1] = arr[0].first * arr[0].second;
-
-        dp[1][0] = std::max(dp[0][0], dp[0][1]);
-        if (arr[0].first + 2 >= arr[1].first) {
-            dp[1][1] = dp[0][0] + arr[1].first * arr[1].second;;
-        }
-        else {
-            dp[1][1] = std::max(dp[0][0], dp[0][1]) + arr[1].first * arr[1].second;
-        }
-
-        for (int i = 2; i < n; ++i) {
-            dp[i][0] = std::max(dp[i - 1][0], dp[i - 1][1]);
-
-            const auto& [aNum, _1] = arr[i - 2];
-            const auto& [bNum, _2] = arr[i - 1];
-            const auto& [cNum, cCnt] = arr[i];
-            if (aNum + 2 >= cNum) {
-                dp[i][1] = dp[i - 2][0] + cNum * cCnt;
+            dp[i] = 1L * num * cnt;
+            if (i >= 1) {
+                dp[i] = std::max(dp[i], dp[i - 1]);
             }
-            else if (bNum + 2 >= cNum) {
-                dp[i][1] = dp[i - 1][0] + cNum * cCnt;
+
+            if (i >= 1 && num - spells[i - 1].first > 2) {
+                dp[i] = std::max(dp[i], dp[i - 1] + 1L * num * cnt);
             }
-            else {
-                dp[i][1] = std::max(dp[i - 1][0], dp[i - 1][1]) + cNum * cCnt;
+            else if (i >= 2 && num - spells[i - 2].first > 2) {
+                dp[i] = std::max(dp[i], dp[i - 2] + 1L * num * cnt);
+            }
+            else if (i >= 3) {
+                dp[i] = std::max(dp[i], dp[i - 3] + 1L * num * cnt);
             }
         }
 
-        return std::max(dp[n - 1][0], dp[n - 1][1]);
+        return dp[n - 1];
     }
 };
