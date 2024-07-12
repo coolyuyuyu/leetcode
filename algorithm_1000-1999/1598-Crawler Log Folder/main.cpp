@@ -1,20 +1,18 @@
 class Solution {
 public:
     int minOperations(vector<string>& logs) {
-        int count = 0;
+        int ret = 0;
         for (const string& log : logs) {
             if (log == "../") {
-                if (count) {
-                    --count;
-                }
+                ret = std::max(ret - 1, 0);
             }
             else if (log == "./") {
             }
             else {
-                ++count;
+                ++ret;
             }
         }
 
-        return count;
+        return ret;
     }
 };
