@@ -14,45 +14,28 @@ public:
     TreeNode* createBinaryTree(vector<vector<int>>& descriptions) {
         unordered_map<int, TreeNode*> nodes;
         for (const auto& description : descriptions) {
-            int p = description[0], c = description[1], l = description[2];
+            int parentVal = description[0], childVal = description[1], isLeft = description[2];
 
-            if (nodes.find(p) == nodes.end()) {
-                nodes[p] = new TreeNode(p);
+            if (nodes.find(parentVal) == nodes.end()) {
+                nodes[parentVal] = new TreeNode(parentVal);
             }
-            TreeNode* parent = nodes[p];
+            TreeNode* parent = nodes[parentVal];
+            if (nodes.find(childVal) == nodes.end()) {
+                nodes[childVal] = new TreeNode(childVal);
+            }
+            TreeNode* child = nodes[childVal];
 
-            if (nodes.find(c) == nodes.end()) {
-                nodes[c] = new TreeNode(c);
-            }
-            TreeNode* child = nodes[c];
-
-            if (l) {
-                parent->left = child;
-            }
-            else {
-                parent->right = child;
-            }
+            TreeNode** ppChild = &(isLeft ? parent->left: parent->right);
+            *ppChild = child;
         }
 
         int rootVal = 0;
         for (const auto& [_, node] : nodes) {
             rootVal ^= node->val;
-            if (node->left) {
-                rootVal ^= node->left->val;
-            }
-            if (node->right) {
-                rootVal ^= node->right->val;
-            }
+            if (node->left) { rootVal ^= node->left->val; }
+            if (node->right) { rootVal ^= node->right->val; }
         }
 
-        TreeNode* root;
-        for (const auto& [_, node] : nodes) {
-            if (node->val == rootVal) {
-                root = node;
-                break;
-            }
-        }
-
-        return root;
+        return nodes[rootVal];
     }
 };
