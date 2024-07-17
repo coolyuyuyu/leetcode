@@ -11,73 +11,54 @@
  */
 class Solution {
 public:
-    TreeNode* delNodes_Recursive(TreeNode* root, set<int>& targets, vector<TreeNode*>& result, bool isRoot = true) {
-        if (!root) {
-            return nullptr;
+    vector<TreeNode*> iterative(TreeNode* root, vector<int>& to_delete) {
+        unordered_set<int> targets(to_delete.begin(), to_delete.end());
+
+        vector<TreeNode*> ret;
+        for (queue<pair<TreeNode**, bool>> q({{&root, true}}); !q.empty();) {
+            auto [ppNode, isRoot] = q.front();
+            q.pop();
+
+            if (*ppNode == nullptr) { continue; }
+
+            bool toRemove = (targets.find((*ppNode)->val) != targets.end());
+            q.emplace(&((*ppNode)->left), toRemove);
+            q.emplace(&((*ppNode)->right), toRemove);
+
+            if (isRoot && !toRemove) {
+                ret.push_back(*ppNode);
+            }
+            if (toRemove) {
+                *ppNode = nullptr;
+            }
         }
 
-        bool deleted = (targets.find(root->val) != targets.end());
-        if (isRoot && !deleted) {
-            result.push_back(root);
-        }
-
-        root->left = delNodes_Recursive(root->left, targets, result, deleted);
-        root->right = delNodes_Recursive(root->right, targets, result, deleted);
-
-        return (deleted ? nullptr : root);
+        return ret;
     }
 
-    vector<TreeNode*> delNodes_Iterative(TreeNode* root, set<int>& targets) {
-        vector<TreeNode*> ans;
+    vector<TreeNode*> recursive(TreeNode* root, vector<int>& to_delete) {
+        unordered_set<int> targets(to_delete.begin(), to_delete.end());
 
-        queue<TreeNode*> trees;
-        if (root) {
-            trees.push(root);
-        }
-        while (!trees.empty()) {
-            TreeNode* root = trees.front();
-            trees.pop();
+        vector<TreeNode*> ret;
+        std::function<TreeNode*(TreeNode*, bool)> f = [&](TreeNode* root, bool isRoot) -> TreeNode* {
+            if (!root) { return nullptr; }
 
-            if (targets.find(root->val) == targets.end()) {
-                ans.push_back(root);
+            bool toRemove = (targets.find(root->val) != targets.end());
+            if (isRoot && !toRemove) {
+                ret.push_back(root);
             }
+            root->left = f(root->left, toRemove);
+            root->right = f(root->right, toRemove);
 
-            queue<TreeNode**> nodes({&root});
-            while (!nodes.empty()) {
-                TreeNode** ppNode = nodes.front();
-                nodes.pop();
+            return toRemove ? nullptr : root;
+        };
+        f(root, true);
 
-                if (targets.find((*ppNode)->val) != targets.end()) {
-                    if ((*ppNode)->left) {
-                        trees.push((*ppNode)->left);
-                    }
-                    if ((*ppNode)->right) {
-                        trees.push((*ppNode)->right);
-                    }
-                    *ppNode = nullptr;
-                }
-                else {
-                    if ((*ppNode)->left) {
-                        nodes.push(&((*ppNode)->left));
-                    }
-                    if ((*ppNode)->right) {
-                        nodes.push(&((*ppNode)->right));
-                    }
-                }
-            }
-
-        }
-
-        return ans;
+        return ret;
     }
 
     vector<TreeNode*> delNodes(TreeNode* root, vector<int>& to_delete) {
-        set<int> targets(to_delete.begin(), to_delete.end());
-
-        //vector<TreeNode*> result;
-        //delNodes_Recursive(root, targets, result);
-        //return result;
-
-        return delNodes_Iterative(root, targets);
+        //return iterative(root, to_delete);
+        return recursive(root, to_delete);
     }
 };
