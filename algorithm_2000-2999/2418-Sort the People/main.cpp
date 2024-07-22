@@ -1,18 +1,15 @@
 class Solution {
 public:
     vector<string> sortPeople(vector<string>& names, vector<int>& heights) {
-        vector<size_t> indexes;(names.size());
-        for (size_t i = 0; i < names.size(); ++i) {
-            indexes.push_back(i);
-        }
-        auto comp = [&](size_t a, size_t b) {
-            return (heights[a] < heights[b]);
-        };
-        std::sort(indexes.begin(), indexes.end(), comp);
+        int n = names.size();
 
-        vector<string> ret(names.size());
-        for (size_t i = 0; i < indexes.size(); ++i) {
-            ret[ret.size() - i - 1] = names[indexes[i]];
+        int indexes[n];
+        std::iota(indexes, indexes + n, 0);
+        std::sort(indexes, indexes + n, [&](int idx1, int idx2){ return heights[idx1] > heights[idx2]; });
+
+        vector<string> ret(n);
+        for (int i = 0; i < n; ++i) {
+            ret[i] = names[indexes[i]];
         }
 
         return ret;
