@@ -1,39 +1,36 @@
 class Solution {
 public:
     void quicksort(vector<int>& nums, int lo, int hi) {
-        if (hi <= lo) {
+        if (lo >= hi) {
             return;
         }
 
-        // S S S S M M M M X X X X L L L
-        //         i       k     j
-        
+        // S S S S M M M M ? ? ? ? ? ? L L L L
+        //         i       k         j
         int pivot = nums[lo + (hi - lo) / 2];
-        int i = lo, j = hi, k = lo;        
+        int i = lo, k = lo, j = hi;
         while (k <= j) {
             if (nums[k] < pivot) {
                 std::swap(nums[i], nums[k]);
-                ++i;
+                ++i, ++k;
+            }
+            else if (nums[k] == pivot) {
                 ++k;
             }
-            else if (pivot < nums[k]) {
+            else {
                 std::swap(nums[k], nums[j]);
                 --j;
             }
-            else {
-                ++k;
-            }
         }
 
-        // S S S S M M M M M M M L L L
-        // lo      i           j     hi
-
+        // S S S S S S M M M M M M L L L L L L
+        // lo          i         j           hi
         quicksort(nums, lo, i - 1);
         quicksort(nums, j + 1, hi);
     }
 
     void mergesort(vector<int>& nums, int lo, int hi) {
-        if (hi <= lo) {
+        if (lo >= hi) {
             return;
         }
 
@@ -41,26 +38,25 @@ public:
         mergesort(nums, lo, mid);
         mergesort(nums, mid + 1, hi);
 
-        vector<int> tmp(hi - lo + 1);
         int i = lo, j = mid + 1, k = 0;
+        vector<int> tmp(hi - lo + 1);
         while (i <= mid && j <= hi) {
             if (nums[i] < nums[j]) {
                 tmp[k++] = nums[i++];
             }
-            else if (nums[j] < nums[i]) {
-                tmp[k++] = nums[j++];
-            }
-            else {
+            else if (nums[i] < nums[j]) {
                 tmp[k++] = nums[i++];
                 tmp[k++] = nums[j++];
             }
+            else {
+                tmp[k++] = nums[j++];
+            }
         }
-        while (i <= mid) {
-            tmp[k++] = nums[i++];
-        }
-        while (j <= hi) {
-            tmp[k++] = nums[j++];
-        }
+
+        std::copy(nums.begin() + i, nums.begin() + mid + 1, tmp.begin() + k);
+        k += (mid - i + 1);
+        std::copy(nums.begin() + j, nums.begin() + hi + 1, tmp.begin() + k);
+        k += (hi - j + 1);
 
         std::copy(tmp.begin(), tmp.end(), nums.begin() + lo);
     }
