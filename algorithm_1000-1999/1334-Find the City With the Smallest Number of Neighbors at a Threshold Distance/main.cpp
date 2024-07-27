@@ -1,14 +1,18 @@
 class Solution {
 public:
     int findTheCity(int n, vector<vector<int>>& edges, int distanceThreshold) {
-        // dp[i][j][k]: shortest distance from i to j using vertex 0, 1, ..., k
-        vector<vector<int>> dp(n, vector<int>(n, INT_MAX / 2));
+        // dp[k][i][j]: shortest distance from i to j using vertex 0, 1, ..., k
+        int dp[n][n];
         for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                dp[i][j] = INT_MAX / 2;
+            }
             dp[i][i] = 0;
         }
         for (const auto& edge : edges) {
-            dp[edge[0]][edge[1]] = edge[2];
-            dp[edge[1]][edge[0]] = edge[2];
+            int from = edge[0], to = edge[1], w = edge[2];
+            dp[from][to] = w;
+            dp[to][from] = w;
         }
 
         for (int k = 0; k < n; ++k) {
@@ -19,13 +23,13 @@ public:
             }
         }
 
-        int ret; 
+        int ret;
         int minCnt = INT_MAX;
         for (int i = 0; i < n; ++i) {
-            int cnt = std::count_if(dp[i].begin(), dp[i].end(), [distanceThreshold](int dist) { return dist <= distanceThreshold; });
+            int cnt = std::count_if(dp[i], dp[i] + n, [&](int dist) { return dist <= distanceThreshold; });
             if (cnt <= minCnt) {
-                minCnt = cnt;
                 ret = i;
+                minCnt = cnt;
             }
         }
 
