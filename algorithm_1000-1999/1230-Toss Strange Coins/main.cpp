@@ -5,7 +5,7 @@ public:
 
         prob.insert(prob.begin(), 0.0);
 
-        // dp[i][j]: the probability that for the first i tosses and the j coins facing heads
+        // dp[i][j]: the probability that the j coins facing heads from first i tosses
         double dp[n + 1][target + 1];
         dp[0][0] = 1.0;
         for (int i = 1; i <= n; ++i) {
