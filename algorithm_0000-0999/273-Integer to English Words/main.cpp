@@ -1,11 +1,11 @@
 class Solution {
 public:
-    vector<string> below20 = {
+    vector<string> lt20 = {
         "", "One", "Two", "Three", "Four",
         "Five", "Six", "Seven", "Eight", "Nine",
         "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen",
         "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"};
-    vector<string> below100 = {
+    vector<string> lt100 = {
         "", "Ten", "Twenty", "Thirty", "Forty",
         "Fifty", "Sixty", "Seventy", "Eighty", "Ninety",
     };
@@ -15,30 +15,30 @@ public:
             return "Zero";
         }
 
-        std::function<string(int)> num2str = [&](int num) -> string {
+        std::function<string(int)> f = [&](int num) -> string {
             if (num == 0) {
                 return "";
             }
             else if (num < 20) {
-                return string(" ") + below20[num];
+                return " " + lt20[num];
             }
             else if (num < 100) {
-                return string(" ") + below100[num / 10]  + num2str(num % 10);
+                return " " + lt100[num / 10] + f(num % 10);
             }
             else if (num < 1'000) {
-                return num2str(num / 100) + " " + "Hundred" + num2str(num % 100);
+                return f(num / 100) + " Hundred" + f(num % 100);
             }
             else if (num < 1'000'000) {
-                return num2str(num / 1'000) + " " + "Thousand" + num2str(num % 1'000);
+                return f(num / 1'000) + " Thousand" + f(num % 1'000);
             }
             else if (num < 1'000'000'000) {
-                return num2str(num / 1'000'000) + " " + "Million" +  num2str(num % 1'000'000);
+                return f(num / 1'000'000) + " Million" + f(num % 1'000'000);
             }
             else {
-                return num2str(num / 1'000'000'000) + " " + "Billion" +  num2str(num % 1'000'000'000);
+                return f(num / 1'000'000'000) + " Billion" + f(num % 1'000'000'000);
             }
         };
 
-        return num2str(num).substr(1);
+        return f(num).substr(1);
     }
 };
