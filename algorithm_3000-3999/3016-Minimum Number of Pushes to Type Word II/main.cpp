@@ -1,23 +1,24 @@
 class Solution {
 public:
     int minimumPushes(string word) {
-        unordered_map<char, int> cnts;
+        vector<int> cnts(26, 0);
         for (char c : word) {
-            ++cnts[c];
+            ++cnts[c - 'a'];
         }
 
         priority_queue<int> pq;
-        for (const auto& [_, cnt] : cnts) {
+        for (int cnt : cnts) {
+            if (cnt == 0) { continue; }
             pq.push(cnt);
         }
 
         int ret = 0;
-        for (int press = 1; !pq.empty(); ++press) {
-            for (int i = 0; i < 8 && !pq.empty(); ++i) {
-                auto cnt = pq.top();
+        for (int type = 1; !pq.empty(); ++type) {
+            for (int key = 2; key <= 9 && !pq.empty(); ++key) {
+                int cnt = pq.top();
                 pq.pop();
 
-                ret += cnt * press;
+                ret += cnt * type;
             }
         }
 
