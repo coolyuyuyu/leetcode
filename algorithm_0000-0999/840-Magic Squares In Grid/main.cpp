@@ -1,49 +1,41 @@
 class Solution {
 public:
-    
-    bool checkMagicSquare(const vector<vector<int>>& grid, size_t x, size_t y) {
-        if (grid[x][y] != 5) {
-            return false;
-        }
-
-        bool repeated[10] = { false };
-        for (int i = -1; i < 2; ++i) {
-            int rowSum = 0, colSum = 0;
-            for (int j = -1; j < 2; ++j) {
-                if (grid[x + i][y + j] < 1 || 9 < grid[x + i][y + j]) {
-                    return false;
-                }
-
-                rowSum += grid[x + i][y + j];
-                colSum += grid[x + j][y + i];
-
-                if (repeated[grid[x + i][y + j]]) {
-                    return false;
-                }
-                repeated[grid[x + i][y + j]] = true;
-            }
-
-            if (rowSum != 15 || colSum != 15) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     int numMagicSquaresInside(vector<vector<int>>& grid) {
-        size_t rowCnt = grid.size();
-        size_t colCnt = grid.front().size();
+        int m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
 
-        size_t cnt = 0;
-        for (size_t row = 1; row + 1< rowCnt; ++row) {
-            for (size_t col = 1; col + 1 < colCnt; ++col) {
-                if (checkMagicSquare(grid, row, col)) {
-                    ++cnt;
+        std::function<bool(int, int)> check = [&](int r, int c) {
+            std::bitset<10> repeated;
+            int dSum1 = 0, dSum2 = 0;
+            for (int i = 0; i < 3; ++i) {
+                int rSum = 0, cSum = 0;
+                for (int j = 0; j < 3; ++j) {
+                    if (grid[r + i][c + j] < 0 || grid[r + i][c + j] > 9) { return false; }
+                    if (repeated[grid[r + i][c + j]]) { return false; }
+
+                    repeated[grid[r + i][c + j]] = 1;
+                    rSum += grid[r + i][c + j];
+                    cSum += grid[r + j][c + i];
+                }
+                if (rSum != 15 || cSum != 15) { return false; }
+
+                dSum1 += grid[r + i][c + i];
+                dSum2 += grid[r + i][c + 2 - i];
+            }
+            if (repeated.count() != 9) { return false; }
+            if (dSum1 != 15 || dSum2 != 15) { return false; }
+
+            return true;
+        };
+
+        int ret = 0;
+        for (int r = 0; r + 2 < m; ++r) {
+            for (int c = 0; c + 2 < n; ++c) {
+                if (check(r, c)) {
+                    ++ret;
                 }
             }
         }
 
-        return cnt;
+        return ret;
     }
 };
