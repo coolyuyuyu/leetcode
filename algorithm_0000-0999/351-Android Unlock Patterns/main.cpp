@@ -2,8 +2,8 @@ class Solution {
 public:
     int numberOfPatterns(int m, int n) {
         int skip[10][10];
-        for (int i = 0; i < 10; ++i) {
-            for (int j = 0; j < 10; ++j) {
+        for (int i = 0; i <= 9; ++i) {
+            for (int j = 0; j <= 9; ++j) {
                 skip[i][j] = 0;
             }
         }
@@ -17,21 +17,20 @@ public:
         skip[7][9] = skip[9][7] = 8;
 
         int ret = 0;
-        std::function<void(int,int, int)> dfs = [&](int cur, int state, int cnt) {
-            if (cnt > n) {
+        std::function<void(int, int, int)> dfs = [&](int cur, int state, int step) {
+            if (step > n) {
                 return;
             }
-            if (cnt >= m) {
+            if (step >= m) {
                 ++ret;
             }
 
             for (int nxt = 1; nxt <= 9; ++nxt) {
                 if (state & (1 << nxt)) { continue; }
                 int s = skip[cur][nxt];
-                if ((state & (1 << s)) == 0) {continue; }
-                dfs(nxt, state | (1 << nxt), cnt + 1);
+                if ((state & (1 << s)) == 0 ) { continue; }
+                dfs(nxt, state | (1 << nxt), step + 1);
             }
-
         };
         dfs(0, 1, 0);
 
