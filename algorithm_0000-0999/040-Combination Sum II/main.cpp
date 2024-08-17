@@ -1,30 +1,30 @@
 class Solution {
 public:
-    void combinationSum2Helper(vector<int>& candidates, int target, int left, int begin, vector<int>& result, vector<vector<int>>& results) {
-        if (target == 0) {
-            results.push_back(result);
-        }
-        else {
-            if (target <= left) {
-                for (int i = begin; i < candidates.size() && candidates[i] <= target; ++i) {
-                    if (i && candidates[i] == candidates[i - 1] && begin < i) {
-                        continue;
-                    }
-
-                    result.push_back(candidates[i]);
-                    combinationSum2Helper(candidates, target - candidates[i], left - candidates[i], i + 1, result, results);
-                    result.pop_back();
-                }
-            }
-        }
-    }
-
     vector<vector<int>> combinationSum2(vector<int>& candidates, int target) {
-        sort(candidates.begin(), candidates.end());
-        int left = accumulate(candidates.begin(), candidates.end(), 0);
-        vector<int> result;
-        vector<vector<int>> results;
-        combinationSum2Helper(candidates, target, left, 0, result, results);
-        return results;
+        std::sort(candidates.begin(), candidates.end());
+
+        vector<vector<int>> combs;
+        vector<int> comb;
+        std::function<void(int, int)> dfs = [&](int idx, int sum) {
+            if (sum >= target) {
+                if (sum == target) {
+                    combs.push_back(comb);
+                }
+                return;
+            }
+
+            for (int i = idx; i < candidates.size(); ++i) {
+                if (i > idx && candidates[i - 1] == candidates[i]) {
+                    continue;
+                }
+                comb.push_back(candidates[i]);
+                dfs(i + 1, sum + candidates[i]);
+                comb.pop_back();
+            }
+        };
+
+        dfs(0, 0);
+
+        return combs;
     }
 };
