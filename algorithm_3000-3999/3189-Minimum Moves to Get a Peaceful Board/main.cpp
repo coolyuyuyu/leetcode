@@ -8,16 +8,13 @@ public:
             rows[i] = rooks[i][0];
             cols[i] = rooks[i][1];
         }
+        std::sort(rows, rows + n);
+        std::sort(cols, cols + n);
 
         int ret = 0;
-
-        std::sort(rows, rows + n);
         for (int i = 0; i < n; ++i) {
-            ret += std::abs(rows[i] - i);
-        }
-        std::sort(cols, cols + n);
-        for (int i = 0; i < n; ++i) {
-            ret += std::abs(cols[i] - i);
+            ret += abs(i - rows[i]);
+            ret += abs(i - cols[i]);
         }
 
         return ret;
