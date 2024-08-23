@@ -1,18 +1,13 @@
 class Solution {
 public:
     int findComplement(int num) {
-        int digit = 0;
-        int tmp = num;
-        while (tmp) {
-            tmp >>= 1;
-            ++digit;
+        int ret = 0;
+        for (int i = 0; num > 0; ++i, num >>= 1) {
+            if ((num & 1) == 0) {
+                ret |= (1 << i);
+            }
         }
 
-        num = ~num;
-
-        int mask = 1 << digit;
-        mask -= 1;
-
-        return num & mask;
+        return ret;
     }
 };
