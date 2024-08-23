@@ -5,19 +5,26 @@ public:
 
         // dp[i][j]: the minimum number of turns the printer needed to print s[i:j]
         int dp[n][n];
+
         for (int i = 0; i < n; ++i) {
             dp[i][i] = 1;
         }
         for (int len = 2; len <= n; ++len) {
-            for (int i = 0, j = i + len - 1; j < n; ++i, ++j) {
-                dp[i][j] = 1 + dp[i + 1][j];
-                for (int k = i + 1; k < j; ++k) {
-                    if (s[i] == s[k]) {
-                        dp[i][j] = std::min(dp[i][j], dp[i][k - 1] + dp[k + 1][j]);
+            for (int lft = 0, rht = lft + len - 1; rht < n; ++lft, ++rht) {
+                // X . . . . . . . .
+                dp[lft][rht] = 1 + dp[lft + 1][rht];
+
+                // X . . . X | . . .
+                // l         i     r
+                for (int i = lft + 1; i < rht; ++i) {
+                    if (s[lft] == s[i]) {
+                        dp[lft][rht] = std::min(dp[lft][rht], dp[lft][i - 1] + dp[i + 1][rht]);
                     }
                 }
-                if (s[i] == s[j]) {
-                    dp[i][j] = std::min(dp[i][j], dp[i][j - 1]);
+
+                // X . . . . . . . X
+                if (s[lft] == s[rht]) {
+                    dp[lft][rht] = std::min(dp[lft][rht], dp[lft][rht - 1]);
                 }
             }
         }
