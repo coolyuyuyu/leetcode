@@ -20,46 +20,44 @@ public:
 
 class Solution {
 public:
-    void postorder_Recursive(Node* root, vector<int>& vals) {
-        if (!root) {
-            return;
-        }
+    vector<int> recursive(Node* root) {
+        vector<int> ret;
+        std::function<void(Node*)> f = [&](Node* root) {
+            if (!root) { return; }
+            for (Node* child : root->children) {
+                f(child);
+            }
+            ret.push_back(root->val);
+        };
+        f(root);
 
-        for (Node* node : root->children) {
-            postorder_Recursive(node, vals);
-        }
-        vals.push_back(root->val);
+        return ret;
     }
 
-    void postorder_Iterative(Node* root, vector<int>& vals) {
-        stack<pair<Node*, bool>> stk;
-        if (root) {
-            stk.emplace(root, false);
-        }
-
-        while (!stk.empty()) {
-            Node* node = stk.top().first;
-            bool visited = stk.top().second;
+    vector<int> iterative(Node* root) {
+        vector<int> ret;
+        for (stack<pair<Node*, bool>> stk({{root, false}}); !stk.empty();) {
+            auto [root, visited] = stk.top();
             stk.pop();
 
+            if (!root) { continue; }
+
             if (visited) {
-                vals.push_back(node->val);
+                ret.push_back(root->val);
             }
             else {
-                stk.emplace(node, true);
-                for (size_t i = node->children.size(); 0 < i--;) {
-                    stk.emplace(node->children[i], false);
+                stk.emplace(root, true);
+                for (int i = root->children.size(); 0 < i--;) {
+                    stk.emplace(root->children[i], false);
                 }
             }
         }
+
+        return ret;
     }
 
     vector<int> postorder(Node* root) {
-        vector<int> vals;
-
-        //postorder_Recursive(root, vals);
-        postorder_Iterative(root, vals);
-
-        return vals;
+        //return recursive(root);
+        return iterative(root);
     }
 };
