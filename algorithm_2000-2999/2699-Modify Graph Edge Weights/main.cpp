@@ -2,69 +2,71 @@ class Solution {
 public:
     vector<vector<int>> modifiedGraphEdges(int n, vector<vector<int>>& edges, int source, int destination, int target) {
         bool modifiable[n][n];
-        std::memset(modifiable, 0, sizeof(modifiable));
-        vector<unordered_map<int, int>> graph(n);
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                modifiable[i][j] = false;
+            }
+        }
+
+        unordered_map<int, int> graph[n];
         for (const auto& edge : edges) {
-            int u = edge[0], v = edge[1], w = edge[2];
+            int a = edge[0], b = edge[1], w = edge[2];
             if (w == -1) {
                 w = 1;
-                modifiable[u][v] = modifiable[v][u] = true;
+                modifiable[a][b] = modifiable[b][a] = true;
             }
-            graph[u][v] = graph[v][u] = w;
+            graph[a][b] = graph[b][a] = w;
         }
 
-        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
+        priority_queue<pair<int, int>, vector<pair<int, int>>, std::greater<pair<int, int>>> pq;
 
-        vector<int> dist1(n, INT_MAX);
+        int distsFromDst[n];
+        std::fill(distsFromDst, distsFromDst + n, INT_MAX);
         pq.emplace(0, destination);
         while (!pq.empty()) {
-            auto [dist, u] = pq.top();
+            auto [dist, cur] = pq.top();
             pq.pop();
 
-            if (dist1[u] < INT_MAX) {
-                continue;
-            }
-            dist1[u] = dist;
+            if (distsFromDst[cur] < INT_MAX) { continue; }
+            distsFromDst[cur] = dist;
 
-            for (const auto& [v, w] : graph[u]) {
-                if (dist1[v] < INT_MAX) { continue; }
-                pq.emplace(dist + w, v);
+            for (const auto& [nxt, cost] : graph[cur]) {
+                if (distsFromDst[nxt] < INT_MAX) { continue; }
+                pq.emplace(dist + cost, nxt);
             }
         }
 
-        vector<int> dist2(n, INT_MAX);
+        int distsFromSrc[n];
+        std::fill(distsFromSrc, distsFromSrc + n, INT_MAX);
         pq.emplace(0, source);
         while (!pq.empty()) {
-            auto [dist, u] = pq.top();
+            auto [dist, cur] = pq.top();
             pq.pop();
 
-            if (dist2[u] < INT_MAX) {
-                continue;
-            }
-            if (u == destination) {
+            if (distsFromSrc[cur] < INT_MAX) { continue; }
+            distsFromSrc[cur] = dist;
+
+            if (cur == destination) {
                 if (dist != target) {
                     return {};
                 }
-                else {
-                    break;
-                }
+                break;
             }
-            dist2[u] = dist;
 
-            for (auto [v, w] : graph[u]) {
-                if (dist2[v] < INT_MAX) { continue; }
-                if (modifiable[u][v] && (dist2[u] + w + dist1[v]) < target) {
-                    w = target - dist2[u] - dist1[v];
-                    graph[u][v] = graph[v][u] = w;
+            for (const auto& [nxt, cost] : graph[cur]) {
+                if (distsFromSrc[nxt] < INT_MAX) { continue; }
+                if (modifiable[cur][nxt] && distsFromSrc[cur] + cost + distsFromDst[nxt] < target) {
+                    graph[cur][nxt] = graph[nxt][cur]  = target - distsFromSrc[cur]  - distsFromDst[nxt];
                 }
-                pq.emplace(dist + w, v);
+                pq.emplace(dist + cost, nxt);
             }
         }
 
+        vector<vector<int>> ret;
         for (auto& edge : edges) {
-            int u = edge[0], v = edge[1];
-            if (modifiable[u][v]) {
-                edge[2] = graph[edge[0]][edge[1]];
+            int a = edge[0], b = edge[1];
+            if (modifiable[a][b]) {
+                edge[2] = graph[a][b];
             }
         }
 
