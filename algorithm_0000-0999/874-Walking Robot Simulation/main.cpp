@@ -1,56 +1,36 @@
 class Solution {
 public:
-    class Point {
-    public:
-        int x;
-        int y;
-        bool operator<(const Point & rhs) const{
-            if (x < rhs.x) {
-                return true;
-            }
-            else if (x == rhs.x) {
-                return y < rhs.y;
-            }
-            else {
-                return false;
-            }
-        }
-    };
+    vector<pair<int, int>> dirs = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
 
-    vector<pair<int, int>> deltas = { { 0,1 },{ 1,0 },{ 0,-1 },{ -1,0 } };
     int robotSim(vector<int>& commands, vector<vector<int>>& obstacles) {
-        set<Point> obstacleSet;
-        for (size_t i = 0; i < obstacles.size(); ++i) {
-            obstacleSet.insert({obstacles[i][0], obstacles[i][1]});
+        set<pair<int, int>> blocks;
+        for (const vector<int>& obstacle : obstacles) {
+            blocks.emplace(obstacle[0], obstacle[1]);
         }
 
-        Point pos = { 0, 0 };
-        int direction = 0;
-        int maxDist = 0;
+        int x = 0, y = 0, d = 0;
+        int ret = 0;
         for (int command : commands) {
-            if (command == -1) {
-                direction = (direction + 1) % deltas.size();
-            }
-            else if (command == -2) {
-                direction = (direction - 1 + deltas.size()) % deltas.size();
-            }
-            else {
-                const pair<int, int>& delta = deltas[direction];
-                for (int step = 0; step < command; ++step) {
-                    Point newPos = { pos.x + delta.first, pos.y + delta.second };
-                    if (obstacleSet.find(newPos) != obstacleSet.end()) {
+            switch (command) {
+            case -2:
+                d = (d - 1 + dirs.size()) % dirs.size();
+                break;
+            case -1:
+                d = (d + 1) % dirs.size();
+                break;
+            default:
+                const auto& [dx, dy] = dirs[d];
+                for (int i = 0; i < command; ++i) {
+                    if (blocks.find({x + dx, y + dy}) != blocks.end()) {
                         break;
                     }
-                    pos = newPos;
+                    x += dx, y += dy;
                 }
-
-                int dist = pos.x * pos.x + pos.y * pos.y;
-                if (maxDist < dist) {
-                    maxDist = dist;
-                }
+                ret = std::max(ret, x*x + y*y);
+                break;
             }
         }
 
-        return maxDist;
+        return ret;
     }
 };
