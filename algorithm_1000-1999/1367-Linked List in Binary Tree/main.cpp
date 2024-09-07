@@ -21,127 +21,95 @@
  */
 class Solution {
 public:
-    bool isSamePath_dfsRecv(ListNode* head, TreeNode* root) {
-        if (!head) {
-            return true;
-        }
-        if (!root) {
-            return false;
-        }
+    // Time: O(M * N)
+    bool byDfsRecv(ListNode* head, TreeNode* root) {
+        std::function<bool(ListNode*, TreeNode*)> isSamePath = [&](ListNode* head, TreeNode* root) {
+            if (!head) { return true; }
+            if (!root) { return false; }
 
-        return head->val == root->val && (isSamePath_dfsRecv(head->next, root->left) || isSamePath_dfsRecv(head->next, root->right));
+            return (head->val == root->val) && (isSamePath(head->next, root->left) || isSamePath(head->next, root->right));
+        };
+
+        std::function<bool(ListNode*, TreeNode*)> isSubPath = [&](ListNode* head, TreeNode* root) {
+            if (!head) { return true; }
+            if (!root) { return false; }
+
+            return isSamePath(head, root) || isSubPath(head, root->left) || isSubPath(head, root->right);
+        };
+
+        return isSubPath(head, root);
     }
 
-    // Time: O(MN)
-    bool isSubPath_dfsRecv(ListNode* head, TreeNode* root) {
-        if (!head) {
-            return true;
-        }
-        if (!root) {
+    // Time: O(M * N)
+    bool byDfsIter(ListNode* head, TreeNode* root) {
+        std::function<bool(ListNode*, TreeNode*)> isSamePath = [&](ListNode* head, TreeNode* root) {
+            queue<pair<ListNode*, TreeNode*>> q({{head, root}});
+            for (queue<pair<ListNode*, TreeNode*>> q({{head, root}}); !q.empty();) {
+                auto [head, root] = q.front();
+                q.pop();
+
+                if (!head) { return true; }
+                if (!root || head->val != root->val) { continue; }
+
+                q.emplace(head->next, root->left);
+                q.emplace(head->next, root->right);
+            }
             return false;
-        }
+        };
 
 
-        if (isSamePath_dfsRecv(head, root)) {
-            return true;
-        }
-        else {
-            return isSubPath_dfsRecv(head, root->left) || isSubPath_dfsRecv(head, root->right);
-        }
-    }
+        for (queue<TreeNode*> q({root}); !q.empty();) {
+            auto root = q.front();
+            q.pop();
 
-    bool isSamePath_dfsIter(ListNode* head, TreeNode* root) {
-        assert(head && root);
+            if (!root) { continue; }
+            if (isSamePath(head, root)) { return true; }
 
-        stack<pair<ListNode*, TreeNode*>> stk({{head, root}});
-        while (!stk.empty()) {
-            auto [head, root] = stk.top();
-            stk.pop();
-
-            if (!head) {
-                return true;
-            }
-            if (!root || head->val != root->val) {
-                continue;
-            }
-
-            stk.emplace(head->next, root->right);
-            stk.emplace(head->next, root->left);
+            q.push(root->left);
+            q.push(root->right);
         }
 
         return false;
     }
 
-    // Time: O(MN)
-    bool isSubPath_dfsIter(ListNode* head, TreeNode* root) {
-        assert(head && root);
-
-        stack<TreeNode*> stk({root});
-        while (!stk.empty()) {
-            root = stk.top();
-            stk.pop();
-
-            if (!root) {
-                continue;
-            }
-            if (isSamePath_dfsIter(head, root)) {
-                return true;
-            }
-
-            stk.push(root->right);
-            stk.push(root->left);
-        }
-
-        return false;
-    }
-
-    bool isSubPath_dfsKMP(TreeNode* root, const vector<int>& nums, const vector<size_t>& suffix, int dp) {
-        if (!root) {
-            return false;
-        }
-
-        size_t j = dp;
-        while (0 < j && nums[j] != root->val) {
-            j = suffix[j - 1];
-        }
-        dp = j + (nums[j] == root->val ? 1 : 0);
-
-        if (dp == nums.size()) {
-            return true;
-        }
-
-        return isSubPath_dfsKMP(root->left, nums, suffix, dp) || isSubPath_dfsKMP(root->right, nums, suffix, dp);
-    }
-
-    // Time: O(M+N)
-    bool isSubPath_kmp(ListNode* head, TreeNode* root) {
-        assert(head && root);
-
+    // Time: O(M + N)
+    bool byDfsKmp(ListNode* head, TreeNode* root) {
         vector<int> nums;
         for (; head; head = head->next) {
             nums.push_back(head->val);
         }
 
-        vector<size_t> suffix(nums.size());
-        suffix[0] = 0;
-        for (size_t i = 1; i < nums.size(); ++i) {
-            size_t j = suffix[i - 1];
+        int n = nums.size();
+        int lps[n];
+        lps[0] = 0;
+        for (int i = 1; i < n; ++i) {
+            int j = lps[i - 1];
             while (0 < j && nums[j] != nums[i]) {
-                j = suffix[j - 1];
+                j = lps [j - 1];
             }
-            suffix[i] = j + (nums[j] == nums[i] ? 1 : 0);
+            lps[i] = j + (nums[j] == nums[i] ? 1 : 0);
         }
 
-        int dp = (nums[0] == root->val ? 1 : 0);
-        if (dp == 1 && nums.size() == 1) {
-            return true;
-        }
-        return isSubPath_dfsKMP(root->left, nums, suffix, dp) || isSubPath_dfsKMP(root->right, nums, suffix, dp);;
+        std::function<bool(TreeNode*, int)> dfs = [&](TreeNode* root, int dp) {
+            if (!root) { return false; }
+
+            int j = dp;
+            while (0 < j && root->val != nums[j]) {
+                j = lps[j - 1];
+            }
+            dp = j + (root->val == nums[j] ? 1 : 0);
+
+            if (dp >= n) { return true; }
+
+            return dfs(root->left, dp) || dfs(root->right, dp);
+        };
+
+        return dfs(root, 0);
     }
 
     bool isSubPath(ListNode* head, TreeNode* root) {
-        //return isSubPath_dfsRecv(head, root);
-        //return isSubPath_dfsIter(head, root);
-        return isSubPath_kmp(head, root);
+        //return byDfsRecv(head, root);
+        //return byDfsIter(head, root);
+        return byDfsKmp(head, root);
     }
 };
