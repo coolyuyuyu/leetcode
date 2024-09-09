@@ -10,27 +10,27 @@
  */
 class Solution {
 public:
-    ListNode* splitList(ListNode* head, int k) {
-        ListNode** ppNode = &head;
-        while (k-- && *ppNode) {
-            ppNode = &((*ppNode)->next);
-        }
-
-        ListNode* head2 = *ppNode;
-        *ppNode = nullptr;
-        return head2;
-    }
-
     vector<ListNode*> splitListToParts(ListNode* head, int k) {
         int len = 0;
         for (ListNode* node = head; node; node = node->next) {
             ++len;
         }
 
+        std::function<ListNode*(ListNode* head, int cnt)> splitList = [](ListNode* head, int k) {
+            ListNode** ppNode = &head;
+            while (k-- && *ppNode)  {
+                ppNode = &((*ppNode)->next);
+            }
+
+            ListNode* pRet = *ppNode;
+            *ppNode = nullptr;
+            return pRet;
+        };
+
         vector<ListNode*> ret(k);
         for (int i = 0; i < k; ++i) {
             ret[i] = head;
-            head = splitList(head, len / k + (i < (len % k) ? 1 : 0));
+            head = splitList(head, len / k + (i < len % k ? 1 : 0));
         }
 
         return ret;
