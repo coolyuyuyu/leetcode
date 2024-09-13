@@ -1,21 +1,21 @@
 class Solution {
 public:
     int countConsistentStrings(string allowed, vector<string>& words) {
-        vector<bool> flags(26, false);
+        bitset<26> existed;
         for (char c : allowed) {
-            flags[c - 'a'] = true;
+            existed[c - 'a'] = true;
         }
 
-        size_t cnt = words.size();
+        int ret = words.size();
         for (const string& word : words) {
             for (char c : word) {
-                if (!flags[c - 'a']) {
-                    --cnt;
+                if (!existed[c - 'a']) {
+                    --ret;
                     break;
-                }
+                };
             }
         }
 
-        return cnt;
+        return ret;
     }
 };
