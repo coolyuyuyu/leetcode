@@ -1,24 +1,21 @@
 class Solution {
 public:
-    vector<string> uncommonFromSentences(string A, string B) {
-        unordered_map<string, int> counts;
-        for (const string& str : {A, B}) {
-            size_t pos = str.find_first_not_of(' ');
-            do {
-                size_t newPos = str.find_first_of(' ', pos);
-                counts[str.substr(pos, newPos - pos)]++;
-                pos = str.find_first_not_of(' ', newPos);
-            } while (pos < str.size());
-            
-        }
-
-        vector<string> result;
-        for (const auto& elem : counts) {
-            if (elem.second == 1) {
-                result.push_back(elem.first);
+    vector<string> uncommonFromSentences(string s1, string s2) {
+        unordered_map<string, int> cnts;
+        for (const string& s : {s1, s2}) {
+            string word;
+            for (istringstream iss(s); iss >> word;) {
+                ++cnts[word];
             }
         }
 
-        return result;
+        vector<string> ret;
+        for (const auto& [word, cnt] : cnts) {
+            if (cnt == 1) {
+                ret.push_back(word);
+            }
+        }
+
+        return ret;
     }
 };
