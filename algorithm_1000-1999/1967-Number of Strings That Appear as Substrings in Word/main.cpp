@@ -3,10 +3,12 @@ public:
     struct Node {
         array<Node*, 26> childs;
         Node* fail;
+        Node* next;
         int cnt;
         Node() {
             childs.fill(nullptr);
             fail = nullptr;
+            next = nullptr;
             cnt = 0;
         }
     };
@@ -29,25 +31,25 @@ public:
 
         // build fail link
         for (queue<Node*> q({root}); !q.empty();) {
-            Node* parent = q.front();
+            Node* u = q.front();
             q.pop();
 
-            for (int v = 0; v < 26; ++v) {
-                if (parent->childs[v] == nullptr) { continue; }
-                Node* child = parent->childs[v];
-
-                if (parent == root) {
-                    child->fail = root;
+            for (int i = 0; i < 26; ++i) {
+                Node* v = u->childs[i];
+                if (!v) { continue; }
+                if (u == root) {
+                    v->fail = root;
                 }
                 else {
-                    Node* node = parent->fail;
-                    while (node != root && node->childs[v] == nullptr) {
+                    Node* node = u->fail;
+                    while (node != root && node->childs[i] == nullptr) {
                         node = node->fail;
                     }
-                    child->fail = node->childs[v] ? node->childs[v] : node;
+                    v->fail = node->childs[i] ? node->childs[i] : root;
                 }
+                v->next = v->fail->cnt > 0 ? v->fail : v->fail->next;
 
-                q.push(child);
+                q.push(v);
             }
         }
 
@@ -63,10 +65,8 @@ public:
                 node = node->childs[v];
             }
 
-            Node* tmp = node;
-            while (tmp && visited.insert(tmp).second) {
-                ret += tmp->cnt;
-                tmp = tmp->fail;
+            for (Node* cur = node; cur && visited.insert(cur).second; cur = cur->next) {
+                ret += cur->cnt;
             }
         }
 
