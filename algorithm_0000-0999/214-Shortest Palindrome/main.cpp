@@ -1,44 +1,34 @@
 class Solution {
 public:
-    vector<size_t> computeLPS(const string& s) {
-        size_t n = s.size();
-
-        vector<size_t> dp(n);
-        dp[0] = 0;
-        for (size_t i = 1; i < n; ++i) {
-            size_t j = dp[i - 1];
-            while (0 < j && s[j] != s[i]) {
-                j = dp[j - 1];
-            }
-            dp[i] = j + (s[j] == s[i] ? 1 : 0);
-        }
-
-        return dp;
-    }
-
     string kmp(const string& s) {
-        if (s.empty()) {
-            return "";
-        }
+        int n = s.size();
+        if (n == 0) { return ""; }
 
-        string t = s;
-        std::reverse(t.begin(), t.end());
-
-        size_t n = t.size();
-
-        vector<size_t> lps = computeLPS(s);
-        size_t dp = (s[0] == t[0] ? 1 : 0);
-        for (size_t i = 1; i < n; ++i) {
-            size_t j = dp;
-            while (0 < j && s[j] != t[i]) {
+        // lps[i]: the maximum value k such that s[0:k-1] == s[i-k+1:i]
+        int lps[n];
+        lps[0] = 0;
+        for (int i = 1; i < n; ++i) {
+            int j = lps[i - 1];
+            while (0 < j && s[j] != s[i]) {
                 j = lps[j - 1];
             }
-            dp = j + (s[j] == t[i] ? 1 : 0);
+            lps[i] = j + (s[j] == s[i] ? 1 : 0);
+        }
+
+        string t(s.rbegin(), s.rend());
+        // dp[i]: the maximum value k such that s[0:k-1] == t[i-k+1:i]
+        int dp = 0;
+        for (int i = 0; i < n; ++i) {
+            int j = dp;
+            while (0 < j && t[i] != s[j]) {
+                j = lps[j - 1];
+            }
+            dp = j + (t[i] == s[j] ? 1 : 0);
         }
 
         string ret = s.substr(dp);
         std::reverse(ret.begin(), ret.end());
-        ret = ret + s;
+        ret += s;
 
         return ret;
     }
