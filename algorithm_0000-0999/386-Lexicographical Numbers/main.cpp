@@ -1,19 +1,20 @@
 class Solution {
 public:
     vector<int> lexicalOrder(int n) {
-        vector<int> ret;
-        for (int i = 0; ret.size() < n;) {
-            if (i != 0 && (i * 10) <= n) {
-                i *= 10;
+        vector<int> ret = {1};
+        while (ret.size() < n) {
+            int val = ret.back();
+            if (val != 0 && val * 10 <= n) {
+                val *= 10;
             }
             else {
-                while ((i % 10) == 9 || n <= i ) {
-                    i /= 10;
+                while (val % 10 == 9 || val >= n) {
+                    val /= 10;
                 }
-                ++i;
+                ++val;
             }
 
-            ret.push_back(i);
+            ret.push_back(val);
         }
 
         return ret;
