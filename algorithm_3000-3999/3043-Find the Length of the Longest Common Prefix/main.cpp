@@ -1,53 +1,38 @@
 class Solution {
 public:
-    struct TrieNode {
-        TrieNode() {
-            childs.fill(nullptr);
-        }
-
-        array<TrieNode*, 10> childs;
-    };
-
     int longestCommonPrefix(vector<int>& arr1, vector<int>& arr2) {
-        int m = arr1.size(), n = arr2.size();
+        struct Node {
+            std::array<Node*, 10> childs;
+            Node() {
+                childs.fill(nullptr);
+            }
+        };
 
-        vector<string> strs1(m), strs2(n);
-        for (int i = 0; i < m; ++i) {
-            strs1[i] = std::to_string(arr1[i]);
-        }
-        for (int i = 0; i < n; ++i) {
-            strs2[i] = std::to_string(arr2[i]);
-        }
-
-        TrieNode* root = new TrieNode();
-
-        std::function<void(const string&)> add = [&](const string& s) {
-            TrieNode* node = root;
-            for (char c : s) {
+        Node* root = new Node();
+        for (const int num : arr1) {
+            string str = std::to_string(num);
+            Node* node = root;
+            for (char c : str) {
                 if (node->childs[c - '0'] == nullptr) {
-                    node->childs[c - '0'] = new TrieNode();
+                    node->childs[c - '0'] = new Node();
                 }
                 node = node->childs[c - '0'];
             }
-        };
-        for (const string& str : strs1) {
-            add(str);
         }
 
         int ret = 0;
-        std::function<int(const string&)> find = [&](const string& s) {
-            TrieNode* node = root;
-            int ret = 0;
-            for (char c : s) {
-                if (node->childs[c - '0'] == nullptr) { return ret; }
+        for (const int num : arr2) {
+            string str = std::to_string(num);
+            Node* node = root;
+            for (int i = 0; i < str.size(); ++i) {
+                char c = str[i];
+                if (node->childs[c - '0'] == nullptr) {
+                    break;
+                }
                 node = node->childs[c - '0'];
-                ++ret;
-            }
 
-            return ret;
-        };
-        for (const string& str : strs2) {
-            ret = std::max(ret, find(str));
+                ret = std::max(ret, i + 1);
+            }
         }
 
         return ret;
