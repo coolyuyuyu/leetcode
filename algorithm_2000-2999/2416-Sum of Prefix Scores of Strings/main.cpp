@@ -1,62 +1,39 @@
-class Trie {
-public:
-    Trie()
-        : m_root(new Node()) {
-    }
-
-    void addWord(const string& word) {
-        Node* node = m_root;
-        for (char c : word) {
-            if (node->childs[c - 'a'] == nullptr) {
-                node->childs[c - 'a'] = new Node();
-            }
-            node = node->childs[c - 'a'];
-            node->count += 1;
-        }
-    }
-
-    int score(const string& word) {
-        int s = 0;
-        Node* node = m_root;
-        for (char c : word) {
-            if (node->childs[c - 'a'] == nullptr) {
-                node->childs[c - 'a'] = new Node();
-            }
-            node = node->childs[c - 'a'];
-            s += node->count;
-        }
-
-        return s;
-    }
-
-private:
-    class Node {
-    public:
-        Node()
-            : count(0) {
-            childs.fill(nullptr);
-        }
-
-        array<Node*, 26> childs;
-        int count;
-    };
-
-    Node* m_root;
-};
-
 class Solution {
 public:
     vector<int> sumPrefixScores(vector<string>& words) {
-        Trie trie;
+        struct Node {
+            std::array<Node*, 26> childs;
+            int cnt;
+            Node() {
+                childs.fill(nullptr);
+                cnt = 0;
+            }
+        };
+
+        Node* root = new Node();
         for (const string& word : words) {
-            trie.addWord(word);
+            Node* node = root;
+            for (char c : word) {
+                if (node->childs[c - 'a'] == nullptr) {
+                    node->childs[c - 'a'] = new Node();
+                }
+                node = node->childs[c - 'a'];
+                node->cnt += 1;
+            }
         }
 
-        size_t n = words.size();
+        vector<int> ret(words.size());
+        for (int i = 0; i < words.size(); ++i) {
+            const string& word = words[i];
+            Node* node = root;
 
-        vector<int> ret(n);
-        for (size_t i = 0; i < n; ++i) {
-            ret[i] = trie.score(words[i]);
+            int cnt = 0;
+            for (char c : word) {
+                node = node->childs[c - 'a'];
+                cnt += node->cnt;
+            }
+
+            ret[i] = cnt;
         }
 
         return ret;
