@@ -17,7 +17,6 @@ public:
             }
         }
 
-
         m_start2end[start] = end;
         return true;
     }
