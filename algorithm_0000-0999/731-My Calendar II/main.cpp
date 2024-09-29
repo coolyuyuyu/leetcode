@@ -4,19 +4,18 @@ public:
 
     bool book(int start, int end) {
         vector<pair<int, int>> ranges;
-        for (const auto& x : m_events) {
-            if (!(x.second <= start || end <= x.first)) {
-                ranges.push_back(x);
+        for (const auto& [s, e] : m_events) {
+            if (!(e <= start || end <= s)) {
+                ranges.emplace_back(s, e);
             }
         }
-
-        for (int i = 0; i + 1 < ranges.size(); ++i) {
-            if (ranges[i].second > ranges[i + 1].first) {
+        for (int i = 1; i < ranges.size(); ++i) {
+            if (ranges[i - 1].second > ranges[i].first) {
                 return false;
             }
         }
-
         m_events.emplace(start, end);
+
         return true;
     }
 
