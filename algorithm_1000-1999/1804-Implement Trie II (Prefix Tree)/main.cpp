@@ -1,4 +1,15 @@
 class Trie {
+private:
+    struct Node {
+        int preCnt;
+        int cnt;
+        array<Node*, 26> childs;
+        Node() {
+            preCnt = 0;
+            cnt = 0;
+            childs.fill(nullptr);
+        }
+    };
 public:
     Trie()
         : m_root(new Node()) {
@@ -11,54 +22,38 @@ public:
                 node->childs[c - 'a'] = new Node();
             }
             node = node->childs[c - 'a'];
-            node->prefixCnt += 1;
+            node->preCnt += 1;
         }
         node->cnt += 1;
     }
 
     int countWordsEqualTo(string word) {
-        Node* node = m_root;
-        for (char c : word) {
-            if (node->childs[c - 'a'] == nullptr) {
-                return 0;
-            }
-            node = node->childs[c - 'a'];
-        }
-        return node->cnt;
+        Node* node = getNode(word);
+        return node ? node->cnt : 0;
     }
 
     int countWordsStartingWith(string prefix) {
-        Node* node = m_root;
-        for (char c : prefix) {
-            if (node->childs[c - 'a'] == nullptr) {
-                return 0;
-            }
-            node = node->childs[c - 'a'];
-        }
-        return node->prefixCnt;
+        Node* node = getNode(prefix);
+        return node ? node->preCnt : 0;
     }
 
     void erase(string word) {
         Node* node = m_root;
         for (char c : word) {
             node = node->childs[c - 'a'];
-            node->prefixCnt -= 1;
+            node->preCnt -= 1;
         }
         node->cnt -= 1;
     }
 
 private:
-    struct Node {
-        array<Node*, 26> childs;
-        int prefixCnt = 0;
-        int cnt = 0;
-
-        Node()
-            : prefixCnt(0)
-            , cnt(0) {
-            childs.fill(nullptr);
+    Node* getNode(const string& s) {
+        Node* node = m_root;
+        for (int i = 0; i < s.size() && node; ++i) {
+            node = node->childs[s[i] - 'a'];
         }
-    };
+        return node;
+    }
 
     Node* m_root;
 };
