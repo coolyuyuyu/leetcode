@@ -1,47 +1,44 @@
 class CustomStack {
 public:
     CustomStack(int maxSize)
-        : m_size(0)
-        , m_capacity(maxSize)
-        , m_data(new int[m_capacity]) {
-    }
-
-    ~CustomStack() {
-        delete[] m_data;
+        : m_capacity(maxSize)
+        , m_size(0)
+        , m_data(new int [m_capacity])
+        , m_diff(new int [m_capacity]) {
     }
 
     void push(int x) {
-        if (!full()) {
-            m_data[m_size++] = x;
-        }
+        if (m_size == m_capacity) { return; }
+
+        m_data[m_size] = x;
+        m_diff[m_size] = 0;
+        ++m_size;
     }
 
     int pop() {
-        return (empty() ? -1 : m_data[--m_size]);
-    }
+        if (m_size == 0) { return -1; }
 
-    bool empty() const {
-        return (m_size == 0);
-    }
+        int ret = m_data[m_size - 1] + m_diff[m_size - 1];
+        --m_size;
 
-    bool full() {
-        return (m_size == m_capacity);
+        if (m_size > 0) {
+            m_diff[m_size - 1] += m_diff[m_size];
+        }
+
+        return ret;
     }
 
     void increment(int k, int val) {
-        if (m_size < k) {
-            k = m_size;
-        }
+        if (m_size == 0) { return; }
 
-        for (int i = 0; i < k; ++i) {
-            m_data[i] += val;
-        }
+        m_diff[std::min(k - 1, m_size - 1)] += val;
     }
 
 private:
-    int m_size;
     int m_capacity;
+    int m_size;
     int* m_data;
+    int* m_diff;
 };
 
 /**
