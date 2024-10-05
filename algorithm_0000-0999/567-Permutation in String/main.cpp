@@ -1,24 +1,26 @@
 class Solution {
 public:
     bool checkInclusion(string s1, string s2) {
-        unordered_map<char, int> cnts;
-        for (auto c : s1) {
-            ++cnts[c];
+        vector<int> cnts(26, 0);
+        for (char c : s1) {
+            ++cnts[c - 'a'];
         }
+        int uniqueCnt = std::count_if(cnts.begin(), cnts.end(), [](int cnt) { return cnt > 0; });
 
-        size_t x = cnts.size();
-        for (size_t i = 0; i < s2.size(); ++i) {
-            if (--cnts[s2[i]] == 0) {
-                --x;
+        int k = s1.size();
+        int n = s2.size();
+        for (int i = 0; i < n; ++i) {
+            if (--cnts[s2[i] - 'a'] == 0) {
+                --uniqueCnt;
             }
 
-            if (x == 0) {
-                return true;
-            }
+            if (i + 1 - k >= 0) {
+                if (uniqueCnt == 0) {
+                    return true;
+                }
 
-            if (s1.size() <= (i + 1)) {
-                if (cnts[s2[i + 1 - s1.size()]]++ == 0) {
-                    ++x;
+                if (cnts[s2[i + 1 - k] - 'a']++ == 0) {
+                    ++uniqueCnt;
                 }
             }
         }
