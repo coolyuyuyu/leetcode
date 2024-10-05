@@ -1,14 +1,15 @@
 class Solution {
 public:
-    int largestUniqueNumber(vector<int>& A) {
-        map<int, int> counts;
-        for (int num : A) {
-            ++counts[num];
+    int largestUniqueNumber(vector<int>& nums) {
+        int cnts[1001];
+        std::fill(cnts, cnts + 1001, 0);
+        for (int num : nums) {
+            ++cnts[num];
         }
 
-        for (auto itr = counts.rbegin(); itr != counts.rend(); ++itr) {
-            if (itr->second == 1) {
-                return itr->first;
+        for (int num = 1000; num >= 0; --num) {
+            if (cnts[num] == 1) {
+                return num;
             }
         }
 
