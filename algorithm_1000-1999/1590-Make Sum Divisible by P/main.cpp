@@ -1,43 +1,44 @@
 class Solution {
 public:
-    // hash + prefix sum
     int minSubarray(vector<int>& nums, int p) {
-        assert(!nums.empty());
+        // X X X X X X X X X X X X
+        //         i   j         n
 
-        int r; {
-            int sum = 0;
-            for (int num : nums) {
-                sum = (sum + num) % p;
+        // given (sum(0:i-1) + sum(j+1, n)) % p == 0
+        // let remAll = sum(0:n) % p
+        // => remAll = (sum(0:i-1) + sum(i,j) + sum(j+1, n)) % p
+        // => remAll = sum(i,j) % p
+        // => remAll = (presum(j) - presum(i-1)) % p
+
+        // let remJ = presum(j) % p
+        // => presum(i-1) % p = remJ - remAll
+
+        int n = nums.size();
+
+        int rem = 0;
+        for (int num : nums) {
+            rem = (rem + num) % p;
+        }
+        if (rem == 0) { return 0; }
+
+        unordered_map<int, int> rem2idx = {{0, -1}};
+
+        int ret = n;
+        for (int j = 0, preRem = 0; j < nums.size(); ++j) {
+            preRem = (preRem + nums[j]) % p;
+
+            int x = ((preRem - rem) % p + p) % p;
+            if (rem2idx.find(x) != rem2idx.end()) {
+                int i = rem2idx[x] + 1;
+                ret = std::min(ret, j - i + 1);
             }
-            r = sum % p;
+
+            rem2idx[preRem] = j;
         }
-        if (r == 0) {
-            return 0;
-        }
-
-        unordered_map<int, int> m; // key: presum % p, val: biggest index
-        m[0] = -1;
-
-        int ret = nums.size();
-        for (int presum = 0, i = 0; i < nums.size(); ++i) {
-            presum = (presum + nums[i]) % p;
-            int diff = (presum + p - r) % p;
-            if (m.find(diff) != m.end()) {
-                ret = std::min(ret, i - m[diff]);
-            }
-
-            m[presum] = std::max(m[presum] , i);
+        if (ret == n) {
+            ret = -1;
         }
 
-        return (ret == nums.size()) ? -1 : ret;
+        return ret;
     }
 };
-
-/*
-X X X X X X X X X X
-      i     j     n
-assume r: sum[0,n] % p
-(sum[0,i] + sum[j+1,n]) is divisible by p
-=> sum[i+1,j] % p == r
-=> (presum[i] - presum[j]) % p == r
-*/
