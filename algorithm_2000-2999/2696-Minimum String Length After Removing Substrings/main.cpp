@@ -1,16 +1,16 @@
 class Solution {
 public:
     int minLength(string s) {
-        stack<char> stk;
+        vector<char> stk;
         for (char c : s) {
-            if (!stk.empty() && stk.top() == 'A' && c == 'B') {
-                stk.pop();
+            if (!stk.empty() && stk.back() == 'A' && c == 'B') {
+                stk.pop_back();
             }
-            else if (!stk.empty() && stk.top() == 'C' && c == 'D') {
-                stk.pop();
+            else if (!stk.empty() && stk.back() == 'C' && c == 'D') {
+                stk.pop_back();
             }
             else {
-                stk.push(c);
+                stk.push_back(c);
             }
         }
 
