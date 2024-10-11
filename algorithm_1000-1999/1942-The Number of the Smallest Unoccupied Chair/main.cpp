@@ -1,20 +1,21 @@
 class Solution {
 public:
     int smallestChair(vector<vector<int>>& times, int targetFriend) {
-        vector<vector<int>>& people = times;
-        for (int i = 0; i < people.size(); ++i) {
-            people[i].push_back(i);
+        int n = times.size();
+        vector<tuple<int, int, int>> people(n); // <arrival, leaving, i>
+        for (int i = 0; i < n; ++i) {
+            int arrival = times[i][0], leaving = times[i][1];
+            people[i] = {arrival, leaving, i};
         }
-        std::sort(people.begin(), people.end(), [](const auto& p1, const auto& p2){ return p1[0] < p2[0]; });
+        std::sort(people.begin(), people.end());
 
-        priority_queue<array<int, 2>, vector<array<int, 2>>, std::greater<array<int, 2>>> busyPQ; // <chairTime, chairIdx>
-        priority_queue<array<int, 1>, vector<array<int, 1>>, std::greater<array<int, 1>>> freePQ; // <chairIdx>
-        for (const auto& person : people) {
-            int arrival = person[0], leaving = person[1], idx = person[2];
-            while (!busyPQ.empty() && busyPQ.top()[0] <= arrival) {
-                auto [chairTime, chairIdx] = busyPQ.top();
+        priority_queue<pair<int, int>, vector<pair<int, int>>, std::greater<pair<int, int>>> busyPQ; // <leaving, chairIdx>
+        priority_queue<int, vector<int>, std::greater<int>> freePQ; // chairIdx
+        for (const auto& [arrival, leaving, i] : people) {
+            while (!busyPQ.empty() && busyPQ.top().first <= arrival) {
+                const auto [_, chairIdx] = busyPQ.top();
                 busyPQ.pop();
-                freePQ.push({chairIdx});
+                freePQ.push(chairIdx);
             }
 
             int chairIdx;
@@ -22,17 +23,17 @@ public:
                 chairIdx = busyPQ.size();
             }
             else {
-                chairIdx = freePQ.top()[0];
+                chairIdx = freePQ.top();
                 freePQ.pop();
             }
-            busyPQ.push({leaving, chairIdx});
+            busyPQ.emplace(leaving, chairIdx);
 
-            if (idx == targetFriend) {
+            if (i == targetFriend) {
                 return chairIdx;
             }
         }
+        __builtin_unreachable();
 
-        assert(false);
         return -1;
     }
 };
