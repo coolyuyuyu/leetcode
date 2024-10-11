@@ -5,18 +5,21 @@ public:
         // monotonic stack
         // farthest greater or equal element
 
+        int n = nums.size();
+
         stack<int> stk;
-        for (int i = 0; i < nums.size(); ++i) {
+        for (int i = 0; i < n; ++i) {
             if (stk.empty() || nums[stk.top()] > nums[i]) {
                 stk.push(i);
             }
         }
 
         int ret = 0;
-        for (int j = nums.size(); 0 < j--;) {
-            while (!stk.empty() && nums[j] >= nums[stk.top()]) {
-                ret = std::max(ret, j - stk.top());
+        for (int j = n; 0 < j--;) {
+            while (!stk.empty() && nums[stk.top()] <= nums[j]) {
+                int i = stk.top();
                 stk.pop();
+                ret = std::max(ret,  j - i);
             }
         }
 
