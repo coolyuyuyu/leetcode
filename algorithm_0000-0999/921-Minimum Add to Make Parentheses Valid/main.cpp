@@ -1,22 +1,21 @@
 class Solution {
 public:
-    int minAddToMakeValid(string S) {
-        int num = 0;
-        int open = 0;
-        for (char c : S) {
+    int minAddToMakeValid(string s) {
+        int mismatchOpen = 0;
+        int mismatchClose = 0;
+        for (char c : s) {
             if (c == '(') {
-                ++open;
+                ++mismatchOpen;
             }
             else {
-                if (open == 0) {
-                    ++num;
-                }
-                else {
-                    --open;
+                --mismatchOpen;
+                if (mismatchOpen < 0) {
+                    ++mismatchClose;
+                    mismatchOpen = 0;
                 }
             }
         }
 
-        return (num + open);
+        return mismatchOpen + mismatchClose;
     }
 };
