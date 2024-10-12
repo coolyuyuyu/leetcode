@@ -3,12 +3,13 @@ public:
     int sweepline(const vector<vector<int>>& intervals) {
         map<int, int> m; // time -> diff
         for (const auto& interval : intervals) {
-            ++m[interval[0]];
-            --m[interval[1] + 1];
+            int lft = interval[0], rht = interval[1];
+            ++m[lft];
+            --m[rht + 1];
         }
 
         int ret = 0, sum = 0;
-        for (const auto [_, diff] : m) {
+        for (const auto& [_, diff] : m) {
             sum += diff;
             ret = std::max(ret, sum);
         }
@@ -34,7 +35,7 @@ public:
     }
 
     int minGroups(vector<vector<int>>& intervals) {
-        //return sweepline(intervals);
-        return heap(intervals);
+        return sweepline(intervals);
+        //return heap(intervals);
     }
 };
