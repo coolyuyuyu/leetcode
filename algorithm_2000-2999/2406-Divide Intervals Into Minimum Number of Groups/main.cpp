@@ -18,10 +18,11 @@ public:
     }
 
     int heap(vector<vector<int>>& intervals) {
-        std::sort(intervals.begin(), intervals.end());
+        std::sort(intervals.begin(), intervals.end(), [](const auto& interval1, const auto& interval2) { return interval1[0] < interval2[0]; });
 
         int ret = 0;
-        priority_queue<int, vector<int>, std::greater<>> pq;
+
+        priority_queue<int, vector<int>, std::greater<int>> pq;
         for (const auto& interval : intervals) {
             while (!pq.empty() && pq.top() < interval[0]) {
                 pq.pop();
@@ -35,7 +36,7 @@ public:
     }
 
     int minGroups(vector<vector<int>>& intervals) {
-        return sweepline(intervals);
-        //return heap(intervals);
+        //return sweepline(intervals);
+        return heap(intervals);
     }
 };
