@@ -2,21 +2,16 @@ class Solution {
 public:
     long long minimumSteps(string s) {
         long long ret = 0;
-        for (int idx0 = 0, idx1 = 0; idx0 < s.size(); ++idx0) {
-            if (s[idx0] == '1') {
-                continue;
+        for (int i = 0, j = s.size() - 1; i < j; ++i, --j) {
+            while (i < j && s[i] == '0') {
+                ++i;
             }
-            else if (idx0 == idx1){
-                ++idx1;
-                continue;
+            while (i < j && s[j] == '1') {
+                --j;
             }
-
-            while (s[idx1] == '0') {
-                ++idx1;
+            if (i < j) {
+                ret += j - i;
             }
-            std::swap(s[idx0], s[idx1]);
-
-            ret += idx0 - idx1;
         }
 
         return ret;
