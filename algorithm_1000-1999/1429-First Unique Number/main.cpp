@@ -2,15 +2,13 @@ class FirstUnique {
 public:
     FirstUnique(vector<int>& nums) {
         for (int num : nums) {
-            if (++m_freqs[num] == 1) {
-                m_uniques.push(num);
-            }
+            add(num);
         }
     }
 
     int showFirstUnique() {
         while (!m_uniques.empty()) {
-            if (m_freqs[m_uniques.front()] == 1) {
+            if (m_freq[m_uniques.front()] == 1) {
                 break;
             }
             m_uniques.pop();
@@ -20,13 +18,13 @@ public:
     }
 
     void add(int value) {
-        if (++m_freqs[value] == 1) {
+        if (++m_freq[value] == 1) {
             m_uniques.push(value);
         }
     }
 
 private:
-    unordered_map<int, int> m_freqs;
+    unordered_map<int, int> m_freq;
     queue<int> m_uniques;
 };
 
