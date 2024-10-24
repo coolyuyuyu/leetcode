@@ -11,61 +11,47 @@
  */
 class Solution {
 public:
-    bool flipEquiv_Recursive(TreeNode* root1, TreeNode* root2) {
-        if ((root1 && !root2) || (!root1 && root2)) {
-            return false;
-        }
-        else if (!root1 && !root2) {
-            return true;
-        }
-        else {
-            if (root1->val != root2->val) {
+    bool recursive(TreeNode* root1, TreeNode* root2) {
+        std::function<bool(TreeNode*,TreeNode*)> f = [&](TreeNode* a, TreeNode* b) {
+            if (!a && !b) {
+                return true;
+            }
+            else if (!a && b || a && !b || a->val != b->val) {
                 return false;
             }
+            else {
+                return (f(a->left, b->left) && f(a->right, b->right)) ||
+                       (f(a->left, b->right) && f(a->right, b->left));
+            }
+        };
 
-            return (flipEquiv_Recursive(root1->left, root2->left) && flipEquiv_Recursive(root1->right, root2->right)) ||
-                   (flipEquiv_Recursive(root1->left, root2->right) && flipEquiv_Recursive(root1->right, root2->left));
-        }
+        return f(root1, root2);
     }
 
-    bool flipEquiv_Iterative(TreeNode* root1, TreeNode* root2) {
-        if ((root1 && !root2) || (!root1 && root2)) {
-            return false;
-        }
-
-        queue<pair<TreeNode*, TreeNode*>> q;
-        if (root1) {
-            assert(root2);
-            q.emplace(root1, root2);
-        }
-        while (!q.empty()) {
-            TreeNode* node1 = q.front().first;
-            TreeNode* node2 = q.front().second;
+    bool iterative(TreeNode* root1, TreeNode* root2) {
+        std::function<bool(TreeNode*, TreeNode*)> checkEqual = [](TreeNode* a, TreeNode* b) {
+            return (!a && !b) || (a && b && a->val == b->val);
+        };
+        for (queue<pair<TreeNode*, TreeNode*>> q({{root1, root2}}); !q.empty(); ) {
+            auto [a, b] = q.front();
             q.pop();
 
-            if (node1->val != node2->val) {
+            if (!a && !b) {
+                continue;
+            }
+            else if (!a && b || a && !b || a->val != b->val) {
                 return false;
             }
-
-            TreeNode* lft1 = node1->left;
-            TreeNode* rht1 = node1->right;
-            TreeNode* lft2 = node2->left;
-            TreeNode* rht2 = node2->right;
-            if ((lft1 && !lft2) || (!lft1 && lft2) || (lft1 && lft2 && lft1->val != lft2->val)) {
-                swap(lft2, rht2);
+            else if (checkEqual(a->left, b->left) && checkEqual(a->right, b->right)) {
+                q.emplace(a->left, b->left);
+                q.emplace(a->right, b->right);
             }
-
-            if ((lft1 && !lft2) || (!lft1 && lft2)) {
+            else if (checkEqual(a->left, b->right) && checkEqual(a->right, b->left)) {
+                q.emplace(a->left, b->right);
+                q.emplace(a->right, b->left);
+            }
+            else {
                 return false;
-            }
-            else if (lft1 && lft2) {
-                q.emplace(lft1, lft2);
-            }
-            if ((rht1 && !rht2) || (!rht1 && rht2)) {
-                return false;
-            }
-            else if (rht1 && rht2) {
-                q.emplace(rht1, rht2);
             }
         }
 
@@ -73,7 +59,7 @@ public:
     }
 
     bool flipEquiv(TreeNode* root1, TreeNode* root2) {
-        //return flipEquiv_Recursive(root1, root2);
-        return flipEquiv_Iterative(root1, root2);
+        //return recursive(root1, root2);
+        return iterative(root1, root2);
     }
 };
