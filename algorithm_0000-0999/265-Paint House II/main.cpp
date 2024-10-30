@@ -1,77 +1,71 @@
 class Solution {
 public:
-    // Time: O(nk^2)
+    // Time: O(nm^2)
     int dp1(vector<vector<int>>& costs) {
-        int n = costs.size(), colors = costs.empty() ? 0 : costs[0].size();
+        int n = costs.size(), m = costs.empty() ? 0 : costs[0].size();
 
-        // dp[i][j]: the minimum cost to paint houses[0:i], and house i is painted jth color
-        vector<vector<int>> dp(n + 1, vector<int>(colors));
-        for (int color = 0; color < colors; ++color) {
-            dp[0][color] = 0;
+        costs.insert(costs.begin(), vector<int>());
+
+        // dp[i][j] : the minimum cost to paint houses[1:i] and house[j] is painted with jth color
+        int dp[n + 1][m];
+        for (int j = 0; j < m; ++j) {
+             dp[0][j] = 0;
         }
-        costs.insert(costs.begin(), vector<int>(colors));
-
         for (int i = 1; i <= n; ++i) {
-            for (int color1 = 0; color1 < colors; ++color1) {
-                int minVal = INT_MAX;
-                for (int color2 = 0; color2 < colors; ++color2) {
-                    if (color2 == color1) {
-                        continue;
+            for (int j = 0; j < m; ++j) {
+                dp[i][j] = INT_MAX;
+            }
+        }
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 0; j < m; ++j) {
+                for (int k = 0; k < m; ++k) {
+                    if (k != j) {
+                        dp[i][j] = std::min(dp[i][j], dp[i - 1][k] + costs[i][j]);
                     }
-                    minVal = std::min(minVal, dp[i - 1][color2]);
                 }
-
-                dp[i][color1] = minVal + costs[i][color1];
-
             }
         }
 
         int ret = INT_MAX;
-        for (int color = 0; color < colors; ++color) {
-            ret = std::min(ret, dp[n][color]);
+        for (int j = 0; j < m; ++j) {
+            ret = std::min(ret, dp[n][j]);
         }
 
         return ret;
     }
 
-    // Time: O(nk)
+    // Time: O(nm)
     int dp2(vector<vector<int>>& costs) {
-        int n = costs.size(), colors = costs.empty() ? 0 : costs[0].size();
+        int n = costs.size(), m = costs.empty() ? 0 : costs[0].size();
 
-        // dp[i][j]: the minimum cost to paint houses[0:i], and house i is painted jth color
-        vector<vector<int>> dp(n + 1, vector<int>(colors));
-        for (int color = 0; color < colors; ++color) {
-            dp[0][color] = 0;
+        costs.insert(costs.begin(), vector<int>());
+
+        // dp[i][j] : the minimum cost to paint houses[1:i] and house[j] is painted with jth color
+        int dp[n + 1][m];
+        for (int j = 0; j < m; ++j) {
+             dp[0][j] = 0;
         }
-        costs.insert(costs.begin(), vector<int>(colors));
 
-        int colorOfMinCost1 = 0;
-        int colorOfMinCost2 = 1;
+        int curColor1 = 0, curColor2 = 1;
         for (int i = 1; i <= n; ++i) {
-            int preColorOfMinCost1 = colorOfMinCost1, preColorOfMinCost2 = colorOfMinCost2;
+            int preColor1 = curColor1, preColor2 = curColor2;
             int minCost1 = INT_MAX, minCost2 = INT_MAX;
-            for (int color = 0; color < colors; ++color) {
-                if (color != preColorOfMinCost1) {
-                    dp[i][color] = dp[i - 1][preColorOfMinCost1] + costs[i][color];
-                }
-                else {
-                    dp[i][color] = dp[i - 1][preColorOfMinCost2] + costs[i][color];
-                }
-
-                if (dp[i][color] < minCost1) {
+            for (int j = 0; j < m; ++j) {
+                dp[i][j] = dp[i - 1][j == preColor1 ? preColor2 : preColor1] + costs[i][j];
+                if (dp[i][j] < minCost1) {
+                    curColor2 = curColor1;
                     minCost2 = minCost1;
-                    colorOfMinCost2 = colorOfMinCost1;
-                    minCost1 = dp[i][color];
-                    colorOfMinCost1 = color;
+                    curColor1 = j;
+                    minCost1 = dp[i][j];
                 }
-                else if (dp[i][color] < minCost2) {
-                    minCost2 = dp[i][color];
-                    colorOfMinCost2 = color;
+                else if (dp[i][j] < minCost2) {
+                    curColor2 = j;
+                    minCost2 = dp[i][j];
                 }
             }
         }
 
-        return dp[n][colorOfMinCost1];
+        return dp[n][curColor1];
     }
 
     int minCostII(vector<vector<int>>& costs) {
