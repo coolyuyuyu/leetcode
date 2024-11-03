@@ -1,26 +1,20 @@
 class Solution {
 public:
-    bool rotateString(string A, string B) {
-        if (A.size() != B.size()) {
-            return false;
-        }
-        if (A.empty() || A == B) {
-            return true;
-        }
-
-        for (size_t round = 1; round < A.size(); ++round) {
-            char c = A.front();
-            for (size_t i = 1; i < A.size(); ++i) {
-                A[i - 1] = A[i];
+    bool rotateString(string s, string goal) {
+        int n = s.size();
+        std::function<bool(int)> f = [&](int i) {
+            for (int cnt = 0; cnt < n; ++cnt, i = (i + 1) % n) {
+                if (s[i] != goal[cnt]) {
+                    return false;
+                }
             }
-            A.back() = c;
-
-
-            if (A == B) {
+            return true;
+        };
+        for (int i = 0; i < n; ++i) {
+            if (f(i)) {
                 return true;
             }
         }
-
         return false;
     }
 };
