@@ -4,25 +4,25 @@ public:
         int n = s.size();
         s = "#" + s;
 
-        int prefix[n + 1][26];
+        // cnts[i]['a']: number of 'a' of s[1:i]
+        int cnts[n + 1][26];
         for (int j = 0; j < 26; ++j) {
-            prefix[0][j] = 0;
+            cnts[0][j] = 0;
         }
         for (int i = 1; i <= n; ++i) {
             for (int j = 0; j < 26; ++j) {
-                prefix[i][j] = prefix[i - 1][j];
+                cnts[i][j] = cnts[i - 1][j];
             }
-            ++prefix[i][s[i] - 'a'];
+            ++cnts[i][s[i] - 'a'];
         }
 
-        vector<int> ret(queries.size(), 0);
-        for (int i = 0; i < queries.size(); ++i) {
+        int m = queries.size();
+        vector<int> ret(m);
+        for (int i = 0; i < m; ++i) {
             int lft = queries[i][0] + 1, rht = queries[i][1] + 1;
             for (int j = 0; j < 26; ++j) {
-                int cnt = prefix[rht][j] - prefix[lft - 1][j];
-                if (cnt > 0) {
-                    ret[i] += cnt + cnt * (cnt - 1) / 2;
-                }
+                int cnt = cnts[rht][j] - cnts[lft - 1][j];
+                ret[i] += cnt + cnt * (cnt - 1) / 2;
             }
         }
 
