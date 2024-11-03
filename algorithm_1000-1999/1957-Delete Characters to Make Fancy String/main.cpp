@@ -1,12 +1,16 @@
 class Solution {
 public:
     string makeFancyString(string s) {
-        string ret = s.substr(0, 2);
-        for (int i = 2; i < s.size(); ++i) {
-            if (ret[ret.size() - 2] == ret[ret.size() - 1] && ret[ret.size() - 1] == s[i]) {
-                continue;
+        string ret;
+        for (int i = 0, cnt = 0; i < s.size(); ++i) {
+            if (ret.empty() || ret.back() != s[i]) {
+                ret += s[i];
+                cnt = 1;
             }
-            ret.push_back(s[i]);
+            else if (cnt < 2){
+                ret += s[i];
+                ++cnt;
+            }
         }
 
         return ret;
