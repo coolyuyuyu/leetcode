@@ -2,20 +2,16 @@ class Solution {
 public:
     string compressedString(string word) {
         string ret;
-        for (int i = 0; i < word.size();) {
-            int j = i;
-            for (; j + 1 < word.size(); ++j) {
-                if (word[j + 1] != word[i]) {
-                    break;
-                }
+        for (int i = 0, n = word.size(); i < n;) {
+            int j = i + 1;
+            while (j < n && word[i] == word[j] && j - i < 9) {
+                ++j;
             }
 
-            for (int cnt = j - i + 1; cnt > 0; cnt -= 9) {
-                ret += '0' + std::min(cnt, 9);
-                ret += word[i];
-            }
+            ret += '0' + (j - i);
+            ret += word[i];
 
-            i = j + 1;
+            i = j;
         }
 
         return ret;
