@@ -1,42 +1,23 @@
 class Solution {
 public:
     vector<int> decrypt(vector<int>& code, int k) {
-        size_t len = code.size();
+        int n = code.size();
+        if (k == 0) {return vector<int>(n, 0); }
 
-        vector<int> ret(len, 0);
-        if (k == 0) {
-            return ret;
-        }
-
-        partial_sum(code.begin(), code.end(), code.begin());
-        if (0 < k) {
-            for (size_t i = 0; i < len; ++i) {
-                ret[i] -= code[i];
-
-                if (len <= (i + k)) {
-                    ret[i] += code[len - 1];
-                    ret[i] += code[k - (len - i)];
-                }
-                else {
-                    ret[i] += code[i + k];
-                }
-            }
+        int lft, rht;
+        if (k >= 0) {
+            lft = 1, rht = k;
         }
         else {
-            k = -k;
-            for (size_t i = 0; i < len; ++i) {
-                if (0 < i) {
-                    ret[i] += code[i - 1];
-                }
+            lft = n + k, rht = n - 1;
+        }
+        int sum = std::accumulate(code.begin() + lft, code.begin() + rht + 1, 0);
 
-                if (k < i) {
-                    ret[i] -= code[i - 1 - k];
-                }
-
-                if (i < k) {
-                    ret[i] += (code[len - 1] - code[len - k + i - 1]);
-                }
-            }
+        vector<int> ret(n, 0);
+        for (int i = 0; i < n; ++i) {
+            ret[i] = sum;
+            sum -= code[(lft++) % n];
+            sum += code[(++rht) % n];
         }
 
         return ret;
