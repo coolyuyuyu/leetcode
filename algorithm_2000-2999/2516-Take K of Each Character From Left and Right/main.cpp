@@ -38,26 +38,25 @@ public:
         for (char c : s) {
             ++cnts[c - 'a'];
         }
-        if (std::any_of(cnts.begin(), cnts.end(), [&](int cnt) { return cnt < k; })) {
+        if (std::any_of(cnts.begin(), cnts.end(), [&](int cnt){ return cnt < k; })) {
             return -1;
         }
 
-        int n = s.size();
         int maxRetainLen = 0;
-        for (int lft = 0, rht = 0; lft < n; ++lft) { // [lft, rht)
-            for (; std::all_of(cnts.begin(), cnts.end(), [&](int cnt) { return k <= cnt; }); ++rht) {
+        for (int lft = 0, rht = 0, n = s.size(); lft < n; ++lft) {
+            for (; std::all_of(cnts.begin(), cnts.end(), [&](int cnt){ return cnt >= k; }); ++rht) {
                 maxRetainLen = std::max(maxRetainLen, rht - lft);
-                if (rht == n) {
+                if (rht >= n) {
                     break;
                 }
-                
+
                 --cnts[s[rht] - 'a'];
             }
 
             ++cnts[s[lft] - 'a'];
         }
 
-        return n - maxRetainLen;
+        return s.size() - maxRetainLen;
     }
 
     int takeCharacters(string s, int k) {
