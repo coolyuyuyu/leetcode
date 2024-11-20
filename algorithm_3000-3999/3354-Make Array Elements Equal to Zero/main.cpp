@@ -1,10 +1,25 @@
 class Solution {
 public:
-    long long flowerGame(int n, int m) {
-        long long cntE1 = n / 2;
-        long long cntO1 = n - cntE1;
-        long long cntE2 = m / 2;
-        long long cntO2 = m - cntE2;
-        return cntE1 * cntO2 + cntO1 * cntE2;
+    int countValidSelections(vector<int>& nums) {
+        int n = nums.size();
+
+        int presums[n];
+        std::partial_sum(nums.begin(), nums.end(), presums);
+        int sum = presums[n - 1];
+
+        int ret = 0;
+        for (int i = 0; i < n; ++i) {
+            if (nums[i] == 0) {
+                int lftSum = presums[i], rhtSum = sum - lftSum - nums[i];
+                if (lftSum == rhtSum) {
+                    ret += 2;
+                }
+                else if (std::abs(lftSum - rhtSum) == 1) {
+                    ret += 1;
+                }
+            }
+        }
+
+        return ret;
     }
 };
