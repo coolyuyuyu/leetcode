@@ -21,7 +21,6 @@ public:
                     else {
                         sum += matrix[r][c];
                     }
-
                 }
             }
         }
