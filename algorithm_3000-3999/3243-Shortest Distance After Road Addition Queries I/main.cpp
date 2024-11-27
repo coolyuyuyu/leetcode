@@ -4,12 +4,7 @@ public:
         int dists[n][n];
         for (int u = 0; u < n; ++u) {
             for (int v = 0; v < n; ++v) {
-                dists[u][v] = INT_MAX / 3;
-            }
-        }
-        for (int u = 0; u < n; ++u) {
-            for (int v = u; v < n; ++v) {
-                dists[u][v] = v - u;
+                dists[u][v] = (u <= v ? (v - u) : INT_MAX / 3);
             }
         }
 
@@ -17,10 +12,8 @@ public:
         vector<int> ret(m);
         for (int i = 0; i < m; ++i) {
             int a = queries[i][0], b = queries[i][1];
-            dists[a][b] = 1;
-
             for (int u = 0; u < n; ++u) {
-                for (int v = u; v < n; ++v) {
+                for (int v = b; v < n; ++v) {
                     dists[u][v] = std::min(dists[u][v], dists[u][a] + 1 + dists[b][v]);
                 }
             }
