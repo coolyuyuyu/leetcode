@@ -1,47 +1,42 @@
 class Solution {
 public:
-    vector<array<int, 2>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
+    vector<pair<int, int>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
 
     int minimumTime(vector<vector<int>>& grid) {
-        if (1 < grid[0][1] && 1 < grid[1][0]) {
+        int m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
+        if (grid[0][1] > 1 && grid[1][0] > 1) {
             return -1;
         }
 
-        int m = grid.size(), n = grid[0].size();
-        vector<vector<int>> times(m, vector<int>(n, -1));
-
-        priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, greater<>> pq;
-        pq.emplace(grid[0][0], 0, 0);
+        int times[m][n];
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                times[r][c] = -1;
+            }
+        }
+        priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, std::greater<tuple<int, int, int>>> pq; // <t, r, c>
+        pq.emplace(0, 0, 0);
         while (!pq.empty()) {
             auto [t, r, c] = pq.top();
             pq.pop();
 
-            if (0 <= times[r][c]) { // visited
-                continue;
-            }
+            if (times[r][c] >= 0) { continue; }
             times[r][c] = t;
 
-            if (r == (m - 1) && c == (n - 1)) {
+            if (r == m - 1 && c == n - 1) {
                 break;
             }
 
-            for (const auto& dir : dirs) {
-                int i = r + dir[0], j = c + dir[1];
-                if (i < 0 || m <= i || j < 0 || n <= j) {
-                    continue;
-                }
-                if (0 <= times[i][j]) {
-                    continue;
-                }
+            for (const auto& [dr, dc] : dirs) {
+                int x = r + dr, y = c + dc;
+                if (x < 0 || x >= m || y < 0 || y >= n) { continue; }
+                if (times[x][y] >= 0) { continue; }
 
-                if (grid[i][j] <= t + 1) {
-                    pq.emplace(t + 1, i, j);
-                }
-                else if ((grid[i][j] - t) % 2) {
-                    pq.emplace(grid[i][j], i, j);
+                if (t + 1 >= grid[x][y]) {
+                    pq.emplace(t + 1, x, y);
                 }
                 else {
-                    pq.emplace(grid[i][j] + 1, i, j);
+                    pq.emplace(grid[x][y] + (((grid[x][y] - t) & 1) ? 0 : 1), x, y);
                 }
             }
         }
