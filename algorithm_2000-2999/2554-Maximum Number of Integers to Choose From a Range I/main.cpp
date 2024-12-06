@@ -1,27 +1,20 @@
 class Solution {
 public:
     int maxCount(vector<int>& banned, int n, int maxSum) {
-        vector<bool> flags(n + 1, true);
+        vector<bool> flags(n + 1, false);
         for (int num : banned) {
-            if (num < flags.size()) {
-                flags[num] = false;
-            }
+            if (num > n) { continue; }
+            flags[num] = true;
         }
 
-        int sum = 0;
-        int cnt = 0;
-        for (int i = 1; i < flags.size(); ++i) {
-            if (flags[i] == false) {
-                continue;
-            }
-
-            if (maxSum < (sum + i)) {
-                return cnt;
-            }
+        int ret = 0;
+        for (int i = 1, sum = 0; i <= n; ++i) {
+            if (flags[i]) { continue; }
+            if (sum + i > maxSum) { break; }
+            ++ret;
             sum += i;
-            ++cnt;
         }
 
-        return cnt;
+        return ret;
     }
 };
