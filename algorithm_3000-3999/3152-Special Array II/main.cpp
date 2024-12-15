@@ -3,7 +3,7 @@ public:
     vector<bool> isArraySpecial(vector<int>& nums, vector<vector<int>>& queries) {
         int m = nums.size(), n = queries.size();
 
-        // dp[i]: the number of break points from nums[0:i];
+        // dp[i]: from nums[0:i] the number of pairs of adjacent elements contains two numbers with same parity.
         int dp[m];
         dp[0] = 0;
         for (int i = 1; i < m; ++i) {
@@ -11,8 +11,8 @@ public:
         }
 
         vector<bool> ret(n);
-        for (int j = 0; j < n; ++j) {
-            ret[j] = (dp[queries[j][0]] == dp[queries[j][1]]);
+        for (int i = 0; i < n; ++i) {
+            ret[i] = (dp[queries[i][0]] == dp[queries[i][1]]);
         }
 
         return ret;
