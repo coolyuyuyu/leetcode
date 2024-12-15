@@ -1,34 +1,27 @@
 class Solution {
 public:
     long long findScore(vector<int>& nums) {
-        int n = nums.size();
-
-        vector<bool> marked(n, false);
-
-        // max queue
-        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
-        for (int i = 0; i < n; ++i) {
+        priority_queue<pair<int, int>, vector<pair<int, int>>, std::greater<pair<int, int>>> pq;
+        for (int i = 0; i < nums.size(); ++i) {
             pq.emplace(nums[i], i);
         }
 
+        vector<bool> marked(nums.size(), false);
         long long ret = 0;
         while (!pq.empty()) {
-            auto [num, index] = pq.top();
+            auto [num, i] = pq.top();
             pq.pop();
 
-            if (marked[index] == true) {
-                continue;
-            }
-
-            marked[index] = true;
-            if (0 < index) {
-                marked[index - 1] = true;
-            }
-            if ((index + 1) < n) {
-                marked[index + 1] = true;
-            }
+            if (marked[i]) { continue;}
 
             ret += num;
+            marked[i] = true;
+            if (i > 0) {
+                marked[i - 1] = true;
+            }
+            if (i + 1 < nums.size()) {
+                marked[i + 1] = true;
+            }
         }
 
         return ret;
