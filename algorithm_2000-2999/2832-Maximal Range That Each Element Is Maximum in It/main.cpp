@@ -2,12 +2,10 @@ class Solution {
 public:
     vector<int> maximumLengthOfRanges(vector<int>& nums) {
         int n = nums.size();
-
         stack<int> stk;
 
         int nxtGT[n];
         for (int i = 0; i < n; ++i) {
-            int num = nums[i];
             while (!stk.empty() && nums[stk.top()] < nums[i]) {
                 nxtGT[stk.top()] = i;
                 stk.pop();
@@ -20,8 +18,7 @@ public:
 
         int preGT[n];
         for (int i = n; 0 < i--;) {
-            int num = nums[i];
-            while (!stk.empty() && nums[stk.top()] < nums[i]) {
+            while (!stk.empty() && nums[i] > nums[stk.top()] ) {
                 preGT[stk.top()] = i;
                 stk.pop();
             }
@@ -33,8 +30,9 @@ public:
 
         vector<int> ret(n);
         for (int i = 0; i < n; ++i) {
-            ret[i] = (i - preGT[i] - 1) + (nxtGT[i] - i - 1) + 1;
+            ret[i] = nxtGT[i] - preGT[i] - 1;
         }
+
         return ret;
     }
 };
