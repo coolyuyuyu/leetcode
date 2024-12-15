@@ -1,13 +1,11 @@
 class Solution {
 public:
     int maximumLength(string s) {
-        int n = s.size();
-
         unordered_map<int, int> len2cntArr[26];
 
         int ret = -1;
-        for (int i = 0; i < n;) {
-            int len = 0;
+        for (int i = 0, n = s.size(); i < n;) {
+            int len = 1;
             for (; i + len < n; ++len) {
                 if (s[i] != s[i + len]) {
                     break;
