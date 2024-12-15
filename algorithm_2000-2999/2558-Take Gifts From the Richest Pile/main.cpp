@@ -2,11 +2,10 @@ class Solution {
 public:
     long long pickGifts(vector<int>& gifts, int k) {
         priority_queue<int> pq(gifts.begin(), gifts.end());
-        for (; 1 < pq.top() && 0 < k--;) {
+        for (; k > 0 && !pq.empty() && pq.top() > 1; k--) {
             int gift = pq.top();
             pq.pop();
-
-            pq.push(sqrt(gift));
+            pq.push(std::sqrt(gift));
         }
 
         long long ret = 0;
