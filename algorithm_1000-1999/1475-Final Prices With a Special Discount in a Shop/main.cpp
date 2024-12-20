@@ -1,9 +1,9 @@
 class Solution {
 public:
     vector<int> finalPrices(vector<int>& prices) {
-        stack<size_t> stk;
-        for (size_t i = 0; i < prices.size(); ++i) {
-            while (!stk.empty() && prices[i] <= prices[stk.top()] ) {
+        stack<int> stk;
+        for (int i = 0, n = prices.size(); i < n; ++i) {
+            while (!stk.empty() && prices[stk.top()] >= prices[i]) {
                 prices[stk.top()] -= prices[i];
                 stk.pop();
             }
