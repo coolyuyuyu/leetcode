@@ -16,20 +16,18 @@ public:
         for (int d = 0; !q.empty(); ++d) {
             vector<TreeNode*> nodes;
             for (int i = q.size(); 0 < i--;) {
-                TreeNode* node = q.front();
+                auto node = q.front();
                 q.pop();
 
                 if (d & 1) {
                     nodes.push_back(node);
                 }
 
-                if (!node->left) { continue; }
-                q.push(node->left);
-                q.push(node->right);
+                if (node->left) { q.push(node->left);}
+                if (node->right) { q.push(node->right); }
             }
-
-            for (int i = 0; i * 2 < nodes.size(); ++i) {
-                std::swap(nodes[i]->val, nodes[nodes.size() - i - 1]->val);
+            for (int lft = 0, rht = nodes.size() - 1; lft < rht; ++lft, --rht) {
+                std::swap(nodes[lft]->val, nodes[rht]->val);
             }
         }
 
