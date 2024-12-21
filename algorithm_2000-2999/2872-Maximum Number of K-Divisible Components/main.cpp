@@ -3,8 +3,9 @@ public:
     int maxKDivisibleComponents(int n, vector<vector<int>>& edges, vector<int>& values, int k) {
         vector<int> graph[n];
         for (const auto& edge : edges) {
-            graph[edge[0]].push_back(edge[1]);
-            graph[edge[1]].push_back(edge[0]);
+            int a = edge[0], b = edge[1];
+            graph[a].push_back(b);
+            graph[b].push_back(a);
         }
 
         int ret = 0;
@@ -14,14 +15,13 @@ public:
                 if (nxt == pre) { continue; }
                 remaining += f(nxt, cur);
             }
+            remaining %= k;
 
-            if (remaining % k == 0) {
+            if (remaining == 0) {
                 ++ret;
-                return 0;
             }
-            else {
-                return remaining;
-            }
+
+            return remaining;
         };
         f(0, -1);
 
