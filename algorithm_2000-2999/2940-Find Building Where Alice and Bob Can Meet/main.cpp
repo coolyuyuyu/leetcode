@@ -1,35 +1,37 @@
 class Solution {
 public:
     vector<int> leftmostBuildingQueries(vector<int>& heights, vector<vector<int>>& queries) {
-        int n = queries.size();
+        int m = heights.size(), n = queries.size();
 
-        for (int i = 0; i < n; ++i) {
-            if (queries[i][0] > queries[i][1]) {
-                std::swap(queries[i][0], queries[i][1]);
+        for (int j = 0; j < n; ++j) {
+            if (queries[j][0] > queries[j][1]) {
+                std::swap(queries[j][0], queries[j][1]);
             }
-            queries[i].push_back(i);
         }
-        std::sort(queries.begin(), queries.end(), [](const auto& query1, const auto& query2){ return query1[1] < query2[1]; });
 
+        int queryIndexes[n];
+        std::iota(queryIndexes, queryIndexes + n, 0);
+        std::sort(queryIndexes, queryIndexes + n, [&](int idx1, int idx2){ return queries[idx1][1] < queries[idx2][1]; });
+
+        vector<int> ret(n, -1);
         map<int, int> height2idx;
-
-        vector<int> ret(queries.size());
-        int hIdx = heights.size() - 1;
-        for (int i = queries.size(); 0 < i--;) {
-            int a = queries[i][0], b = queries[i][1], qIdx = queries[i][2];
-            for (; b < hIdx; --hIdx) {
-                while (!height2idx.empty() && heights[hIdx] >= height2idx.begin()->first) {
+        for (int i = m - 1, j = n - 1; j >= 0; --j) {
+            int qIdx = queryIndexes[j], a = queries[qIdx][0], b = queries[qIdx][1];
+            for (; i > b; --i) {
+                while (!height2idx.empty() && heights[i] >= height2idx.begin()->first) {
                     height2idx.erase(height2idx.begin());
                 }
-                height2idx[heights[hIdx]] = hIdx;
+                height2idx[heights[i]] = i;
             }
 
             if (a == b || heights[a] < heights[b]) {
                 ret[qIdx] = b;
             }
             else {
-                auto itr = height2idx.upper_bound(std::max(heights[a], heights[b]));
-                ret[qIdx] = (itr == height2idx.end() ? -1 : itr->second);
+                auto itr = height2idx.upper_bound(heights[a]);
+                if (itr != height2idx.end()) {
+                    ret[qIdx] = itr->second;
+                }
             }
         }
 
