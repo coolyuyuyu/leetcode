@@ -12,23 +12,23 @@
 class Solution {
 public:
     int minSwap(vector<int>& nums) {
+        if (nums.empty()) { return 0; }
         int n = nums.size();
-        if (n == 0) { return 0; }
 
         int indexes[n];
         std::iota(indexes, indexes + n, 0);
-        std::sort(indexes, indexes + n, [&](int i1, int i2) { return nums[i1] < nums[i2]; });
+        std::sort(indexes, indexes + n, [&](int idx1, int idx2){ return nums[idx1] < nums[idx2]; });
 
         int ret = 0;
         for (int i = 0; i < n; ++i) {
-            while (indexes[i] != indexes[indexes[i]]) {
+            while (indexes[i] != i) {
                 std::swap(indexes[i], indexes[indexes[i]]);
                 ++ret;
             }
         }
 
         return ret;
-    }
+    };
 
     int minimumOperations(TreeNode* root) {
         int ret = 0;
@@ -38,13 +38,12 @@ public:
                 auto node = q.front();
                 q.pop();
 
-                if (!node) { continue; }
+                if (!node) { continue;}
                 nums.push_back(node->val);
 
-                q.emplace(node->left);
-                q.emplace(node->right);
+                q.push(node->left);
+                q.push(node->right);
             }
-
             ret += minSwap(nums);
         }
 
