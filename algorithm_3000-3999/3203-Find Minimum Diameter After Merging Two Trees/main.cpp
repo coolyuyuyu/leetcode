@@ -2,7 +2,7 @@ class Solution {
 public:
     // 1245. Tree Diameter
     int treeDiameter(vector<vector<int>>& edges) {
-        // Assume the longest path of the graph is in between node a and b.
+        // Assume the longest path of the tree is in between node a and b.
         // Start from any node s, the farest node against s must be a or b.
 
         int n = edges.size() + 1;
@@ -14,24 +14,17 @@ public:
         }
 
         std::function<pair<int, int>(int)> bfs = [&](int src) {
-            bool visited[n];
-            std::fill(visited, visited + n, false);
-
-            queue<int> q;
-            visited[src] = true;
-            q.push(src);
-
-            int leaf = src, depth = -1;
-            for (; !q.empty(); ++depth) {
-                leaf = q.front();
-                for (int k = q.size(); 0 < k--;) {
-                    int cur = q.front();
+            queue<pair<int, int>> q({{src, -1}});
+            int leaf, depth;
+            for (depth = -1; !q.empty(); ++depth) {
+                leaf = q.front().first;
+                for (int i = q.size(); 0 < i--;) {
+                    auto [cur, pre] = q.front();
                     q.pop();
-                    for (int nxt : graph[cur]) {
-                        if (visited[nxt]) { continue; }
 
-                        visited[nxt] = true;
-                        q.push(nxt);
+                    for (int nxt : graph[cur]) {
+                        if (nxt == pre) { continue; }
+                        q.emplace(nxt, cur);
                     }
                 }
             }
