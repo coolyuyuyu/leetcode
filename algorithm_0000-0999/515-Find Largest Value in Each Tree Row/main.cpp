@@ -14,12 +14,10 @@ public:
     vector<int> recursive(TreeNode* root) {
         vector<int> ret;
         std::function<void(TreeNode*, int)> f = [&](TreeNode* root, int depth) {
-            if (!root) {
-                return;
-            }
+            if (!root) { return; }
 
-            if (ret.size() <= depth) {
-                ret.resize(depth + 1, INT_MIN);
+            while (depth >= ret.size()) {
+                ret.push_back(INT_MIN);
             }
             ret[depth] = std::max(ret[depth], root->val);
 
@@ -36,23 +34,23 @@ public:
         queue<TreeNode*> q;
         if (root) { q.push(root); }
         while (!q.empty()) {
-            ret.emplace_back(INT_MIN);
-            for (int n = q.size(); 0 < n--;) {
+            int val = INT_MIN;
+            for (int i = q.size(); 0 < i--;) {
                 TreeNode* node = q.front();
                 q.pop();
-                
-                ret.back() = std::max(ret.back(), node->val);
+
+                val = std::max(val, node->val);
 
                 if (node->left) { q.push(node->left); }
                 if (node->right) { q.push(node->right); }
             }
+            ret.push_back(val);
         }
-
         return ret;
     }
 
     vector<int> largestValues(TreeNode* root) {
-        //return recursive(root);
-        return iterative(root);
+        return recursive(root);
+        //return iterative(root);
     }
 };
