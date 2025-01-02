@@ -1,7 +1,8 @@
 class Solution {
 public:
-    bool checkVowel(char c) {
-        switch(c) {
+    vector<int> vowelStrings(vector<string>& words, vector<vector<int>>& queries) {
+        std::function<bool(char)> checkVowel = [](char c) {
+            switch (c) {
             case 'a':
             case 'e':
             case 'i':
@@ -10,25 +11,24 @@ public:
                 return true;
             default:
                 return false;
-        }
-    }
+            };
+        };
 
-    vector<int> vowelStrings(vector<string>& words, vector<vector<int>>& queries) {
-        size_t n = words.size();
-        vector<int> presum(n, 0);
-        for (size_t i = 0; i < n; ++i) {
-            if (checkVowel(words[i].front()) && checkVowel(words[i].back())) {
-                presum[i] = 1;
+        int n = words.size();
+
+        // dp[i]: number of vowel strings from words[0:i]
+        int dp[n];
+        for (int i = 0; i < n; ++i) {
+            dp[i] = (checkVowel(words[i].front()) && checkVowel(words[i].back())) ? 1 : 0;
+            if (i > 0) {
+                dp[i] += dp[i - 1];
             }
         }
-        std::partial_sum(presum.begin(), presum.end(), presum.begin());
 
         vector<int> ret(queries.size());
-        for (size_t i = 0; i < queries.size(); ++i) {
-            ret[i] = presum[queries[i][1]];
-            if (0 < queries[i][0]) {
-                ret[i] -= presum[queries[i][0] - 1];
-            }
+        for (int i = 0; i < ret.size(); ++i) {
+            int l = queries[i][0], r = queries[i][1];
+            ret[i] = dp[r] - (l > 0 ? dp[l - 1] : 0);
         }
 
         return ret;
