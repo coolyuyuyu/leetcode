@@ -7,9 +7,9 @@ public:
         for (const auto& s : shift) {
             k += (s[0] == 0 ? 1 : -1) * s[1];
         }
-        k = ((k % n) + n) % n;
-
+        k = (k % n + n) % n;
         std::rotate(s.begin(), s.begin() + k, s.end());
+
         return s;
     }
 };
