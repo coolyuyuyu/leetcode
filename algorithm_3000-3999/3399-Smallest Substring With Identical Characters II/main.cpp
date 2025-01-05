@@ -7,21 +7,23 @@ public:
         for (int lft = 0, rht = 1; lft < n; lft = rht, rht = lft + 1) {
             while (rht < n && s[lft] == s[rht]) {
                 ++rht;
-            }
+            };
             lens.push_back(rht - lft);
         }
+
         std::function<bool(int)> checkOk = [&](int k) {
             if (k == 1) {
                 int cnt = 0;
-                for (int i = 0; i < s.size(); ++i) {
-                    cnt += ((s[i] - '0') == (i & 1) ? 1 : 0);
+                for (int i = 0; i < n; ++i) {
+                    cnt += (s[i] - '0') == (i & 1);
                 }
-                return std::min<int>(cnt, s.size() - cnt) <= numOps;
+                return std::min(cnt, n - cnt) <= numOps;
             }
             else {
                 int cnt = 0;
                 for (int len : lens) {
-                    if ((cnt += (len / (k + 1))) > numOps) {
+                    cnt += std::ceil(1.0 * (len - k) / (k + 1));
+                    if (cnt > numOps) {
                         return false;
                     }
                 }
@@ -29,7 +31,7 @@ public:
             }
         };
 
-        int lo = 1, hi = n;
+        int lo = 1, hi = s.size();
         while (lo < hi) {
             int mid = lo + (hi - lo) / 2;
             if (checkOk(mid)) {
@@ -37,7 +39,7 @@ public:
             }
             else {
                 lo = mid + 1;
-            } 
+            }
         }
 
         return lo;
