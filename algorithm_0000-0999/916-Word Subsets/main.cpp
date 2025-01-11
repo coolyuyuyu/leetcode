@@ -1,42 +1,38 @@
 class Solution {
 public:
-    vector<string> wordSubsets(vector<string>& A, vector<string>& B) {
-        vector<int> counts(26, 0); {
-            for (const string& b : B) {
-                vector<int> tmpCounts(26, 0);
-                for (char c : b) {
-                    ++tmpCounts[c - 'a'];
-                }
+    vector<string> wordSubsets(vector<string>& words1, vector<string>& words2) {
+        std::function<vector<int>(const string&)> getCnts = [](const string& word) {
+            vector<int> cnts(26, 0);
+            for (char c : word) {
+                ++cnts[c - 'a'];
+            }
 
-                for (int i = 0; i < 26; ++i) {
-                    counts[i] = max(counts[i], tmpCounts[i]);
-                }
+            return cnts;
+        };
+
+        vector<int> cnts2(26, 0);
+        for (const string& word2 : words2) {
+            vector<int> cntsTmp = getCnts(word2);
+            for (int i = 0; i < 26; ++i) {
+                cnts2[i] = std::max(cnts2[i], cntsTmp[i]);
             }
         }
-        int totalCount = accumulate(counts.begin(), counts.end(), 0);
 
-        vector<string> ans;
-        for (const string& a : A) {
-            bool universal = false;
-            vector<int> tmpCounts = counts;
-            int tmpTotalCount = totalCount;
-            for (char c : a) {
-                if (tmpCounts[c - 'a'] > 0) {
-                    --tmpCounts[c - 'a'];
-                    --tmpTotalCount;
-                }
-
-                if (tmpTotalCount == 0) {
-                    universal = true;
-                    break;
+        vector<string> ret;
+        for (const string& word1 : words1) {
+            vector<int> cnts1 = getCnts(word1);
+            bool universal = true;
+            for (int i = 0; i < 26 && universal; ++i) {
+                if (cnts1[i] < cnts2[i]) {
+                    universal = false;
                 }
             }
 
             if (universal) {
-                ans.push_back(a);
+                ret.push_back(word1);
             }
         }
 
-        return ans;
+        return ret;
     }
 };
