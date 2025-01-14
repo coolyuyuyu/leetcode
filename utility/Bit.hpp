@@ -9,6 +9,7 @@ while (state < (1 << m)) {
 }
 
 // iterate all subset, exclude 0
+int state = ...
 for (int subset = state; subset > 0; subset = (subset - 1) & state) {
     // DoSomething(subset);
 }
