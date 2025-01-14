@@ -12,7 +12,7 @@ public:
                 ret += cnt;
             }
             else {
-                ret += cnt & 1 ? 1 : 2;
+                ret += ((cnt & 1) ? 1 : 2);
             }
         }
 
