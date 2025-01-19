@@ -1,6 +1,6 @@
 class Solution {
 public:
-    vector<pair<int, int>> dirs = {{0, 0}, {0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+    vector<pair<int, int>> dirs = {{}, {0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
     int byBFS(vector<vector<int>>& grid) {
         int m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
@@ -11,32 +11,31 @@ public:
             }
         }
 
-        std::function<void(int, int, queue<pair<int, int>>&)> dfs = [&](int r, int c, queue<pair<int, int>>& nodes) {
+        queue<pair<int, int>> q;
+        std::function<void(int, int)> dfs = [&](int r, int c) {
             if (r < 0 || r >= m || c < 0 || c >= n) { return; }
             if (visited[r][c]) { return; }
             visited[r][c] = true;
-
-            nodes.emplace(r, c);
+            
+            q.emplace(r, c);
 
             const auto& [dr, dc] = dirs[grid[r][c]];
-            dfs(r + dr, c + dc, nodes);
+            dfs(r + dr, c + dc);
         };
-
-        queue<pair<int, int>> nodes;
-        dfs(0, 0, nodes);
-        for (int ret = 0; ; ++ret) {
-            for (int x = nodes.size(); 0 < x--;) {
-                auto [r, c] = nodes.front();
-                nodes.pop();
+        dfs(0, 0);
+        for (int ret = 0; !q.empty(); ++ret) {
+            for (int i = q.size(); 0 < i--;) {
+                auto [r, c] = q.front();
+                q.pop();
 
                 if (r == m - 1 && c == n - 1) {
                     return ret;
                 }
 
-                for (int i = 1; i <= 4; ++i) {
-                    if (grid[r][c] == i) { continue; }
-                    const auto& [dr, dc] = dirs[i];
-                    dfs(r + dr, c + dc, nodes);
+                for (int k = 1; k <= 4; ++k) {
+                    if (grid[r][c] == k) { continue; }
+                    const auto& [dr, dc] = dirs[k];
+                    dfs(r + dr, c + dc);
                 }
             }
         }
@@ -53,18 +52,18 @@ public:
                 visited[r][c] = false;
             }
         }
-        priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, std::greater<tuple<int, int, int>>> pq;
 
+        priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, std::greater<tuple<int, int, int>>> pq;
         pq.emplace(0, 0, 0);
         while (!pq.empty()) {
-            auto [dist, r, c] = pq.top();
+            auto [cost, r, c] = pq.top();
             pq.pop();
 
             if (visited[r][c]) { continue; }
             visited[r][c] = true;
 
-            if (r == m - 1  && c == n - 1) {
-                return dist;
+            if (r == m - 1 && c == n - 1) {
+                return cost;
             }
 
             for (int i = 1; i <= 4; ++i) {
@@ -72,8 +71,7 @@ public:
                 int x = r + dr, y = c + dc;
                 if (x < 0 || x >= m || y < 0 || y >= n) { continue; }
                 if (visited[x][y]) { continue; }
-
-                pq.emplace(dist + (i == grid[r][c] ? 0 : 1), x, y);
+                pq.emplace(cost + (i == grid[r][c] ? 0 : 1), x, y);
             }
         }
 
@@ -82,7 +80,7 @@ public:
     }
 
     int minCost(vector<vector<int>>& grid) {
-        //return byBFS(grid);
-        return byDijkstra(grid);
+        return byBFS(grid);
+        //return byDijkstra(grid);
     }
 };
