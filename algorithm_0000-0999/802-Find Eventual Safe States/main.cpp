@@ -5,31 +5,31 @@ public:
 
         int out[n];
         std::fill(out, out + n, 0);
-        vector<int> pre[n];
-        for (int u = 0; u < n; ++u) {
-            for (int v : graph[u]) {
-                ++out[u];
-                pre[v].push_back(u);
-            }
-        }
-
-        queue<int> q;
-        for (int i = 0; i < n; ++i) {
-            if (out[i] == 0) {
-                q.push(i);
+        vector<int> pres[n];
+        for (int from = 0; from < n; ++from) {
+            for (int to : graph[from]) {
+                ++out[from];
+                pres[to].push_back(from);
             }
         }
 
         vector<int> ret;
+
+        queue<int> q;
+        for (int v = 0; v < n; ++v) {
+            if (out[v] == 0) {
+                q.push(v);
+            }
+        }
         while (!q.empty()) {
-            int v = q.front();
+            int cur = q.front();
             q.pop();
 
-            ret.push_back(v);
+            ret.push_back(cur);
 
-            for (int u : pre[v]) {
-                if (--out[u] == 0) {
-                    q.push(u);
+            for (int pre : pres[cur]) {
+                if (--out[pre] == 0) {
+                    q.push(pre);
                 }
             }
         }
@@ -41,7 +41,7 @@ public:
     vector<int> dfs(vector<vector<int>>& graph) {
         int n = graph.size();
 
-        enum class State : unsigned char {
+        enum class State {
             kNone,
             kProcessing,
             kProcessed,
@@ -66,9 +66,9 @@ public:
         };
 
         vector<int> ret;
-        for (int i = 0; i < n; ++i) {
-            if (!checkCycle(i)) {
-                ret.push_back(i);
+        for (int v = 0; v < n; ++v) {
+            if (!checkCycle(v)) {
+                ret.push_back(v);
             }
         }
 
