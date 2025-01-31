@@ -44,39 +44,43 @@ private:
 
 class Solution {
 public:
+    vector<pair<int, int>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
+
     int largestIsland(vector<vector<int>>& grid) {
-        int m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
+        int n = grid.size();
         std::function<int(int, int)> getId = [&](int r, int c) {
             return r * n + c;
         };
 
-        vector<pair<int, int>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
-        DisjointSets ds(m * n);
-        for (int r = 0; r < m; ++r) {
+        DisjointSets ds(n * n);
+        for (int r = 0; r < n; ++r) {
             for (int c = 0; c < n; ++c) {
                 if (grid[r][c] == 0) { continue; }
-                if (r > 0 && grid[r - 1][c]) { ds.merge(getId(r, c), getId(r - 1, c)); }
-                if (c > 0 && grid[r][c - 1]) { ds.merge(getId(r, c), getId(r, c - 1)); }
+                if (r > 0 && grid[r - 1][c] == 1) { ds.merge(getId(r, c), getId(r - 1, c)); }
+                if (c > 0 && grid[r][c - 1] == 1) { ds.merge(getId(r, c), getId(r, c - 1)); }
             }
         }
 
         int ret = 0;
-        for (int r = 0; r < m; ++r) {
+        for (int r = 0; r < n; ++r) {
             for (int c = 0; c < n; ++c) {
-                if (grid[r][c]) {
+                if (grid[r][c] == 1) {
                     ret = std::max(ret, ds.cardinality(getId(r, c)));
                 }
                 else {
-                    int other = 0;
                     unordered_set<int> roots;
+                    int size = 1;
                     for (const auto& [dr, dc] : dirs) {
                         int x = r + dr, y = c + dc;
-                        if (x < 0 || m <= x || y < 0 || n <= y) { continue; }
-                        if (grid[x][y] && roots.insert(ds.root(getId(x, y))).second) {
-                            other += ds.cardinality(getId(x, y));
+                        if (x < 0 || x >= n || y < 0 || y >= n) { continue; }
+                        if (grid[x][y] == 0) { continue; }
+
+                        int id = getId(x, y);
+                        if (roots.insert(ds.root(id)).second) {
+                            size += ds.cardinality(id);
                         }
                     }
-                    ret = std::max(ret, 1 + other);
+                    ret = std::max(ret, size);
                 }
             }
         }
