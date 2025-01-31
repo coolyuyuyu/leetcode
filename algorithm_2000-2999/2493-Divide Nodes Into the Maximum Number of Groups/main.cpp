@@ -1,50 +1,48 @@
 class Solution {
 public:
-
     int magnificentSets(int n, vector<vector<int>>& edges) {
-        vector<vector<int>> neighbors(n + 1);
-        for (const auto& e : edges) {
-            neighbors[e[0]].push_back(e[1]);
-            neighbors[e[1]].push_back(e[0]);
+        vector<int> graph[n + 1];
+        for (const auto& edge : edges) {
+            int a = edge[0], b = edge[1];
+            graph[a].push_back(b);
+            graph[b].push_back(a);
         }
 
-        unordered_map<int, int> maxGroupCnts; // <connected component id, max number of group>
+        unordered_map<int, int> gid2depth;
         for (int root = 1; root <= n; ++root) {
-            // bfs
-            queue<int> q; // node, depth
-            q.emplace(root);
+            vector<int> depths(n + 1, 0);
+            queue<int> q;
 
-            vector<int> depths(n + 1);
-            depths[root] = 1;
-
-            int ccId = root; // id of connected component
+            int gid = INT_MAX;
             int depth = 0;
+            depths[root] = 1;
+            q.push(root);
+
             while (!q.empty()) {
-                depth += 1;
-                for (size_t n = q.size(); 0 < n--;) {
-                    int node = q.front();
+                ++depth;
+                for (int i = q.size(); 0 < i--;) {
+                    int cur = q.front();
                     q.pop();
 
-                    ccId = std::min(ccId, node);
+                    gid = std::min(gid, cur);
 
-                    for (int neighbor: neighbors[node]) {
-                        if (depths[neighbor] == 0) { // not visited
-                            depths[neighbor] = depth + 1;
-                            q.emplace(neighbor);
+                    for (int nxt : graph[cur]) {
+                        if (depths[nxt] == 0) {
+                            depths[nxt] = depth + 1;
+                            q.push(nxt);
                         }
-                        else if (depths[neighbor] == depth) {
+                        else if (depths[nxt] == depth) {
                             return -1;
                         }
                     }
                 }
             }
-
-            maxGroupCnts[ccId] = std::max(maxGroupCnts[ccId], depth);
+            gid2depth[gid] = std::max(gid2depth[gid], depth);
         }
 
         int ret = 0;
-        for (const auto& p : maxGroupCnts) {
-            ret += p.second;
+        for (const auto& [_, depth] : gid2depth) {
+            ret += depth;
         }
 
         return ret;
