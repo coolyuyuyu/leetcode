@@ -1,3 +1,27 @@
+vector<int> findPrimesLT(int n) {
+    vector<int> primes;
+
+    bool isPrimes[n];
+    std::fill(isPrimes, isPrimes + n, true);
+
+    for (int i = 2, limit = ceil(sqrt(n)); i < n; ++i) {
+        if (isPrimes[i]) {
+            primes.push_back(i);
+        }
+        else {
+            continue;
+        }
+
+        if (i < limit) {
+            for (int j = i * i; j < n; j += i) {
+                isPrimes[j] = false;
+            }
+        }
+    }
+
+    return primes;
+}
+
 class DisjointSets {
 public:
     DisjointSets(int n)
@@ -28,49 +52,22 @@ private:
     mutable vector<int> m_parents;
 };
 
-
 class Solution {
 public:
-    vector<int> findPrimesLT(int n) {
-        vector<int> primes;
-
-        bool isPrimes[n];
-        std::fill(isPrimes, isPrimes + n, true);
-
-        for (int i = 2, limit = ceil(sqrt(n)); i < n; ++i) {
-            if (isPrimes[i]) {
-                primes.push_back(i);
-            }
-            else {
-                continue;
-            }
-
-            if (i < limit) {
-                for (int j = i * i; j < n; j += i) {
-                    isPrimes[j] = false;
-                }
-            }
-        }
-
-        return primes;
-    }
-
     bool canTraverseAllPairs(vector<int>& nums) {
-        std::sort(nums.begin(), nums.end());
-        if (nums.size() > 1 && nums[0] == 1) {
+        if (nums.size() > 1 && std::find(nums.begin(), nums.end(), 1) != nums.end()) {
             return false;
         }
-        nums.erase(std::unique(nums.begin(), nums.end()), nums.end());
-        vector<int> primes = findPrimesLT(nums.back() + 1);
-        int m = nums.size(), n = primes.size();
 
-        DisjointSets ds(m + n);
+        vector<int> primes = findPrimesLT(*std::max_element(nums.begin(), nums.end()) + 1);
+        int m = nums.size(), n = primes.size();
 
         unordered_map<int, int> prime2idx;
         for (int j = 0; j < n; ++j) {
             prime2idx[primes[j]] = j;
         }
 
+        DisjointSets ds(m + n);
         for (int i = 0; i < m; ++i) {
             int num = nums[i];
             for (int j = 0; j < n && primes[j] * primes[j] <= num; ++j) {
@@ -81,7 +78,6 @@ public:
                     } while (num % primes[j] == 0);
                 }
             }
-
             if (num > 1) {
                 ds.merge(i, m + prime2idx[num]);
             }
