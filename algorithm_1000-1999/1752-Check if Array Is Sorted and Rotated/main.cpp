@@ -1,22 +1,22 @@
 class Solution {
 public:
     bool check(vector<int>& nums) {
-        size_t index = 1;
-        while (index < nums.size() && nums[index - 1] <= nums[index]) {
-            ++index;
+        int i = 0;
+        while (i + 1 < nums.size() && nums[i] <= nums[i + 1]) {
+            ++i;
         }
-        if (nums.size() <= index) {
+        if (i == nums.size() - 1) {
             return true;
         }
 
-        ++index;
-        while (index < nums.size() && nums[index - 1] <= nums[index]) {
-            ++index;
+        ++i;
+        while (i + 1 < nums.size() && nums[i] <= nums[i + 1]) {
+            ++i;
         }
-        if (index < nums.size()) {
+        if (i != nums.size() - 1) {
             return false;
         }
 
-        return (nums.back() <= nums.front());
+        return nums.front() >= nums.back();
     }
 };
