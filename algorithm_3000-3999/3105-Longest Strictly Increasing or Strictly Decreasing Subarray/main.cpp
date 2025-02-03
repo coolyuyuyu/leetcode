@@ -1,26 +1,22 @@
 class Solution {
 public:
     int longestMonotonicSubarray(vector<int>& nums) {
-        std::function<int(const vector<int>&)> f = [](const vector<int>& nums) {
-            int n = nums.size();
-
+        auto f = [](auto bgn, auto end) {
             int ret = 0;
-            for (int lft = 0; lft < n;) {
-                int rht = lft + 1;
-                while (rht < n && nums[rht - 1] < nums[rht]) {
-                    ++rht;
+            int pre = INT_MIN, len = 0;
+            for (auto itr = bgn; itr != end; pre = *(itr++)) {
+                if (*itr > pre) {
+                    len += 1;
                 }
-                ret = std::max(ret, rht - lft);
-
-                lft = rht;
+                else {
+                    len = 1;
+                }
+                ret = std::max(ret, len);
             }
 
             return ret;
         };
 
-        int ret1 = f(nums);
-        std::reverse(nums.begin(), nums.end());
-        int ret2 = f(nums);
-        return std::max(ret1, ret2);
+        return std::max(f(nums.begin(), nums.end()), f(nums.rbegin(), nums.rend()));
     }
 };
