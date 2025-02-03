@@ -1,10 +1,13 @@
 class Solution {
 public:
     int minAreaRect(vector<vector<int>>& points) {
-        unordered_map<int, unordered_set<int>> x2yset;
+        unordered_set<int> ids;
+        std::function<int(int, int)> getId = [](int x, int y) {
+            return x * 40001 + y;
+        };
         for (const auto& pnt : points) {
             int x = pnt[0], y = pnt[1];
-            x2yset[x].insert(y);
+            ids.insert(getId(x, y));
         }
 
         int ret = INT_MAX;
@@ -16,8 +19,8 @@ public:
 
                 int x3 = x1, y3 = y2;
                 int x4 = x2, y4 = y1;
-                if (x2yset[x3].find(y3) == x2yset[x3].end()) { continue; }
-                if (x2yset[x4].find(y4) == x2yset[x4].end()) { continue; }
+                if (ids.find(getId(x3, y3)) == ids.end()) { continue; }
+                if (ids.find(getId(x4, y4)) == ids.end()) { continue; }
 
                 ret = std::min(ret, std::abs(x2 - x1) * std::abs(y2 - y1));
             }
