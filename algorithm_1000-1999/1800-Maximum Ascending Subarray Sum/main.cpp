@@ -1,15 +1,15 @@
 class Solution {
 public:
     int maxAscendingSum(vector<int>& nums) {
-        int maxSum = 0, curSum = 0;
-        for (size_t i = 0; i < nums.size(); ++i) {
-            if (0 < i && nums[i] <= nums[i - 1]) {
-                curSum = 0;
+        int ret = 0;
+        for (int i = 0, sum = 0; i < nums.size(); ++i) {
+            if (i > 0 && nums[i - 1] >= nums[i]) {
+                sum = 0;
             }
-            curSum += nums[i];
-            maxSum = std::max(maxSum, curSum);
+            sum += nums[i];
+            ret = std::max(ret, sum);
         }
 
-        return maxSum;
+        return ret;
     }
 };
