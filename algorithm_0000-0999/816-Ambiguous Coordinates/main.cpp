@@ -33,9 +33,7 @@ public:
                 }
             }
 
-
             return ret;
-
         };
 
         vector<string> ret;
