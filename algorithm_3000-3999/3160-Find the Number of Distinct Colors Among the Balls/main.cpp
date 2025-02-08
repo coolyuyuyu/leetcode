@@ -1,22 +1,21 @@
 class Solution {
 public:
     vector<int> queryResults(int limit, vector<vector<int>>& queries) {
-        int n = queries.size();
-        unordered_map<int, int> id2color;
-        unordered_map<int, int> color2cnt;
-
-        vector<int> ret(n);
-        for (int i = 0; i < n; ++i) {
+        unordered_map<int, int> ball2color, color2cnt;
+        vector<int> ret(queries.size());
+        for (int i = 0, diffCnt = 0; i < queries.size(); ++i) {
             int x = queries[i][0], y = queries[i][1];
-            if (id2color.find(x) != id2color.end()) {
-                if (--color2cnt[id2color[x]] == 0) {
-                    color2cnt.erase(id2color[x]);
+            if (ball2color.find(x) != ball2color.end()) {
+                if(--color2cnt[ball2color[x]] == 0) {
+                    --diffCnt;
                 }
             }
-            id2color[x] = y;
-            ++color2cnt[y];
+            ball2color[x] = y;
+            if (++color2cnt[y] == 1) {
+                ++diffCnt;
+            }
 
-            ret[i] = color2cnt.size();
+            ret[i] = diffCnt;
         }
 
         return ret;
