@@ -4,17 +4,14 @@ public:
         pattern = "I" + pattern;
         int n = pattern.size();
 
-        string ret(n, ' ');
-        for (int i = 0; i < n;) {
-            int cnt = 1;
+        string ret(n, '\0');
+        for (int i = 0, cnt = 1; i < n; i += cnt, cnt = 1) {
             while (i + cnt < n && pattern[i + cnt] == 'D') {
                 ++cnt;
             }
-            for (int j = 0; j < cnt; ++j) {
-                ret[i + j] = '1' + i + cnt - j - 1;
+            for (int j = i; j < i + cnt; ++j) {
+                ret[j] = '1' + i + cnt - (j - i) - 1;
             }
-
-            i += cnt;
         }
 
         return ret;
