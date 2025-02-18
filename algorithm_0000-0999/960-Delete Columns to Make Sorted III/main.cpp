@@ -13,7 +13,7 @@ public:
             return true;
         };
 
-        // dp[i]: the longest increasing sequence from columns[0:i] ending at i column
+        // dp[i]: the longest increasing subsequence from columns[0:i] ending at i column
         int dp[n];
         for (int i = 0; i < n; ++i) {
             dp[i] = 1;
