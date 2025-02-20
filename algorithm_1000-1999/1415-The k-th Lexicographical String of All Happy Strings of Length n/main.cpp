@@ -1,34 +1,31 @@
 class Solution {
 public:
-    void recursion(int n, int k, string& s) {
-        if (n == 0) {
-            return;
-        }
+    string getHappyString(int n, int k) {
+        string s;
+        std::function<void(int, int)> f = [&](int n, int k) {
+            if (n == 0) { return; }
 
-        int t = k / pow(2, n - 1);
-        if (s.empty()) {
-            if (2 < t) {
+            int t = k / pow(2, n - 1);
+            if (!s.empty() && t > 1) {
                 s.clear();
                 return;
             }
-        }
-        else if (1 < t){
-            s.clear();
-            return;
-        }
+            else if (t > 2) {
 
-        char c = 'a' + t;
-        if (!s.empty() && s.back() <= c) {
-            ++c;
-        }
-        s.push_back(c);
+                s.clear();
+                return;
+            }
 
-        recursion(n - 1, k - t * pow(2, n - 1), s);
-    }
+            char c = 'a' + t;
+            if (!s.empty() && s.back() <= c) {
+                ++c;
+            }
+            s.push_back(c);
 
-    string getHappyString(int n, int k) {
-        string s;
-        recursion(n, k - 1, s);
+            f(n - 1, k - t * pow(2, n - 1));
+        };
+        f(n, k - 1);
+
         return s;
     }
 };
