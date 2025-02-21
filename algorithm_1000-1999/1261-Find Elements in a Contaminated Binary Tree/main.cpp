@@ -11,55 +11,37 @@
  */
 class FindElements {
 public:
-    FindElements(TreeNode* root)
-        : m_root(root) {
-        queue<TreeNode*> q;
-        if (m_root) {
-            m_root->val = 0;
-            q.push(m_root);
-        }
+    FindElements(TreeNode* root):
+        m_root(root) {
+        queue<pair<TreeNode*, int>> q({{m_root, 0}});
         while (!q.empty()) {
-            TreeNode* node = q.front();
+            auto [node, val] = q.front();
             q.pop();
 
-            if (node->left) {
-                node->left->val = node->val * 2 + 1;
-                q.push(node->left);
-            }
-            if (node->right) {
-                node->right->val = node->val * 2 + 2;
-                q.push(node->right);
-            }
+            if (!node) { continue; }
+
+            node->val = val;
+
+            q.emplace(node->left, val * 2 + 1);
+            q.emplace(node->right, val * 2 + 2);
         }
     }
 
     bool find(int target) {
-        stack<bool> directions; // true: left, false: right
-        while (0 < target) {
-            if (target % 2 == 1) {
-                directions.push(true);
-                target /= 2;
-            }
-            else {
-                directions.push(false);
-                target = target / 2 - 1;
-            }
+        stack<bool> stk;
+        for (; target; target = (target - 1) / 2) {
+            stk.push(!(target & 1));
         }
 
         TreeNode* node = m_root;
-        while (node && !directions.empty()) {
-            bool direction = directions.top();
-            directions.pop();
+        while (node && !stk.empty()) {
+            bool dir = stk.top();
+            stk.pop();
 
-            if (direction) {
-                node = node->left;
-            }
-            else {
-                node = node->right;
-            }
+            node = dir ? node->right : node->left;
         }
 
-        return (node && directions.empty());
+        return node && stk.empty();
     }
 
 private:
