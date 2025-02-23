@@ -1,24 +1,23 @@
 class Solution {
 public:
     int findMaxConsecutiveOnes(vector<int>& nums) {
-        // flipN[i]: the maximum number of consecutive 1's ending at i without flip
-        // flipN[i]: the maximum number of consecutive 1's ending at i with one flip
-        int flipN = 0;
-        int flipY = INT_MIN;
+        // dpN[i]: the maximum number of consecutive 1's from num[0:i] and ending at i without flip
+        // dpY[i]: the maximum number of consecutive 1's from num[0:i] and ending at i with flip
 
         int ret = 0;
+        int dpN = 0, dpY = INT_MIN;
         for (int num : nums) {
-            int tmpN = flipN, tmpY = flipY;
-            if (num == 1) {
-                flipN = tmpN + 1;
-                flipY = std::max(tmpN + 1, tmpY + 1);
+            int tmpN = dpN, tmpY = dpY;
+            if (num == 0) {
+                dpN = 0;
+                dpY = tmpN + 1;
             }
             else {
-                flipN = 0;
-                flipY = tmpN + 1;
+                dpN = tmpN + 1;
+                dpY = std::max(tmpN + 1, tmpY + 1);
             }
 
-            ret = std::max(ret, flipY);
+            ret = std::max(ret, dpY);
         }
 
         return ret;
