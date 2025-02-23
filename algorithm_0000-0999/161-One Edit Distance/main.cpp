@@ -1,20 +1,19 @@
 class Solution {
 public:
     bool isOneEditDistance(string s, string t) {
-        for (size_t i = 0; i < min(s.size(), t.size()); ++i) {
-            if (s[i] != t[i]) {
-                if (s.size() == t.size()) {
-                    return s.substr(i + 1) == t.substr(i + 1);
-                }
-                else if (s.size() < t.size()) {
-                    return s.substr(i) == t.substr(i + 1);
-                }
-                else {
-                    return s.substr(i + 1) == t.substr(i);
-                }
+        for (int i = 0, n = std::min(s.size(), t.size()); i < n; ++i) {
+            if (s[i] == t[i]) { continue; }
+            if (s.size() == t.size()) { 
+                return s.compare(i + 1, string::npos, t, i + 1, string::npos) == 0;
+            }
+            else if (s.size() > t.size()) {
+                return s.compare(i + 1, string::npos, t, i, string::npos) == 0;
+            }
+            else {
+                return s.compare(i, string::npos, t, i + 1, string::npos) == 0;
             }
         }
 
-        return s.size() + 1 == t.size() || t.size() + 1 == s.size();
+        return s.size() + 1 == t.size() || s.size() == t.size() + 1;
     }
 };
