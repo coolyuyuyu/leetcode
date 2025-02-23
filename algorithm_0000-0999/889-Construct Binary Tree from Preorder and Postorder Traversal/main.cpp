@@ -11,62 +11,56 @@
  */
 class Solution {
 public:
-    TreeNode* constructFromPrePost_Recursive(vector<int>& pre, size_t preIndex, vector<int>& post, size_t postIndex, size_t size, unordered_map<int, size_t>& m) {
-        if (size <= 0) {
-            return nullptr;
+    TreeNode* recursive(vector<int>& preorder, vector<int>& postorder) {
+        int n = preorder.size();
+        unordered_map<int, int> val2postidx;
+        for (int i = 0; i < n; ++i) {
+            val2postidx[postorder[i]] = i;
+        }
+        std::function<TreeNode*(int, int, int)> f = [&](int size, int i, int j) {
+            if (size == 0) { return (TreeNode*)nullptr; }
+
+            TreeNode* root = new TreeNode(preorder[i]);
+            int lftSize = size > 1 ? (val2postidx[preorder[i + 1]] - j + 1) : 0;
+            int rhtSize = size - lftSize - 1;
+            root->left = f(lftSize, i + 1, j);
+            root->right = f(rhtSize, i + 1 + lftSize, j + lftSize);
+
+            return root;
+        };
+
+        return f(n, 0, 0);
+    }
+
+    TreeNode* iterative(vector<int>& preorder, vector<int>& postorder) {
+        int n = preorder.size();
+        unordered_map<int, int> val2postidx;
+        for (int i = 0; i < n; ++i) {
+            val2postidx[postorder[i]] = i;
         }
 
-        TreeNode* root = new TreeNode(pre[preIndex]);
-        if (1 < size) {
-            size_t lftSize = m[pre[preIndex + 1]] - postIndex + 1;
-            size_t rhtSize = size - lftSize - 1;
-            root->left = constructFromPrePost_Recursive(pre, preIndex + 1, post, postIndex, lftSize, m);
-            root->right = constructFromPrePost_Recursive(pre, preIndex + 1 + lftSize, post, postIndex + lftSize, rhtSize, m);
+        TreeNode* root = nullptr;
+        stack<tuple<TreeNode**, int, int, int>> stk({{&root, n, 0, 0}});
+        while (!stk.empty()) {
+            auto [ppNode, size, i, j] = stk.top();
+            stk.pop();
+
+            if (size == 0) {
+                continue;
+            }
+
+            *ppNode = new TreeNode(preorder[i]);
+            int lftSize = size > 1 ? (val2postidx[preorder[i + 1]] - j + 1) : 0;
+            int rhtSize = size - lftSize - 1;
+            stk.emplace(&((*ppNode)->left), lftSize, i + 1, j);
+            stk.emplace(&((*ppNode)->right), rhtSize, i + 1 + lftSize, j + lftSize);
         }
 
         return root;
     }
 
-    TreeNode* constructFromPrePost_Iterative(vector<int>& pre, vector<int>& post, unordered_map<int, size_t>& m) {
-        TreeNode* pRoot = nullptr;
-
-        // BFS
-        queue<tuple<TreeNode**, size_t, size_t, size_t>> q; // <node, preIndex, postIndex, size>
-        if (!post.empty()) {
-            q.emplace(&pRoot, 0, 0, post.size());
-        }
-        while (!q.empty()) {
-            TreeNode** ppNode = get<0>(q.front());
-            size_t preIndex = get<1>(q.front());
-            size_t postIndex = get<2>(q.front());
-            size_t size = get<3>(q.front());
-            q.pop();
-
-            *ppNode = new TreeNode(pre[preIndex]);
-            if (1 < size) {
-                size_t lftSize = m[pre[preIndex + 1]] - postIndex + 1;
-                if (0 < lftSize) {
-                    q.emplace(&((*ppNode)->left), preIndex + 1, postIndex, lftSize);
-                }
-
-                size_t rhtSize = size - lftSize - 1;
-                if (0 < rhtSize) {
-                    q.emplace(&((*ppNode)->right), preIndex + 1 + lftSize, postIndex + lftSize, rhtSize);
-                }
-            }
-        }
-
-
-        return pRoot;
-    }
-
-    TreeNode* constructFromPrePost(vector<int>& pre, vector<int>& post) {
-        unordered_map<int, size_t> m;
-        for (size_t i = 0; i < post.size(); ++i) {
-            m.emplace(post[i], i);
-        }
-
-        //return constructFromPrePost_Recursive(pre, 0, post, 0, post.size(), m);
-        return constructFromPrePost_Iterative(pre, post, m);
+    TreeNode* constructFromPrePost(vector<int>& preorder, vector<int>& postorder) {
+        //return recursive(preorder, postorder);
+        return iterative(preorder, postorder);
     }
 };
