@@ -3,19 +3,15 @@ public:
     // O(m * n)
     int f1(const string& source, const string& target) {
         int ret = 0;
-        for (int i = 0; i < target.size();) {
-            int seqLen = 0;
-            for (int j = 0; j < source.size() && (i + seqLen) < target.size(); ++j) {
-                if (source[j] == target[i + seqLen]) {
-                    ++seqLen;
+        for (int i = 0, m = target.size(), n = source.size(), len = 0; i < m; i += len, ++ret, len = 0) {
+            for (int j = 0; j < n && i + len < m; ++j) {
+                if (source[j] == target[i + len]) {
+                    ++len;
                 }
             }
-            if (seqLen == 0) {
+            if (len == 0) {
                 return -1;
             }
-
-            ++ret;
-            i += seqLen;
         }
 
         return ret;
@@ -51,13 +47,14 @@ public:
             else {
                 ++i;
             }
+
         }
 
         return ret;
     }
 
     int shortestWay(string source, string target) {
-        //return f1(source, target);
-        return f2(source, target);
+        return f1(source, target);
+        //return f2(source, target);
     }
 };
