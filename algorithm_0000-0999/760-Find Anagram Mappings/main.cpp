@@ -1,56 +1,56 @@
 class Solution {
 public:
-    vector<int> anagramMappings_ArrayLookup(vector<int>& nums1, vector<int>& nums2) {
+    vector<int> byArray(vector<int>& nums1, vector<int>& nums2) {
         int n = nums1.size();
 
-        array<int, 100001> indexes;
+        vector<int> m(100001);
         for (int i = 0; i < n; ++i) {
-            indexes[nums2[i]] = i;
+            m[nums2[i]] = i;
         }
 
         vector<int> ret(n);
         for (int i = 0; i < n; ++i) {
-            ret[i] = indexes[nums1[i]];
+            ret[i] = m[nums1[i]];
         }
 
         return ret;
     }
 
-    vector<int> anagramMappings_MapLookup(vector<int>& nums1, vector<int>& nums2) {
+    vector<int> byMap(vector<int>& nums1, vector<int>& nums2) {
         int n = nums1.size();
 
-        map<int, int> indexes;
+        map<int, int> m;
         for (int i = 0; i < n; ++i) {
-            indexes[nums2[i]] = i;
+            m[nums2[i]] = i;
         }
 
         vector<int> ret(n);
         for (int i = 0; i < n; ++i) {
-            ret[i] = indexes[nums1[i]];
+            ret[i] = m[nums1[i]];
         }
 
         return ret;
     }
 
-    vector<int> anagramMappings_HashLookup(vector<int>& nums1, vector<int>& nums2) {
+    vector<int> byHash(vector<int>& nums1, vector<int>& nums2) {
         int n = nums1.size();
 
-        unordered_map<int, int> indexes;
+        unordered_map<int, int> m;
         for (int i = 0; i < n; ++i) {
-            indexes[nums2[i]] = i;
+            m[nums2[i]] = i;
         }
 
         vector<int> ret(n);
         for (int i = 0; i < n; ++i) {
-            ret[i] = indexes[nums1[i]];
+            ret[i] = m[nums1[i]];
         }
 
         return ret;
     }
 
     vector<int> anagramMappings(vector<int>& nums1, vector<int>& nums2) {
-        return anagramMappings_ArrayLookup(nums1, nums2);
-        //return anagramMappings_MapLookup(nums1, nums2);
-        //return anagramMappings_HashLookup(nums1, nums2);
+        //return byArray(nums1, nums2);
+        //return byMap(nums1, nums2);
+        return byHash(nums1, nums2);
     }
 };
