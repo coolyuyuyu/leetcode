@@ -11,72 +11,60 @@
  */
 class Solution {
 public:
-    TreeNode* recursive(string traversal) {
+    TreeNode* recursive(const string& traversal) {
         vector<pair<int, int>> pairs;
-        for (int i = 0, n = traversal.size(), depth, val; i < n;) {
-            for (depth = 0; i < n && traversal[i] == '-'; ++i) {
-                ++depth;
+        for (int i = 0, n = traversal.size(), dep, val; i < n;) {
+            for (dep = 0; i < n && traversal[i] == '-'; ++i) {
+                ++dep;
             }
-            for (val = 0; i < n && isdigit(traversal[i]); ++i) {
+            for (val = 0; i < n && std::isdigit(traversal[i]); ++i) {
                 val = val * 10 + traversal[i] - '0';
             }
-            pairs.emplace_back(depth, val);
+            pairs.emplace_back(dep, val);
         }
         int n = pairs.size();
 
-        std::function<pair<TreeNode*, int>(int)> dfs = [&](int cur) {
-            const auto& [depth, val] = pairs[cur];
-
-            TreeNode* root = new TreeNode(val);
-            int rootCnt = 1;
-            int lftCnt = 0, rhtCnt = 0;
-
-            if (cur + 1 < n && depth + 1 == pairs[cur + 1].first) {
-                auto [lft, cnt] = dfs(cur + 1);
-                root->left = lft;
-                lftCnt = cnt;
+        std::function<pair<TreeNode*, int>(int)> dfs = [&](int i) {
+            TreeNode* root = new TreeNode(pairs[i].second);
+            int lftCnt = 0, rhtCnt  = 0;
+            if (i + 1 < n && pairs[i].first + 1 == pairs[i + 1].first) {
+                std::tie(root->left, lftCnt) = dfs(i + 1);
             }
-            if (cur + lftCnt + 1 < n && depth + 1 == pairs[cur + lftCnt + 1].first) {
-                auto [rht, cnt] = dfs(cur + lftCnt + 1);
-                root->right = rht;
-                rhtCnt = cnt;
+            if (i + lftCnt + 1 < n && pairs[i].first + 1 == pairs[i + lftCnt + 1].first) {
+                std::tie(root->right, rhtCnt) = dfs(i + lftCnt + 1);
             }
 
-            return pair<TreeNode*, int>{root, 1 + lftCnt + rhtCnt};
+            return make_pair(root, 1 + lftCnt + rhtCnt);
         };
 
         return dfs(0).first;
     }
 
-    TreeNode* iterative(string traversal) {
+    TreeNode* iterative(const string& traversal) {
         stack<TreeNode*> stk;
-        for (int i = 0, n = traversal.size(), depth, val; i < n;) {
-            for (depth = 0; i < n && traversal[i] == '-'; ++i) {
-                ++depth;
+        for (int i = 0, n = traversal.size(), dep, val; i < n;) {
+            for (dep = 0; i < n && traversal[i] == '-'; ++i) {
+                ++dep;
             }
-            for (val = 0; i < n && isdigit(traversal[i]); ++i) {
+            for (val = 0; i < n && std::isdigit(traversal[i]); ++i) {
                 val = val * 10 + traversal[i] - '0';
             }
 
             TreeNode* node = new TreeNode(val);
-            while (stk.size() > depth) {
+            while (stk.size() > dep) {
                 stk.pop();
             }
-            if (!stk.empty()) {
-                if (stk.top()->left) {
-                    stk.top()->right = node;
-                }
-                else {
-                    stk.top()->left = node;
-                }
+            if (!stk.empty()){
+                (stk.top()->left ? stk.top()->right : stk.top()->left) = node;
             }
             stk.push(node);
         }
-        while (stk.size() > 1) {
-            stk.pop();
-        }
 
-        return stk.top();
+        TreeNode* ret = nullptr;
+        for (; !stk.empty(); stk.pop()) {
+            ret = stk.top();
+        }
+        return ret;
     }
 
     TreeNode* recoverFromPreorder(string traversal) {
