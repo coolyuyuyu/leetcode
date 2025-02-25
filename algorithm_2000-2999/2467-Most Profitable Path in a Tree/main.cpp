@@ -1,64 +1,58 @@
 class Solution {
 public:
-    bool computeArriveTimes(const vector<vector<int>>& graph, int cur, int pre, int dst, int depth, vector<int>& times) {
-        bool found = false;
-        if (cur == dst) {
-            times[cur] = depth;
-            found = true;
-        }
-        else {
-            for (int neighbor : graph[cur]) {
-                if (neighbor == pre) {
-                    continue;
-                }
-
-                found = computeArriveTimes(graph, neighbor, cur, dst, depth + 1, times);
-                if (found) {
-                    times[cur] = depth;
-                    break;
-                }
-            }
-        }
-
-        return found;
-    }
-
-    void computePathIncome(const vector<vector<int>>& graph, int cur, int pre, int depth, vector<int>& times, vector<int>& amount, int income, int& ans) {
-        if (depth < times[cur]) {
-            income += amount[cur];
-        }
-        else if (depth == times[cur]) {
-            income += (amount[cur] / 2);
-        }
-
-        bool isLeaf = true;
-        for (int neighbor : graph[cur]) {
-            if (neighbor == pre) {
-                continue;
-            }
-
-            isLeaf = false;
-            computePathIncome(graph, neighbor, cur, depth + 1, times, amount, income, ans);
-        }
-
-        if (isLeaf && ans < income) {
-            ans = income;
-        }
-    }
-
     int mostProfitablePath(vector<vector<int>>& edges, int bob, vector<int>& amount) {
-        vector<vector<int>> neighbors(amount.size());
+        int n = edges.size() + 1;
+        vector<int> graph[n];
         for (const auto& edge : edges) {
-            neighbors[edge[0]].push_back(edge[1]);
-            neighbors[edge[1]].push_back(edge[0]);
+            int a = edge[0], b = edge[1];
+            graph[a].push_back(b);
+            graph[b].push_back(a);
         }
 
-        vector<int> times(amount.size(), INT_MAX);
-        computeArriveTimes(neighbors, bob, -1, 0, 0, times);
+        int times[n];
+        std::fill(times, times + n, INT_MAX);
+        std::function<bool(int, int, int, int)> computeArrivalTime = [&](int cur, int pre, int dst, int step) {
+            bool found = false;
+            if (cur == dst) {
+                found = true;
+                times[cur] = step;
+            }
+            else {
+                for (int nxt : graph[cur]) {
+                    if (nxt == pre) { continue; }
+                    if (computeArrivalTime(nxt, cur, dst, step + 1)) {
+                        found = true;
+                        times[cur] = step;
+                        break;
+                    }
+                }
+            }
 
-        int ans = INT_MIN;
-        computePathIncome(neighbors, 0, -1, 0, times, amount, 0, ans);
+            return found;
+        };
+        computeArrivalTime(bob, -1, 0, 0);
 
-        return ans;
+        int ret = INT_MIN;
+        std::function<void(int, int, int, int)> computePathAmounts = [&](int cur, int pre, int step, int score) {
+            if (step == times[cur]) {
+                score += (amount[cur] / 2);
+            }
+            else if (step < times[cur]) {
+                score += amount[cur];
+            }
+
+            bool isLeaf = true;
+            for (int nxt : graph[cur]) {
+                if (nxt == pre) { continue; }
+                isLeaf = false;
+                computePathAmounts(nxt, cur, step + 1, score);
+            }
+            if (isLeaf && score > ret) {
+                ret = score;
+            }
+        };
+        computePathAmounts(0, -1, 0, 0);
+
+        return ret;
     }
 };
