@@ -1,34 +1,27 @@
 class Solution {
 public:
-    // hash + prefix sum
-    int numOfSubarrays(vector<int>& arr) {
-        int M = 1e9 + 7;
+    int M = 1e9 + 7;
 
-        int cntEvenSum = 1;
-        int cntOddSum = 0;
+    int numOfSubarrays(vector<int>& arr) {
+        // X X X X X X
+        //     i     j
+
+        // sum[i+1:j] = presum[j] - presum[i]: odd sum
+        // 1. presum[j]: odd sum => presum[j]: even sum
+        // 2. presum[j]: even sum => presum[j]: odd sum
+
+        // cnts[0]: the number of prefix with even sums
+        // cnts[i]: the number of prefix with odd sums
+        int cnts[2] = {0, 0};
+        cnts[0] = 1;
 
         int ret = 0;
-        for (int presum = 0, i = 0; i < arr.size(); ++i) {
+        for (int i = 0, n = arr.size(), presum = 0; i < n; ++i) {
             presum += arr[i];
-            if (presum & 1) { // odd
-                ret = (ret + cntEvenSum) % M;
-                ++cntOddSum;
-            }
-            else {
-                ret = (ret + cntOddSum) % M;
-                ++cntEvenSum;
-            }
+            ret = (ret + cnts[1 - presum & 1]) % M;
+            ++cnts[presum & 1];
         }
 
         return ret;
     }
 };
-
-/*
-X X X X X X
-    i     j
-
-sum[i+1:j] = presum[j] - presum[i]: odd sum
-1. presum[j]: odd sum => presum[j]: even sum
-2. presum[j]: even sum => presum[j]: odd sum
-*/
