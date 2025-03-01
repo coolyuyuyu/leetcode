@@ -1,14 +1,16 @@
 class Solution {
 public:
     int countElements(vector<int>& arr) {
-        vector<bool> existences(1001, false);
-        for (int num : arr) {
-            existences[num] = true;
+        unordered_map<int, int> freq;
+        for (int elem : arr) {
+            ++freq[elem];
         }
 
-        auto pred = [&existences](int num) {
-            return existences[num + 1];
-        };
-        return count_if(arr.begin(), arr.end(), pred);
+        int ret = 0;
+        for (int elem : arr) {
+            ret += (freq[elem + 1] > 0 ? 1 : 0);
+        }
+
+        return ret;
     }
 };
