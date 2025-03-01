@@ -1,24 +1,21 @@
 class Solution {
 public:
     vector<vector<string>> groupStrings(vector<string>& strings) {
-        map<vector<int>, vector<string>> groups;
+        unordered_map<string, vector<string>> key2groups;
         for (const string& str : strings) {
-            vector<int> distances;
-            for (size_t i = 1; i < str.size(); ++i) {
-                int distance = str[i] - str[i - 1];
-                if (distance < 0) {
-                    distance += 26;
-                }
-                distances.push_back(distance);
+            string key = str;
+            int step = 'z' - key[0];
+            for (char& c : key) {
+                c = 'a' + ((c + step) - 'a') % 26;
             }
-            groups[distances].push_back(str);
+            key2groups[key].push_back(str);
         }
 
-        vector<vector<string>> ans;
-        for (auto itr : groups) {
-            ans.push_back(itr.second);
+        vector<vector<string>> ret;
+        for (const auto& [_, groups] : key2groups) {
+            ret.push_back(groups);
         }
 
-        return ans;
+        return ret;
     }
 };
