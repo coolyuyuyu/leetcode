@@ -21,40 +21,40 @@ public:
     int f2(string source, const string& target) {
         int m = source.size(), n = target.size();
 
-        source.insert(source.begin(), '#');
-        vector<vector<int>> next(m + 1, vector<int>(26));
-        for (int j = 0; j < 26; ++j) {
-            next[m][j] = -1;
+        source = "#" + source;
+        int next[m + 1][26];
+        for (char c = 'a'; c <= 'z'; ++c) {
+            next[m][c - 'a'] = -1;
         }
-        for (int i = m; 0 < i--;) {
-            for (int j = 0; j < 26; ++j) {
-                next[i][j] = next[i + 1][j];
+        for (int j = m - 1; j >= 0; j--) {
+            for (char c = 'a'; c <= 'z'; ++c) {
+                next[j][c - 'a'] = next[j + 1][c - 'a'];
             }
-            next[i][source[i + 1] - 'a'] = i + 1;
+            next[j][source[j + 1] - 'a'] = j + 1;
         }
 
+
         int ret = 1;
-        for (int i = 0, index = 0; i < n;) {
-            if (index == 0 && next[index][target[i] - 'a'] == -1) {
+        for (int i = 0, j = 0; i < n;) {
+            if (j == 0 && next[j][target[i] - 'a'] == -1) {
                 return -1;
             }
 
-            index = next[index][target[i] - 'a'];
-            if (index == -1) {
-                index = 0;
+            j = next[j][target[i] - 'a'];
+            if (j == -1) {
+                j = 0;
                 ++ret;
             }
             else {
                 ++i;
             }
-
         }
 
         return ret;
     }
 
     int shortestWay(string source, string target) {
-        return f1(source, target);
-        //return f2(source, target);
+        //return f1(source, target);
+        return f2(source, target);
     }
 };
