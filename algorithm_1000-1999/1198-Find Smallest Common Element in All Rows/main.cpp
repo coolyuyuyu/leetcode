@@ -1,27 +1,27 @@
 class Solution {
 public:
     int smallestCommonElement(vector<vector<int>>& mat) {
-        size_t rowCnt = mat.size(), colCnt = mat.empty() ? 0 : mat.front().size();
-        vector<size_t> indexes(rowCnt, 0);
+        int m = mat.size(), n = mat.empty() ? 0 : mat[0].size();
 
-        int ans = -1;
-        for (size_t row = 0, cnt = 0; cnt < rowCnt; row = (row + 1) % rowCnt) {
-            while (indexes[row] < colCnt && mat[row][indexes[row]] < ans) {
-                ++indexes[row];
+        vector<int> indexes(m, 0);
+        int ret = -1;
+        for (int r = 0, cnt = 0; cnt < m; r = (r + 1) % m) {
+            while (indexes[r] < n && mat[r][indexes[r]] < ret) {
+                ++indexes[r];
             }
-            if (colCnt <= indexes[row]) {
+            if (indexes[r] >= n) {
                 return -1;
             }
 
-            if (mat[row][indexes[row]] == ans) {
+            if (mat[r][indexes[r]] == ret) {
                 ++cnt;
             }
             else {
-                cnt = 0;
-                ans = mat[row][indexes[row]];
+                ret = mat[r][indexes[r]];
+                cnt = 1; 
             }
         }
 
-        return ans;
+        return ret;
     }
 };
