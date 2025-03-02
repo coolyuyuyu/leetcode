@@ -1,18 +1,18 @@
 class Solution {
 public:
     int largestUniqueNumber(vector<int>& nums) {
-        int cnts[1001];
-        std::fill(cnts, cnts + 1001, 0);
+        unordered_map<int, int> cnts;
         for (int num : nums) {
             ++cnts[num];
         }
 
-        for (int num = 1000; num >= 0; --num) {
-            if (cnts[num] == 1) {
-                return num;
+        int ret = -1;
+        for (const auto& [num, cnt] : cnts) {
+            if (cnt == 1) {
+                ret = std::max(ret, num);
             }
         }
 
-        return -1;
+        return ret;
     }
 };
