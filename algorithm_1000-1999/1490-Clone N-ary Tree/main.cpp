@@ -20,39 +20,35 @@ public:
 
 class Solution {
 public:
-    Node* cloneTree_Recursive(Node* root) {
+    Node* recursive(Node* root) {
         if (!root) {
             return nullptr;
         }
 
-        Node* rootNew = new Node(root->val);
-        for (Node* child : root->children) {
-            rootNew->children.push_back(cloneTree_Recursive(child));
+        Node* ret = new Node(root->val);
+        for (auto& child : root->children) {
+            ret->children.push_back(recursive(child));
         }
 
-        return rootNew;
+        return ret;
     }
 
-    Node* cloneTree_Iterative(Node* root) {
+    Node* iterative(Node* root) {
         Node* pRootOld = root;
-        Node** ppRootOld = &pRootOld;
         Node* pRootNew = nullptr;
-        Node** ppRootNew = &pRootNew;
-
         queue<pair<Node**, Node**>> q;
-        if (*ppRootOld) {
-            q.emplace(ppRootOld, ppRootNew);
+        if (root) {
+            q.emplace(&pRootNew, &pRootOld);
         }
         while (!q.empty()) {
-            ppRootOld = q.front().first;
-            ppRootNew = q.front().second;
+            auto [ppNew, ppOld] = q.front();
             q.pop();
 
-            *ppRootNew = new Node((*ppRootOld)->val);
-            (*ppRootNew)->children.resize((*ppRootOld)->children.size());
-
-            for (size_t i = 0; i < (*ppRootNew)->children.size(); ++i) {
-                q.emplace(&((*ppRootOld)->children[i]), &((*ppRootNew)->children[i]));
+            *ppNew = new Node((*ppOld)->val);
+            int n = (*ppOld)->children.size();
+            (*ppNew)->children.resize(n);
+            for (int i = 0; i < n; ++i) {
+                q.emplace(&((*ppNew)->children[i]), &((*ppOld)->children[i]));
             }
         }
 
@@ -60,7 +56,7 @@ public:
     }
 
     Node* cloneTree(Node* root) {
-        //return cloneTree_Recursive(root);
-        return cloneTree_Iterative(root);
+        //return recursive(root);
+        return iterative(root);
     }
 };
