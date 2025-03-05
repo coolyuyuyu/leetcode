@@ -4,7 +4,6 @@ public:
         int n = nums.size();
 
         vector<int> ret(n);
-
         int lft = 0, rht = n - 1;
         for (int i = 0; i < n; ++i) {
             if (nums[i] < pivot) {
@@ -16,9 +15,7 @@ public:
                 ret[rht--] = nums[i];
             }
         }
-        for (; lft <= rht;) {
-            ret[lft++] = pivot;
-        }
+        std::fill(ret.begin() + lft, ret.begin() + rht + 1, pivot);
 
         return ret;
     }
