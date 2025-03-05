@@ -1,46 +1,45 @@
 class Solution {
 public:
     vector<vector<int>> candyCrush(vector<vector<int>>& board) {
-        size_t m = board.size(), n = board.empty() ? 0 : board[0].size();
-        auto find = [&]() -> bool {
-            bool marked = false;
-            for (size_t r = 0; r < m; ++r) {
-                for (size_t c = 1; (c + 1) < n; ++c) {
-                    int t = abs(board[r][c]);
-                    if (t != 0 && abs(board[r][c - 1]) == t && t == abs(board[r][c + 1])) {
+        int m = board.size(), n = board.empty() ? 0 : board[0].size();
+
+        std::function<bool()> mark = [&]() {
+            bool found = false;
+            for (int r = 0; r < m; ++r) {
+                for (int c = 1; c + 1 < n; ++c) {
+                    int t = std::abs(board[r][c]);
+                    if (t != 0 && std::abs(board[r][c - 1]) == t && t == std::abs(board[r][c + 1])) {
                         board[r][c - 1] = board[r][c] = board[r][c + 1] = -t;
-                        marked = true;
+                        found = true;
                     }
                 }
             }
-            for (size_t c = 0; c < n; ++c) {
-                for (size_t r = 1; (r + 1) < m; ++r) {
-                    int t = abs(board[r][c]);
-                    if (t != 0 && abs(board[r - 1][c]) == t && t == abs(board[r + 1][c])) {
+            for (int c = 0; c < n; ++c) {
+                for (int r = 1; r + 1 < m; ++r) {
+                    int t = std::abs(board[r][c]);
+                    if (t != 0 && std::abs(board[r - 1][c]) == t && t == std::abs(board[r + 1][c])) {
                         board[r - 1][c] = board[r][c] = board[r + 1][c] = -t;
-                        marked = true;
+                        found = true;
                     }
                 }
             }
-
-            return marked;
+            return found;
         };
-        auto crush = [&]() -> void {
-            for (size_t c = 0; c < n; ++c) {
-                size_t idx = m;
-                for (size_t r = m; 0 < r--;) {
-                    if (0 < board[r][c]) {
-                        board[--idx][c] = board[r][c];
+        std::function<void()> collapse = [&]() {
+            for (int c = 0; c < n; ++c) {
+                int i = m - 1;
+                for (int r = m - 1; r >= 0; --r) {
+                    if (board[r][c] > 0) {
+                        board[i--][c] = board[r][c];
                     }
                 }
-                while (0 < idx--) {
-                    board[idx][c] = 0;
+                for (; i >= 0; --i) {
+                    board[i][c] = 0;
                 }
             }
         };
-
-        while (find()) {
-            crush();
+        while (mark()) {
+            collapse();
         }
 
         return board;
