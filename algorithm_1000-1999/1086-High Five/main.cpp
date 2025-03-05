@@ -1,33 +1,26 @@
 class Solution {
 public:
     vector<vector<int>> highFive(vector<vector<int>>& items) {
-        map<int, priority_queue<int, vector<int>, greater<int>>> m;
+        unordered_map<int, priority_queue<int, vector<int>, std::greater<int>>> id2top5;
         for (const auto& item : items) {
-            auto& pq = m[item[0]];
-            if (5 <= pq.size()) {
-                if (pq.top() < item[1]) {
-                    pq.pop();
-                    pq.push(item[1]);
-                }
-            }
-            else {
-                pq.push(item[1]);
+            int id = item[0], score = item[1];
+            auto& top5 = id2top5[id];
+            top5.push(score);
+            if (top5.size() > 5) {
+                top5.pop();
             }
         }
 
-        vector<vector<int>> results;
-        for (auto& p : m) {
-            auto& pq = p.second;
-            assert(pq.size() == 5);
-
+        vector<vector<int>> ret;
+        for (auto& [id, top5] : id2top5) {
             int sum = 0;
-            for (; !pq.empty(); pq.pop()) {
-                sum += pq.top();
+            for (; !top5.empty(); top5.pop()) {
+                sum += top5.top();
             }
-
-            results.push_back({p.first, sum / 5});
+            ret.push_back({id, sum / 5});
         }
+        std::sort(ret.begin(), ret.end());
 
-        return results;
+        return ret;
     }
 };
