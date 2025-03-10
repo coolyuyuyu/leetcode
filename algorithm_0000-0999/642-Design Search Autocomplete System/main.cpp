@@ -1,143 +1,96 @@
 class AutocompleteSystem {
+private:
+    struct Node {
+        std::array<Node*, 27> childs;
+        int times;
+
+        static int toIndex(char c) {
+            return c == ' ' ? 0 : (1 + c - 'a');
+        }
+
+        static char toChar(int idx) {
+            return idx == 0 ? ' ' : ('a' + idx - 1);
+        }
+
+        Node() {
+            childs.fill(nullptr);
+            times = 0;
+        }
+    };
+
+    void add(const string& sentence, int times) {
+        Node* node = m_root;
+        for (char c : sentence) {
+            int idx = Node::toIndex(c);
+            if (node->childs[idx] == nullptr) {
+                node->childs[idx] = new Node();
+            }
+            node = node->childs[idx];
+        }
+        node->times = times;
+    }
+
+    template<class T>
+    void traverse(Node* node, string& prefix, int k, T& pq) {
+        assert(node);
+
+        if (node->times) {
+            pq.emplace(0 - node->times, prefix);
+            if (pq.size() > k) {
+                pq.pop();
+            }
+        }
+        for (int idx = 0; idx < node->childs.size(); ++idx) {
+            if (node->childs[idx] == nullptr) { continue; }
+            prefix.push_back(Node::toChar(idx));
+            traverse(node->childs[idx], prefix, k, pq);
+            prefix.pop_back();
+        }
+    }
+
+    Node* m_root;
+
+    Node* m_cur;
+    string m_inputs;
+
 public:
-    AutocompleteSystem(const vector<string>& sentences, const vector<int>& times) {
-        size_t count = sentences.size();
-        for (size_t i = 0; i < count; ++i) {
-            m_trie.addSentence(sentences[i], times[i]);
+    AutocompleteSystem(vector<string>& sentences, vector<int>& times)
+        : m_root(new Node())
+        , m_cur(m_root) {
+        for (int i = 0, n = sentences.size(); i < n; ++i) {
+            add(sentences[i], times[i]);
         }
     }
 
     vector<string> input(char c) {
         if (c == '#') {
-            m_trie.complete();
+            m_cur->times += 1;
+
+            m_cur = m_root;
+            m_inputs.clear();
             return {};
         }
 
-        m_trie.traverseDown(c);
-        return m_trie.lookup(3);
+        int idx = Node::toIndex(c);
+        if (m_cur->childs[idx] == nullptr) {
+            m_cur->childs[idx] = new Node();
+        }
+        m_cur = m_cur->childs[idx];
+        m_inputs += c;
+
+        priority_queue<pair<int, string>> pq;
+        traverse(m_cur, m_inputs, 3, pq);
+
+        vector<string> ret(pq.size());
+        for (int i = ret.size() - 1; !pq.empty(); --i, pq.pop()) {
+            ret[i] = pq.top().second;
+        }
+        return ret;
     }
-
-private:
-    class Trie {
-    public:
-        Trie()
-            : m_pRoot(new TrieNode())
-            , m_ppNode(&m_pRoot){
-        }
-
-        ~Trie() {
-            destruct(m_pRoot);
-        }
-
-        void addSentence(const string& sentence, size_t time) {
-            TrieNode** ppNode = &m_pRoot;
-            for (char c : sentence) {
-                ppNode = &((*ppNode)->childs[TrieNode::index(c)]);
-                if (*ppNode == nullptr) {
-                    *ppNode = new TrieNode();
-                }
-            }
-
-            (*ppNode)->time += time;
-        }
-
-        vector<string> lookup(size_t k) {
-            string prefix;
-            auto comp = [](const pair<size_t, string>& a, const pair<size_t, string>& b) {
-                if (b.first == a.first) {
-                    return a.second < b.second;
-                }
-                else {
-                    return b.first < a.first;
-                }
-            };
-            priority_queue<pair<size_t, string>, vector<pair<size_t, string>>, decltype(comp)> pq(comp);
-            traverse(prefix, *m_ppNode, k, pq);
-
-            vector<string> sentences(pq.size());
-            for (size_t i = sentences.size(); 0 < i--;) {
-                sentences[i] = m_inputs + pq.top().second;
-                pq.pop();
-            }
-            return sentences;
-        }
-
-        void traverseDown(char c) {
-            m_inputs.push_back(c);
-
-            m_ppNode = &((*m_ppNode)->childs[TrieNode::index(c)]);
-            if (*m_ppNode == nullptr) {
-                *m_ppNode = new TrieNode();
-            }
-        }
-
-        void complete() {
-            (*m_ppNode)->time += 1;
-
-            m_ppNode = &m_pRoot;
-            m_inputs.clear();
-        }
-
-    private:
-        class TrieNode {
-        public:
-            TrieNode()
-                : time(0) {
-            }
-
-            static const size_t CHILD_COUNT = 27;
-            inline static size_t index(char c) {
-                return c == ' ' ? 0 : 1 + c - 'a';
-            }
-
-            TrieNode* childs[CHILD_COUNT] = {nullptr};
-            size_t time;
-        };
-
-        void destruct(TrieNode* pRoot) {
-            if (!pRoot) {
-                return;
-            }
-
-            for (size_t i = 0; i < TrieNode::CHILD_COUNT; ++i) {
-                destruct(pRoot->childs[i]);
-            }
-            delete pRoot;
-        }
-
-        template<class T>
-        void traverse(string& prefix, TrieNode* pNode, size_t k, T& pq) {
-            if (!pNode) {
-                return;
-            }
-
-            if (0 < pNode->time) {
-                if (pq.size() < k) {
-                    pq.emplace(pNode->time, prefix);
-                }
-                else if (pq.top().first < pNode->time) {
-                    pq.pop();
-                    pq.emplace(pNode->time, prefix);
-                }
-            }
-            
-            for (size_t i = 0; i < TrieNode::CHILD_COUNT; ++i) {
-                prefix.push_back(i == 0 ? ' ' : ('a' + i - 1));
-                traverse(prefix, pNode->childs[i], k, pq);
-                prefix.pop_back();
-            }
-        }
-
-        TrieNode* m_pRoot;
-        TrieNode** m_ppNode;
-        string m_inputs;
-    };
-
-    Trie m_trie;
 };
 
 /**
  * Your AutocompleteSystem object will be instantiated and called as such:
- * AutocompleteSystem obj = new AutocompleteSystem(sentences, times);
- * vector<string> param_1 = obj.input(c);
+ * AutocompleteSystem* obj = new AutocompleteSystem(sentences, times);
+ * vector<string> param_1 = obj->input(c);
  */
