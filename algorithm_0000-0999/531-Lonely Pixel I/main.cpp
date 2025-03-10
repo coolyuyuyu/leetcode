@@ -1,66 +1,84 @@
 class Solution {
 public:
-    // Time(m,n) = O(m*n), Space(m,n) = O(m+n)
-    size_t findLonelyPixelV1(const vector<vector<char>>& picture) {
-        size_t rowCnt = picture.size(), colCnt = picture.empty() ? 0 : picture.front().size();
-        vector<int> dpRow(rowCnt, 0), dpCol(colCnt, 0);
-        for (size_t row = 0; row < rowCnt; ++row) {
-            for (size_t col = 0; col < colCnt; ++col) {
-                if (picture[row][col] == 'B') {
-                    ++dpRow[row];
-                    ++dpCol[col];
+    // Time: O(m * n), Space: O(m * n)
+    int f1(vector<vector<char>>& picture) {
+        int m = picture.size(), n = picture.empty() ? 0 : picture[0].size();
+
+        vector<int> rowBlacks(m, 0), colBlacks(n, 0);
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                if (picture[r][c] == 'B') {
+                    ++rowBlacks[r];
+                    ++colBlacks[c];
                 }
             }
         }
 
-        size_t count = 0;
-        for (size_t row = 0; row < rowCnt; ++row) {
-            for (size_t col = 0; col < colCnt; ++col) {
-                if (picture[row][col] == 'B' && dpRow[row] == 1 && dpCol[col] == 1) {
-                    ++count;
+        int ret = 0;
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                if (picture[r][c] == 'B' && rowBlacks[r] == 1 && colBlacks[c] == 1) {
+                    ++ret;
                 }
             }
         }
 
-        return count;
+        return ret;
     }
 
-    // Time(m,n) = O(m*n), Space(m,n) = O(1)
-    size_t findLonelyPixelV2(const vector<vector<char>>& picture) {
-        size_t rowCnt = picture.size(), colCnt = picture.empty() ? 0 : picture.front().size();
+    // Time: O(m * n), Space: O(1)
+    int f2(vector<vector<char>>& picture) {
+        int m = picture.size(), n = picture.empty() ? 0 : picture[0].size();
 
-        size_t lonelyRowCnt = 0;
-        for (size_t row = 0; row < rowCnt; ++row) {
-            size_t n = 0;
-            for (size_t col = 0; col < colCnt; ++col) {
-                if (picture[row][col] == 'B') {
-                    ++n;
-                }
+        std::function<bool(int, int)> check = [&](int x, int y) {
+            int cnt = 0;
+            for (int r = 0; r < m; ++r) {
+                cnt += (picture[r][y] == 'B') ? 1 : 0;
             }
-            if (n == 1) {
-                ++lonelyRowCnt;
+            for (int c = 0; c < n; ++c) {
+                cnt += (c != y && picture[x][c] == 'B') ? 1 : 0;
+            }
+
+            return picture[x][y] == 'B' && cnt == 1;
+        };
+
+        int ret = 0;
+        for (int r = 0; r < m; ++r) {
+            ret += check(r, 0) ? 1 : 0;
+        }
+        for (int c = 1; c < n; ++c) {
+            ret += check(0, c) ? 1 : 0;
+        }
+
+        for (int r = 0; r < m; ++r) {
+            picture[r][0] = (picture[r][0] == 'B') ? 1 : 0;
+        }
+        for (int c = 0; c < n; ++c) {
+            picture[0][c] = (picture[0][c] == 'B') ? 1 : 0;
+        }
+
+        for (int r = 1; r < m; ++r) {
+            for (int c = 1; c < n; ++c) {
+                if (picture[r][c] == 'B') {
+                    ++picture[r][0];
+                    ++picture[0][c];
+                }
             }
         }
 
-        size_t lonelyColCnt = 0;
-        for (size_t col = 0; col < colCnt; ++col) {
-            size_t n = 0;
-            for (size_t row = 0; row < rowCnt; ++row) {
-                if (picture[row][col] == 'B') {
-                    ++n;
+        for (int r = 1; r < m; ++r) {
+            for (int c = 1; c < n; ++c) {
+                if (picture[r][c] == 'B' && picture[r][0] == 1 && picture[0][c] == 1) {
+                    ++ret;
                 }
-            }
-            if (n == 1) {
-                ++lonelyColCnt;
             }
         }
 
-        return min(lonelyRowCnt, lonelyColCnt);
+        return ret;
     }
 
-    size_t findLonelyPixel(const vector<vector<char>>& picture) {
-        //return findLonelyPixelV1(picture);
-
-        return findLonelyPixelV2(picture);
+    int findLonelyPixel(vector<vector<char>>& picture) {
+        //return f1(picture);
+        return f2(picture);
     }
 };
