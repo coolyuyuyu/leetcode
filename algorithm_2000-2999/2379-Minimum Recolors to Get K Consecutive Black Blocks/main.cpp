@@ -1,19 +1,12 @@
 class Solution {
 public:
     int minimumRecolors(string blocks, int k) {
-        int n = blocks.size();
-
         int ret = k;
-        for (int i = 0, wCnt = 0; i < n; ++i) {
-            if (blocks[i] == 'W') {
-                ++wCnt;
-            }
-            if (k <= i && blocks[i - k] == 'W') {
-                --wCnt;
-            }
-
-            if (k <= i + 1) {
-                ret = std::min(ret, wCnt);
+        for (int i = 0, w = 0, n = blocks.size(); i < n; ++i) {
+            if (blocks[i] == 'W') { ++w; }
+            if (i - k + 1 >= 0) {
+                ret = std::min(ret, w);
+                if (blocks[i - k + 1] == 'W') { --w; }
             }
         }
 
