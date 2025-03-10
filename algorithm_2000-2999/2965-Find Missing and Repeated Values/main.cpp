@@ -2,27 +2,26 @@ class Solution {
 public:
     vector<int> findMissingAndRepeatedValues(vector<vector<int>>& grid) {
         int n = grid.size();
-        int cnt[n * n + 1];
-        for (int i = 1; i <= n * n; ++i) {
-            cnt[i] = 0;
-        }
 
-        for (int i = 0; i < n; ++i) {
-            for (int j = 0; j < n; ++j) {
-                ++cnt[grid[i][j]];
+        int a, b;
+
+        vector<bool> used(n * n + 1, false);
+        for (int r = 0; r < n; ++r) {
+            for (int c = 0; c < n; ++c) {
+                if (used[grid[r][c]]) {
+                    a = grid[r][c];
+                }
+                used[grid[r][c]] = true;
             }
         }
 
-        vector<int> ret(2);
-        for (int i = 1; i <= n * n; ++i) {
-            if (cnt[i] == 2) {
-                ret[0] = i;
-            }
-            else if (cnt[i] == 0) {
-                ret[1] = i;
+        for (int i = 1; i < used.size(); ++i) {
+            if (!used[i]) {
+                b = i;
+                break;
             }
         }
 
-        return ret;
+        return {a, b};
     }
 };
