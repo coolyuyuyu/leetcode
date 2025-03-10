@@ -1,8 +1,6 @@
 class Solution {
 public:
     long long countOfSubstrings(string word, int k) {
-        int n = word.size();
-
         std::function<int(char)> getVowelIdx = [](char c) {
             switch (c) {
             case 'a': return 0;
@@ -11,8 +9,10 @@ public:
             case 'o': return 3;
             case 'u': return 4;
             default: return -1;
-            }
+            };
         };
+
+        int n = word.size();
 
         // rhtVCnts[i]: the number of consecutive vowels to the right of i (including i)
         int rhtVCnts[n + 1];
@@ -26,17 +26,17 @@ public:
             }
         }
 
-        long long ret = 0;
-
-        int vDiffCnt = 0;
         vector<int> vCnts(5, 0);
+        int diffVCnt = 0;
         int cCnt = 0;
-        for (int i = 0, j = 0; i < n; ++i) {
-            for (; j < n && (vDiffCnt < 5 || cCnt < k); ++j) {
-                int vIdx = getVowelIdx(word[j]);
-                if (vIdx >= 0) {
-                    if (++vCnts[vIdx] == 1) {
-                        ++vDiffCnt;
+
+        long long ret = 0;
+        for (int i = 0, j = 0, n = word.size(); i < n; ++i) {
+            for (; j < n && (diffVCnt < 5 || cCnt < k); ++j) {
+                int idx = getVowelIdx(word[j]);
+                if (idx >= 0) {
+                    if (++vCnts[idx] == 1) {
+                        ++diffVCnt;
                     }
                 }
                 else {
@@ -44,15 +44,15 @@ public:
                 }
             }
 
-            if (vDiffCnt == 5 && cCnt == k) {
+            if (diffVCnt == 5 && cCnt == k) {
                 ret += 1;
                 ret += rhtVCnts[j];
             }
 
-            int vIdx = getVowelIdx(word[i]);
-            if (vIdx >= 0) {
-                if (--vCnts[vIdx] == 0) {
-                    --vDiffCnt;
+            int idx = getVowelIdx(word[i]);
+            if (idx >= 0) {
+                if (--vCnts[idx] == 0) {
+                    --diffVCnt;
                 }
             }
             else {
