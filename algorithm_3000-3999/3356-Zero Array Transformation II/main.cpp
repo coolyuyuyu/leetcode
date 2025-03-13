@@ -6,10 +6,11 @@ public:
         std::function<bool(int)> check = [&](int k) {
             int diffs[n];
             std::fill(diffs, diffs + n, 0);
-
             for (int i = 0; i < k; ++i) {
                 int l = queries[i][0], r = queries[i][1], val = queries[i][2];
-                diffs[l] += val;
+                if (l < n) {
+                    diffs[l] += val;
+                }
                 if (r + 1 < n) {
                     diffs[r + 1] -= val;
                 }
@@ -21,6 +22,7 @@ public:
                     return false;
                 }
             }
+
             return true;
         };
 
