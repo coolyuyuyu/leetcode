@@ -8,11 +8,11 @@ public:
 
         int oddCnt = 0;
         for (int cnt : cnts) {
-            if (cnt & 1 && ++oddCnt >= 2) {
-                return false;
+            if (cnt & 1) {
+                ++oddCnt;
             }
         }
 
-        return true;
+        return oddCnt <= 1;
     }
 };
