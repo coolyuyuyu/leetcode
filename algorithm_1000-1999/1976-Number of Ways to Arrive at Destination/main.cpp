@@ -1,49 +1,48 @@
 class Solution {
 public:
     int M = 1e9 + 7;
-    int countPaths(int n, vector<vector<int>>& roads) {
-        int src = 0, dst = n - 1;
 
-        vector<pair<int, int>> graph[n]; // <nxt, w>
+    int countPaths(int n, vector<vector<int>>& roads) {
+        vector<pair<int, int>> graph[n];
         for (const auto& road : roads) {
-            int u = road[0], v = road[1], w = road[2];
-            graph[u].emplace_back(v, w);
-            graph[v].emplace_back(u, w);
+            int u = road[0], v = road[1], t = road[2];
+            graph[u].emplace_back(v, t);
+            graph[v].emplace_back(u, t);
         }
 
-        vector<long long> dists(n, LLONG_MAX);
-        vector<int> cnts(n, 0);
-        priority_queue<tuple<long long, int, int>, vector<tuple<long long, int, int>>, std::greater<tuple<long long, int, int>>> pq; // <dist, cur, pre>
-
-        cnts[src] = 1;
-        pq.emplace(0, src, -1);
+        int src = 0, dst = n - 1;
+        vector<long> dists(n, INT_MAX);
+        priority_queue<pair<long, int>, vector<pair<long, int>>, std::greater<pair<long, int>>> pq;
+        pq.emplace(0, src);
         while (!pq.empty()) {
-            auto [dist, cur, pre] = pq.top();
+            auto [dist, cur] = pq.top();
             pq.pop();
 
-            if (dist <= dists[cur]) {
-                if (pre >= 0) {
-                    cnts[cur] += cnts[pre];
-                    cnts[cur] %= M;
-                }
-            }
-            if (dist >= dists[cur]) {
-                continue;
-            }
+            if (dists[cur] != INT_MAX) { continue; }
             dists[cur] = dist;
 
             for (const auto& [nxt, w] : graph[cur]) {
-                if (dist + w >= dists[nxt]) {
-                    if (dist + w == dists[nxt]) {
-                        cnts[nxt] += cnts[cur];
-                        cnts[nxt] %= M;
-                    }
-                    continue;
-                }
-                pq.emplace(dist + w, nxt, cur);
+                if (dists[nxt] != INT_MAX) { continue; }
+                pq.emplace(dist + w, nxt);
             }
         }
 
-        return cnts[dst];
+        vector<int> cnts(n, -1);
+        std::function<int(int)> dfs = [&](int cur) {
+            if (cur == 0) { return 1; }
+            if (cnts[cur] != -1) { return cnts[cur]; }
+
+            int& ret = cnts[cur] = 0;
+            for (const auto& [nxt, w] : graph[cur]) {
+                if (dists[cur] - w == dists[nxt]) {
+                    ret += dfs(nxt);
+                    ret %= M;
+                }
+            }
+
+            return ret;
+        };
+
+        return dfs(dst);
     }
 };
