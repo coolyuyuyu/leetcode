@@ -33,13 +33,13 @@ public:
     vector<int> minimumCost(int n, vector<vector<int>>& edges, vector<vector<int>>& query) {
         DisjointSets ds(n);
         for (const auto& edge : edges) {
-            int u = edge[0], v = edge[1], w = edge[2];
+            int u = edge[0], v = edge[1];
             ds.merge(u, v);
         }
 
         unordered_map<int, int> costs;
         for (const auto& edge : edges) {
-            int u = edge[0], v = edge[1], w = edge[2];
+            int u = edge[0], w = edge[2];
             int root = ds.root(u);
             if (costs.find(root) == costs.end()) {
                 costs[root] = w;
