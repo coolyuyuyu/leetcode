@@ -7,10 +7,10 @@ public:
         int cur = 1;
         for (const auto& meeting : meetings) {
             int bgn = meeting[0], end = meeting[1];
-            ret += std::max(0, bgn - cur);
+            ret += std::max(bgn - cur, 0);
             cur = std::max(cur, end + 1);
         }
-        ret += days - cur + 1;
+        ret += days + 1 - cur;
 
         return ret;
     }
@@ -31,7 +31,6 @@ public:
                 ret += cur - pre;
             }
             sum += diff;
-
             pre = cur;
         }
 
@@ -39,7 +38,7 @@ public:
     }
 
     int countDays(int days, vector<vector<int>>& meetings) {
-        //return bySort(days, meetings);
-        return byDiffArray(days, meetings);
+        return bySort(days, meetings);
+        //return byDiffArray(days, meetings);
     }
 };
