@@ -37,59 +37,61 @@ public:
     int maximumScore(vector<int>& nums, int k) {
         int n = nums.size();
 
-        int maxNum = *std::max_element(nums.begin(), nums.end());
-        vector<int> scoreTbl = eratosthenes(maxNum);
+        vector<int> scoreTbl = eratosthenes(*std::max_element(nums.begin(), nums.end()));
 
-        vector<int> scores(n);
+        int scores[n];
         for (int i = 0; i < n; ++i) {
             scores[i] = scoreTbl[nums[i]];
         }
 
         stack<int> stk;
 
-        vector<int> nxtGreater(n, n);
-        while (!stk.empty()) { stk.pop(); }
-        for (int i = n; 0 < i--;) {
-            while (!stk.empty() && scores[i] >= scores[stk.top()]) {
-                stk.pop();
-            }
-            if (!stk.empty()) {
-                nxtGreater[i] = stk.top();
-            }
-            stk.push(i);
-        }
-
-        vector<int> preGreater(n, -1);
+        int preGE[n];
+        std::fill(preGE, preGE + n, -1);
         while (!stk.empty()) { stk.pop(); }
         for (int i = 0; i < n; ++i) {
             while (!stk.empty() && scores[stk.top()] < scores[i]) {
                 stk.pop();
             }
             if (!stk.empty()) {
-                preGreater[i] = stk.top();
+                preGE[i] = stk.top();
             }
             stk.push(i);
         }
 
-        vector<int> cnts(n);
-        for (int i = 0; i < n; ++i) {
-            cnts[i] = (i - preGreater[i]) * (nxtGreater[i] - i);
+        int nxtGT[n];
+        std::fill(nxtGT, nxtGT + n, n);
+        while (!stk.empty()) { stk.pop(); }
+        for (int i = n; 0 < i--;) {
+            while (!stk.empty() && scores[i] >= scores[stk.top()]) {
+                stk.pop();
+            }
+            if (!stk.empty()) {
+                nxtGT[i] = stk.top();
+            }
+            stk.push(i);
         }
 
-        priority_queue<pair<int, int>> pq;
+        LL cnts[n];
+        for (int i = 0; i < n; ++i) {
+            cnts[i] = 1LL * (i - preGE[i]) * (nxtGT[i] - i);
+        }
+
+        priority_queue<pair<int, LL>> pq;
         for (int i = 0; i < n; ++i) {
             pq.emplace(nums[i], cnts[i]);
         }
 
         LL ret = 1;
-        while (0 < k && !pq.empty()) {
+        while (k > 0 && !pq.empty()) {
             auto [num, cnt] = pq.top();
             pq.pop();
 
-            int consume = std::min(k, cnt);
-            k-= consume;
+            long long consume = std::min<LL>(k, cnt);
+            k -= cnt;
 
-            ret = (ret * quickPow(num, consume)) % M;
+            ret *= quickPow(num, consume);
+            ret %= M;
         }
 
         return ret;
