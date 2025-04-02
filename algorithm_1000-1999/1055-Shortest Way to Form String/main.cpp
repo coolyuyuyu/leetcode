@@ -19,31 +19,31 @@ public:
 
     // Time: (m + n)
     int f2(string source, const string& target) {
-        int m = source.size(), n = target.size();
+        int n = source.size(), m = target.size();
 
         source = "#" + source;
-        int next[m + 1][26];
-        for (char c = 'a'; c <= 'z'; ++c) {
-            next[m][c - 'a'] = -1;
+
+        int next[n + 1][26];
+        for (int c = 0; c < 26; ++c) {
+            next[n][c] = -1;
         }
-        for (int j = m - 1; j >= 0; j--) {
-            for (char c = 'a'; c <= 'z'; ++c) {
-                next[j][c - 'a'] = next[j + 1][c - 'a'];
+        for (int j = n - 1; j >= 0; --j) {
+            for (int c = 0; c < 26; ++c) {
+                next[j][c] = next[j + 1][c];
             }
             next[j][source[j + 1] - 'a'] = j + 1;
         }
 
-
         int ret = 1;
-        for (int i = 0, j = 0; i < n;) {
+        for (int i = 0, j = 0; i < m;) {
             if (j == 0 && next[j][target[i] - 'a'] == -1) {
                 return -1;
             }
 
             j = next[j][target[i] - 'a'];
             if (j == -1) {
-                j = 0;
                 ++ret;
+                j = 0;
             }
             else {
                 ++i;
