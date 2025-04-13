@@ -1,21 +1,25 @@
 class Solution {
 public:
     int minimumOperations(vector<int>& nums) {
-        int ret = 0;
-        for (int i = 0, n = nums.size(); i < n; i += 3) {
-            unordered_set<int> s;
-            bool duplicate = false;
-            for (int j = i; j < n; ++j) {
-                if (s.insert(nums[j]).second == false) {
-                    duplicate = true;
-                    break;
-                }
+        unordered_map<int, int> cnts;
+        int dupCnt = 0;
+        for (int num : nums) {
+            if (++cnts[num] == 2) {
+                ++dupCnt;
             }
-            if (!duplicate) {
-                break;
-            }
+        }
 
-            ++ret;
+        int ret = 0;
+        for (int i = 0, n = nums.size(); i < n && dupCnt > 0; i += 3, ++ret) {
+            if (--cnts[nums[i]] == 1) {
+                --dupCnt;
+            }
+            if (i + 1 < n && --cnts[nums[i + 1]] == 1) {
+                --dupCnt;
+            }
+            if (i + 2 < n && --cnts[nums[i + 2]] == 1) {
+                --dupCnt;
+            }
         }
 
         return ret;
