@@ -11,67 +11,60 @@
  */
 class Solution {
 public:
-    pair<int, TreeNode*> lcaDeepestLeaves_Recursive(TreeNode* root, int depth = 0) {
-        if (!root) {
-            return {depth, nullptr};
-        }
+    TreeNode* recursive1(TreeNode* root) {
+        int maxDep = -1;
+        int maxDepCnt = 0;
+        std::function<void(TreeNode*, int)> dfs1 = [&](TreeNode* root, int dep) {
+            if (!root) { return; }
+            if (dep > maxDep) {
+                maxDep = dep;
+                maxDepCnt = 0;
+            }
+            if (dep == maxDep) {
+                ++maxDepCnt;
+            }
+            dfs1(root->left, dep + 1);
+            dfs1(root->right, dep + 1);
+        };
+        dfs1(root, 0);
 
-        pair<int, TreeNode*> lft = lcaDeepestLeaves_Recursive(root->left, depth + 1);
-        pair<int, TreeNode*> rht = lcaDeepestLeaves_Recursive(root->right, depth + 1);
-        if (lft.first == rht.first) {
-            return {rht.first, root};
-        }
-        else if (lft.first < rht.first){
-            return rht;
-        }
-        else {
-            return lft;
-        }
+        TreeNode* ret = nullptr;
+        std::function<int(TreeNode*, int)> dfs2 = [&](TreeNode* root, int dep) {
+            if (!root) { return 0; }
+
+            int cnt = (dep == maxDep ? 1 : 0) + dfs2(root->left, dep + 1) + dfs2(root->right, dep + 1);
+            if (cnt == maxDepCnt && !ret) {
+                ret = root;
+            }
+
+            return cnt;
+        };
+        dfs2(root, 0);
+
+        return ret;
     }
 
-    pair<int, TreeNode*> lcaDeepestLeaves_Iterative(TreeNode* root) {
-        unordered_map<TreeNode*, pair<int, TreeNode*>> m; // <node, <depth, lca>>
-
-        // postorder traversal
-        stack<pair<pair<int, TreeNode*>, bool>> stk; // <<depth, node>, visited>
-        if (root) {
-            stk.emplace(make_pair(1, root), false);
-        }
-        while (!stk.empty()) {
-            int depth = stk.top().first.first;
-            TreeNode* node = stk.top().first.second;
-            bool visited = stk.top().second;
-            stk.pop();
-
-            if (visited) {
-                pair<int, TreeNode*> lft = (node->left ? m[node->left] : make_pair(depth + 1, nullptr));
-                pair<int, TreeNode*> rht = (node->right ? m[node->right] : make_pair(depth + 1, nullptr));
-                if (lft.first == rht.first) {
-                    m[node] = {rht.first, node};
-                }
-                else if (lft.first < rht.first){
-                    m[node] = rht;
-                }
-                else {
-                    m[node] = lft;
-                }
+    TreeNode* recursive2(TreeNode* root) {
+        std::function<pair<TreeNode*, int>(TreeNode*, int)> dfs = [&](TreeNode* root, int dep) {
+            if (!root) { return std::make_pair((TreeNode*)nullptr, dep); }
+            auto [lftRoot, lftH] = dfs(root->left, dep + 1);
+            auto [rhtRoot, rhtH] = dfs(root->right, dep + 1);
+            if (lftH < rhtH) {
+                return std::make_pair(rhtRoot, rhtH);
+            }
+            else if (lftH == rhtH) {
+                return std::make_pair(root, rhtH);
             }
             else {
-                stk.emplace(make_pair(depth, node), true);
-                if (node->right) {
-                    stk.emplace(make_pair(depth + 1, node->right), false);
-                }
-                if (node->left) {
-                    stk.emplace(make_pair(depth + 1, node->left), false);
-                }
+                return std::make_pair(lftRoot, lftH);
             }
-        }
+        };
 
-        return m[root];
+        return dfs(root, 0).first;
     }
 
     TreeNode* lcaDeepestLeaves(TreeNode* root) {
-        //return lcaDeepestLeaves_Recursive(root).second;
-        return lcaDeepestLeaves_Iterative(root).second;
+        //return recursive1(root);
+        return recursive2(root);
     }
 };
