@@ -1,11 +1,17 @@
 class Solution {
 public:
     int minOperations(vector<int>& nums, int k) {
-        set<int> s(nums.begin(), nums.end());
-        if (*s.begin() < k) {
-            return -1;
+        unordered_set<int> s;
+        for (int num : nums) {
+            if (num < k) {
+                return -1;
+            }
+            else if (num == k) {}
+            else {
+                s.insert(num);
+            }
         }
 
-        return s.size() - (s.find(k) == s.end() ? 0 : 1);
+        return s.size();
     }
 };
