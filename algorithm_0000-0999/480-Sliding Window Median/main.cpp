@@ -33,7 +33,7 @@ public:
 
                 // 0. OOXOOO
                 // 1. OXOOO, less than m
-                //      move rht
+                //      move next
                 // 2. OOXOO, greater than m
                 //      do nothing
                 // 3.
