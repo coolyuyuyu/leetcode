@@ -1,42 +1,130 @@
 class Solution {
 public:
-    void minAriaHelper(vector<vector<char>>& image, int x, int y, int& minX, int& minY, int& maxX, int& maxY) {
-        if (image[x][y] == '0') {
-            return;
+    // Time: O(MN)
+    int byBruteForce(vector<vector<char>>& image, int x, int y) {
+        int m = image.size(), n = image.empty() ? 0 : image[0].size();
+
+        int lft = INT_MAX, rht = INT_MIN, top = INT_MAX, btm = INT_MIN;
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                if (image[r][c] == '0') { continue; }
+                lft = std::min(lft, c);
+                rht = std::max(rht, c);
+                top = std::min(top, r);
+                btm = std::max(btm, r);
+            }
         }
 
+        return (rht - lft + 1) * (btm - top + 1);
+    }
+
+    // Time: O(MN)
+    int byBruteBFS(vector<vector<char>>& image, int x, int y) {
+        int m = image.size(), n = image.empty() ? 0 : image[0].size();
+        vector<pair<int, int>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
+
+        queue<pair<int, int>> q;
         image[x][y] = '0';
+        q.emplace(x, y);
 
-        minX = min(minX, x);
-        minY = min(minY, y);
-        maxX = max(maxX, x);
-        maxY = max(maxY, y);
+        int lft = INT_MAX, rht = INT_MIN, top = INT_MAX, btm = INT_MIN;
+        while (!q.empty()) {
+            auto [r, c] = q.front();
+            q.pop();
 
-        // lft
-        if (0 < y) {
-            minAriaHelper(image, x, y - 1, minX, minY, maxX, maxY);
+            lft = std::min(lft, c);
+            rht = std::max(rht, c);
+            top = std::min(top, r);
+            btm = std::max(btm, r);
+
+            for (const auto& [dr, dc] : dirs) {
+                int x = r + dr, y = c + dc;
+                if (x < 0 || x >= m || y < 0 || y >= n) { continue; }
+                if (image[x][y] == '0') { continue; }
+
+                image[x][y] = '0';
+                q.emplace(x, y);
+            }
         }
 
-        // top
-        if (0 < x) {
-            minAriaHelper(image, x - 1, y, minX, minY, maxX, maxY);
-        }
+        return (rht - lft + 1) * (btm - top + 1);
+    }
 
-        // rht
-        if (y + 1 < image.front().size()) {
-            minAriaHelper(image, x, y + 1, minX, minY, maxX, maxY);
-        }
+    // Time: O(MlogN + NlogM)
+    int byBinarySearch(vector<vector<char>>& image, int x, int y) {
+        int m = image.size(), n = image.empty() ? 0 : image[0].size();
+        std::function<bool(int)> checkRow = [&](int r) {
+            for (int c = 0; c < n; ++c) {
+                if (image[r][c] == '1') { return true; }
+            }
+            return false;
+        };
+        std::function<bool(int)> checkCol = [&](int c) {
+            for (int r = 0; r < m; ++r) {
+                if (image[r][c] == '1') { return true; }
+            }
+            return false;
+        };
 
-        // btm
-        if (x + 1 < image.size()) {
-            minAriaHelper(image, x + 1, y, minX, minY, maxX, maxY);
-        }
+        int lft = [&]() {
+            int lo = 0, hi = y;
+            while (lo < hi) {
+                int mid = lo + (hi - lo) / 2;
+                if (checkCol(mid)) {
+                    hi = mid;
+                }
+                else {
+                    lo = mid + 1;
+                }
+            }
+            return lo;
+        }();
+        int rht = [&]() {
+            int lo = y, hi = n - 1;
+            while (lo < hi) {
+                int mid = hi - (hi - lo) / 2;
+                if (checkCol(mid)) {
+                    lo = mid;
+                }
+                else {
+                    hi = mid - 1;
+                }
+            }
+            return lo;
+        }();
+        int top = [&]() {
+            int lo = 0, hi = x;
+            while (lo < hi) {
+                int mid = lo + (hi - lo) / 2;
+                if (checkRow(mid)) {
+                    hi = mid;
+                }
+                else {
+                    lo = mid + 1;
+                }
+            }
+            return lo;
+        }();
+        int btm = [&]() {
+            int lo = x, hi = m - 1;
+            while (lo < hi) {
+                int mid = hi - (hi - lo) / 2;
+                if (checkRow(mid)) {
+                    lo = mid;
+                }
+                else {
+                    hi = mid - 1;
+                }
+            }
+            return lo;
+        }();
+
+        return (rht - lft + 1) * (btm - top + 1);
     }
 
     int minArea(vector<vector<char>>& image, int x, int y) {
-        int minX = x, minY = y;
-        int maxX = x, maxY = y;
-        minAriaHelper(image, x, y, minX, minY, maxX, maxY);
-        return (maxX - minX + 1) * (maxY - minY + 1);
+        //return byBruteForce(image, x, y);
+        //return byBruteBFS(image, x, y);
+        return byBinarySearch(image, x, y);
     }
 };
