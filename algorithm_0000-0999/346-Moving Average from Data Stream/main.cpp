@@ -6,19 +6,19 @@ public:
     }
 
     double next(int val) {
-        m_sum += val;
-        m_dq.push_back(val);
-        if (m_capacity < m_dq.size()) {
-            m_sum -= m_dq.front();
-            m_dq.pop_front();
+        if (m_vals.size() >= m_capacity) {
+            m_sum -= m_vals.front();
+            m_vals.pop();
         }
+        m_vals.push(val);
+        m_sum += val;
 
-        return 1.0 * m_sum / m_dq.size();
+        return 1.0 * m_sum / m_vals.size();
     }
 
 private:
-    deque<int> m_dq;
     int m_capacity;
+    queue<int> m_vals;
     int m_sum;
 };
 
