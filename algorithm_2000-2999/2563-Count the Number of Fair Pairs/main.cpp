@@ -2,16 +2,13 @@ class Solution {
 public:
     long long f1(vector<int>& nums, int lower, int upper) {
         std::sort(nums.begin(), nums.end());
-
-        int n = nums.size();
-        std::function<long long(int)> countLE = [&](int target) {
+        std::function<long long(int)> countLE = [&](int limit) {
             long long ret = 0;
-            for (int lft = 0, rht = n - 1; lft < rht; ++lft) {
-                while (lft < rht && nums[lft] + nums[rht] > target) {
+            for (int lft = 0, rht = nums.size() - 1; lft < rht; ++lft) {
+                while (lft < rht && nums[lft] + nums[rht] > limit) {
                     --rht;
                 }
-
-                ret += (rht - lft);
+                ret += rht - lft;
             }
             return ret;
         };
@@ -23,12 +20,12 @@ public:
         std::sort(nums.begin(), nums.end());
 
         long long ret = 0;
-        for (int num : nums) {
-            auto bgn = std::lower_bound(nums.begin(), nums.end(), lower - num);
-            auto end = std::upper_bound(nums.begin(), nums.end(), upper - num);
+        for (int i = 0; i < nums.size(); ++i) {
+            auto end = std::upper_bound(nums.begin(), nums.end(), upper - nums[i]);
+            auto bgn = std::lower_bound(nums.begin(), nums.end(), lower - nums[i]);
             ret += std::distance(bgn, end);
-            if (lower - num <= num && num <= upper - num) {
-                ret -= 1;
+            if (lower <= nums[i] + nums[i] && nums[i] + nums[i] <= upper) {
+                --ret;
             }
         }
 
@@ -46,11 +43,12 @@ public:
             while (rht >= 0 && nums[i] + nums[rht] > upper) {
                 --rht;
             }
-            ret += (rht - lft);
+            ret += rht - lft;
             if (lft < i && i <= rht) {
-                ret -= 1;
+                --ret;
             }
         }
+
         return ret / 2;
     }
 
