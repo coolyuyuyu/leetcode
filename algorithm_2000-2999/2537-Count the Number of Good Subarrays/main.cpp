@@ -1,20 +1,19 @@
 class Solution {
 public:
-    // sliding window, Time: O(n)
     long long countGood(vector<int>& nums, int k) {
-        int n = nums.size();
-
         unordered_map<int, int> cnts;
-        long long numPairs = 0, ret = 0;
-        for (int lft = 0, rht = 0; lft < n; ++lft) {
-            for (; rht < n && numPairs < k; ++rht) {
-                numPairs += cnts[nums[rht]]++;
-            }
-            if (k <= numPairs) {
-                ret += (n - rht + 1);
+
+        long long ret = 0;
+        for (int i = 0, j = 0, n = nums.size(), cntPairs = 0; i < n; ++i) {
+            for (; j < n && cntPairs < k; ++j) {
+                cntPairs += cnts[nums[j]]++;
             }
 
-            numPairs -= --cnts[nums[lft]];
+            if (cntPairs >= k) {
+                ret += n - j + 1;
+            }
+
+            cntPairs -= --cnts[nums[i]];
         }
 
         return ret;
