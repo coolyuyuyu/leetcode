@@ -1,19 +1,18 @@
 class Solution {
 public:
     int findNumbers(vector<int>& nums) {
-        int count = 0;
+        int ret = 0;
         for (int num : nums) {
-            if (10 <= num && num <= 99) {
-                ++count;
+            int cnt = 0;
+            while (num) {
+                num /= 10;
+                ++cnt;
             }
-            else if (1000 <= num && num <= 9999) {
-                ++count;
-            }
-            else if (num == 100000) {
-                ++count;
+            if ((cnt & 1) == 0) {
+                ++ret;
             }
         }
 
-        return count;
+        return ret;
     }
 };
