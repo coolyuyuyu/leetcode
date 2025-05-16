@@ -5,23 +5,21 @@ public:
     int minTimeToReach(vector<vector<int>>& moveTime) {
         int m = moveTime.size(), n = moveTime.empty() ? 0 : moveTime[0].size();
 
-        bool dones[m][n];
+        bool visited[m][n];
         for (int r = 0; r < m; ++r) {
             for (int c = 0; c < n; ++c) {
-                dones[r][c] = false;
+                visited[r][c] = false;
             }
         }
 
-        priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, std::greater<tuple<int, int, int>>> pq; // <time, r, c>
+        priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, std::greater<tuple<int, int, int>>> pq;
         pq.emplace(0, 0, 0);
         while (!pq.empty()) {
             auto [t, r, c] = pq.top();
             pq.pop();
 
-            if (dones[r][c]) {
-                continue;
-            }
-            dones[r][c] = true;
+            if (visited[r][c]) { continue; }
+            visited[r][c] = true;
 
             if (r == m - 1 && c == n - 1) {
                 return t;
@@ -30,8 +28,8 @@ public:
             for (const auto& [dr, dc] : dirs) {
                 int x = r + dr, y = c + dc;
                 if (x < 0 || x >= m || y < 0 || y >= n) { continue; }
-                if (dones[x][y]) { continue; }
-                pq.emplace(std::max(t + 1, moveTime[x][y] + 1), x, y);
+                if (visited[x][y]) { continue; }
+                pq.emplace(std::max(moveTime[x][y] + 1, t + 1), x, y);
             }
         }
         __builtin_unreachable();
