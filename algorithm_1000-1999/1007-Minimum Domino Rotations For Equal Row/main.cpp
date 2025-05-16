@@ -1,23 +1,19 @@
 class Solution {
 public:
     int minDominoRotations(vector<int>& tops, vector<int>& bottoms) {
-        std::function<int(int, const vector<int>&, const vector<int>&)> f = [](int target, const vector<int>& row1, const vector<int>& row2) {
-            int ret = 0;
-            for (int i = 0; i < row1.size(); ++i) {
-                if (row1[i] == target) { continue; }
-                if (row2[i] == target) { ++ret; }
-                else { return INT_MAX; }
+        int n = tops.size();
+        std::function<int(int)> check = [&](int target) {
+            int dp1 = 0, dp2 = 0;
+            for (int i = 0; i < n; ++i) {
+                if (tops[i] != target && bottoms[i] != target) { return INT_MAX; }
+                if (tops[i] != target) { ++dp1; }
+                if (bottoms[i] != target) { ++dp2; }
             }
 
-            return ret;
+            return std::min(dp1, dp2);
         };
 
-        int ret = std::min({
-            f(tops[0], tops, bottoms),
-            f(bottoms[0], tops, bottoms),
-            f(tops[0], bottoms, tops),
-            f(bottoms[0], bottoms, tops)});
-        if (ret == INT_MAX) { ret = -1; }
-        return ret;
+        int ret = std::min(check(tops[0]), check(bottoms[0]));
+        return ret == INT_MAX ? -1 : ret;
     }
 };
