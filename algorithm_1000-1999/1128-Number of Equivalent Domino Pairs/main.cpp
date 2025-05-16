@@ -1,23 +1,16 @@
 class Solution {
 public:
     int numEquivDominoPairs(vector<vector<int>>& dominoes) {
-        map<pair<int, int>, int> counts;
-        for (const auto& domino : dominoes) {
-            int a = domino[0], b = domino[1];
-            if (b < a) {
-                swap(a, b);
-            }
+        int ret = 0;
 
-            ++counts[{a, b}];
+        unordered_map<int, int> cnts;
+        for (const auto& dominoe : dominoes) {
+            int a = dominoe[0], b = dominoe[1];
+            if (b < a) { std::swap(a, b); }
+
+            ret += cnts[a * 10 + b]++;
         }
 
-        int numPairs = 0;
-        for (const auto& p : counts) {
-            if (0 < p.second) {
-                numPairs += (p.second * (p.second - 1) / 2);
-            }
-        }
-
-        return numPairs;
+        return ret;
     }
 };
