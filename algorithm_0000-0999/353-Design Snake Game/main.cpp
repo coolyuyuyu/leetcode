@@ -1,142 +1,68 @@
 class SnakeGame {
-private:
-    struct Point {
-        Point(int x_, int y_)
-            : x(x_)
-            , y(y_) {
-        }
-
-        bool operator<(const Point& rhs) const {
-            if (x == rhs.x) {
-                return (y < rhs.y);
-            }
-            else {
-                return (x < rhs.x);
-            }
-        }
-
-        bool operator==(const Point& rhs) const {
-            return (x == rhs.x && y == rhs.y);
-        }
-
-        bool operator!=(const Point& rhs) const {
-            return !(*this == rhs);
-        }
-
-        int x;
-        int y;
-    };
-
-    class Body {
-    public:
-        Body(int x, int y) {
-            push(Point(x, y));
-        }
-
-        const Point& head() const {
-            return m_pointQueue.back();
-        }
-
-        const Point& tail() const {
-            return m_pointQueue.front();
-        }
-
-        void push(const Point& p) {
-            m_pointQueue.push(p);
-            m_pointSet.emplace(p);
-        }
-
-        void pop() {
-            m_pointSet.erase(m_pointQueue.front());
-            m_pointQueue.pop();
-        }
-
-        bool conflict(const Point& p) const {
-            return (m_pointSet.find(p) != m_pointSet.end());
-        }
-
-    private:
-        queue<Point> m_pointQueue;
-        set<Point> m_pointSet;
-    };
-
 public:
-    /** Initialize your data structure here.
-        @param width - screen width
-        @param height - screen height
-        @param food - A list of food positions
-        E.g food = [[1,1], [1,0]] means the first food is positioned at [1,1], the second is at [1,0]. */
     SnakeGame(int width, int height, vector<vector<int>>& food)
         : m_w(width)
         , m_h(height)
-        , m_body(0, 0)
+        , m_snake({{0, 0}})
         , m_score(0) {
         for (const auto& f : food) {
-            m_foods.emplace(f[1], f[0]);
+            m_foods.emplace(f[0], f[1]);
         }
     }
 
-    /** Moves the snake.
-        @param direction - 'U' = Up, 'L' = Left, 'R' = Right, 'D' = Down
-        @return The game's score after the move. Return -1 if game over.
-        Game over when snake crosses the screen boundary or bites its body. */
     int move(string direction) {
-        if (m_score < 0) {
-            return -1;
-        }
+        if (m_score < 0) { return -1; }
 
-        Point head = m_body.head();
-        switch (direction[0]) {
-            case 'L':
-                if (head.x-- == 0) {
-                    return (m_score = -1);
-                }
-                break;
-            case 'U':
-                if (head.y-- == 0) {
-                    return (m_score = -1);
-                }
-                break;
-            case 'R':
-                if ((head.x++ + 1) == m_w) {
-                    return (m_score = -1);
-                }
-
-                break;
-            case 'D':
-                if ((head.y++ + 1) == m_h) {
-                    return (m_score = -1);
-                }
-                break;
-            default:
-                assert(false);
-                break;
-        }
-
-        if (m_body.conflict(head) && head != m_body.tail()) {
+        const auto [dr, dc] = dir2drc(direction);
+        auto newHead = m_snake.back();
+        newHead.first += dr, newHead.second += dc;
+        if (newHead.first < 0 || newHead.first >= m_h || newHead.second < 0 || newHead.second >= m_w) {
             return (m_score = -1);
         }
 
-        if (!m_foods.empty() && head == m_foods.front()) {
-            m_foods.pop();
+        int newKey = pos2key(newHead);
+        if (m_keys.find(newKey) != m_keys.end() && newHead != m_snake.front()) {
+            return (m_score = -1);
+        }
+
+        if (!m_foods.empty() && newHead == m_foods.front()) {
             ++m_score;
+            m_foods.pop();
         }
         else {
-            m_body.pop();
+            m_keys.erase(pos2key(m_snake.front()));
+            m_snake.pop();
         }
-        m_body.push(head);
+        m_snake.push(newHead);
+        m_keys.insert(newKey);
 
         return m_score;
     }
 
 private:
+    static pair<int, int> dir2drc(const string& dir) {
+        switch (dir[0]) {
+        case 'L': return {0, -1};
+        case 'U': return {-1, 0};
+        case 'R': return {0, 1};
+        case 'D': return {1, 0};
+        default: assert(false); return {0, 0};
+        }
+    }
+
+    int pos2key(const pair<int, int>& pos) {
+        return pos.first * m_w + pos.second;
+    }
+
     int m_w;
     int m_h;
 
-    Body m_body;
-    int m_score;
+    queue<pair<int, int>> m_foods;
 
-    queue<Point> m_foods;
+    queue<pair<int, int>> m_snake;
+    unordered_set<int> m_keys;
+
+    int m_score;
 };
 
 /**
