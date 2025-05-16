@@ -1,28 +1,29 @@
 class Solution {
 public:
     vector<int> findEvenNumbers(vector<int>& digits) {
-        vector<int> cnts(10, 0);
+        int cnts[10];
+        std::fill(cnts, cnts + 10, 0);
         for (int d : digits) {
             ++cnts[d];
         }
 
-        vector<int> ans;
+        vector<int> ret;
+        int tmps[10];
         for (int i = 100; i <= 999; i += 2) {
-            vector<int> tmpCnts = cnts;
-            bool flag = true;
-            for (int num = i; 0 < num; num /= 10) {
+            std::fill_n(tmps, 10, 0);
+            bool ok = true;
+            for (int num = i; num; num /= 10) {
                 int d = num % 10;
-                if (tmpCnts[d]-- == 0) {
-                    flag = false;
+                if (++tmps[d] > cnts[d]) {
+                    ok = false;
                     break;
                 }
             }
-
-            if (flag) {
-                ans.push_back(i);
+            if (ok) {
+                ret.push_back(i);
             }
         }
 
-        return ans;
+        return ret;
     }
 };
