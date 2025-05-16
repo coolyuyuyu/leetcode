@@ -38,7 +38,6 @@ public:
                     ret += 'R';
                 }
             }
-
             i = j;
         }
         ret = ret.substr(1);
