@@ -15,7 +15,7 @@ public:
             }
 
             rht[r][n - 1] = (grid[r][n - 1] == 'E' ? 1 : 0);
-            for (int c = n - 1; 0 < c--;) {
+            for (int c = n - 2; c >= 0; --c) {
                 switch (grid[r][c]) {
                     case 'W': rht[r][c] = 0; break;
                     case 'E': rht[r][c] = rht[r][c + 1] + 1; break;
@@ -36,7 +36,7 @@ public:
             }
 
             btm[m - 1][c] = (grid[m - 1][c] == 'E' ? 1 : 0);
-            for (int r = m - 1; 0 < r--;) {
+            for (int r = m - 2; r >= 0; --r) {
                 switch (grid[r][c]) {
                     case 'W': btm[r][c] = 0; break;
                     case 'E': btm[r][c] = btm[r + 1][c] + 1; break;
@@ -49,21 +49,7 @@ public:
         for (int r = 0; r < m; ++r) {
             for (int c = 0; c < n; ++c) {
                 if (grid[r][c] != '0') { continue; }
-
-                int numEnemy = 0;
-                if (c > 0) {
-                    numEnemy += lft[r][c - 1];
-                }
-                if (c + 1 < n) {
-                    numEnemy += rht[r][c + 1];
-                }
-                if (r > 0) {
-                    numEnemy += top[r - 1][c];
-                }
-                if (r + 1 < m) {
-                    numEnemy += btm[r + 1][c];
-                }
-                ret = std::max(ret, numEnemy);
+                ret = std::max(ret, lft[r][c] + rht[r][c] + top[r][c] + btm[r][c]);
             }
         }
 
