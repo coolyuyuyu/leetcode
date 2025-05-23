@@ -6,7 +6,7 @@ public:
         if (a + b <= c) {
             return "none";
         }
-        else if (a == b && b == c) {
+        if (a == b && b == c) {
             return "equilateral";
         }
         else if (a == b || b == c) {
