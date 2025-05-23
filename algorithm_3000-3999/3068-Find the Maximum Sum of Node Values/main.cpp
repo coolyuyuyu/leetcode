@@ -1,19 +1,19 @@
 class Solution {
 public:
     long long maximumValueSum(vector<int>& nums, int k, vector<vector<int>>& edges) {
-        long long ret = 0;
         priority_queue<int> maxPQ;
+        long long ret = 0;
         for (int num : nums) {
             ret += num;
             maxPQ.push((num ^ k) - num);
         }
 
         while (maxPQ.size() >= 2) {
-            int diff1 = maxPQ.top(); maxPQ.pop();
-            int diff2 = maxPQ.top(); maxPQ.pop();
-            if (diff1 + diff2 <= 0) { break; }
+            int a = maxPQ.top(); maxPQ.pop();
+            int b = maxPQ.top(); maxPQ.pop();
+            if (a + b <= 0) { break; }
 
-            ret += (diff1 + diff2);
+            ret += a + b;
         }
 
         return ret;
