@@ -11,25 +11,36 @@ public:
             return graph;
         };
         vector<vector<int>> graph1(buildGraph(edges1)), graph2(buildGraph(edges2));
-        int m = graph1.size(), n = graph2.size();
+        int n = graph1.size(), m = graph2.size();
 
-        std::function<void(const vector<vector<int>>& graph, int cur, int pre, int color, vector<int>& colors)> twoColoring = [&](const vector<vector<int>>& graph, int cur, int pre, int color, vector<int>& colors) {
-            colors[cur] = color;
-            for (int nxt : graph[cur]) {
-                if (nxt == pre) { continue; }
-                twoColoring(graph, nxt, cur, 1 - color, colors);
+        std::function<void(const vector<vector<int>>&, vector<bool>&)> twoColor = [](const vector<vector<int>>& graph, vector<bool>& colors) {
+            bool color = false;
+            for (queue<pair<int, int>> q({{0, -1}}); !q.empty(); color = !color) {
+                for (int i = q.size(); 0 < i--;) {
+                    auto [cur, pre] = q.front();
+                    q.pop();
+
+                    colors[cur] = color;
+
+                    for (int nxt : graph[cur]) {
+                        if (nxt == pre) { continue; }
+                        q.emplace(nxt, cur);
+                    }
+                }
             }
         };
-        vector<int> colors1(m), colors2(n);
-        twoColoring(graph1, 0, -1, 0, colors1);
-        twoColoring(graph2, 0, -1, 0, colors2);
-        int cntColor0OfGraph1 = std::count(colors1.begin(), colors1.end(), 0), cntColor1OfGraph1 = m - cntColor0OfGraph1;
-        int cntColor0OfGraph2 = std::count(colors2.begin(), colors2.end(), 0), cntColor1OfGraph2 = n - cntColor0OfGraph2;
 
-        vector<int> ret(m);
-        for (int i = 0; i < m; ++i) {
-            ret[i] = (colors1[i] == 0 ? cntColor0OfGraph1 : cntColor1OfGraph1) + max(cntColor0OfGraph2,cntColor1OfGraph2);
-        };
+        vector<bool> colors1(n), colors2(m);
+        twoColor(graph1, colors1);
+        twoColor(graph2, colors2);
+        int cntColor0OfGraph1 = std::count(colors1.begin(), colors1.end(), false), cntColor1OfGraph1 = n - cntColor0OfGraph1;
+        int cntColor0OfGraph2 = std::count(colors2.begin(), colors2.end(), false), cntColor1OfGraph2 = m - cntColor0OfGraph2;
+
+
+        vector<int> ret(n);
+        for (int i = 0; i < n; ++i) {
+            ret[i] = (colors1[i] == false ? cntColor0OfGraph1 : cntColor1OfGraph1) + std::max(cntColor0OfGraph2, cntColor1OfGraph2);
+        }
 
         return ret;
     }
