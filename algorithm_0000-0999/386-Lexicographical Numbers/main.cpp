@@ -3,18 +3,17 @@ public:
     vector<int> lexicalOrder(int n) {
         vector<int> ret = {1};
         while (ret.size() < n) {
-            int val = ret.back();
-            if (val != 0 && val * 10 <= n) {
-                val *= 10;
+            int v = ret.back();
+            if (v * 10 <= n) {
+                v *= 10;
             }
             else {
-                while (val % 10 == 9 || val >= n) {
-                    val /= 10;
+                while (v % 10 == 9 || v >= n) {
+                    v /= 10;
                 }
-                ++val;
+                v += 1;
             }
-
-            ret.push_back(val);
+            ret.push_back(v);
         }
 
         return ret;
