@@ -6,13 +6,13 @@ public:
         std::function<bool(int)> f = [&](int maxDiff) {
             int cnt = 0;
             for (int i = 1; i < nums.size() && cnt < p; ++i) {
-                if ((nums[i] - nums[i - 1]) <= maxDiff) {
+                if (nums[i] - nums[i - 1] <= maxDiff) {
                     ++cnt;
                     ++i;
                 }
             }
 
-            return p <= cnt;
+            return cnt >= p;
         };
 
         int lo = 0, hi = nums.back() - nums.front();
