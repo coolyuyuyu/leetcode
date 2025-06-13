@@ -1,42 +1,37 @@
 class Solution {
 public:
-
     // Time: O(NlogN)
-    bool dfs(vector<int>& preorder) {
-        std::function<bool(int, int)> f = [&](int lft, int rht) {
-            if (lft >= rht) {
+    bool recursive(const vector<int>& preorder) {
+        std::function<bool(int, int)> dfs = [&](int lo, int hi) {
+            if (lo >= hi) {
                 return true;
             }
 
-            int root = preorder[lft];
-            int mid;
-            for (mid = lft + 1; mid <= rht; ++mid) {
-                if (preorder[mid] > root) {
-                    break;
-                }
+            int root = preorder[lo];
+            int mid = lo + 1;
+            while  (mid <= hi && preorder[mid] < root) {
+                ++mid;
             }
-            for (int i = mid; i <= rht; ++i) {
+
+            for (int i = mid + 1; i <= hi; ++i) {
                 if (preorder[i] < root) {
-                    return false;;
+                    return false;
                 }
             }
 
-            return f(lft + 1, mid - 1) && f(mid, rht);
+            return dfs(lo + 1, mid - 1) && dfs(mid, hi);
         };
 
-        return f(0, preorder.size() - 1);
+        return dfs(0, preorder.size() - 1);
     }
 
     // Time: O(N)
-    bool linear(vector<int>& preorder) {
-        int root = INT_MIN;
+    bool iterative(const vector<int>& preorder) {
         stack<int> stk;
+        int root = INT_MIN;
         for (int val : preorder) {
-            if (val < root) {
-                return false;
-            }
-
-            while (!stk.empty() && val > stk.top()) {
+            if (val < root) { return false; }
+            while (!stk.empty() && val > stk.top()  ) {
                 root = stk.top();
                 stk.pop();
             }
@@ -47,7 +42,7 @@ public:
     }
 
     bool verifyPreorder(vector<int>& preorder) {
-        //return dfs(preorder);
-        return linear(preorder);
+        //return recursive(preorder);
+        return iterative(preorder);
     }
 };
