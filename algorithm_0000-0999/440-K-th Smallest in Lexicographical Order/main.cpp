@@ -1,32 +1,30 @@
 class Solution {
 public:
     int findKthNumber(int n, int k) {
-        std::function<int(int)> countNumberBeginWith = [&](int prefix){
-            int cnt = 0;
+        std::function<int(int)> countNumbersStartWith = [&](int prefix){
+            int ret = 0;
             for (int exp = 10; true; exp *= 10) {
-                long lower = 1L * prefix * exp, upper = 1L * prefix * exp + (exp - 1);
-                if (lower > n) {
+                long lo = 1L * prefix * exp, hi = 1L * prefix * exp + (exp - 1);
+                if (n < lo) {
                     break;
                 }
 
-                if (lower <= n && n < upper) {
-                    cnt += n - lower + 1;
+                if (lo <= n && n <= hi) {
+                    ret += n - lo + 1;
                 }
                 else {
-                    cnt += exp;
+                    ret += exp;
                 }
             }
-            return cnt;
+            return ret;
         };
 
-        std::function<int(int, int)> findKthNumberBeginWith = [&](int prefix, int k) {
-            if (k == 0) {
-                return prefix;
-            }
+        std::function<int(int, int)> findKthNumberStartWith = [&](int prefix, int k) {
+            if (k == 0) { return prefix; }
 
-            int i = (prefix == 0 ? 1 : 0);
-            for (; i <= 9; ++i) {
-                int cnt = 1 + countNumberBeginWith(prefix * 10 + i);
+            int d = (prefix == 0 ? 1 : 0);
+            for (; d <= 9; ++d) {
+                int cnt = 1 + countNumbersStartWith(prefix * 10 + d);
                 if (cnt < k) {
                     k -= cnt;
                 }
@@ -34,10 +32,9 @@ public:
                     break;
                 }
             }
-
-            return findKthNumberBeginWith(prefix * 10 + i, k - 1);
+            return findKthNumberStartWith(prefix * 10 + d, k - 1);
         };
 
-        return findKthNumberBeginWith(0, k);
+        return findKthNumberStartWith(0, k);
     }
 };
