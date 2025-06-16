@@ -1,14 +1,12 @@
 class Solution {
 public:
     int maximumDifference(vector<int>& nums) {
-        assert(!nums.empty());
-
-        int minNum = nums[0], maxDiff = -1;
-        for (size_t i = 1; i < nums.size(); ++i) {
-            maxDiff = max(maxDiff, nums[i] - minNum);
-            minNum = min(minNum, nums[i]);
+        int ret = -1;
+        for (int minNum = nums[0], i = 1, n = nums.size(); i < n; ++i) {
+            ret = std::max(ret, (nums[i] == minNum ? -1 : nums[i] - minNum));
+            minNum = std::min(minNum, nums[i]);
         }
 
-        return maxDiff == 0 ? -1: maxDiff;
+        return ret;
     }
 };
