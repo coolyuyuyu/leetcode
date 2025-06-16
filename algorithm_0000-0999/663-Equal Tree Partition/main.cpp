@@ -11,64 +11,30 @@
  */
 class Solution {
 public:
-    int sum_Recursive(TreeNode* root, vector<int>& sums) {
-        if (!root) {
-            return 0;
-        }
-
-        int sum = sum_Recursive(root->left, sums) + root->val + sum_Recursive(root->right, sums);
-        sums.push_back(sum);
-        return sum;
-    }
-
-    int sum_Iterative(TreeNode* root, vector<int>& sums) {
-        unordered_map<TreeNode*, int> m; // <tree, sum>
-
-        // postorder traversal
-        stack<pair<TreeNode*, bool>> stk; // <node, visited>
-        if (root) {
-            stk.emplace(root, false);
-        }
-        while (!stk.empty()) {
-            TreeNode* node = stk.top().first;
-            bool visited = stk.top().second;
-            stk.pop();
-
-            if (visited) {
-                int lftSum = (node->left ? m[node->left] : 0);
-                int rhtSum = (node->right ? m[node->right] : 0);
-                int sum = lftSum + node->val + rhtSum;
-
-                sums.push_back(sum);
-                m[node] = sum;
-            }
-            else {
-                stk.emplace(node, true);
-                if (node->right) {
-                    stk.emplace(node->right, false);
-                }
-                if (node->left) {
-                    stk.emplace(node->left, false);
-                }
-            }
-        }
-
-        return m[root];
-    }
-
     bool checkEqualTree(TreeNode* root) {
-        vector<int> sums;
+        std::function<int(TreeNode*)> sumTree = [&](TreeNode* root) {
+            if (!root) { return 0; }
+            return sumTree(root->left) + root->val + sumTree(root->right);
+        };
+        int sum = sumTree(root);
+        if (sum & 1) { return false; }
 
-        int sum = sum_Recursive(root, sums);
-        //int sum = sum_Iterative(root, sums);
+        bool found = false;
+        int target = sum / 2;
 
-        sums.pop_back();
+        std::function<int(TreeNode*)> checkTree = [&](TreeNode* node) {
+            if (found) { return 0; }
+            if (!node) { return 0; }
 
-        if (sum % 2 == 0) { // even
-            return (find(sums.begin(), sums.end(), sum / 2) != sums.end());
-        }
-        else { //odd
-            return false;
-        }
+            int ret = checkTree(node->left) + node->val + checkTree(node->right);
+            if (ret == target && node != root) {
+                found = true;
+            }
+
+            return ret;
+        };
+        checkTree(root);
+        
+        return found;
     }
 };
