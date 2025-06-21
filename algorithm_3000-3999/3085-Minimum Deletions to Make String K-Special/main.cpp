@@ -7,12 +7,12 @@ public:
         }
 
         int ret = INT_MAX;
-        unordered_set<int> minCnts(cnts.begin(), cnts.end());
-        for (int minCnt : minCnts) {
+        for (int minFreq : cnts) {
             int x = 0;
-            for (int cnt : cnts) {
-                x += cnt < minCnt ? cnt : std::max(0, (cnt - minCnt - k));
+            for (int freq : cnts) {
+                x += (freq < minFreq ? freq: std::max(freq - minFreq - k, 0));
             }
+
             ret = std::min(ret, x);
         }
 
