@@ -1,19 +1,18 @@
 class Solution {
 public:
     vector<int> maxSubsequence(vector<int>& nums, int k) {
-        assert(0 < k);
+        vector<int> tmps(nums);
+        std::nth_element(tmps.begin(), tmps.begin() + k - 1, tmps.end(), std::greater<int>());
+        int pivot = tmps[k - 1];
+        int cnt = std::count(tmps.begin(), tmps.begin() + k, pivot);
 
-        vector<int> tmp(nums);
-        std::nth_element(tmp.begin(), tmp.begin() + k - 1, tmp.end(), std::greater<int>());
-        int cnt = std::count(tmp.begin(), tmp.begin() + k, tmp[k - 1]);
-
-        vector<int> ans;
+        vector<int> ret;
         for (int num : nums) {
-            if (tmp[k - 1] < num || (tmp[k - 1] == num && 0 < cnt--)) {
-                ans.push_back(num);
+            if (num > pivot || (num == pivot && cnt-- > 0)) {
+                ret.push_back(num);
             }
         }
 
-        return ans;
+        return ret;
     }
 };
