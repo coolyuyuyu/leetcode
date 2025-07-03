@@ -25,52 +25,47 @@ public:
 class Solution {
 public:
     Node* append(Node* l1, Node* l2) {
-        if (l1 && l2) {
-            swap(l1->left->right, l2->left->right);
-            swap(l1->left, l2->left);
-            return l1;
-        }
-        else {
-            return (l1 ? l1 : l2);
-        }
+        if (!l1 || !l2) { return l1 ? l1 : l2; }
+
+        std::swap(l1->left->right, l2->left->right);
+        std::swap(l1->left, l2->left);
+
+        return l1;
+    };
+
+    Node* recursive(Node* root) {
+
+        std::function<Node*(Node*)> f = [&](Node* node) -> Node* {
+            if (!node) { return nullptr; }
+
+            Node* lft = f(node->left);
+            Node* rht = f(node->right);
+            node->left = node->right = node;
+
+            return append(append(lft, node), rht);
+        };
+        return f(root);
     }
 
-    Node* treeToDoublyList_Recursive(Node* root) {
-        if (!root) {
-            return nullptr;
-        }
-
-        Node* lft = treeToDoublyList_Recursive(root->left);
-        Node* rht = treeToDoublyList_Recursive(root->right);
-        root->left = root->right = root;
-        return append(append(lft, root), rht);
-    }
-
-    Node* treeToDoublyList_Iterative(Node* root) {
+    Node* iterative(Node* root) {
         Node* head = nullptr;
 
         // inorder traversal
-        stack<pair<Node*, bool>> stk;
-        if (root) {
-            stk.emplace(root, nullptr);
-        }
+        stack<pair<Node*, bool>> stk({{root, false}});
         while (!stk.empty()) {
-            Node* node = stk.top().first;
-            bool visited = stk.top().second;
+            auto [node, visited] = stk.top();
             stk.pop();
+
+            if (!node) { continue; }
 
             if (visited) {
                 node->left = node->right = node;
                 head = append(head, node);
             }
             else {
-                if (node->right) {
-                    stk.emplace(node->right, false);
-                }
+                stk.emplace(node->right, false);
                 stk.emplace(node, true);
-                if (node->left) {
-                    stk.emplace(node->left, false);
-                }
+                stk.emplace(node->left, false);
             }
         }
 
@@ -78,7 +73,7 @@ public:
     }
 
     Node* treeToDoublyList(Node* root) {
-        //return treeToDoublyList_Recursive(root);
-        return treeToDoublyList_Iterative(root);
+        //return recursive(root);
+        return iterative(root);
     }
 };
