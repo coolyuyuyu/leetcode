@@ -1,17 +1,18 @@
 class Solution {
 public:
     int findLucky(vector<int>& arr) {
-        vector<int> counts(502, 0);
+        unordered_map<int, int> cnts;
         for (int num : arr) {
-            ++counts[num];
+            ++cnts[num];
         }
 
-        for (int i = counts.size() - 1; 0 < i; --i) {
-            if (i == counts[i]) {
-                return i;
+        int ret = -1;
+        for (const auto& [num, cnt] : cnts) {
+            if (num == cnt) {
+                ret = std::max(ret, num);
             }
         }
 
-        return -1;
+        return ret;
     }
 };
