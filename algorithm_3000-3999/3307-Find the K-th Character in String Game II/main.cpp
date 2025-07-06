@@ -1,25 +1,23 @@
 class Solution {
 public:
     char kthCharacter(long long k, vector<int>& operations) {
-        --k;
-
-        int step = 0;
         long long n = 1;
-        while (n <= k) {
+        int steps = 0;
+        while (n < k) {
             n *= 2;
-            ++step;
+            ++steps;
         }
 
         int shift = 0;
-        for (int i = step; 0 < i--; n /= 2) {
-            if (k >= n / 2) {
-                k -= n / 2;
+        for (int i = steps - 1; i >= 0; --i, n /= 2) {
+            if (k > n / 2) {
+                k = k - n / 2;
                 if (operations[i] == 1) {
                     ++shift;
                 }
             }
         }
 
-        return 'a' + shift % 26;
+        return 'a' + (shift % 26);
     }
 };
