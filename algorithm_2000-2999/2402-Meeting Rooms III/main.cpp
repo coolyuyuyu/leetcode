@@ -1,38 +1,37 @@
 class Solution {
 public:
     int mostBooked(int n, vector<vector<int>>& meetings) {
-        sort(meetings.begin(), meetings.end(), [](const auto& m1, const auto& m2){ return m1[0] < m2[0]; });
+        std::sort(meetings.begin(), meetings.end());
 
-        priority_queue<pair<long, int>, vector<pair<long, int>>, std::greater<pair<long, int>>> busyPQ; // <endTtime, idx>
-        priority_queue<int, vector<int>, std::greater<int>> freePQ; // idx
+        priority_queue<int, vector<int>, std::greater<>> freePQ;
         for (int i = 0; i < n; ++i) {
             freePQ.push(i);
         }
+        priority_queue<pair<long, int>, vector<pair<long, int>>, std::greater<>> busyPQ;
 
-        int cnts[n];
-        std::fill(cnts, cnts + n, 0);
-        for (int i = 0; i < meetings.size(); ++i) {
-            int start = meetings[i][0], end = meetings[i][1];
-            while (!busyPQ.empty() && busyPQ.top().first <= start) {
-                freePQ.push(busyPQ.top().second);
+        vector<int> cnts(n, 0);
+        for (const auto& meeting : meetings) {
+            int bgn = meeting[0], end = meeting[1];
+            while (!busyPQ.empty() && busyPQ.top().first <= bgn) {
+                auto [_, i] = busyPQ.top();
                 busyPQ.pop();
+                freePQ.push(i);
             }
 
-            if (freePQ.empty()) {
-                auto [time, idx] = busyPQ.top();
-                busyPQ.pop();
-
-                ++cnts[idx];
-                busyPQ.emplace(time + end - start, idx);
+            if (!freePQ.empty()) {
+                int i = freePQ.top();
+                freePQ.pop();
+                ++cnts[i];
+                busyPQ.emplace(end, i);
             }
             else {
-                int idx = freePQ.top();
-                freePQ.pop();
-                ++cnts[idx];
-                busyPQ.emplace(end, idx);
+                auto [t, i] = busyPQ.top();
+                busyPQ.pop();
+                busyPQ.emplace(t + end - bgn, i);
+                ++cnts[i];
             }
         }
 
-        return std::max_element(cnts, cnts + n) - cnts;
+        return std::distance(cnts.begin(), std::max_element(cnts.begin(), cnts.end()));
     }
 };
