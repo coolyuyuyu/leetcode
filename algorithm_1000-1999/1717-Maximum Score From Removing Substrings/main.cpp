@@ -1,14 +1,14 @@
 class Solution {
 public:
     int maximumGain(string s, int x, int y) {
-        if (x < y) {
+        if (y > x) {
             std::reverse(s.begin(), s.end());
             std::swap(x, y);
         }
 
         int ret = 0;
-
         string t;
+
         for (char c : s) {
             if (c == 'b' && !t.empty() && t.back() == 'a') {
                 t.pop_back();
@@ -19,14 +19,15 @@ public:
             }
         }
 
-        string u;
-        for (char c : t) {
-            if (c == 'a' && !u.empty() && u.back() == 'b') {
-                u.pop_back();
+        s = t;
+        t.clear();
+        for (char c : s) {
+            if (c == 'a' && !t.empty() && t.back() == 'b') {
+                t.pop_back();
                 ret += y;
             }
             else {
-                u.push_back(c);
+                t.push_back(c);
             }
         }
 
