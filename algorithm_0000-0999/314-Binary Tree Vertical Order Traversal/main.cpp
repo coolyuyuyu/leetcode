@@ -13,20 +13,19 @@ class Solution {
 public:
     vector<vector<int>> verticalOrder(TreeNode* root) {
         map<int, vector<int>> m;
-        queue<pair<TreeNode*, int>> q;
-        q.emplace(root, 0);
-        while (!q.empty()) {
-            auto [node, index] = q.front();
+        for (queue<pair<TreeNode*, int>> q({{root, 0}}); !q.empty();) {
+            auto [node, c] = q.front();
             q.pop();
             if (!node) { continue; }
 
-            m[index].push_back(node->val);
-            q.emplace(node->left, index - 1);
-            q.emplace(node->right, index + 1);
+            m[c].push_back(node->val);
+
+            q.emplace(node->left, c - 1);
+            q.emplace(node->right, c + 1);
         }
 
         vector<vector<int>> ret;
-        for (const auto& [_, nums] : m) {
+        for (const auto& [c, nums] : m) {
             ret.push_back(nums);
         }
 
