@@ -165,10 +165,12 @@ private:
         }
         else {
             size_type m = l + (h - l) / 2;
-            if (hi < l || m < lo) {
+            assert(!(hi < l));
+            assert(!(h < lo));
+            if (m < lo) {
                 return query(m + 1, h, rht(i), lo, hi);
             }
-            else if (hi < m + 1 || h < lo) {
+            else if (hi <= m) {
                 return query(l, m, lft(i), lo, hi);
             }
             else {
