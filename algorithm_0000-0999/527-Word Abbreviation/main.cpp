@@ -1,29 +1,37 @@
 class Solution {
 public:
     vector<string> wordsAbbreviation(vector<string>& words) {
-        vector<int> pending(words.size());
-        std::iota(pending.begin(), pending.end(), 0);
+        int n = words.size();
 
-        vector<string> ret(words.size());
-        for (int level = 1; !pending.empty(); ++level) {
-            unordered_map<string, vector<int>> abbr2Indexes;
-            for (int idx : pending) {
-                string abbr = words[idx].substr(0, level) + std::to_string(words[idx].size() - level - 1) + words[idx].back();
-                if (words[idx].size() <= abbr.size()) {
-                    ret[idx] = words[idx];
+        queue<int> pendings;
+        for (int i = 0; i < n; ++i) {
+            pendings.push(i);
+        }
+
+        vector<string> ret(n);
+        for (int lvl = 1; !pendings.empty(); ++lvl) {
+            unordered_map<string, vector<int>> abbr2indexes;
+            while (!pendings.empty()) {
+                int i = pendings.front();
+                pendings.pop();
+                const string& word = words[i];
+                if (word.size() - lvl - 1 >= 2) {
+                    string abbr = word.substr(0, lvl) + std::to_string(word.size() - lvl - 1) + word.back();
+                    abbr2indexes[abbr].push_back(i);
                 }
                 else {
-                    abbr2Indexes[abbr].push_back(idx);
+                    ret[i] = words[i];
                 }
             }
-            pending.clear();
 
-            for (const auto& [abbr, indexes] : abbr2Indexes) {
+            for (const auto& [abbr, indexes] : abbr2indexes) {
                 if (indexes.size() == 1) {
                     ret[indexes[0]] = abbr;
                 }
                 else {
-                    pending.insert(pending.end(), indexes.begin(), indexes.end());
+                    for (int i : indexes) {
+                        pendings.push(i);
+                    }
                 }
             }
         }
