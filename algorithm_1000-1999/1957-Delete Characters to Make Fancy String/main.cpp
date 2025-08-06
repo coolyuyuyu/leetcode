@@ -3,13 +3,12 @@ public:
     string makeFancyString(string s) {
         string ret;
         for (int i = 0, cnt = 0; i < s.size(); ++i) {
-            if (ret.empty() || ret.back() != s[i]) {
-                ret += s[i];
-                cnt = 1;
+            if (i == 0 || s[i] != ret.back()) {
+                cnt = 0;
             }
-            else if (cnt < 2){
-                ret += s[i];
-                ++cnt;
+            ++cnt;
+            if (cnt <= 2) {
+                ret.push_back(s[i]);
             }
         }
 
