@@ -1,23 +1,23 @@
 class Solution {
 public:
-    vector<vector<int>> dynamic_programing(int numRows) {
-        vector<vector<int>> dp(numRows);
+    vector<vector<int>> byDP(int numRows) {
+        vector<vector<int>> ret(numRows);
         for (int r = 0; r < numRows; ++r) {
-            dp[r].resize(r + 1);
+            ret[r].resize(r + 1);
             for (int c = 0; c < (r / 2 + 1); ++c) {
                 if (c == 0) {
-                    dp[r][c] = dp[r][r - c] = 1;
+                    ret[r][c] = ret[r][r - c] = 1;
                 }
                 else {
-                    dp[r][c] = dp[r][r - c] = dp[r - 1][c - 1] + dp[r - 1][c];
+                    ret[r][c] = ret[r][r - c] = ret[r - 1][c - 1] + ret[r - 1][c];
                 }
             }
         }
 
-        return dp;
+        return ret;
     }
 
-    vector<vector<int>> math(int numRows) {
+    vector<vector<int>> byMath(int numRows) {
         vector<vector<int>> ret(numRows);
         for (int r = 0; r < numRows; ++r) {
             ret[r].resize(r + 1);
@@ -35,7 +35,7 @@ public:
     }
 
     vector<vector<int>> generate(int numRows) {
-        return dynamic_programing(numRows);
-        //return math(numRows);
+        //return byDP(numRows);
+        return byMath(numRows);
     }
 };
