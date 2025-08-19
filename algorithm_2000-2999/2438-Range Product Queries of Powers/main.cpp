@@ -4,37 +4,34 @@ public:
 
     vector<int> productQueries(int n, vector<vector<int>>& queries) {
         vector<int> exps;
-        for (int i = 0; n; ++i, n /= 2) {
-            if (n % 2) {
+        for (int i = 0; n; ++i, n >>= 1) {
+            if (n & 1) {
                 exps.push_back(i);
             }
         }
-        vector<int> presum(exps.size());
-        std::partial_sum(exps.begin(), exps.end(), presum.begin());
 
-        vector<int> powers(32 * 32);
-        powers[0] = 1;
-        for (size_t i = 1; i < powers.size(); ++i) {
-            powers[i] = (powers[i - 1] * 2) % M;
-        }
+        vector<int> presums(exps.size());
+        std::partial_sum(exps.begin(), exps.end(), presums.begin());
 
-
-        vector<int> answers(queries.size(), 1);
-        for (size_t i = 0; i < queries.size(); ++i) {
-            int exp = presum[queries[i][1]];
-            if (0 < queries[i][0]) {
-                exp -= presum[queries[i][0] - 1];
+        std::function<int(int, int)> quickPow = [&](int base, int exp) {
+            int ret = 1;
+            for (; exp; exp >>= 1) {
+                if (exp & 1) {
+                    ret = (1L * ret * base) % M;
+                }
+                base = (1L * base * base) % M;
             }
+            return ret;
+        };
 
-            answers[i] = powers[exp];
+        int m = queries.size();
+        vector<int> ret(m);
+        for (int i = 0; i < m; ++i) {
+            int lft = queries[i][0], rht = queries[i][1];
+            int exp = presums[rht] - (lft > 0 ? presums[lft - 1] : 0);
+            ret[i] = quickPow(2, exp);
         }
 
-        return answers;
+        return ret;
     }
 };
-
-// 11 =   1 +   2 +   8
-//    = 2^0 + 2^1 + 2^3
-
-// maximal n: 0111111....1
-// product of all powers of 2: 0 + 1 + 2 + ... + 30 = (0 + 30) * (31) / 2
