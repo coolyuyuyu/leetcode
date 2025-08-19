@@ -4,7 +4,7 @@ public:
         int m = mat.size(), n = mat.empty() ? 0 : mat[0].size();
 
         vector<int> indexes(m, 0);
-        int ret = -1;
+        int ret = INT_MIN;
         for (int r = 0, cnt = 0; cnt < m; r = (r + 1) % m) {
             while (indexes[r] < n && mat[r][indexes[r]] < ret) {
                 ++indexes[r];
@@ -18,7 +18,7 @@ public:
             }
             else {
                 ret = mat[r][indexes[r]];
-                cnt = 1; 
+                cnt =1;
             }
         }
 
