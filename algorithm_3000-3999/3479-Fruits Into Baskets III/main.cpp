@@ -138,7 +138,7 @@ private:
 
 class Solution {
 public:
-    int numOfUnplacedFruits(vector<int>& fruits, vector<int>& baskets) {
+    int bySegmentTree(vector<int>& fruits, vector<int>& baskets) {
         baskets.push_back(INT_MAX);
         MaxSegmentTree<int> mst(baskets.begin(), baskets.end());
 
@@ -154,5 +154,47 @@ public:
         }
 
         return ret;
+    }
+
+    int bySquareDecomposition(vector<int>& fruits, vector<int>& baskets) {
+        int n = baskets.size();
+        int bucketSize = std::sqrt(n);
+        int bucketCnt = (n + bucketSize - 1) / bucketSize;
+
+        vector<int> mxVals(bucketCnt, 0);
+        for (int i = 0; i < n; ++i) {
+            mxVals[i / bucketSize] = std::max(mxVals[i / bucketSize], baskets[i]);
+        }
+
+        int ret = 0;
+        for (int fruit : fruits) {
+            auto itr = std::find_if(mxVals.begin(), mxVals.end(), [&](int mxVal){ return mxVal >= fruit; });
+            if (itr == mxVals.end()) {
+                ++ret;
+                continue;
+            }
+
+            int bucketIdx = std::distance(mxVals.begin(), itr);
+            mxVals[bucketIdx] = 0;
+
+            int bgn = bucketIdx * bucketSize;
+            int end = (bucketIdx + 1 < bucketCnt) ? ((bucketIdx + 1) * bucketSize) : (n);
+            for (int i = bgn, chosen = 0; i < end; ++i) {
+                if (baskets[i] >= fruit && chosen == 0) {
+                    baskets[i] = 0;
+                    chosen = 1;
+                }
+                else {
+                    mxVals[bucketIdx] = std::max(mxVals[bucketIdx], baskets[i]);
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    int numOfUnplacedFruits(vector<int>& fruits, vector<int>& baskets) {
+        //return bySegmentTree(fruits, baskets);
+        return bySquareDecomposition(fruits, baskets);
     }
 };
