@@ -2,47 +2,51 @@ class Solution {
 public:
     int M = 1e9 + 7;
 
-    int recursion(int n, int x) {
+    int quickPow(int base, int exp) {
+        int ret = 1;
+        for (; exp; exp >>= 1) {
+            if (exp & 1) {
+                ret = (1L * ret * base) % M;
+            }
+            base = (1L * base * base) % M;
+        }
+        return ret;
+    };
+
+    int topdnDP1(int n, int x) {
         vector<int> nums;
         for (int i = 1; true; ++i) {
-            int num = 1;
-            for (int j = 0; j < x; ++j) {
-                num *= i;
-            }
-            if (n < num) {
-                break;
-            }
+            int num = quickPow(i, x);
+            if (num > n) { break; }
             nums.push_back(num);
         }
         std::reverse(nums.begin(), nums.end());
         int m = nums.size();
 
-        int cache[m][n + 1];
+        int dp[m][n + 1];
         for (int i = 0; i < m; ++i) {
-            for (int j = 0; j <= n; ++j) {
-                cache[i][j] = -1;
+            for (int s = 0; s <= n; ++s) {
+                dp[i][s] = -1;
             }
         }
 
-        // f(i, j): the number of ways to construct sum j from first i nums
-        std::function<int(int, int)> f = [&](int i, int j) -> int {
-            if (j == 0) {
+        // f(i, s): the number of ways s can be expressed as the sum of nums[i:m-1]
+        std::function<int(int, int)> f = [&](int i, int s) {
+            if (s == 0) {
                 return 1;
             }
-            if (m <= i) {
+            else if (i >= m) {
                 return 0;
             }
 
-            int& ret = cache[i][j];
-            if (0 <= ret) {
+            int& ret = dp[i][s];
+            if (ret >= 0) {
                 return ret;
             }
-            ret = 0;
 
-            ret += f(i + 1, j);
-            ret %= M;
-            if (nums[i] <= j) {
-                ret += f(i + 1, j - nums[i]);
+            ret = f(i + 1, s);
+            if (nums[i] <= s) {
+                ret += f(i + 1, s - nums[i]);
                 ret %= M;
             }
 
@@ -53,72 +57,61 @@ public:
     }
 
     // Space: O(n^2)
-    int dp1(int n, int x) {
+    int btmupDP1(int n, int x) {
         vector<int> nums;
         for (int i = 1; true; ++i) {
-            int num = 1;
-            for (int j = 0; j < x; ++j) {
-                num *= i;
-            }
-            if (n < num) {
-                break;
-            }
+            int num = quickPow(i, x);
+            if (num > n) { break; }
             nums.push_back(num);
         }
         int m = nums.size();
-
         nums.insert(nums.begin(), 0);
 
-        // dp[i][j]: the number of ways to construct sum j from nums[1:i]
+        // dp[i][s]: the number of ways s can be expressed as the sum of nums[1:i]
         int dp[m + 1][n + 1];
         dp[0][0] = 1;
         for (int i = 1; i <= m; ++i) {
             dp[i][0] = 1;
         }
-        for (int j = 1; j <= n; ++j) {
-            dp[0][j] = 0;
+        for (int s = 1; s <= n; ++s) {
+            dp[0][s] = 0;
         }
         for (int i = 1; i <= m; ++i) {
-            for (int j = 1; j <= n; ++j) {
-                dp[i][j] = dp[i - 1][j];
-                if (nums[i] <= j) {
-                    dp[i][j] += dp[i - 1][j - nums[i]];
-                    dp[i][j] %= M;
+            for (int s = 1; s <= n; ++s) {
+                dp[i][s] = dp[i - 1][s];
+                if (nums[i] <= s) {
+                    dp[i][s] += dp[i - 1][s - nums[i]];
+                    dp[i][s] %= M;
                 }
             }
         }
 
-        return dp[nums.size() - 1][n];
+        return dp[m][n];
     }
 
     // Space: O(n)
-    int dp2(int n, int x) {
+    int btmupDP2(int n, int x) {
         vector<int> nums;
         for (int i = 1; true; ++i) {
-            int num = 1;
-            for (int j = 0; j < x; ++j) {
-                num *= i;
-            }
-            if (n < num) {
-                break;
-            }
+            int num = quickPow(i, x);
+            if (num > n) { break; }
             nums.push_back(num);
         }
         int m = nums.size();
-
         nums.insert(nums.begin(), 0);
 
-        // dp[j]: the number of ways to construct sum j
+        // dp[i][s]: the number of ways s can be expressed as the sum of nums[1:i]
         int dp[n + 1];
         dp[0] = 1;
-        for (int j = 1; j <= n; ++j) {
-            dp[j] = 0;
+        for (int s = 1; s <= n; ++s) {
+            dp[s] = 0;
         }
+
         for (int i = 1; i <= m; ++i) {
-            for (int j = n; 1 <= j; --j) {
-                if (nums[i] <= j) {
-                    dp[j] += dp[j - nums[i]];
-                    dp[j] %= M;
+            for (int s = n; s >= 1; --s) {
+                if (nums[i] <= s) {
+                    dp[s] += dp[s - nums[i]];
+                    dp[s] %= M;
                 }
             }
         }
@@ -127,8 +120,8 @@ public:
     }
 
     int numberOfWays(int n, int x) {
-        return recursion(n, x);
-        //return dp1(n, x);
-        //return dp2(n, x);
+        return topdnDP1(n, x);
+        //return btmupDP1(n, x);
+        //return btmupDP2(n, x);
     }
 };
