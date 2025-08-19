@@ -2,16 +2,15 @@ class Solution {
 public:
     long long zeroFilledSubarray(vector<int>& nums) {
         long long ret = 0;
-        int count = 0;
+        int cnt0 = 0;
         for (int num : nums) {
             if (num == 0) {
-                ++count;
+                ++cnt0;
             }
             else {
-                count = 0;
+                cnt0 = 0;
             }
-
-            ret += count;
+            ret += cnt0;
         }
 
         return ret;
