@@ -1,23 +1,21 @@
 class Solution {
 public:
     int numberOfPairs(vector<vector<int>>& points) {
+        auto comp = [](const vector<int>& p1, const vector<int>& p2) {
+            int x1 = p1[0], y1 = p1[1];
+            int x2 = p2[0], y2 = p2[1];
+            return x1 < x2 || (x1 == x2 && y1 > y2);
+        };
+        std::sort(points.begin(), points.end(), comp);
+
         int n = points.size();
-
-        std::sort(
-            points.begin(), points.end(),
-            [](const auto& p1, const auto& p2) {
-                return (p1[0] < p2[0]) || (p1[0] == p2[0] && p1[1] > p2[1]);
-            }
-        );
-
         int ret = 0;
         for (int i = 0; i < n; ++i) {
-            int lo = INT_MIN, hi = points[i][1];
+            int yLo = INT_MIN, yHi = points[i][1];
             for (int j = i + 1; j < n; ++j) {
-                if (lo < points[j][1] && points[j][1] <= hi) {
+                if (yHi >= points[j][1] && points[j][1] > yLo) {
+                    yLo = points[j][1];
                     ++ret;
-
-                    lo = points[j][1];
                 }
             }
         }
