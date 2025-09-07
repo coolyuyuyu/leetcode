@@ -1,35 +1,22 @@
 class Solution {
 public:
-    vector<int> findDiagonalOrder(vector<vector<int>>& matrix) {
-        int xLen = matrix.size(), yLen = matrix.empty() ? 0 : matrix.front().size();
-
-        vector<int> nums(xLen * yLen);
-        size_t index = 0;
-        for (int x = 0, y = 0, dx = -1, dy = 1; index < nums.size(); dx = -dx, dy = -dy) {
-            for (; 0 <= x && x < xLen && 0 <= y && y < yLen; x += dx, y += dy) {
-                nums[index++] = matrix[x][y];
-            }
-            x -= dx, y -= dy;
-
-            if (dx == -1) {
-                if (y + 1 < yLen) {
-                    y += 1;
-                }
-                else {
-                    x += 1;
-                }
+    vector<int> findDiagonalOrder(vector<vector<int>>& mat) {
+        int m = mat.size(), n = mat.empty() ? 0 : mat[0].size();
+        vector<int> ret(m * n);
+        for (int i = 0, r = 0, c = 0; i < ret.size(); ++i) {
+            ret[i] = mat[r][c];
+            if ((r + c) & 1) {
+                if (r + 1 == m) { ++c; }
+                else if (c == 0) { ++r; }
+                else { ++r, --c; }
             }
             else {
-                assert(dx == 1);
-                if (x + 1 < xLen) {
-                    x += 1;
-                }
-                else {
-                    y += 1;
-                }
+                if (c + 1 == n) { ++r; }
+                else if (r == 0) { ++c; }
+                else { --r, ++c; }
             }
         }
 
-        return nums;
+        return ret;
     }
 };
