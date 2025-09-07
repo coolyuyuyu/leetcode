@@ -1,55 +1,47 @@
 class Solution {
 public:
-    bool checkSudokuAllowable(const vector<vector<char>>& board, size_t index, char ch) {
-        size_t row = index / 9, col = index % 9;
-
-        for (size_t r = 0; r < 9; ++r) {
-            if (board[r][col] == ch) {
-                return false;
-            }
-        }
-
-        for (size_t c = 0; c < 9; ++c) {
-            if (board[row][c] == ch) {
-                return false;
-            }
-        }
-
-        for (size_t i = 0, r = row - row % 3; i < 3; ++i) {
-            for (size_t j = 0, c = col - col % 3; j < 3; ++j) {
-                if (board[r + i][c + j] == ch) {
+    void solveSudoku(vector<vector<char>>& board) {
+        std::function<bool(int, int, char)> checkOk = [&](int r, int c, char d) {
+            for (int i = 0; i < 9; ++i) {
+                if (board[r][i] == d) {
+                    return false;
+                }
+                if (board[i][c] == d) {
                     return false;
                 }
             }
-        }
 
-        return true;
-    }
-
-    bool solveSudokuRecv(vector<vector<char>>& board, size_t index) {
-        if (81 <= index) {
-            return true;
-        }
-
-        size_t row = index / 9, col = index % 9;
-        if (board[row][col] != '.') {
-            return solveSudokuRecv(board, index + 1);
-        }
-
-        for (char ch = '1'; ch <= '9'; ++ch) {
-            if (checkSudokuAllowable(board, index, ch)) {
-                board[row][col] = ch;
-                if (solveSudokuRecv(board, index + 1)) {
-                    return true;
+            int i1 = r - r % 3, i2 = i1 + 2;
+            int j1 = c - c % 3, j2 = j1 + 2;
+            for (int i = i1; i <= i2; ++i) {
+                for (int j = j1; j <= j2; ++j) {
+                    if (board[i][j] == d) {
+                        return false;
+                    }
                 }
-                board[row][col] = '.';
             }
-        }
 
-        return false;
-    }
+            return true;
+        };
 
-    void solveSudoku(vector<vector<char>>& board) {
-        solveSudokuRecv(board, 0);
+        std::function<bool(int, int)> dfs = [&](int r, int c) {
+            if (r == 9) { return true; }
+            if (c == 9) { return dfs(r + 1, 0); }
+            if (board[r][c] != '.') { return dfs(r, c + 1); }
+
+            for (char d = '1'; d <= '9'; ++d) {
+                if (checkOk(r, c, d)) {
+                    board[r][c] = d;
+                    if (dfs(r, c + 1)) {
+                        return true;
+                    }
+                    board[r][c] = '.';
+                }
+            }
+
+            return false;
+        };
+
+        dfs(0, 0);
     }
 };
