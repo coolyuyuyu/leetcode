@@ -1,27 +1,20 @@
 class Solution {
 public:
     int numberOfPairs(vector<vector<int>>& points) {
-        int n = points.size();
-
-        int ret = 0;
-        std::function<bool(int, int, int, int, int, int)> checkOk = [&](int e1, int e2, int l, int r, int b, int t) {
-            for (int i = 0; i < n; ++i) {
-                if (i == e1 || i == e2) { continue; }
-                int x = points[i][0], y = points[i][1];
-                if (l <= x && x <= r && b <= y && y <= t) {
-                    return false;
-                }
-            }
-            return true;
+        auto comp = [](const vector<int>& p1, const vector<int>& p2) {
+            int x1 = p1[0], y1 = p1[1];
+            int x2 = p2[0], y2 = p2[1];
+            return x1 < x2 || (x1 == x2 && y1 > y2);
         };
+        std::sort(points.begin(), points.end(), comp);
+
+        int n = points.size();
+        int ret = 0;
         for (int i = 0; i < n; ++i) {
+            int yLo = INT_MIN, yHi = points[i][1];
             for (int j = i + 1; j < n; ++j) {
-                vector<int> p1 = points[i], p2 = points[j];
-                if (p1[0] > p2[0]) { std::swap(p1, p2); }
-                if (p1[0] < p2[0] && p1[1] < p2[1]) { continue; }
-                int l = std::min(p1[0], p2[0]), r = std::max(p1[0], p2[0]);
-                int b = std::min(p1[1], p2[1]), t = std::max(p1[1], p2[1]);
-                if (checkOk(i, j, l, r, b, t)) {
+                if (yHi >= points[j][1] && points[j][1] > yLo) {
+                    yLo = points[j][1];
                     ++ret;
                 }
             }
