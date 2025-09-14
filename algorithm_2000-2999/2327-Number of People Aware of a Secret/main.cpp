@@ -4,20 +4,20 @@ public:
 
     // Time: O(n * (forget - delay))
     int byUpdateDP(int n, int delay, int forget) {
-        // dp[i]: the number of new people becomes to know the secret at day i
+        // dp[i]: the number of people discovering the secret at i-th day
         int dp[n + 1];
         std::fill(dp, dp + n + 1, 0);
         dp[1] = 1;
-        for (int i = 2; i <= n; ++i) {
-            for (int j = std::max(i - forget + 1, 0); j + delay <= i; ++j) {
-                dp[i] += dp[j];
-                dp[i] %= M;
+        for (int i = 1; i <= n; ++i) {
+            for (int j = i + delay; j < (i + forget) && j <= n; ++j) {
+                dp[j] += dp[i];
+                dp[j] %= M;
             }
         }
 
         int ret = 0;
         for (int i = 1; i <= n; ++i) {
-            if (i + forget > n) {
+            if ((i + forget) > n) {
                 ret += dp[i];
                 ret %= M;
             }
@@ -28,14 +28,13 @@ public:
 
     // Time: O(n * (forget - delay))
     int byFillinDP(int n, int delay, int forget) {
-        // dp[i]: the number of new people becomes to know the secret at day i
+        // dp[i]: the number of people discovering the secret at i-th day
         int dp[n + 1];
         std::fill(dp, dp + n + 1, 0);
         dp[1] = 1;
 
         for (int i = 1; i <= n; ++i) {
-            for (int j = i + delay; j < i + forget; ++j) {
-                if (j > n) { break; }
+            for (int j = i + delay; j < (i + forget) && j <= n; ++j) {
                 dp[j] += dp[i];
                 dp[j] %= M;
             }
@@ -43,7 +42,7 @@ public:
 
         int ret = 0;
         for (int i = 1; i <= n; ++i) {
-            if (i + forget > n) {
+            if ((i + forget) > n) {
                 ret += dp[i];
                 ret %= M;
             }
@@ -52,9 +51,9 @@ public:
         return ret;
     }
 
-    // Time: O(n)
+    // Time: O(n), inspired from UpdateDP
     int byDiffDP(int n, int delay, int forget) {
-        // dp[i]: the number of new people becomes to know the secret at day i
+        // dp[i]: the number of people discovering the secret at i-th day
         int dp[n + 1];
         std::fill(dp, dp + n + 1, 0);
 
@@ -66,7 +65,6 @@ public:
         for (int i = 1; i <= n; ++i) {
             dp[i] = dp[i - 1] + diff[i];
             dp[i] = ((dp[i] % M) + M) % M;
-
             if (i + delay <= n) {
                 diff[i + delay] += dp[i];
             }
@@ -77,7 +75,7 @@ public:
 
         int ret = 0;
         for (int i = 1; i <= n; ++i) {
-            if (i + forget > n) {
+            if ((i + forget) > n) {
                 ret += dp[i];
                 ret %= M;
             }
@@ -87,8 +85,8 @@ public:
     }
 
     int peopleAwareOfSecret(int n, int delay, int forget) {
-        //return byUpdateDP(n, delay, forget);
-        //return byFillinDP(n, delay, forget);
-        return byDiffDP(n, delay, forget);
+        //return  byUpdateDP(n, delay, forget);
+        //return  byFillinDP(n, delay, forget);
+        return  byDiffDP(n, delay, forget);
     }
 };
