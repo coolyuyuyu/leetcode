@@ -1,9 +1,8 @@
 class Solution {
 public:
     string sortVowels(string s) {
-        std::function<bool(char)> isvowel = [](char c) {
-            c = tolower(c);
-            switch (c) {
+        std::function<bool(char)> isVowel = [](char c) {
+            switch (tolower(c)) {
             case 'a':
             case 'e':
             case 'i':
@@ -15,21 +14,21 @@ public:
             }
         };
 
-        vector<char> vowels;
+        string vowels;
         for (char c : s) {
-            if (isvowel(c)) {
-                vowels.push_back(c);
+            if (isVowel(c)) {
+                vowels += c;
             }
         }
         std::sort(vowels.begin(), vowels.end());
 
-        int i = 0;
-        for (char& c : s) {
-            if (isvowel(c)) {
-                c = vowels[i++];
+        string t = s;
+        for (int i = 0, j = 0; i < t.size(); ++i) {
+            if (isVowel(t[i])) {
+                t[i] = vowels[j++];
             }
         }
 
-        return s;
+        return t;
     }
 };
