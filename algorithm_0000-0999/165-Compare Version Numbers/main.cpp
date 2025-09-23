@@ -1,37 +1,42 @@
 class Solution {
 public:
     int compareVersion(string version1, string version2) {
-        size_t start1 = 0;
-        size_t start2 = 0;
-        size_t found1 = string::npos;
-        size_t found2 = string::npos;
-        do {
-            found1 = version1.find_first_of(".", start1);
-            int v1 = stoi(version1.substr(start1, found1 - start1));
+        std::function<vector<int>(string)> str2ver = [](string s) {
+            vector<int> ret;
+            for (int i = 0, v = 0; i <= s.size(); ++i) {
+                if (i == s.size() || s[i] == '.') {
+                    ret.push_back(v);
+                    v = 0;
+                }
+                else {
+                    v = v * 10 + (s[i] - '0');
+                }
+            }
+            while (!ret.empty() && ret.back() == 0) {
+                ret.pop_back();
+            }
 
-            found2 = version2.find_first_of(".", start2);
-            int v2 = stoi(version2.substr(start2, found2 - start2));
+            return ret;
+        };
 
-            if (v1 > v2) {
+        vector<int> v1 = str2ver(version1), v2 = str2ver(version2);
+        for (int i = 0, n = std::max(v1.size(), v2.size()); i < n; ++i) {
+            if (i < v1.size() && i < v2.size()) {
+                if (v1[i] < v2[i]) {
+                    return -1;
+                }
+                else if (v1[i] > v2[i]) {
+                    return 1;
+                }
+            }
+            else if (i < v1.size()) {
                 return 1;
             }
-            else if (v1 < v2){
+            else {
                 return -1;
             }
+        }
 
-            start1 = found1 + 1;
-            start2 = found2 + 1;
-        } while (found1 != string::npos && found2 != string::npos);
-
-        if (found1 == string::npos && found2 == string::npos) {
-            return 0;
-        }
-        else if (found1 != string::npos) {
-            return (version1.find_first_not_of("0.", start1) == string::npos) ? 0 : 1;
-        }
-        else {
-            assert(found2 != string::npos);
-            return (version2.find_first_not_of("0.", start2) == string::npos) ? 0 : -1;
-        }
+        return 0;
     }
 };
