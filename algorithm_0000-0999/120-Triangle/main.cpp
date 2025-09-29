@@ -6,17 +6,14 @@ public:
 
         vector<vector<int>> dp(m);
         dp[0].push_back(triangle[0][0]);
-        for (int i = 1; i < m; ++i) {
-            int n = i + 1;
-            dp[i].resize(i + 1);
-            dp[i][0] = dp[i - 1][0] + triangle[i][0];
-            for (int j = 1; (j + 1) < n; ++j) {
-                dp[i][j] = std::min(dp[i - 1][j - 1], dp[i - 1][j]) + triangle[i][j];
+        for (int r = 1; r < m; ++r) {
+            dp[r].resize(r + 1);
+            for (int c = 0, n = r + 1; c < n; ++c) {
+                dp[r][c] = std::min(c > 0 ? dp[r - 1][c - 1] : INT_MAX, c < r ? dp[r - 1][c] : INT_MAX) + triangle[r][c];
             }
-            dp[i][n - 1] = dp[i - 1][n - 2] + triangle[i][n - 1];
         }
 
-        return *std::min_element(dp[m - 1].begin(), dp[m - 1].end());
+        return *std::min_element(dp[m - 1].begin(), dp[m - 1].end());ㄤ
     }
 
     // Space: O(m)
