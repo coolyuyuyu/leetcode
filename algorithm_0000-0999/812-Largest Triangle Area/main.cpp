@@ -2,17 +2,17 @@ class Solution {
 public:
     double largestTriangleArea(vector<vector<int>>& points) {
         int product = 0;
-        for (size_t i = 0; (i + 2) < points.size(); ++i) {
-            int xa = points[i][0], ya = points[i][1];
-            for (size_t j = i + 1; (j + 1) < points.size(); ++j) {
-                int xb = points[j][0], yb = points[j][1];
-                for (size_t k = j + 1; k < points.size(); ++k) {
-                    int xc = points[k][0], yc = points[k][1];
-                    product = std::max(product, std::abs((xb - xa) * (yc - ya) - (xc - xa) * (yb - ya)));
+        for (int i = 0, n = points.size(); i < n; ++i) {
+            int x1 = points[i][0], y1 = points[i][1];
+            for (int j = i + 1; j < n; ++j) {
+                int x2 = points[j][0], y2 = points[j][1];
+                for (int k = j + 1; k < n; ++k) {
+                    int x3 = points[k][0], y3 = points[k][1];
+                    product = std::max(product, std::abs((x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1)));
                 }
             }
         }
 
-        return double(product) / 2;
+        return 1.0 * product / 2;
     }
 };
