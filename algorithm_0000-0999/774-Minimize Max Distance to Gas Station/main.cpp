@@ -2,24 +2,23 @@ class Solution {
 public:
     // Time: O: (N + logM * N), M: largest distance between two stations
     double bsearch(const vector<int>& stations, int k) {
-        double lo = 0;
-        double hi = 0;
+        double lo = 0, hi = 0;
         for (int i = 1; i < stations.size(); ++i) {
             hi = std::max<double>(hi, stations[i] - stations[i - 1]);
         }
 
-        while ((1e-6) < hi - lo) {
+        while (hi - lo > 1e-6) {
             double mid = (lo + hi) / 2;
-
             int cnt = 0;
             for (int i = 1; i < stations.size() && cnt <= k; ++i) {
-                cnt += ceil((stations[i] - stations[i - 1]) / mid) - 1;
+                int dist = stations[i] - stations[i - 1];
+                cnt += std::ceil(dist / mid) - 1;
             }
-            if (k < cnt) {
-                lo = mid;
+            if (cnt <= k) {
+                hi = mid;
             }
             else {
-                hi = mid;
+                lo = mid;
             }
         }
 
@@ -28,19 +27,18 @@ public:
 
     // Time: O: (N + k * logN), TLE
     double greedy1(const vector<int>& stations, int k) {
-        priority_queue<pair<double, int>> pq; // <distance per part, num of parts>
+        priority_queue<pair<double, int>> maxPQ; // <partDist, partCnt>
         for (int i = 1; i < stations.size(); ++i) {
-            pq.emplace(stations[i] - stations[i - 1], 1);
+            maxPQ.emplace(stations[i] - stations[i - 1], 1);
         }
 
-        while (0 < k--) {
-            auto [dist, parts] = pq.top();
-            pq.pop();
-
-            pq.emplace(dist * parts / (parts + 1), parts + 1);
+        while (k-- > 0) {
+            auto [partDist, partCnt] = maxPQ.top();
+            maxPQ.pop();
+            maxPQ.emplace(partDist * partCnt / (partCnt + 1), partCnt + 1);
         }
 
-        return pq.top().first;
+        return maxPQ.top().first;
     }
 
     // Time:
@@ -66,7 +64,7 @@ public:
 
     double minmaxGasDist(vector<int>& stations, int k) {
         //return bsearch(stations, k);
-        //return greedy1(stations, k);
-        return greedy2(stations, k);
+        return greedy1(stations, k);
+        //return greedy2(stations, k);
     }
 };
