@@ -3,11 +3,11 @@ public:
     int findSmallestInteger(vector<int>& nums, int value) {
         vector<int> cnts(value, 0);
         for (int num : nums) {
-            ++cnts[((num % value) + value) % value];
+            ++cnts[(num % value + value) % value];
         }
 
-        int index = std::min_element(cnts.begin(), cnts.end()) - cnts.begin();
-        int minCnt = cnts[index];
-        return minCnt * value + index;
+        int idx = std::distance(cnts.begin(), std::min_element(cnts.begin(), cnts.end()));
+        int cnt = cnts[idx];
+        return value * cnt + idx;
     }
 };
