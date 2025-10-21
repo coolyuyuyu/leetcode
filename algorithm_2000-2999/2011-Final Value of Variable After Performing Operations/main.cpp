@@ -1,16 +1,11 @@
 class Solution {
 public:
     int finalValueAfterOperations(vector<string>& operations) {
-        int val = 0;
-        for (const string& operation : operations) {
-            if (operation[1] == '+') {
-                ++val;
-            }
-            else {
-                --val;
-            }
+        int ret = 0;
+        for (const auto& operation : operations) {
+            ret += (operation[1] == '+' ? 1 : -1);
         }
 
-        return val;
+        return ret;
     }
 };
