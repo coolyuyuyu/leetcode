@@ -8,7 +8,7 @@ public:
             long long maxDiff = 0, t = 0;
             for (int i = 0; i < n; ++i) {
                 maxDiff = std::max(maxDiff, endBy[i] - t);
-                t += 1LL * skill[i] * mana[j];
+                t += skill[i] * mana[j];
                 endBy[i] = t;
             }
 
