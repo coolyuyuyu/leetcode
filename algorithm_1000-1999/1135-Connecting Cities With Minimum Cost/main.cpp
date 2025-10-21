@@ -43,60 +43,58 @@ private:
 class Solution {
 public:
     int kruskal(int n, vector<vector<int>>& connections) {
-        priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, std::greater<tuple<int, int, int>>> pq;
-        for (const auto& connection : connections) {
-            int u = connection[0] - 1, v = connection[1] - 1, cost = connection[2];
-            pq.emplace(cost, u, v);
+        priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, std::greater<>> minPQ; // <cost, x, y>
+        for (const auto& conn : connections) {
+            int x = conn[0], y = conn[1], cost = conn[2];
+            minPQ.emplace(cost, x - 1, y - 1);
         }
 
-        int ret = 0;
         DisjointSets ds(n);
-        while (1 < ds.size() && !pq.empty()) {
-            auto [cost, u, v] = pq.top();
-            pq.pop();
 
-            if (!ds.connected(u, v)) {
-                ds.merge(u, v);
+        int ret = 0;
+        while (ds.size() > 1 && !minPQ.empty()) {
+            auto [cost, x, y] = minPQ.top();
+            minPQ.pop();
+
+            if (!ds.connected(x, y)) {
                 ret += cost;
+                ds.merge(x, y);
             }
         }
 
-        return ds.size() == 1 ? ret : -1;
+        return ds.size() > 1 ? -1 : ret;
     }
 
     int prim(int n, vector<vector<int>>& connections) {
-        vector<pair<int, int>> graph[n];
-        for (const auto& connection : connections) {
-            int u = connection[0] - 1, v = connection[1] - 1, cost = connection[2];
-            graph[u].emplace_back(cost, v);
-            graph[v].emplace_back(cost, u);
+        vector<pair<int, int>> graph[n]; // <node, cost>
+        for (const auto& conn : connections) {
+            int x = conn[0] - 1, y = conn[1] - 1, cost = conn[2];
+            graph[x].emplace_back(y, cost);
+            graph[y].emplace_back(x, cost);
         }
 
-        bool visited[n];
-        std::fill(visited, visited + n, false);
+        vector<bool> visited(n, false);
 
-        priority_queue<pair<int, int>, vector<pair<int, int>>, std::greater<pair<int, int>>> pq;
-        pq.emplace(0, 0);
+        priority_queue<pair<int, int>, vector<pair<int, int>>, std::greater<>> minPQ; // <cost, node>
+        minPQ.emplace(0, 0);
 
         int ret = 0;
-        int cnt = 0;
-        while (cnt < n && !pq.empty()) {
-            auto [cost, u] = pq.top();
-            pq.pop();
+        while (!minPQ.empty()) {
+            auto [cost, x] = minPQ.top();
+            minPQ.pop();
 
-            if (visited[u]) { continue; }
-            visited[u] = true;
+            if (visited[x]) { continue; }
+            visited[x] = true;
 
-            ++cnt;
             ret += cost;
 
-            for (const auto& [c, v] : graph[u]) {
-                if (visited[v]) { continue; }
-                pq.emplace(c, v);
+            for (const auto& [y, cost] : graph[x]) {
+                if (visited[y]) { continue; }
+                minPQ.emplace(cost, y);
             }
         }
 
-        return cnt == n ? ret : -1;
+        return std::count(visited.begin(), visited.end(), true) == n ? ret: -1;
     }
 
     int minimumCost(int n, vector<vector<int>>& connections) {
