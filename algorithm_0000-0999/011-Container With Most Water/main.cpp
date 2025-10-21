@@ -1,19 +1,18 @@
 class Solution {
 public:
-    // two pointer
-    // Time: O(n)
+    // Time: O(N)
     int maxArea(vector<int>& height) {
         int ret = 0;
-        for (int lft = 0, rht = height.size() - 1; lft < rht;) {
-            ret = std::max(ret, (rht - lft) * std::min(height[lft], height[rht]));
-            if (height[lft] <= height[rht]) {
-                ++lft;
+        for (int l = 0, r = height.size() - 1; l < r;) {
+            ret = std::max(ret, (r - l) * std::min(height[l], height[r]));
+            if (height[l] < height[r]) {
+                ++l;
             }
             else {
-                --rht;
+                --r;
             }
         }
 
-        return ret;
+        return ret;    
     }
 };
