@@ -1,22 +1,18 @@
 class Solution {
 public:
     int countValidSelections(vector<int>& nums) {
-        int n = nums.size();
-
-        int presums[n];
-        std::partial_sum(nums.begin(), nums.end(), presums);
-        int sum = presums[n - 1];
+        int sum = std::accumulate(nums.begin(), nums.end(), 0);
 
         int ret = 0;
-        for (int i = 0; i < n; ++i) {
-            if (nums[i] == 0) {
-                int lftSum = presums[i], rhtSum = sum - lftSum - nums[i];
-                if (lftSum == rhtSum) {
-                    ret += 2;
-                }
-                else if (std::abs(lftSum - rhtSum) == 1) {
-                    ret += 1;
-                }
+        for (int lftSum = 0, rhtSum = sum, i = 0, n = nums.size(); i < n; ++i) {
+            lftSum += nums[i], rhtSum -= nums[i];
+            if (nums[i] != 0) { continue; }
+
+            if (lftSum == rhtSum) {
+                ret += 2;
+            }
+            else if (std::abs(lftSum - rhtSum) == 1) {
+                ret += 1;
             }
         }
 
