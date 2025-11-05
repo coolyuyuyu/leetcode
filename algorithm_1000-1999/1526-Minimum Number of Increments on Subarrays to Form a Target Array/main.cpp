@@ -175,10 +175,10 @@ private:
 class Solution {
 public:
     int byGreedy(vector<int>& target) {
-        int ret = target[0];
-        for (int i = 1; i < target.size(); ++i) {
-            if (target[i - 1] < target[i]) {
-                ret += target[i] - target[i - 1];
+        int ret = 0;
+        for (int i = 0, n = target.size(), pre = 0; i < n; pre = target[i], ++i) {
+            if (pre < target[i]) {
+                ret += target[i] - pre;
             }
         }
 
@@ -198,23 +198,18 @@ public:
         SegmentTree<pair<int, int>, decltype(op)> st(pairs.begin(), pairs.end(), op);
 
         std::function<int(int, int, int)> dfs = [&](int lo, int hi, int base) {
-            if (lo > hi) {
-                return 0;
-            }
-            else if (lo == hi) {
-                auto [val, pos] = st.get(lo);
-                return val - base;
-            }
+            if (lo > hi) { return 0; }
+            else if (lo == hi) { return target[lo] - base; }
 
-            auto [val, pos] = st.query(lo, hi);
-            return val - base + dfs(lo, pos - 1, val) + dfs(pos + 1, hi, val);
+            auto [h, mid]= st.query(lo, hi);
+            return dfs(lo, mid - 1, h) + (h - base) + dfs(mid + 1, hi, h);
         };
 
         return dfs(0, n - 1, 0);
     }
 
     int minNumberOperations(vector<int>& target) {
-        // return byGreedy(target);
+        //return byGreedy(target);
         return bySegmentTree(target);
     }
 };
