@@ -30,17 +30,17 @@ public:
     }
 
     long long maxPower(vector<int>& stations, int r, int k) {
-        LL lft = *std::min_element(stations.begin(), stations.end()), rht = 1e10 + 1e9;
-        while (lft < rht) {
-            LL mid = rht - (rht - lft) / 2;
+        LL lo = *std::min_element(stations.begin(), stations.end()), hi = 1e10 + 1e9;
+        while (lo < hi) {
+            LL mid = hi - (hi - lo) / 2;
             if (isOk(stations, mid, r, k)) {
-                lft = mid;
+                lo = mid;
             }
             else {
-                rht = mid - 1;
+                hi = mid - 1;
             }
         }
 
-        return lft;
+        return lo;
     }
 };
