@@ -4,17 +4,17 @@ public:
     int recursion(int n) {
         // int f1(int n): minimum number of operations to transform n to 0
         // assume n = 1[xxxx]
-        // => 1[xxxx]           => 1[1000] => 0[1000] => 0[0000]
-        // => f1(1[xxxx]) = +f2(xxxx)      +1      +f1(1000)
+        // => 1[xxxx] (=> ... =>) 1[1000]) => 0[1000] (=> ... =>) 0[0000])
+        // =>         (+f2(xxxx,1000))     +1         (+f1(1000))
 
-        // int f2(int src, int dst): minimum number of operations to transform src to dst, where there is exactly 1 bit of 1 in src.
-        // assume src = x[yyy], dst = 1000
+        // int f2(int src, dst): minimum number of operations to transform src to dst where the bit length of src <= dst and dst has only one set bit
+        // assume src = x[yyyy], dst = 10000
         // if x == 1:
-        //     => 1[yyy]           => 1000
-        //     => f2(1[yyy]) =  +f1(yyy)
+        //     => 1[yyyy] (=> ...  =>) 10000
+        //     =>         (+f1(yyyy) )
         // if x == 0:
-        //     => 0[yyy]          => 0[100] => 1[100] => 1000
-        //     => f2(0[yyy]) = +f2(yyy)     +1      +f1(100)
+        //     => 0[yyyy] (=> ... =>) 0[1000] => 1[1000] (=> ... =>) 10000
+        //     =>         (+f2(yyyy, 1000))   +1         (+f1(1000))
         // }
 
         std::function<int(int)> f1;
@@ -29,12 +29,10 @@ public:
                 return cache1[n];
             }
 
-            // index of most significant bit of 1
             int msb = 31 - __builtin_clz(n);
 
-            int& ret = cache1[n];
-            ret = 0;
-            ret += f2(n & ~(1 << msb), 1 << (msb - 1));
+            int& ret = cache1[n] = 0;
+            ret += f2(n & ~(1 << msb), (1 << (msb - 1)));
             ret += 1;
             ret += f1(1 << (msb - 1));
 
@@ -43,6 +41,8 @@ public:
 
         map<pair<int, int>, int> cache2;
         f2 = [&](int src, int dst) {
+            int clzSrc = (src == 0 ? 32 : __builtin_clz(src)), clzDst = (dst == 0 ? 32 : __builtin_clz(dst));
+            assert(clzSrc >= clzDst);
             assert(__builtin_popcount(dst) == 1);
 
             if (dst == 1) {
@@ -54,8 +54,7 @@ public:
                 return cache2[{src, dst}];
             }
 
-            int& ret = cache2[{src, dst}];
-            ret = 0;
+            int& ret = cache2[{src, dst}] = 0;
             if (src & dst) {
                 ret += f1(src & ~dst);
             }
@@ -90,7 +89,7 @@ public:
     }
 
     int minimumOneBitOperations(int n) {
-        //return recursion(n);
-        return math(n);
+        return recursion(n);
+        //return math(n);
     }
 };
