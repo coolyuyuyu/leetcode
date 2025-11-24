@@ -1,28 +1,23 @@
 class Solution {
 public:
     int maxOperations(string s) {
-        int n = s.size();
-
         int ret = 0;
-        int preCnt = 0;
-        for (int i = 0; i < n; ++i) {
-            if (s[i] == '0') { continue; }
-            
-            int j = i;
-            while (j < n && s[j] == '1') {
-                ++j;
+        for (int i = 0, n = s.size(), cnt = 0; i < n; ++i) {
+            if (s[i] == '1') {
+                ++cnt;
             }
-            int curCnt = j - i;
+            else {
+                ret += cnt;
 
-            ret += preCnt;
-            preCnt += curCnt;
-
-            i = j - 1;
-        }
-        if (s.back() == '0') {
-            ret += preCnt;
+                int j = i;
+                while (j < n && s[j] != '1') {
+                    ++j;
+                }
+                i = j - 1;
+            }
         }
 
         return ret;
+
     }
 };
