@@ -30,23 +30,43 @@
 class Solution {
 public:
     int depthSumInverse(vector<NestedInteger>& nestedList) {
-        int weighted = 0, unweighted = 0;
-        while (!nestedList.empty()) {
-            vector<NestedInteger> nestedListTmp;
-            for (const NestedInteger& ni : nestedList) {
-                if (ni.isInteger()) {
-                    unweighted += ni.getInteger();
-                }
-                else {
-                    const vector<NestedInteger>& nlTmp = ni.getList();
-                    nestedListTmp.insert(nestedListTmp.end(), nlTmp.begin(), nlTmp.end());
+        int maxDepth = 0; {
+            queue<NestedInteger> q(nestedList.begin(), nestedList.end());
+            while (!q.empty()) {
+                ++maxDepth;
+
+                for (int n = q.size(); 0 < n--;) {
+                    NestedInteger ni = q.front();
+                    q.pop();
+
+                    if (!ni.isInteger()) {
+                        for (const NestedInteger& child : ni.getList()) {
+                            q.push(child);
+                        }
+                    }
                 }
             }
-            nestedList.swap(nestedListTmp);
-
-            weighted += unweighted;
         }
 
-        return weighted;
+        int ret = 0; {
+            queue<NestedInteger> q(nestedList.begin(), nestedList.end());
+            for (int depth = 1; !q.empty(); ++depth) {
+                for (int n = q.size(); 0 < n--;) {
+                    NestedInteger ni = q.front();
+                    q.pop();
+
+                    if (ni.isInteger()) {
+                        ret += (maxDepth - depth + 1) * ni.getInteger();
+                    }
+                    else {
+                        for (const NestedInteger& child : ni.getList()) {
+                            q.push(child);
+                        }
+                    }
+                }
+            }
+        }
+
+        return ret;
     }
 };
