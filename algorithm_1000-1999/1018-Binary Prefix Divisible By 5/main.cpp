@@ -1,18 +1,15 @@
 class Solution {
 public:
-    vector<bool> prefixesDivBy5(vector<int>& A) {;
-        vector<bool> results(A.size());
+    vector<bool> prefixesDivBy5(vector<int>& nums) {
+        int n = nums.size();
 
-        int num = 0;
-        for (size_t i = 0; i < A.size(); ++i) {
-            num *= 2;
-            num += A[i];
-
-            num %= 5;
-
-            results[i] = (num == 0);
+        vector<bool> ret(n);
+        for (int i = 0, sum = 0; i < n; ++i) {
+            sum = sum * 2 + nums[i];
+            sum %= 5;
+            ret[i] = (sum == 0);
         }
 
-        return results;
+        return ret;
     }
 };
