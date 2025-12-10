@@ -11,10 +11,7 @@ public:
             return ret;
         };
 
-        if (std::min_element(complexity.begin(), complexity.end()) != complexity.begin()) {
-            return 0;
-        }
-        if (std::count(complexity.begin(), complexity.end(), complexity[0]) >= 2) {
+        if (std::find_if(complexity.begin() + 1, complexity.end(), [&](int num){ return num <= complexity[0]; }) != complexity.end()) {
             return 0;
         }
 
