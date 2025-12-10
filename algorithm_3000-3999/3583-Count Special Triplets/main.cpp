@@ -5,25 +5,27 @@ public:
     int specialTriplets(vector<int>& nums) {
         int n = nums.size();
 
-        unordered_map<int, int> m;
+        unordered_map<int, int> num2cnt;
 
-        int cntL[n];
-        m.clear();
+        // cntI[j]: the number of valid i from nums[0:i-1] where nums[i] == nums[j] * 2
+        int cntI[n];
+        num2cnt.clear();
         for (int j = 0; j < n; ++j) {
-            cntL[j] = m[nums[j] * 2];
-            ++m[nums[j]];
+            cntI[j] = num2cnt[nums[j] * 2];
+            ++num2cnt[nums[j]];
         }
 
-        int cntR[n];
-        m.clear();
+        // cntK[j]: the number of valid k from nums[i+1:] where nums[j] * 2 == nums[k]
+        int cntK[n];
+        num2cnt.clear();
         for (int j = n - 1; j >= 0; --j) {
-            cntR[j] = m[nums[j] * 2];
-            ++m[nums[j]];
+            cntK[j] = num2cnt[nums[j] * 2];
+            ++num2cnt[nums[j]];
         }
 
         int ret = 0;
         for (int j = 0; j < n; ++j) {
-            ret += (1L * cntL[j] * cntR[j]) % M;
+            ret += (1LL * cntI[j] * cntK[j]) % M;
             ret %= M;
         }
 
