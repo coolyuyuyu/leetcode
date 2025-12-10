@@ -9,21 +9,21 @@ public:
         }
 
         int ret = 0;
-        std::function<int(int, int)> f = [&](int cur, int pre) {
-            int remaining = values[cur];
+        std::function<int(int, int)> dfs = [&](int cur, int pre) {
+            int rem = values[cur] % k;
             for (int nxt : graph[cur]) {
                 if (nxt == pre) { continue; }
-                remaining += f(nxt, cur);
+                rem += dfs(nxt, cur);
+                rem %= k;
             }
-            remaining %= k;
 
-            if (remaining == 0) {
+            if (rem == 0) {
                 ++ret;
             }
 
-            return remaining;
+            return rem;
         };
-        f(0, -1);
+        dfs(0, -1);
 
         return ret;
     }
