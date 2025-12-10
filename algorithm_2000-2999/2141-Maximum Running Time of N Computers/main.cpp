@@ -1,24 +1,26 @@
 class Solution {
 public:
     long long maxRunTime(int n, vector<int>& batteries) {
-        std::function<bool(int, long long)> f = [&batteries](int n, long long t)  {
+        std::function<bool(long long)> f = [&](long long t) {
             long long sum = 0;
+            int cnt = 0;
             for (int battery : batteries) {
                 sum += std::min<long long>(battery, t);
-                if (t <= sum) {
+                if (sum >= t) {
                     sum -= t;
-                    if (--n == 0) {
+                    if (++cnt >= n) {
                         return true;
                     }
                 }
             }
+
             return false;
         };
 
-        long long lo = 1, hi = LLONG_MAX;
+        long long lo = 0, hi = LLONG_MAX;
         while (lo < hi) {
             long long mid = hi - (hi - lo) / 2;
-            if (f(n, mid)) {
+            if (f(mid)) {
                 lo = mid;
             }
             else {
