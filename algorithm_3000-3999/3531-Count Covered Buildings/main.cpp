@@ -1,26 +1,27 @@
 class Solution {
 public:
     int countCoveredBuildings(int n, vector<vector<int>>& buildings) {
-        vector<int> rowCols[n + 1], colRows[n + 1];
+        pair<int, int> rowMnMx[n + 1], colMnMx[n + 1];
+        std::fill(rowMnMx, rowMnMx + n + 1, pair<int, int>{INT_MAX, INT_MIN});
+        std::fill(colMnMx, colMnMx + n + 1, pair<int, int>{INT_MAX, INT_MIN});
         for (const auto& building : buildings) {
             int x = building[0], y = building[1];
-            rowCols[y].push_back(x);
-            colRows[x].push_back(y);
-        }
-        for (int i = 1; i <= n; ++i) {
-            std::sort(rowCols[i].begin(), rowCols[i].end());
-            std::sort(colRows[i].begin(), colRows[i].end());
+            auto& [rmn, rmx] = rowMnMx[y];
+            rmn = std::min(rmn, x), rmx = std::max(rmx, x);
+            auto& [cmn, cmx] = colMnMx[x];
+            cmn = std::min(cmn, y), cmx = std::max(cmx, y);
         }
 
         int ret = 0;
         for (const auto& building : buildings) {
             int x = building[0], y = building[1];
-            int id1 = std::distance(rowCols[y].begin(), std::lower_bound(rowCols[y].begin(), rowCols[y].end(), x));
-            if (id1 == 0 || (id1 + 1) == rowCols[y].size()) { continue; }
-            int id2 = std::distance(colRows[x].begin(), std::lower_bound(colRows[x].begin(), colRows[x].end(), y));
-            if (id2 == 0 || (id2 + 1) == colRows[x].size()) { continue; }
-
-            ++ret;
+            auto& [rmn, rmx] = rowMnMx[y];
+            rmn = std::min(rmn, x), rmx = std::max(rmx, x);
+            auto& [cmn, cmx] = colMnMx[x];
+            cmn = std::min(cmn, y), cmx = std::max(cmx, y);
+            if (rmn < x && x < rmx && cmn < y && y < cmx) {
+                ++ret;
+            }
         }
 
         return ret;
