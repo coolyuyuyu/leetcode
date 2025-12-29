@@ -1,42 +1,36 @@
 class Solution {
 public:
     vector<int> countMentions(int numberOfUsers, vector<vector<string>>& events) {
-        int n = numberOfUsers;
-
         std::sort(
-            events.begin(),
-            events.end(),
+            events.begin(), events.end(),
             [](const auto& e1, const auto& e2){
                 int t1 = std::stoi(e1[1]), t2 = std::stoi(e2[1]);
-                if (t1 != t2) {
-                    return t1 < t2;
-                }
-                else {
-                    return e1[0] == "OFFLINE";
-                }
+                return t1 < t2 || (t1 == t2 && e1[0] == "OFFLINE");
             });
 
-        bool onlines[n]; std::fill(onlines, onlines + n, true);
-        priority_queue<pair<int, int>, vector<pair<int, int>>, std::greater<pair<int, int>>> pq; // <time, id>
+        vector<bool> onlines(numberOfUsers, true);
+        queue<pair<int, int>> q; // <t, id>
 
-        vector<int> ret(n, 0);
-
-        int t = 0;
+        vector<int> ret(numberOfUsers, 0);
         for (const auto& e : events) {
-            t = std::stoi(e[1]);
-            while (!pq.empty() && pq.top().first <= t) {
-                auto [_, id] = pq.top();
-                pq.pop();
+            const string& msg = e[0];
+            int t = std::stoi(e[1]);
+
+            while (!q.empty() && q.front().first <= t) {
+                auto& [_, id] = q.front();
+                q.pop();
+
                 onlines[id] = true;
             }
-            if (e[0] == "MESSAGE") {
+
+            if (msg == "MESSAGE") {
                 if (e[2] == "ALL") {
-                    for (int id = 0; id < n; ++id) {
+                    for (int id = 0; id < numberOfUsers; ++id) {
                         ++ret[id];
                     }
                 }
                 else if (e[2] == "HERE") {
-                    for (int id = 0; id < n; ++id) {
+                    for (int id = 0; id < numberOfUsers; ++id) {
                         if (onlines[id]) {
                             ++ret[id];
                         }
@@ -45,15 +39,18 @@ public:
                 else {
                     string token;
                     for (istringstream iss(e[2]); iss >> token;) {
-                        int id = std::stoi(token.substr(2));
+                        int id = stoi(token.substr(2));
                         ++ret[id];
                     }
                 }
             }
-            else {
+            else if (msg == "OFFLINE") {
                 int id = std::stoi(e[2]);
                 onlines[id] = false;
-                pq.emplace(t + 60, id);
+                q.emplace(t + 60, id);
+            }
+            else {
+                assert(false);
             }
         }
 
