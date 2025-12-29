@@ -17,7 +17,7 @@ public:
         , m_sums(m_size + 1) {
         std::size_t n = size();
         for (std::size_t i = 0; first != last; ++i, ++first) {
-            set(i, first);
+            set(i, *first);
         }
     }
 
