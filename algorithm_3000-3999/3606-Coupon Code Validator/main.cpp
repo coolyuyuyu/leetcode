@@ -1,26 +1,25 @@
 class Solution {
 public:
-    bool check(const string& code, const string& businessLine, bool isActive) {
-        if (code.empty()) { return false; }
-        if (!std::all_of(code.begin(), code.end(), [](char c){ return std::isalnum(c) || c == '_'; })) { return false; }
-        if (businessLine != "electronics" && businessLine != "grocery" && businessLine != "pharmacy" && businessLine != "restaurant") { return false; }
-        if (!isActive) { return false;}
-        return true;
-    }
-
     vector<string> validateCoupons(vector<string>& code, vector<string>& businessLine, vector<bool>& isActive) {
-        int n = code.size();
+        std::function<bool(const string&, const string&, bool)> check = [](const string& code, const string& businessLine, bool isActive) {
+            if (code.empty()) { return false; }
+            if (!std::all_of(code.begin(), code.end(), [](char c){ return isalnum(c) || c == '_'; })) { return false;}
+            if (businessLine != "electronics" && businessLine != "grocery" && businessLine != "pharmacy" && businessLine != "restaurant") { return false; }
+            if (!isActive) { return false; }
+            return true;
+        };
 
-        map<string, vector<string>> selected;
-        for (int i = 0; i < n; ++i) {
-            if (!check(code[i], businessLine[i], isActive[i])) { continue; }
-            selected[businessLine[i]].push_back(code[i]);
+        map<string, vector<string>> selectedCodes;
+        for (int i = 0, n = code.size(); i < n; ++i) {
+            if (check(code[i], businessLine[i], isActive[i])) {
+                selectedCodes[businessLine[i]].push_back(code[i]);
+            }
         }
 
         vector<string> ret;
-        for (auto& [_, coupons] : selected) {
-           std::sort(coupons.begin(), coupons.end());
-           ret.insert(ret.end(), coupons.begin(), coupons.end());
+        for (auto& [_, codes] : selectedCodes) {
+            std::sort(codes.begin(), codes.end());
+            std::copy(codes.begin(), codes.end(), std::back_inserter(ret));
         }
 
         return ret;
