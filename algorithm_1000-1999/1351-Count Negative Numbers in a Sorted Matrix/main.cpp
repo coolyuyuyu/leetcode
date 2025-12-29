@@ -5,12 +5,11 @@ public:
         int m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
 
         int ret = 0;
-        for (int i = m, j = 0; 0 < i--;) {
-            for (; j < n && grid[i][j] >= 0; ++j) {
+        for (int r = m - 1, c = 0; r >= 0; --r) {
+            for (; c < n && grid[r][c] >= 0; ++c) {
                 ;
             }
-
-            ret += (n - j);
+            ret += n - c;
         }
 
         return ret;
@@ -55,8 +54,8 @@ public:
     }
 
     int countNegatives(vector<vector<int>>& grid) {
-        //return lsearch(grid);
+        return lsearch(grid);
         //return bsearch(grid);
-        return bsearch_stdlib(grid);
+        //return bsearch_stdlib(grid);
     }
 };
