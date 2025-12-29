@@ -4,79 +4,44 @@
  *     int val;
  *     TreeNode *left;
  *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
 class Solution {
 public:
-    pair<size_t, size_t> longestConsecutive2(TreeNode* root, size_t& maxLen) {
-        if (!root) {
-            return {0 ,0};
-        }
+    int longestConsecutive(TreeNode* root) {
+        int ret = 0;
+        std::function<pair<int, int>(TreeNode*)> f = [&](TreeNode* root) {
+            if (!root) { return make_pair(0, 0); }
 
-        pair<size_t, size_t> pairLft = longestConsecutive2(root->left, maxLen);
-        pair<size_t, size_t> pairRht = longestConsecutive2(root->right, maxLen);
-
-        size_t inc = 1;
-        if (root->left && root->val + 1 == root->left->val) {
-            inc = 1 + pairLft.first;
-        }
-        if (root->right && root->val + 1 == root->right->val) {
-            inc = max(inc, 1 + pairRht.first);
-        }
-
-        size_t dec = 1;
-        if (root->left && root->val - 1 == root->left->val) {
-            dec = 1 + pairLft.second;
-        }
-        if (root->right && root->val - 1 == root->right->val) {
-            dec = max(dec, 1 + pairRht.second);
-        }
-
-        maxLen = max(maxLen, max(inc, dec));
-
-        if (root->left && root->right && root->val + 1 == root->left->val && root->val - 1 == root->right->val) {
-            maxLen = max(maxLen, pairLft.first + 1 + pairRht.second);
-        }
-        if (root->left && root->right && root->val - 1 == root->left->val && root->val + 1 == root->right->val) {
-            maxLen = max(maxLen, pairLft.second + 1 + pairRht.first);
-        }
-
-        return {inc, dec};
-    }
-
-    pair<size_t, size_t> longestConsecutive(TreeNode* root, size_t& maxLen) {
-        if (!root) {
-            return {0 ,0};
-        }
-
-        pair<size_t, size_t> pairLft = longestConsecutive(root->left, maxLen);
-        pair<size_t, size_t> pairRht = longestConsecutive(root->right, maxLen);
-        size_t inc = 1, dec = 1;
-        if (root->left) {
-            if (root->val + 1 == root->left->val) {
-                inc = max(inc, 1 + pairLft.first);
+            int inc = 1, dec = 1;
+            if (root->left) {
+                auto [lftInc, lftDec] = f(root->left);
+                if (root->val + 1 == root->left->val) {
+                    inc = lftInc + 1;
+                }
+                else if (root->val - 1 == root->left->val) {
+                    dec = lftDec + 1;
+                }
             }
-            if (root->val - 1 == root->left->val) {
-                dec = max(dec, 1 + pairLft.second);
+            if (root->right) {
+                auto [rhtInc, rhtDec] = f(root->right);
+                if (root->val + 1 == root->right->val) {
+                    inc = std::max(inc, rhtInc + 1);
+                }
+                else if (root->val - 1 == root->right->val) {
+                    dec = std::max(dec, rhtDec + 1);
+                }
             }
-        }
-        if (root->right) {
-            if (root->val + 1 == root->right->val) {
-                inc = max(inc, 1 + pairRht.first);
-            }
-            if (root->val - 1 == root->right->val) {
-                dec = max(dec, 1 + pairRht.second);
-            }
-        }
-        maxLen = max(maxLen, max(inc + dec - 1, max(inc, dec)));
 
-        return {inc, dec};
-    }
+            ret = std::max(ret, inc + dec - 1);
 
-    size_t longestConsecutive(TreeNode* root) {
-        size_t maxLen = 0;
-        longestConsecutive(root, maxLen);
-        return maxLen;
+            return make_pair(inc, dec);
+        };
+        f(root);
+
+        return ret;
     }
 };
