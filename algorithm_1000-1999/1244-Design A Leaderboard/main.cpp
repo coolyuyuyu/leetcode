@@ -1,32 +1,34 @@
 class Leaderboard {
 public:
     Leaderboard() {
-
     }
 
     void addScore(int playerId, int score) {
-        m_pairs.erase({m_id2score[playerId], playerId});
+        auto itr = m_scores.find(m_id2score[playerId]);
+        if (itr != m_scores.end()) {
+            m_scores.erase(itr);
+        }
         m_id2score[playerId] += score;
-        m_pairs.insert({m_id2score[playerId], playerId});
+        m_scores.insert(m_id2score[playerId]);
     }
 
     int top(int K) {
-        int sum = 0;
-        for (auto itr = m_pairs.rbegin(); itr != m_pairs.rend() && K; ++itr, --K) {
-            sum += itr->first;
+        int ret = 0;
+        for (auto itr = m_scores.rbegin(); itr != m_scores.rend() && K; ++itr, --K) {
+            ret += *itr;
         }
 
-        return sum;
+        return ret;
     }
 
     void reset(int playerId) {
-        m_pairs.erase({m_id2score[playerId], playerId});
-        m_id2score.erase(playerId);
+        m_scores.erase(m_scores.find(m_id2score[playerId]));
+        m_id2score[playerId] = 0;
     }
-private:
-    set<pair<int, int>> m_pairs;
-    unordered_map<int, int> m_id2score;
 
+private:
+    unordered_map<int, int> m_id2score;
+    multiset<int> m_scores;
 };
 
 /**
