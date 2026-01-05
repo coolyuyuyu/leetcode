@@ -31,35 +31,32 @@ class Solution {
 public:
     int byDisjointedSets(int row, int col, const vector<vector<int>>& cells) {
         int m = row, n = col;
-        vector<vector<int>> grid(m, vector<int>(n, 0));
+
+        bool grid[m][n];
+        std::fill(&grid[0][0], &grid[0][0] + m * n, false);
 
         std::function<int(int, int)> getId = [&](int r, int c) {
             return r * n + c;
         };
-        int virtLft = m * n, virtRht = m * n + 1;
+        int virtL = m * n, virtR = m * n + 1;
 
-        vector<pair<int, int>> dirs = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
-        DisjointSets ds(row * col + 2);
+        vector<pair<int, int>> dirs = {{0, -1}, {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}};
+        DisjointSets ds(m * n + 2);
         for (int t = 0; t < cells.size(); ++t) {
             int r = cells[t][0] - 1, c = cells[t][1] - 1;
-            grid[r][c] = 1;
+            grid[r][c] = true;
 
-            int id = getId(r, c);
-            if (c == 0) {
-                ds.merge(virtLft, id);
-            }
-            if ((c + 1) == n) {
-                ds.merge(id, virtRht);
-            }
+            if (c == 0) { ds.merge(getId(r, c), virtL); }
+            if (c + 1 == n) { ds.merge(getId(r, c), virtR); }
 
             for (const auto& [dr, dc] : dirs) {
                 int x = r + dr, y = c + dc;
-                if (x < 0 || row <= x || y < 0 || col <= y) { continue; }
-                if (grid[x][y] == 0) { continue; }
-                ds.merge(id, getId(x, y));
+                if (x < 0 || x >= m || y < 0 || y >= n) { continue; }
+                if (!grid[x][y]) { continue; }
+                ds.merge(getId(r, c), getId(x, y));
             }
 
-            if (ds.connected(virtLft, virtRht)) {
+            if (ds.connected(virtL, virtR)) {
                 return t;
             }
         }
@@ -71,11 +68,13 @@ public:
         int m = row, n = col;
 
         vector<pair<int, int>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
-
         std::function<bool(int)> canAcrossTopBtm = [&](int t) {
-            vector<vector<int>> grid(m, vector<int>(n, 0));
+            int grid[m][n];
+            std::fill(&grid[0][0], &grid[0][0] + m * n, 0);
+
             for (int i = 0; i < t; ++i) {
-                grid[cells[i][0] - 1][cells[i][1] - 1] = 1;
+                int r = cells[i][0] - 1, c = cells[i][1] - 1;
+                grid[r][c] = 1;
             }
 
             queue<pair<int, int>> q;
@@ -87,21 +86,19 @@ public:
             }
 
             while (!q.empty()) {
-                for (int len = q.size(); 0 < len--;) {
-                    auto [r, c] = q.front();
-                    q.pop();
+                auto [r, c] = q.front();
+                q.pop();
 
-                    if ((r + 1) == m) {
-                        return true;
-                    }
+                if (r + 1 == m) {
+                    return true;
+                }
 
-                    for (const auto& [dr, dc] : dirs) {
-                        int x = r + dr, y = c + dc;
-                        if (x < 0 || m <= x || y < 0 || n <= y) { continue; };
-                        if (grid[x][y] == 0) {
-                            grid[x][y] = -1;
-                            q.emplace(x, y);
-                        }
+                for (const auto& [dr, dc] : dirs) {
+                    int x = r + dr, y = c + dc;
+                    if (x < 0 || x >= m || y < 0 || y >= n) { continue; }
+                    if (grid[x][y] == 0) {
+                        grid[x][y] = -1;
+                        q.emplace(x, y);
                     }
                 }
             }
@@ -118,7 +115,6 @@ public:
             else {
                 hi = mid - 1;
             }
-
         }
 
         return lo;
