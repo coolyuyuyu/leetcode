@@ -1,40 +1,22 @@
 class Solution {
 public:
     long long maxMatrixSum(vector<vector<int>>& matrix) {
-        int m = matrix.size(), n = matrix.empty() ? 0 : matrix[0].size();
+        long long ret = 0;
 
-        long long sum = 0;
-        bool anyZero = false;
+        int minAbsVal = INT_MAX;
         int negCnt = 0;
-        int minAbs = INT_MAX;
-        for (int r = 0; r < m; ++r) {
-            for (int c = 0; c < n; ++c) {
-                if (matrix[r][c] == 0) {
-                    anyZero = true;
-                }
-                else {
-                    minAbs = std::min(minAbs, std::abs(matrix[r][c]));
-                    if (matrix[r][c] < 0) {
-                        sum -= matrix[r][c];
-                        ++negCnt;
-                    }
-                    else {
-                        sum += matrix[r][c];
-                    }
-                }
+        for (const auto& row : matrix) {
+            for (int val : row) {
+                negCnt += (val < 0);
+                int absVal = std::abs(val);
+                minAbsVal = std::min(minAbsVal, absVal);
+                ret += absVal;
             }
+        }
+        if (negCnt & 1) {
+            ret -= 2 * minAbsVal;
         }
 
-        if (anyZero) {
-            return sum;
-        }
-        else {
-            if (negCnt & 1) {
-                return sum - 2 * minAbs;
-            }
-            else {
-                return sum;
-            }
-        }
+        return ret;
     }
 };
