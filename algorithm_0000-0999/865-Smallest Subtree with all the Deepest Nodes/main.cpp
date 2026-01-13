@@ -11,81 +11,36 @@
  */
 class Solution {
 public:
-    int height(TreeNode* root) {
-        if (!root) {
-            return 0;
-        }
+    TreeNode* subtreeWithAllDeepest(TreeNode* root) {
+        int height = 0; {
+            queue<TreeNode*> q;
+            if (root) { q.push(root); }
+            for (; !q.empty(); ++height) {
+                for (int i = q.size(); 0 < i--;) {
+                    TreeNode* node = q.front();
+                    q.pop();
 
-        return max(height(root->left), height(root->right)) + 1;
-    }
-
-    TreeNode* subtreeWithAllDeepest_Recursive(TreeNode* root, int height, int depth = 0) {
-        if (!root) {
-            return nullptr;
-        }
-
-        ++depth;
-        if (height <= depth) {
-            return root;
-        }
-
-        TreeNode* lft = subtreeWithAllDeepest_Recursive(root->left, height, depth);
-        TreeNode* rht = subtreeWithAllDeepest_Recursive(root->right, height, depth);
-        if (lft && rht) {
-            return root;
-        }
-        else {
-            return (lft ? lft : rht);
-        }
-    }
-
-    TreeNode* subtreeWithAllDeepest_Iterative(TreeNode* root, int height) {
-        map<TreeNode*, TreeNode*> m; // <node, lowest_common_ancestor>
-
-        // postorder traversal
-        stack<tuple<TreeNode*, int, bool>> stk; // <node, depth, visited>
-        if (root) {
-            stk.emplace(root, 1, false);
-        }
-        while (!stk.empty()) {
-            TreeNode* node = get<0>(stk.top());
-            int depth = get<1>(stk.top());
-            bool visited = get<2>(stk.top());
-            stk.pop();
-
-            if (visited) {
-                if (height <= depth) {
-                    m[node] = node;
+                    if (node->left) { q.push(node->left); }
+                    if (node->right) { q.push(node->right); }
                 }
-                else {
-                    TreeNode* lftLCA = (node->left ? m[node->left] : nullptr);
-                    TreeNode* rhtLCA = (node->right ? m[node->right] : nullptr);
-                    if (lftLCA && rhtLCA) {
-                        m[node] = node;
-                    }
-                    else {
-                        m[node] = (lftLCA ? lftLCA : rhtLCA);
-                    }
-                }
+            }
+        }
+
+        std::function<TreeNode*(TreeNode*, int)> dfs = [&](TreeNode* root, int d) {
+            if (!root || d + 1 == height) {
+                return root;
+            }
+
+            TreeNode* lft = dfs(root->left, d + 1);
+            TreeNode* rht = dfs(root->right, d + 1);
+            if (lft && rht) {
+                return root;
             }
             else {
-                stk.emplace(node, depth, true);
-                if (node->right) {
-                    stk.emplace(node->right, depth + 1, false);
-                }
-                if (node->left) {
-                    stk.emplace(node->left, depth + 1, false);
-                }
+                return lft ? lft : rht;
             }
-        }
+        };
 
-        return m[root];
-    }
-
-    TreeNode* subtreeWithAllDeepest(TreeNode* root) {
-        int h = height(root);
-
-        //return subtreeWithAllDeepest_Recursive(root, h);
-        return subtreeWithAllDeepest_Iterative(root, h);
+        return dfs(root, 0);
     }
 };
