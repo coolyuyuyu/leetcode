@@ -1,28 +1,30 @@
 class Solution {
 public:
     double separateSquares(vector<vector<int>>& squares) {
-        double area = 0.0;
+        double area = 0;
         for (const auto& square : squares) {
-            double l = square[2];
-            area += l * l;
+            int l = square[2];
+            area += 1.0 * l * l;
         }
 
         std::function<double(double)> computeAreaAbove = [&](double sep) {
-            double area = 0;
+            double ret = 0;
             for (const auto& square : squares) {
-                double x = square[0], y = square[1], l = square[2];
-                if (sep < y) {
-                    area += l * l;
+                double y = square[1], l = square[2];
+                if (sep >= y + l) {
                 }
-                else if (sep < y + l) {
-                    area += (y + l - sep) * l;
+                else if (sep > y) {
+                    ret += (y + l - sep) * l;
+                }
+                else {
+                    ret += l * l;
                 }
             }
 
-            return area;
+            return ret;
         };
 
-        double lo = 0, hi = 1e14;
+        double lo = 0, hi = 1e10;
         while (hi - lo > 1e-5) {
             double mid = (lo + hi) / 2;
             if (computeAreaAbove(mid) > area / 2) {
