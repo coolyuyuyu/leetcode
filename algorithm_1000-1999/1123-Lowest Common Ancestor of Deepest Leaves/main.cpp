@@ -12,36 +12,36 @@
 class Solution {
 public:
     TreeNode* recursive1(TreeNode* root) {
-        int maxDep = -1;
-        int maxDepCnt = 0;
-        std::function<void(TreeNode*, int)> dfs1 = [&](TreeNode* root, int dep) {
-            if (!root) { return; }
-            if (dep > maxDep) {
-                maxDep = dep;
-                maxDepCnt = 0;
+        int height = 0; {
+            queue<TreeNode*> q;
+            if (root) { q.push(root); }
+            for (; !q.empty(); ++height) {
+                for (int i = q.size(); 0 < i--;) {
+                    TreeNode* node = q.front();
+                    q.pop();
+
+                    if (node->left) { q.push(node->left); }
+                    if (node->right) { q.push(node->right); }
+                }
             }
-            if (dep == maxDep) {
-                ++maxDepCnt;
+        }
+
+        std::function<TreeNode*(TreeNode*, int)> dfs = [&](TreeNode* root, int d) {
+            if (!root || d + 1 == height) {
+                return root;
             }
-            dfs1(root->left, dep + 1);
-            dfs1(root->right, dep + 1);
+
+            TreeNode* lft = dfs(root->left, d + 1);
+            TreeNode* rht = dfs(root->right, d + 1);
+            if (lft && rht) {
+                return root;
+            }
+            else {
+                return lft ? lft : rht;
+            }
         };
-        dfs1(root, 0);
 
-        TreeNode* ret = nullptr;
-        std::function<int(TreeNode*, int)> dfs2 = [&](TreeNode* root, int dep) {
-            if (!root) { return 0; }
-
-            int cnt = (dep == maxDep ? 1 : 0) + dfs2(root->left, dep + 1) + dfs2(root->right, dep + 1);
-            if (cnt == maxDepCnt && !ret) {
-                ret = root;
-            }
-
-            return cnt;
-        };
-        dfs2(root, 0);
-
-        return ret;
+        return dfs(root, 0);
     }
 
     TreeNode* recursive2(TreeNode* root) {
@@ -64,7 +64,7 @@ public:
     }
 
     TreeNode* lcaDeepestLeaves(TreeNode* root) {
-        //return recursive1(root);
-        return recursive2(root);
+        return recursive1(root);
+        //return recursive2(root);
     }
 };
