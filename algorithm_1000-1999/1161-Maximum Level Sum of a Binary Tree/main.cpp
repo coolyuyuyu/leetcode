@@ -31,34 +31,28 @@ public:
     }
 
     int iterative(TreeNode* root) {
-        queue<TreeNode*> q;
-        if (root) {
-            q.push(root);
-        }
+        int maxSum = INT_MIN;
+        int ret = 0;
 
-        int maxDepth = -1, maxSum = INT_MIN;
-        for (int depth = 0; !q.empty(); ++depth) {
+        queue<TreeNode*> q({root});
+        for (int lvl = 1; !q.empty(); ++lvl) {
             int sum = 0;
-            for (int n = q.size(); 0 < n--;) {
+            for (int i = q.size(); 0 < i--;) {
                 TreeNode* node = q.front();
                 q.pop();
 
                 sum += node->val;
-                if (node->left) {
-                    q.push(node->left);
-                }
-                if (node->right) {
-                    q.push(node->right);
-                }
-            }
 
-            if (maxSum < sum) {
+                if (node->left) { q.push(node->left); }
+                if (node->right) { q.push(node->right); }
+            }
+            if (sum > maxSum) {
                 maxSum = sum;
-                maxDepth = depth;
+                ret = lvl;
             }
         }
 
-        return maxDepth + 1;
+        return ret;
     }
 
     int maxLevelSum(TreeNode* root) {
