@@ -13,34 +13,22 @@ class Solution {
 public:
     int M = 1e9 + 7;
 
-    int topdnDFS(TreeNode* root) {
-        std::function<int(TreeNode*)> computeSum = [&](TreeNode* root) {
-            if (!root) {
-                return 0;
-            }
-
-            root->val += computeSum(root->left) + computeSum(root->right);
-            return root->val;
-        };
-        computeSum(root);
-
-        long long sum = root->val;
-        long long ans = 0;
-        std::function<void(TreeNode*)> calcSplitPdt = [&](TreeNode* root) {
-            if (!root) {
-                return;
-            }
-            ans = std::max(ans, (sum - root->val) * root->val);
-
-            calcSplitPdt(root->right);
-            calcSplitPdt(root->left);
-        };
-        calcSplitPdt(root);
-
-        return ans % M;
-    }
-
     int maxProduct(TreeNode* root) {
-        return topdnDFS(root);
+        std::function<long long(TreeNode*)> dfs1 = [&](TreeNode* root) {
+            if (!root) { return 0LL; }
+            return (dfs1(root->left) + root->val + dfs1(root->right));
+        };
+        long long total = dfs1(root);
+
+        long long ret = LLONG_MIN;
+        std::function<long long(TreeNode*)> dfs2 = [&](TreeNode* root) {
+            if (!root) { return 0LL; }
+            long long sum = (dfs2(root->left) + root->val + dfs2(root->right));
+            ret = std::max(ret, sum * (total - sum));
+            return sum;
+        };
+        dfs2(root);
+
+        return ret % M;
     }
 };
