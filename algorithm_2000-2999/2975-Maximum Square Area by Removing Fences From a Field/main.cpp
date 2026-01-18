@@ -1,7 +1,6 @@
 class Solution {
 public:
     int M = 1e9 + 7;
-
     int maximizeSquareArea(int m, int n, vector<int>& hFences, vector<int>& vFences) {
         std::sort(hFences.begin(), hFences.end());
         hFences.insert(hFences.begin(), 1);
@@ -18,16 +17,16 @@ public:
         vFences.insert(vFences.begin(), 1);
         vFences.insert(vFences.end(), n);
 
-        int maxSide = -1;
+        int maxSide = INT_MIN;
         for (int i = 0; i < vFences.size(); ++i) {
             for (int j = i + 1; j < vFences.size(); ++j) {
                 int side = vFences[j] - vFences[i];
-                if (sides.find(side) != sides.end()) {
-                    maxSide = std::max(maxSide, side);
+                if (side > maxSide && sides.find(side) != sides.end()) {
+                    maxSide = side;
                 }
             }
         }
 
-        return maxSide == -1 ? -1 : (1LL * maxSide * maxSide) % M;
+        return maxSide > INT_MIN ? (1LL * maxSide * maxSide % M): -1;
     }
 };
