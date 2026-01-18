@@ -1,43 +1,40 @@
 class Solution {
 public:
+    vector<pair<int, int>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
+
     int shortestDistance(vector<vector<int>>& maze, vector<int>& start, vector<int>& destination) {
         int m = maze.size(), n = maze.empty() ? 0 : maze[0].size();
-        vector<pair<int, int>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
+        std::function<tuple<int, int, int>(int, int, int, int)> rollAtMost = [&](int r, int c, int dr, int dc) {
+            int cost = 0;
+            for (int x, y; true; r = x, c = y) {
+                x = r + dr, y = c + dc;
+                if (x < 0 || x >= m || y < 0 || y >= n) { break; }
+                if (maze[x][y] == 1) { break; }
+                ++cost;
+            }
+            return make_tuple(r, c, cost);
+        };
 
         bool visited[m][n];
-        for (int r = 0; r < m; ++r) {
-            for (int c = 0; c < n; ++c) {
-                visited[r][c] = false;
-            }
-        }
+        std::fill(&visited[0][0], &visited[0][0] + m * n, false);
 
-        priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, std::greater<tuple<int, int, int>>> pq;
+        priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, std::greater<>> pq; // <dist, r, c>
         pq.emplace(0, start[0], start[1]);
         while (!pq.empty()) {
-            auto [d, r, c] = pq.top();
+            auto [dist, r, c] = pq.top();
             pq.pop();
 
-            if (visited[r][c]) { continue;}
+            if (visited[r][c]) { continue; }
             visited[r][c] = true;
 
             if (r == destination[0] && c == destination[1]) {
-                return d;
+                return dist;
             }
 
             for (const auto& [dr, dc] : dirs) {
-                int z = d, x = r, y = c;
-                while (
-                    0 <= x + dr &&
-                    x + dr < m&&
-                    0 <= y + dc &&
-                    y + dc < n &&
-                    maze[x + dr][y + dc] == 0) {
-                    z += 1;
-                    x += dr, y += dc;
-                }
+                auto [x, y, cost] = rollAtMost(r, c, dr, dc);
                 if (visited[x][y]) { continue; }
-
-                pq.emplace(z, x, y);
+                pq.emplace(dist + cost, x, y);
             }
         }
 
