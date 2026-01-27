@@ -1,21 +1,17 @@
 class Solution {
 public:
     vector<vector<int>> minimumAbsDifference(vector<int>& arr) {
-        sort(arr.begin(), arr.end());
-
-        int minDiff = numeric_limits<int>::max();
-        for (size_t i = 1; i < arr.size(); ++i) {
-            int diff = arr[i] - arr[i - 1];
-            if (diff < minDiff) {
-                minDiff = diff;
-            }
-        }
+        std::sort(arr.begin(), arr.end());
 
         vector<vector<int>> ret;
-        for (size_t i = 1; i < arr.size(); ++i) {
-            int diff = arr[i] - arr[i - 1];
-            if ((arr[i] - arr[i - 1]) == minDiff) {
-                ret.push_back({arr[i - 1], arr[i]});
+        for (int i = 0, n = arr.size(), minDiff = INT_MAX; i + 1 < n; ++i) {
+            int diff = arr[i + 1] - arr[i];
+            if (diff <= minDiff) {
+                if (diff < minDiff) {
+                    ret.clear();
+                    minDiff = diff;
+                }
+                ret.push_back({arr[i], arr[i + 1]});
             }
         }
 
