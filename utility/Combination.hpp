@@ -29,7 +29,7 @@ int comb(int n, int r) {
     int ret = 1;
     for (int i = 0; i < r; ++i) {
         ret *= n - i;
-        ret /= i + 1
+        ret /= i + 1;
     }
     
     return ret;
