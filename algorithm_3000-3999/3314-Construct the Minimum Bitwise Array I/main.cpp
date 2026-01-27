@@ -1,18 +1,16 @@
 class Solution {
 public:
     vector<int> minBitwiseArray(vector<int>& nums) {
-        std::function<int(int)>f = [](int num) {
-            int tmp = num;
-            int cntSecutive1 = 0;
-            while (tmp & 1) {
-                cntSecutive1 += 1;
-                tmp >>= 1;
+        std::function<int(int)> f = [](int num) {
+            int sufCnt1 = 0;
+            for (int tmp = num; tmp & 1; tmp >>= 1) {
+                ++sufCnt1;
             }
-            if (cntSecutive1 == 0) {
+            if (sufCnt1 == 0) {
                 return -1;
             }
 
-            return num & ~(1 << (cntSecutive1 - 1));
+            return num & ~(1 << (sufCnt1 - 1));
         };
 
         int n = nums.size();
