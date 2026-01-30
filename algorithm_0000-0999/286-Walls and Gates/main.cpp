@@ -1,51 +1,34 @@
 class Solution {
 public:
+    vector<pair<int, int>> dirs = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
+
     void wallsAndGates(vector<vector<int>>& rooms) {
-        set<pair<size_t, size_t>> points;
-        size_t rowCnt = rooms.size(), colCnt = rooms.empty() ? 0 : rooms.front().size();
-        for (size_t row = 0; row < rowCnt; ++row) {
-            for (size_t col = 0; col < colCnt; ++col) {
-                if (rooms[row][col] == 0) {
-                    points.emplace(row, col);
+        int m = rooms.size(), n = rooms.empty() ? 0 : rooms[0].size();
+
+        queue<pair<int, int>> q;
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                if (rooms[r][c] == 0) {
+                    q.emplace(r, c);
                 }
             }
         }
 
-        // BFS
-        int distance = 0;
-        while (!points.empty()) {
-            for (const pair<size_t, size_t>& point : points) {
-                size_t row = point.first, col = point.second;
-                rooms[row][col] = distance;
-            }
+        for (int d = 1; !q.empty(); ++d) {
+            for (int i = q.size(); 0 < i--;) {
+                auto [r, c] = q.front();
+                q.pop();
 
-            set<pair<size_t, size_t>> pointsTmp;
-            for (const pair<size_t, size_t>& point : points) {
-                size_t row = point.first, col = point.second;
-
-                // lft
-                if (0 < row && rooms[row - 1][col] == INT_MAX) {
-                    pointsTmp.emplace(row - 1, col);
-                }
-
-                // upr
-                if (0 < col && rooms[row][col - 1] == INT_MAX) {
-                    pointsTmp.emplace(row, col - 1);
-                }
-
-                // rht
-                if (col + 1 < colCnt && rooms[row][col + 1] == INT_MAX) {
-                    pointsTmp.emplace(row, col + 1);
-                }
-
-                // btm
-                if (row + 1 < rowCnt && rooms[row + 1][col] == INT_MAX) {
-                    pointsTmp.emplace(row + 1, col);
+                for (const auto& [dr, dc] : dirs) {
+                    int x = r + dr, y = c + dc;
+                    if (x < 0 || x >= m || y < 0 || y >= n) { continue; }
+                    if (rooms[x][y] == -1) { continue; }
+                    if (d < rooms[x][y]) {
+                        rooms[x][y] = d;
+                        q.emplace(x, y);
+                    }
                 }
             }
-            points.swap(pointsTmp);
-
-            ++distance;
         }
     }
 };
