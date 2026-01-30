@@ -5,6 +5,7 @@ public:
         int scores[] = {0, 1, 2};
         int costs[] = {0, 1, 1};
 
+        // dp[r][c][x]: the maximal score of a valid path from (0, 0) to (r, c) where cost = x
         int dp[m][n][k + 1];
         for (int r = 0; r < m; ++r) {
             for (int c = 0; c < n; ++c) {
