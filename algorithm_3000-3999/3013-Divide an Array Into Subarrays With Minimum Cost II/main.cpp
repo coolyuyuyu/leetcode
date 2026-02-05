@@ -5,6 +5,7 @@ public:
 
         int n = nums.size();
         --k;
+        int len = dist + 1;
 
         multiset<int> ms1, ms2;
         long long sum = 0;
@@ -13,31 +14,31 @@ public:
             ms1.insert(nums[i]);
             sum += nums[i];
             if (ms1.size() > k) {
-                auto itr = std::prev(ms1.end());
-                sum -= *itr;
-                ms2.insert(*itr);
-                ms1.erase(itr);
+                auto itr1 = std::prev(ms1.end());
+                ms2.insert(*itr1);
+                sum -= *itr1;
+                ms1.erase(itr1);
             }
 
-            if (i >= dist + 1) {
+            if (i >= len) {
                 ret = std::min(ret, sum);
 
-                int toErase = nums[i - dist];
+                int toErase = nums[i + 1 - len];
                 if (ms2.find(toErase) != ms2.end()) { // in ms2
                     ms2.erase(ms2.find(toErase));
                 }
                 else { // in ms1
                     ms1.erase(ms1.find(toErase));
                     sum -= toErase;
-
                     if (!ms2.empty()) {
-                        auto itr = ms2.begin();
-                        sum += *itr;
-                        ms1.insert(*itr);
-                        ms2.erase(itr);
+                        auto itr2 = ms2.begin();
+                        sum += *itr2;
+                        ms1.insert(*itr2);
+                        ms2.erase(itr2);
                     }
                 }
             }
+
         }
 
         return nums[0] + ret;
