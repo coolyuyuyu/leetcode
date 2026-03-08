@@ -5,7 +5,7 @@ public:
             for (int c = 0; c < words[r].size(); ++c) {
                 if (c >= words.size() ||
                     r >= words[c].size() ||
-                    words[r][c] != words[c][r]) {
+                    words[c][r] != words[r][c]) {
                     return false;
                 }
             }
