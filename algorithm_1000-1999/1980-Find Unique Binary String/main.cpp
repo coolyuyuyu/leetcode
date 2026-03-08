@@ -1,44 +1,50 @@
 class Solution {
 public:
     string byRecursion(vector<string>& nums) {
-        int n = nums.size();
-
         unordered_set<int> numSet;
-        for (const auto& s : nums) {
-            numSet.insert(std::stoi(s, nullptr, 2));
+        for (const string& s : nums) {
+            int num;
+            std::from_chars(s.data(), s.data() + s.size(), num, 2);
+            numSet.insert(num);
         }
 
-        string s;
-        std::function<bool()> f = [&]() {
-            if (s.size() >= n) {
-                return numSet.find(std::stoi(s, nullptr, 2)) == numSet.end();
+        int n = nums.size();
+
+        int num = 0;
+        std::function<bool(int)> f = [&](int i) {
+            if (i >= n) {
+                return numSet.find(num) == numSet.end();
             }
 
-            for (char c : {'0', '1'}) {
-                s.push_back(c);
-                if (f()) {
+            for (int d : {0, 1}) {
+                num = (num << 1) + d;
+                if (f(i + 1)) {
                     return true;
                 }
-                s.pop_back();
+                num >>= 1;
             }
+
             return false;
         };
-        f();
+        f(0);
 
-        return s;
+        return std::bitset<16>(num).to_string().substr(16 - n);
     }
 
     string byRandom(vector<string>& nums) {
-        int n = nums.size();
-
         unordered_set<int> numSet;
-        for (const auto& s : nums) {
-            numSet.insert(std::stoi(s, nullptr, 2));
+        for (const string& s : nums) {
+            int num;
+            std::from_chars(s.data(), s.data() + s.size(), num, 2);
+            numSet.insert(num);
         }
+
+        int n = nums.size();
 
         int num;
         do {
-            num = std::rand() % (int)pow(2, n);
+            num = std::rand() % (int)std::pow(2, n);
+
         } while (numSet.find(num) != numSet.end());
 
         return std::bitset<16>(num).to_string().substr(16 - n);
@@ -57,7 +63,7 @@ public:
 
     string findDifferentBinaryString(vector<string>& nums) {
         //return byRecursion(nums);
-        //return byRandom(nums);
-        return byCantorDiagonalArgument(nums);
+        return byRandom(nums);
+        //return byCantorDiagonalArgument(nums);
     }
 };
