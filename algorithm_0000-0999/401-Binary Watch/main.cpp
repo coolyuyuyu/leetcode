@@ -1,51 +1,40 @@
 class Solution {
 public:
-    vector<string> readBinaryWatch(int num) {
-        vector<int> quantities = {1, 2, 4 , 8, 16 ,32, 60, 120, 240, 480};
+    vector<string> readBinaryWatch(int turnedOn) {
+        if (turnedOn == 0) {
+            return {"0:00"};
+        }
 
-        struct Node {
-            Node(int s, int c, int i)
-                : sum(s)
-                , count(c)
-                , index(i)
-            {}
-            int sum;
-            int count;
-            int index;
+        std::function<string(int)> f = [](int mask) {
+            int hr = mask >> 6;
+            if (hr > 11) { return string(""); }
+            int min = mask & 0b111111;
+            if (min > 59) { return string(""); }
+
+            string hrStr = std::to_string(hr);
+            string minStr = std::to_string(min);
+            if (minStr.size() == 1) { minStr = "0" + minStr; }
+
+            return hrStr + ":" + minStr;
         };
 
-        unordered_set<int> results;
-        stack<Node> stk;
-        stk.push(Node(0, 0, 0));
-        while (!stk.empty()) {
-            Node node = stk.top();
-            stk.pop();
-            
-            if (node.index == 6 && 60 <= node.sum) {
-                continue;
+        vector<string> ret;
+
+        // Gosper's hack: Iterate all the m-bit state where there are k 1-bits.
+        int m = 10, k = turnedOn;
+        int state = (1 << k) - 1;
+        while (state < (1 << m)) {
+            // DoSomething(state);
+            string t = f(state);
+            if (!t.empty()) {
+                ret.push_back(t);
             }
 
-            if (node.count == num) {
-                results.insert(node.sum);
-            }
-            else {
-                if (num <= (quantities.size() - node.index + node.count)) {
-                    stk.push(Node(node.sum + quantities[node.index], node.count + 1, node.index + 1));
-                    stk.push(Node(node.sum, node.count, node.index + 1));
-                }
-            }
+            int c = state & -state;
+            int r = state + c;
+            state = (((r ^ state) >> 2) / c) | r;
         }
 
-        vector<string> times;
-        times.reserve(results.size());
-        for (unordered_set<int>::const_iterator iter = results.begin(); iter != results.end(); ++iter) {
-            if (*iter < 720) {
-                ostringstream oss;
-                oss << (*iter / 60) << ":" << setfill('0') << setw(2) << (*iter % 60);
-                times.push_back(oss.str());
-            }
-        }
-
-        return times;
+        return ret;
     }
 };
