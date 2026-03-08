@@ -12,9 +12,9 @@ public:
     }
 
     uint32_t lftrht_swap(uint32_t n) {
-        for (int lft = 0, rht = 31; lft < rht; ++lft, --rht) {
-            if (((n >> lft) & 1) != ((n >> rht) & 1)) {
-                n ^= ((1 << lft) | (1 << rht));
+        for (int l = 0, r = 31; l < r; ++l, --r) {
+            if (((n >> l) & 1) != ((n >> r) & 1)) {
+                n ^= (1 << l) | (1 << r);
             }
         }
 
