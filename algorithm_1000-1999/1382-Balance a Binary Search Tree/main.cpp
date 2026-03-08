@@ -12,26 +12,26 @@
 class Solution {
 public:
     TreeNode* balanceBST(TreeNode* root) {
-        vector<int> vals;
+        vector<TreeNode*> nodes;
         std::function<void(TreeNode*)> traverse = [&](TreeNode* root) {
             if (!root) { return; }
 
             traverse(root->left);
-            vals.push_back(root->val);
+            nodes.push_back(root);
             traverse(root->right);
         };
         traverse(root);
 
-        std::function<TreeNode*(int, int)> build = [&](int lft, int rht) -> TreeNode* {
-            if (lft > rht) { return nullptr; }
+        std::function<TreeNode*(int, int)> build = [&](int lo, int hi) -> TreeNode* {
+            if (lo > hi) { return nullptr; }
 
-            int mid = lft + (rht - lft) / 2;
-            TreeNode* root = new TreeNode(vals[mid]);
-            root->left = build(lft, mid - 1);
-            root->right = build(mid + 1, rht);
+            int mid = lo + (hi - lo) / 2;
+            TreeNode* root = nodes[mid];
+            root->left = build(lo, mid - 1);
+            root->right = build(mid + 1, hi);
             return root;
         };
 
-        return build(0, vals.size() - 1);
+        return build(0, nodes.size() - 1);
     }
 };
