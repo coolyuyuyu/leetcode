@@ -1,26 +1,24 @@
 class Solution {
 public:
-    // https://www.geeksforgeeks.org/number-subarrays-sum-exactly-equal-k
     int subarraySum(vector<int>& nums, int k) {
-        int numSubArrs = 0;
+        int ret = 0;
 
-        unordered_map<int, int> m; // <sum, number of subArray (from 1st to some in middle) equal to sum>
-
-        int sum = 0;
+        unordered_map<int, int> presum2cnt;
+        int presum = 0;
         for (int num : nums) {
-            sum += num;
-            if (sum == k) {
-                ++numSubArrs;
+            presum += num;
+            if (presum == k) {
+                ++ret;
             }
 
-            auto itr = m.find(sum - k);
-            if (itr != m.end()) {
-                numSubArrs += itr->second;
+            auto itr = presum2cnt.find(presum - k);
+            if (itr != presum2cnt.end()) {
+                ret += itr->second;
             }
 
-            ++m[sum];
+            ++presum2cnt[presum];
         }
 
-        return numSubArrs;
+        return ret;
     }
 };
