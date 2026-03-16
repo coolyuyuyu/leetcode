@@ -1,6 +1,6 @@
 class Solution {
 public:
-    int bitwiseComplement(int n) {
+    int f1(int n) {
         if (n == 0) { return 1; }
 
         int ret = n;
@@ -9,5 +9,16 @@ public:
         }
 
         return ret;
+    }
+
+    int f2(int n) {
+        if (n == 0) { return 1; }
+        int lz = __builtin_clz(n);
+        return n ^ ((1 << (32 - lz)) - 1);
+    }
+
+    int bitwiseComplement(int n) {
+        //return f1(n);
+        return f2(n);
     }
 };
