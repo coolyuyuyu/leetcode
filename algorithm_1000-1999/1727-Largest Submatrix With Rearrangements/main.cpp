@@ -5,22 +5,18 @@ public:
 
         int heights[n];
         std::fill(heights, heights + n, 0);
+
         int ret = 0;
-        for (int i = 0; i < m; ++i) {
-            for (int j = 0; j < n; ++j) {
-                if (matrix[i][j]) {
-                    heights[j] += 1;
-                }
-                else {
-                    heights[j] = 0;
-                }
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                heights[c] = (matrix[r][c] == 1 ? (heights[c] + 1) : 0);
             }
 
             int tmp[n];
             std::copy(heights, heights + n, tmp);
             std::sort(tmp, tmp + n, std::greater<int>());
-            for (int j = 0; j < n; ++j) {
-                ret = std::max(ret, tmp[j] * (j + 1));
+            for (int c = 0; c < n; ++c) {
+                ret = std::max(ret, tmp[c] * (c + 1));
             }
         }
 
