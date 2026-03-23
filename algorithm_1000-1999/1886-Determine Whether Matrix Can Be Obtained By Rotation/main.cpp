@@ -1,25 +1,17 @@
 class Solution {
 public:
     bool findRotation(vector<vector<int>>& mat, vector<vector<int>>& target) {
-        size_t n = mat.size();
+        int n = mat.size();
 
-        bitset<4> bits("1111");
-        for (size_t i = 0; i < n; ++i) {
-            for (size_t j = 0; j < n; ++j) {
-                if (bits[0] && target[i][j] != mat[i][j]) { // 0
-                    bits[0] = false;
-                }
-                if (bits[1] && target[i][j] != mat[j][n - i - 1]) { // 90
-                    bits[1] = false;
-                }
-                if (bits[2] && target[i][j] != mat[n - i - 1][n - j - 1]) { // 180
-                    bits[2] = false;
-                }
-                if (bits[3] && target[i][j] != mat[n - j - 1][i]) { // 270
-                    bits[3] = false;
-                }
+        bitset<4> flags("1111");
+        for (int r = 0; r < n; ++r) {
+            for (int c = 0; c < n; ++c) {
+                if (mat[r][c] != target[r][c]) { flags[0] = false; } // rotate 0
+                if (mat[c][n - r - 1] != target[r][c]) { flags[1] = false; } // rotate 90
+                if (mat[n - r - 1][n - c - 1] != target[r][c]) { flags[2] = false; } // rotate 180
+                if (mat[n - c - 1][r] != target[r][c]) { flags[3] = false; } // rotate 270
 
-                if (bits.none()) {
+                if (flags.none()) {
                     return false;
                 }
             }
