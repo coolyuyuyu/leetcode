@@ -4,13 +4,19 @@ public:
         int m = mat.size(), n = mat.empty() ? 0 : mat[0].size();
         k %= n;
 
-        for (int i = 0; i < m; ++i) {
-            for (int j = 0; j < n; ++j) {
-                if (i & 1) { // odd
-                    if (mat[i][j] != mat[i][(j - k + n) % n]) { return false; }
+        for (int r = 0; r < m; ++r) {
+            if (r & 1) {
+                for (int c = 0; c < n; ++c) {
+                    if (mat[r][c] != mat[r][(c - k + n) % n]) {
+                        return false;
+                    }
                 }
-                else {
-                    if (mat[i][j] != mat[i][(j + k) % n]) { return false; }
+            }
+            else {
+                for (int c = 0; c < n; ++c) {
+                    if (mat[r][c] != mat[r][(c + k ) % n]) {
+                        return false;
+                    }
                 }
             }
         }
