@@ -41,7 +41,7 @@ for (int i = 1; i < n; ++i) {
     factorial[i] = 1L * factorial[i - 1] * i % M;
 }
 
-std::function<int(int, int)> quickPow = [&](int base, int exp) {
+std::function<int(int, int)> quickPow = [&](int base, int exp) -> int {
     int ret = 1;
     for (; exp; exp >>= 1) {
         if (exp & 1) {
@@ -64,7 +64,7 @@ std::function<int(int, int)> quickPow = [&](int base, int exp) {
 
 
 // Version 3: C(n, r) = n! / (r! * (n - r)!)
-std::function<int(int, int)> comb = [&](int m, int n) {
+std::function<int(int, int)> comb = [&](int m, int n) -> int {
     if (m < n) { return 0; }
     int a = factorial[m];
     int b = 1L * factorial[n] * factorial[m - n] % M;
