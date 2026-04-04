@@ -4,32 +4,29 @@ public:
         int n = lcp.size();
 
         string s(n, '\0');
-        int i = 0;
-        for (char c = 'a'; c <= 'z'; ++c) {
-            for (; i < n && s[i] != '\0'; ++i) {
-                ;
-            }
-            if (n <= i) {
-                break;
-            }
 
-            for (int j = 0; j < n; ++j) {
-                if (0 < lcp[i][j]) {
+        int i = 0;
+        for (char c = 'a'; c <= 'z' && i < n; ++c) {
+            while (i < n && s[i] != '\0') {
+                ++i;
+            }
+            for (int j = i; j < n; ++j) {
+                if (lcp[i][j] > 0) {
                     s[j] = c;
                 }
             }
         }
-        if (s.find('\0') != string::npos) {
+        if (s.find('\0', i) != string::npos) {
             return "";
         }
 
-        vector<vector<int>> dp(n, vector<int>(n, 0));
+        int dp[n][n];
+        std::fill(&dp[0][0], &dp[0][0] + n * n, 0);
         for (int i = n; 0 < i--;) {
             for (int j = n; 0 < j--;) {
                 if (s[i] == s[j]) {
-                    dp[i][j] = (i == n-1 || j == n-1) ? 1 : (dp[i + 1][j + 1] + 1);
+                    dp[i][j] = 1 + ((i + 1 == n || j + 1 == n) ? 0 : dp[i + 1][j + 1]);
                 }
-
                 if (dp[i][j] != lcp[i][j]) {
                     return "";
                 }
