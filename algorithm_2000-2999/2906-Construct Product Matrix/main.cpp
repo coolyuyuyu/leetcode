@@ -5,42 +5,33 @@ public:
     vector<vector<int>> constructProductMatrix(vector<vector<int>>& grid) {
         int m = grid.size(), n = grid.empty() ? 0 : grid[0].size();
 
-        int lftPdt[m][n], rhtPdt[m][n];
+        int rowPdts[m];
         for (int r = 0; r < m; ++r) {
-            grid[r][0] %= M;
-            std::partial_sum(
-                &(grid[r][0]),
-                &(grid[r][n]),
-                &(lftPdt[r][0]),
-                [&](int x, int y) { return (x  * (y % M)) % M; });
-
-            grid[r][n - 1] %= M;
-            std::partial_sum(
-                std::make_reverse_iterator(&(grid[r][n])),
-                std::make_reverse_iterator(&(grid[r][0])),
-                std::make_reverse_iterator(&(rhtPdt[r][n])),
-                [&](int x, int y) { return (x  * (y % M)) % M; });
+            rowPdts[r] = std::accumulate(&grid[r][0], &grid[r][n], 1, [&](int x, int y){
+                return x * (y % M) % M; });
         }
-
-        int rowTopPdt[m], rowBtmPdt[m];
-        rowTopPdt[0] = rhtPdt[0][0];
-        for (int r = 1; r < m; ++r) {
-            rowTopPdt[r] = (rowTopPdt[r - 1] * rhtPdt[r][0]) % M;
-        }
-        rowBtmPdt[m - 1] = rhtPdt[m - 1][0];
-        for (int r = m - 1; 0 < r--;) {
-            rowBtmPdt[r] = (rowBtmPdt[r + 1] * rhtPdt[r][0]) % M;
+        int topPdts[m], btmPdts[m];
+        for (int r = 0; r < m; ++r) {
+            topPdts[r] = (r > 0 ? topPdts[r - 1] : 1) * rowPdts[r] % M;
+            btmPdts[m - r - 1] = (r > 0 ? btmPdts[m - r] : 1) * rowPdts[m - r - 1] % M;
         }
 
         vector<vector<int>> ret(m, vector<int>(n));
         for (int r = 0; r < m; ++r) {
+            int x = 1;
+            x = x * (r > 0 ? topPdts[r - 1] : 1) % M;
+            x = x * (r + 1 < m ? btmPdts[r + 1] : 1) % M;
+
+            int prePdts[n], sufPdts[n];
             for (int c = 0; c < n; ++c) {
-                int x = 1;
-                x = (x * (r > 0 ? rowTopPdt[r - 1] : 1)) % M;
-                x = (x * (c > 0 ? lftPdt[r][c - 1] : 1)) % M;
-                x = (x * (c + 1 < n ? rhtPdt[r][c + 1] : 1)) % M;
-                x = (x * (r + 1 < m ? rowBtmPdt[r + 1] : 1)) % M;
-                ret[r][c] = x;
+                prePdts[c] = (c > 0 ? prePdts[c - 1] : 1) * (grid[r][c] % M) % M;
+                sufPdts[n - c - 1] = (c > 0 ? sufPdts[n - c] : 1) * (grid[r][n - c - 1] % M) % M;
+            }
+            for (int c = 0; c < n; ++c) {
+                int y = x;
+                y = y * (c > 0 ? prePdts[c - 1] : 1) % M;
+                y = y * (c + 1 < n ? sufPdts[c + 1] : 1) % M;
+                ret[r][c] = y;
             }
         }
 
