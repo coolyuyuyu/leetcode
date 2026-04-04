@@ -1,26 +1,24 @@
 class Solution {
 public:
-    vector<int> killProcess(vector<int>& pidArr, vector<int>& ppidArr, int kill) {
-        unordered_multimap<int, int> childs;
-        for (size_t i = 0, n = pidArr.size(); i < n; ++i) {
-            childs.emplace(ppidArr[i], pidArr[i]);
+    vector<int> killProcess(vector<int>& pid, vector<int>& ppid, int kill) {
+        unordered_map<int, vector<int>> id2childs;
+        for (int i = 0, n = pid.size(); i < n; ++i) {
+            int cur = ppid[i], nxt = pid[i];
+            id2childs[cur].push_back(nxt);
         }
 
-        vector<int> vals;
-
-        queue<int> q({kill});
-        while (!q.empty()) {
-            int parent = q.front();
+        vector<int> ret;
+        for (queue<int> q({kill}); !q.empty();) {
+            int cur = q.front();
             q.pop();
 
-            vals.push_back(parent);
+            ret.push_back(cur);
 
-            auto range = childs.equal_range(parent);
-            for (auto itr = range.first; itr != range.second; ++itr) {
-                q.push(itr->second);
+            for (int nxt : id2childs[cur]) {
+                q.push(nxt);
             }
         }
 
-        return vals;
+        return ret;
     }
 };
