@@ -1,28 +1,22 @@
 class Solution {
 public:
     vector<long long> distance(vector<int>& nums) {
-        int m = nums.size();
+        int n = nums.size();
 
-        unordered_map<int, vector<int>> num2indexes;
-        for (int i = 0; i < m; ++i) {
-            num2indexes[nums[i]].push_back(i);
+        unordered_map<int, vector<int>> num2idxs;
+        for (int i = 0; i < n; ++i) {
+            num2idxs[nums[i]].push_back(i);
         }
 
-        vector<long long> ret(m);
-        for (const auto& [_, indexes] : num2indexes) {
-            int n = indexes.size();
-
-            long long sum = 0;
-            for (int i = 1; i < n; ++i) {
-                sum += (indexes[i] - indexes[0]);
+        vector<long long> ret(n);
+        for (const auto& [_, idxs] : num2idxs) {
+            for (int i = 1; i < idxs.size(); ++i) {
+                ret[idxs[0]] += idxs[i] - idxs[0];
             }
-            ret[indexes[0]] = sum;
 
-            for (int i = 1; i < n; ++i) {
-                int diff = indexes[i] - indexes[i - 1];
-                sum += (i) * diff;
-                sum -= (n - i) * diff;
-                ret[indexes[i]] = sum;
+            for (int i = 1; i < idxs.size(); ++i) {
+                long long d = idxs[i] - idxs[i - 1];
+                ret[idxs[i]] = ret[idxs[i - 1]] + d * i - d * (idxs.size() - i);
             }
         }
 
