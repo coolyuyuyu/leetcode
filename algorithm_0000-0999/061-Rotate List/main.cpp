@@ -15,22 +15,25 @@ public:
             return head;
         }
 
-        int len = 0;
-        ListNode** ppTail = &head;
-        while (*ppTail) {
-            ppTail = &((*ppTail)->next);
-            ++len;
+        ListNode** ppNode = &head;
+        int n = 0;
+        for (; *ppNode; ++n) {
+            ppNode = &((*ppNode)->next);
         }
-        *ppTail = head;
-        k = len - k % len;
+        k = n - k % n;
 
-        ppTail = &head;
+        // link the tail to head
+        *ppNode = head;
+
+        // find new head
+        ppNode = &head;
         while (0 < k--) {
-            ppTail = &((*ppTail)->next);
+            ppNode = &((*ppNode)->next);
         }
+        head = *ppNode;
 
-        head = *ppTail;
-        *ppTail = nullptr;
+        // break link from new head to previous
+        *ppNode = nullptr;
 
         return head;
     }
