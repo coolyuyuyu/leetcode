@@ -7,14 +7,16 @@ public:
             graph[a].push_back(b);
         }
 
-        int status[n]; // -1: none, 0: processing, 1: done and end at destination
+        int status[n]; // -1: none, 0: visiting, 1: all poutgoing path ends at destination
         std::fill(status, status + n, -1);
         std::function<bool(int)> dfs = [&](int u) {
             if (graph[u].empty()) {
-                return u == destination;
+                return (u == destination);
             }
-            if (status[u] != -1) {
-                return status[u] == 1;
+            switch (status[u]) {
+                case -1: break;
+                case 0: return false;
+                case 1: return true;
             }
 
             status[u] = 0;
@@ -23,8 +25,8 @@ public:
                     return false;
                 }
             }
-
             status[u] = 1;
+
             return true;
         };
 
