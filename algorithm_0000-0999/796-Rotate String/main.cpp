@@ -1,6 +1,10 @@
 class Solution {
 public:
     bool rotateString(string s, string goal) {
+        if (s.size() != goal.size()) {
+            return false;
+        }
+
         int n = s.size();
         std::function<bool(int)> f = [&](int i) {
             for (int cnt = 0; cnt < n; ++cnt, i = (i + 1) % n) {
