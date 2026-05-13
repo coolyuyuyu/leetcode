@@ -1,20 +1,21 @@
 class Solution {
 public:
     int furthestDistanceFromOrigin(string moves) {
-        int empty = 0;
-        int pos = 0;
-        for (char c : moves) {
-            if (c == 'L') {
-                pos -= 1;
-            }
-            else if (c == 'R') {
-                pos += 1;
-            }
-            else {
-                empty += 1;
+        int ret = 0, empty = 0;
+        for (char move : moves) {
+            switch (move) {
+                case 'L':
+                    --ret;
+                    break;
+                case 'R':
+                    ++ret;
+                    break;
+                case '_':
+                    ++empty;
+                    break;
             }
         }
 
-        return std::abs(pos) + empty;
+        return std::abs(ret) + empty;
     }
 };
