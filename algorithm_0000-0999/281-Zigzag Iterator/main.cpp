@@ -1,34 +1,28 @@
 class ZigzagIterator {
 public:
-    ZigzagIterator(vector<int>& v1, vector<int>& v2)
-    {
-        if (!v1.empty()) {
-            m_iterPairs.push(make_pair(v1.begin(), v1.end()));
-        }
-        if (!v2.empty()) {
-            m_iterPairs.push(make_pair(v2.begin(), v2.end()));
-        }
+    ZigzagIterator(vector<int>& v1, vector<int>& v2) {
+        if (!v1.empty()) { m_queue.emplace(v1.begin(), v1.end()); };
+        if (!v2.empty()) { m_queue.emplace(v2.begin(), v2.end()); };
     }
 
     int next() {
-        pair<vector<int>::const_iterator, vector<int>::const_iterator> iterPair = m_iterPairs.front();
-        m_iterPairs.pop();
+        auto [itr, end] = m_queue.front();
+        m_queue.pop();
 
-        int val = *(iterPair.first);
-        ++iterPair.first;
-        if (iterPair.first != iterPair.second) {
-            m_iterPairs.push(iterPair);
+        int ret = *itr++;
+        if (itr != end) {
+            m_queue.emplace(itr, end);
         }
 
-        return val;
+        return ret;
     }
 
     bool hasNext() {
-        return !m_iterPairs.empty();
+        return !m_queue.empty();
     }
 
 private:
-    queue<pair<vector<int>::const_iterator, vector<int>::const_iterator>> m_iterPairs;
+    queue<pair<vector<int>::iterator, vector<int>::iterator>> m_queue;
 };
 
 /**
