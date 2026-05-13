@@ -1,20 +1,12 @@
 class Solution {
 public:
     int getMinDistance(vector<int>& nums, int target, int start) {
-        int dist = 0;
-        for (; 0 <= (start - dist) || (start + dist) < nums.size(); ++dist) {
-            if (0 <= (start - dist)) {
-                if (nums[start - dist] == target) {
-                    break;
-                }
-            }
-            if ((start + dist) < nums.size()) {
-                if (nums[start + dist] == target) {
-                    break;
-                }
-            }
+        for (int lft = start, rht = start, n = nums.size(); lft >= 0 || rht < n; --lft, ++rht) {
+            if (lft >= 0 && nums[lft] == target) { return start - lft; }
+            if (rht < n && nums[rht] == target) { return rht - start; }
         }
 
-        return dist;
+        std::unreachable();
+        return -1;
     }
 };
