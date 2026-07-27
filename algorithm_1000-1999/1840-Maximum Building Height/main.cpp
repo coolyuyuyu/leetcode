@@ -11,13 +11,16 @@ public:
         for (int i = 1; i < m; ++i) {
             h[i] = std::min(restrictions[i][1], h[i - 1] + restrictions[i][0] - restrictions[i - 1][0]);
         }
-        for (int i = m - 1; 0 < i--;) {
+        for (int i = m - 2; i >= 0; --i) {
             h[i] = std::min(h[i], h[i + 1] + restrictions[i + 1][0] - restrictions[i][0]);
         }
 
         int ret = 0;
         for (int i = 1; i < m; ++i) {
-            ret = max(ret, (h[i - 1]+h[i] - (restrictions[i - 1][0] - restrictions[i][0])) / 2);
+            // peak: h[i - 1] + x == hi[i] + y
+            // restrictions[i - 1][0] + x == restrictions[i][0] - y
+            // => peak = (h[i - 1] + h[i] + restrictions[i][0] - restrictions[i - 1][0]) / 2
+            ret = max(ret, (h[i - 1] + h[i] + restrictions[i][0] - restrictions[i - 1][0]) / 2);
         }
         ret = std::max(ret, h[m - 1] + n - restrictions[m - 1][0]);
 
