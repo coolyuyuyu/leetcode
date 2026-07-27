@@ -47,23 +47,21 @@ public:
     int countCompleteComponents(int n, vector<vector<int>>& edges) {
         DisjointSets ds(n);
         for (const auto& edge : edges) {
-            int a = edge[0], b = edge[1];
-            ds.merge(a, b);
+            ds.merge(edge[0], edge[1]);
         }
 
-        unordered_map<int, int> root2edgeCnts;
-        for (int i = 0; i < n; ++i) {
-            if (ds.cardinality(i) == 1) {
-                root2edgeCnts[i] = 0;
+        unordered_map<int, int> root2edgeCnt;
+        for (int v = 0; v < n; ++v) {
+            if (ds.root(v) == v) {
+                root2edgeCnt[v] = 0;
             }
         }
         for (const auto& edge : edges) {
-            int a = edge[0];
-            ++root2edgeCnts[ds.root(a)];
+            ++root2edgeCnt[ds.root(edge[0])];
         }
 
         int ret = 0;
-        for (const auto& [root, edgeCnt] : root2edgeCnts) {
+        for (const auto& [root, edgeCnt] : root2edgeCnt) {
             int nodeCnt = ds.cardinality(root);
             if (nodeCnt * (nodeCnt - 1) / 2 == edgeCnt) {
                 ++ret;
