@@ -15,11 +15,11 @@ public:
                 continue;
             }
 
-            if (low <= num && num <= high) {
+            if (low <= num) {
                 ret.push_back(num);
             }
 
-            if ((num % 10) < 9) {
+            if (num % 10 < 9) {
                 q.push(num * 10 + num % 10 + 1);
             }
         }
