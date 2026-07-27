@@ -7,7 +7,9 @@ public:
         }
 
         int ret = 0;
-        for (int sum = 0; !pq.empty() && (sum + pq.top()) <= coins; sum += pq.top(), pq.pop()) {
+        while (!pq.empty() && coins >= pq.top()) {
+            coins -= pq.top();
+            pq.pop();
             ++ret;
         }
 
