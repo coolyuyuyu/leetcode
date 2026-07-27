@@ -13,23 +13,27 @@
 
 class Solution {
 public:
-    NodeCopy* recursive(Node* root, unordered_map<Node*, NodeCopy*>& cache) {
-        if (!root) {
-            return nullptr;
-        }
-        if (cache.find(root) != cache.end()) {
-            return cache[root];
-        }
+    NodeCopy* recursive(Node* root) {
+        unordered_map<Node*, NodeCopy*> cache;
+        std::function<NodeCopy*(Node*)> f = [&](Node* root) -> NodeCopy* {
+            if (!root) { return nullptr; }
+            if (cache.find(root) != cache.end()) { return cache[root]; }
 
-        NodeCopy* rootCopy = new NodeCopy(root->val);
-        cache[root] = rootCopy;
-        rootCopy->left = recursive(root->left, cache);
-        rootCopy->right = recursive(root->right, cache);
-        rootCopy->random = recursive(root->random, cache);
-        return rootCopy;
+            NodeCopy*& ret = cache[root];
+            ret = new NodeCopy(root->val);
+            ret->left = f(root->left);
+            ret->right = f(root->right);
+            ret->random = f(root->random);
+
+            return ret;
+        };
+
+        return f(root);
     }
 
-    NodeCopy* iterative(Node* root, unordered_map<Node*, NodeCopy*>& cache) {
+    NodeCopy* iterative(Node* root) {
+        unordered_map<Node*, NodeCopy*> cache;
+
         NodeCopy* rootCopy = nullptr;
         stack<pair<Node**, NodeCopy**>> stk({{&root, &rootCopy}});
         while (!stk.empty()) {
@@ -46,7 +50,7 @@ public:
             *ppNodeCopy = cache[*ppNode];
             if ((*ppNode)->random) {
                 if (cache.find((*ppNode)->random) == cache.end()) {
-                    cache[(*ppNode)->random] = new NodeCopy((*ppNode)->random->val);
+                     cache[(*ppNode)->random] = new NodeCopy((*ppNode)->random->val);
                 }
                 (*ppNodeCopy)->random = cache[(*ppNode)->random];
             }
@@ -59,9 +63,7 @@ public:
     }
 
     NodeCopy* copyRandomBinaryTree(Node* root) {
-        unordered_map<Node*, NodeCopy*> cache;
-
-        //return recursive(root, cache);
-        return iterative(root, cache);
+        //return recursive(root);
+        return iterative(root);
     }
 };
