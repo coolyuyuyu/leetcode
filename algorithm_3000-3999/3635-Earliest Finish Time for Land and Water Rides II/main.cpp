@@ -3,26 +3,24 @@ public:
     int earliestFinishTime(vector<int>& landStartTime, vector<int>& landDuration, vector<int>& waterStartTime, vector<int>& waterDuration) {
         int m = landStartTime.size(), n = waterStartTime.size();
 
-        int lEarliestFinished = INT_MAX;
+        int lMin = INT_MAX;
         for (int i = 0; i < m; ++i) {
-            lEarliestFinished = std::min(lEarliestFinished, landStartTime[i] + landDuration[i]);
+            lMin = std::min(lMin, landStartTime[i] + landDuration[i]);
         }
-
-        int lwEarliestFinished = INT_MAX;
+        int lwMin = INT_MAX;
         for (int j = 0; j < n; ++j) {
-            lwEarliestFinished = std::min(lwEarliestFinished, std::max(waterStartTime[j], lEarliestFinished) + waterDuration[j]);
+            lwMin = std::min(lwMin, std::max(lMin, waterStartTime[j]) + waterDuration[j]);
         }
 
-        int wEarliestFinished = INT_MAX;
+        int wMin = INT_MAX;
         for (int j = 0; j < n; ++j) {
-            wEarliestFinished = std::min(wEarliestFinished, waterStartTime[j] + waterDuration[j]);
+            wMin = std::min(wMin, waterStartTime[j] + waterDuration[j]);
         }
-
-        int wlEarliestFinished = INT_MAX;
+        int wlMin = INT_MAX;
         for (int i = 0; i < m; ++i) {
-            wlEarliestFinished = std::min(wlEarliestFinished, std::max(landStartTime[i], wEarliestFinished) + landDuration[i]);
+            wlMin = std::min(wlMin, std::max(wMin, landStartTime[i]) + landDuration[i]);
         }
 
-        return std::min(lwEarliestFinished, wlEarliestFinished);
+        return std::min(lwMin, wlMin);
     }
 };
