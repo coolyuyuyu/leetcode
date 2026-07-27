@@ -3,12 +3,12 @@ public:
     int minimumCost(vector<int>& cost) {
         std::sort(cost.begin(), cost.end());
 
-        int totalCost = 0;
-        for (int n = cost.size(), i = 0; i < n; ++i) {
-            if (i % 3 != n % 3)  {
-                totalCost += cost[i];
-            }
+        int ret = 0;
+        for (int i = 0, target = cost.size() % 3; i < cost.size(); ++i) {
+            if (i % 3 == target) { continue; }
+            ret += cost[i];
         }
-        return totalCost;
+
+        return ret;
     }
 };
