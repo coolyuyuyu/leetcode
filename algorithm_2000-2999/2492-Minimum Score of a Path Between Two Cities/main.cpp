@@ -47,27 +47,25 @@ public:
     }
 
     int byBFS(int n, vector<vector<int>>& roads) {
-        vector<vector<pair<int, int>>> graph(n + 1);
+        vector<pair<int, int>> graph[n + 1];
         for (const auto& road : roads) {
             graph[road[0]].emplace_back(road[1], road[2]);
             graph[road[1]].emplace_back(road[0], road[2]);
         }
 
         int ret = INT_MAX;
-        vector<bool> visited(n + 1);
-        queue<int> q({1});
-        while (!q.empty()) {
-            int node = q.front();
+
+        vector<bool> visited(n + 1, false);
+        visited[1] = true;
+        for (queue<int> q({1}); !q.empty();) {
+            auto u = q.front();
             q.pop();
 
-            if (visited[node]) {
-                continue;
-            }
-            visited[node] = true;
-
-            for (const auto& next : graph[node]) {
-                ret = std::min(ret, next.second);
-                q.push(next.first);
+            for (const auto& [v, w] : graph[u]) {
+                ret = std::min(ret, w);
+                if (visited[v]) { continue; }
+                visited[v] = true;
+                q.emplace(v);
             }
         }
 
