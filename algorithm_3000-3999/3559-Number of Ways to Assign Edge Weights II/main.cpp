@@ -57,7 +57,6 @@ public:
                 if (diff & 1) {
                     v = ancestors[k][v];
                 }
-
             }
 
             if (u == v) {
