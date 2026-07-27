@@ -6,22 +6,21 @@ public:
             ++cnts[c - 'a'];
         }
 
-        string stk;
-        vector<bool> inStk(26, false);
+        string ret;
+        vector<bool> inRet(26, false);
         for (char c : s) {
-            if (inStk[c - 'a'] == false) {
-                while (!stk.empty() && stk.back() > c && cnts[stk.back() - 'a'] > 0) {
-                    inStk[stk.back() - 'a'] = false;
-                    stk.pop_back();
+            --cnts[c - 'a'];
+            if (!inRet[c - 'a']) {
+                while (!ret.empty() && ret.back() > c && cnts[ret.back() - 'a']) {
+                    inRet[ret.back() - 'a'] = false;
+                    ret.pop_back();
                 }
 
-                inStk[c - 'a'] = true;
-                stk.push_back(c);
+                ret += c;
+                inRet[c - 'a'] = true;
             }
+        } 
 
-            --cnts[c - 'a'];
-        }
-
-        return stk;
+        return ret;
     }
 };
