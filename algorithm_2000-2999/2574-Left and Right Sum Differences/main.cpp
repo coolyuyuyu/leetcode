@@ -1,6 +1,6 @@
 class Solution {
 public:
-    vector<int> leftRigthDifference(vector<int>& nums) {
+    vector<int> leftRightDifference(vector<int>& nums) {
         int n = nums.size();
 
         int total = 0;
@@ -12,7 +12,8 @@ public:
 
         vector<int> ret(n);
         for (int i = 0; i < n; ++i) {
-            ret[i] = abs(presum[i] - nums[i] - (total - presum[i]));
+            int lftSum = presum[i] - nums[i], rhtSum = total - presum[i];
+            ret[i] = abs(lftSum - rhtSum);
         }
 
         return ret;
