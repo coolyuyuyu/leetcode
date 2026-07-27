@@ -1,5 +1,16 @@
 class Solution {
 public:
+    int byStrFind(vector<string>& patterns, string word) {
+        int ret = 0;
+        for (const string& pattern : patterns) {
+            if (word.find(pattern) != string::npos) {
+                ++ret;
+            }
+        }
+
+        return ret;
+    }
+
     struct Node {
         array<Node*, 26> childs;
         Node* fail;
@@ -13,8 +24,7 @@ public:
         }
     };
 
-    // Aho-Corasick
-    int numOfStrings(vector<string>& patterns, string word) {
+    int byAhoCorasick(vector<string>& patterns, string word) {
         // build trie
         Node* root = new Node();
         for (const string& pattern : patterns) {
@@ -71,5 +81,10 @@ public:
         }
 
         return ret;
+    }
+
+    int numOfStrings(vector<string>& patterns, string word) {
+        //return byStrFind(patterns, word);
+        return byAhoCorasick(patterns, word);
     }
 };
