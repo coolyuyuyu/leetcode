@@ -1,19 +1,24 @@
 class Solution {
 public:
     int numberOfSubstrings(string s) {
+        int diffCnt = 0;
         vector<int> cnts(3, 0);
 
         int ret = 0;
-        for (int lft = 0, rht = 0, n = s.size(); lft < n; ++lft) {
-            for (; rht < n && std::find(cnts.begin(), cnts.end(), 0) != cnts.end(); ++rht) {
-                ++cnts[s[rht] - 'a'];
+        for (int i = 0, j = 0, n = s.size(); i < n; ++i) {
+            for (; j < n && diffCnt < 3; ++j) {
+                if (++cnts[s[j] - 'a'] == 1) {
+                    ++diffCnt;
+                }
             }
 
-            if (std::find(cnts.begin(), cnts.end(), 0) == cnts.end()) {
-                ret += (n - rht + 1);
+            if (diffCnt == 3) {
+                ret += n - j + 1;
             }
 
-            --cnts[s[lft] - 'a'];
+            if (--cnts[s[i] - 'a'] == 0) {
+                --diffCnt;
+            }
         }
 
         return ret;
