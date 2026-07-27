@@ -16,17 +16,15 @@ public:
         for (const auto& description : descriptions) {
             int parentVal = description[0], childVal = description[1], isLeft = description[2];
 
-            if (nodes.find(parentVal) == nodes.end()) {
-                nodes[parentVal] = new TreeNode(parentVal);
+            TreeNode*& parent = nodes[parentVal];
+            if (!parent) {
+                parent = new TreeNode(parentVal);
             }
-            TreeNode* parent = nodes[parentVal];
-            if (nodes.find(childVal) == nodes.end()) {
-                nodes[childVal] = new TreeNode(childVal);
+            TreeNode*& child = nodes[childVal];
+            if (!child) {
+                child = new TreeNode(childVal);
             }
-            TreeNode* child = nodes[childVal];
-
-            TreeNode** ppChild = &(isLeft ? parent->left: parent->right);
-            *ppChild = child;
+            (isLeft ? parent->left: parent->right) = child;
         }
 
         int rootVal = 0;
