@@ -1,14 +1,13 @@
 class Solution {
 public:
     int maxNumberOfBalloons(string text) {
-        unordered_map<char, int> cnts;
+        vector<int> cnts(26, 0);
         for (char c : text) {
-            ++cnts[c];
+            ++cnts[c - 'a'];
         }
+        cnts['l' - 'a'] /= 2;
+        cnts['o' - 'a'] /= 2;
 
-        cnts['l'] /= 2;
-        cnts['o'] /= 2;
-
-        return std::min({cnts['b'], cnts['a'], cnts['l'], cnts['o'], cnts['n']});
+        return std::min({cnts['b' - 'a'], cnts['a' - 'a'], cnts['l' - 'a'], cnts['o' - 'a'], cnts['n' - 'a']});
     }
 };
