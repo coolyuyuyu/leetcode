@@ -1,21 +1,17 @@
 class Solution {
 public:
     vector<vector<int>> shiftGrid(vector<vector<int>>& grid, int k) {
-        size_t rowCnt = grid.size(), colCnt = (grid.empty() ? 0 : grid.front().size()), n = rowCnt * colCnt;
+        int rowCnt = grid.size(), colCnt = grid[0].size();
+        int n = rowCnt * colCnt;
 
-        auto swap4Grid = [&grid, &colCnt](size_t index1, size_t index2) {
-            swap(grid[index1 / colCnt][index1 % colCnt], grid[index2 / colCnt][index2 % colCnt]);
+        std::function<void(int, int)> swapCell = [&](int i, int j) {
+            std::swap(grid[i / colCnt][i % colCnt], grid[j / colCnt][j % colCnt]);
         };
 
-        size_t front = 0, last = n, middle = (n - k % n) % n;
-        for (size_t next = middle; front != next;) {
-            swap4Grid(front++, next++);
-            if (next == last) {
-                next = middle;
-            }
-            else if (front == middle) {
-                middle = next;
-            }
+        for (int first = 0, last = n, middle = (n - k % n) % n, next = middle; first != next;) {
+            swapCell(first++, next++);
+            if (next == last) { next = middle; }
+            else if (first == middle) { middle = next; }
         }
 
         return grid;
